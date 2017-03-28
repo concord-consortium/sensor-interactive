@@ -1,0 +1,30 @@
+{
+  "name": "sensor-interactive",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/app.tsx",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/concord-consortium/sensor-interactive.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/concord-consortium/sensor-interactive/issues"
+  },
+  "homepage": "https://github.com/concord-consortium/sensor-interactive#readme",
+  "dependencies": {
+    "@types/react": "^15.0.20",
+    "@types/react-dom": "^0.14.23",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2"
+  },
+  "devDependencies": {
+    "awesome-typescript-loader": "^3.1.2",
+    "source-map-loader": "^0.2.0",
+    "typescript": "^2.2.1"
+  }
+}
