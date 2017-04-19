@@ -2,9 +2,19 @@
   "name": "sensor-interactive",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app.tsx",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "copy-public": "ncp src/public/ dist/",
+    "copy-public:watch": "onchange \"src/public/**/*.*\" -v -- npm run copy-public",
+    "webpack": "cross-env NODE_ENV=production webpack",
+    "webpack:watch": "cross-env NODE_ENV=production webpack -w",
+    "dev-webpack": "cross-env NODE_ENV=development webpack",
+    "dev-webpack:watch": "cross-env NODE_ENV=development webpack -w",
+    "browse": "live-server dist/",
+    "build": "npm-run-all --parallel copy-public webpack",
+    "dev-build": "npm-run-all --parallel copy-public dev-webpack",
+    "start": "npm-run-all --parallel copy-public copy-public:watch webpack:watch browse",
+    "dev-start": "npm-run-all --parallel copy-public copy-public:watch dev-webpack:watch browse"
   },
   "repository": {
     "type": "git",
@@ -20,11 +30,17 @@
     "@types/react": "^15.0.20",
     "@types/react-dom": "^0.14.23",
     "react": "^15.4.2",
-    "react-dom": "^15.4.2"
+    "react-dom": "^15.4.2",
+    "@concord-consortium/sensor-connector-interface": "^0.1.0"
   },
   "devDependencies": {
     "awesome-typescript-loader": "^3.1.2",
+    "cross-env": "^4.0.0",
+    "live-server": "^1.2.0",
+    "npm-run-all": "^4.0.2",
+    "onchange": "^3.2.1",
     "source-map-loader": "^0.2.0",
-    "typescript": "^2.2.1"
+    "typescript": "^2.2.1",
+    "webpack": "^2.4.1"
   }
 }
