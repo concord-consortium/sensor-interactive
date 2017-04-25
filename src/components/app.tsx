@@ -1,34 +1,37 @@
 import * as React from "react";
 import { Title } from "./title";
 import { Graph } from "./graph";
+import { Codap } from "./codap";
 import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
+
+const SENSOR_IP = "http://127.0.0.1:11180";
 
 export interface AppProps {};
 
 export interface AppState {
-    sensorActive: boolean;
-};
-
-const SENSOR_IP = "http://127.0.0.1:11180";
-
-export interface AppState {
     sensorActive:boolean,
     sensorValue:number|undefined,
-    sensorData:number[][]
+    sensorData:number[][],
+    collecting:boolean
 }
 
 export class App extends React.Component<AppProps, AppState> {
     
     private sensor:SensorConnectorInterface;
     private sensorColumnLengths:number[] = [];
+    private codap:Codap;
     
     constructor(props: AppProps) {
         super(props);
         this.state = {
             sensorActive:false,
             sensorValue:undefined,
-            sensorData:[[0,0]]
+            sensorData:[], // can't create graph with empty data set
+            collecting:false
         };
+        
+        this.codap = new Codap();
+        
         this.sensor = new SensorConnectorInterface();
         this.sensor.on("*", (e)=> {
             this.setState({
@@ -91,6 +94,10 @@ export class App extends React.Component<AppProps, AppState> {
         }, this);
     }
     
+    sendData() {
+        this.codap.sendData(this.state.sensorData);
+    }
+    
     renderSensorValue() {
         return (
             <div>
@@ -115,6 +122,7 @@ export class App extends React.Component<AppProps, AppState> {
                 <div>
                     <button id="startSensor" onClick={()=>{this.startSensor()}}>Start</button>
                     <button id="stopSensor" onClick={()=>{this.stopSensor()}}>Stop</button>
+                    <button id="sendData" onClick={()=>{this.sendData()}}>Save Data</button>
                 </div>
             </div>
         );

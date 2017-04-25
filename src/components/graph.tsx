@@ -22,17 +22,28 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         }
     }
     
+    // TODO: remove redundant calls
+    checkData(data:number[][]):number[][] {
+        if(data.length == 0) {
+            data = [[0,0]];
+        }
+        return data;
+    }
+    
     update():void {
-        this.dygraph.updateOptions({'file':this.props.data});
+        var data = this.checkData(this.state.data);
+        this.dygraph.updateOptions({'file':data});
     }
     
     componentDidMount() {
-        this.dygraph = new Dygraph("sensor-graph", this.state.data);
+        var data = this.checkData(this.state.data);
+        this.dygraph = new Dygraph("sensor-graph", data);
     }
     
     componentWillReceiveProps(nextProps:GraphProps) {
+        var data = this.checkData(nextProps.data);
         this.setState({
-            data:nextProps.data
+            data:data
         });
         this.update();
     }

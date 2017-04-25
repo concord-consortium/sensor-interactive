@@ -1,14 +1,17 @@
 var webpack = require("webpack");
 
 module.exports = {
-    entry: "./src/app.tsx",
+    entry: {
+        app: "./src/app.tsx",
+        globals: ["react", "react-dom"]
+    },
     output: {
-        filename: "bundle.js",
+        filename: "[name].js",
         path: __dirname + "/dist/assets/js"
     },
 
     // Enable sourcemaps for debugging webpack's output.
-    //devtool: "source-map",
+    devtool: "source-map",
 
     resolve: {
         // Add '.ts' and '.tsx' as resolvable extensions.

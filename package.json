@@ -31,6 +31,7 @@
     "@types/react": "^15.0.20",
     "@types/react-dom": "^0.14.23",
     "dygraphs": "^2.0.0",
+    "iframe-phone": "^1.2.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2"
   },
