@@ -12,25 +12,24 @@ class Codap {
     constructor() {
         this.dataSetName = "sensor_interactive";
         this.dataSetTitle = "Sensor Interactive";
+        this.runIndex = 0;
         this.dataSetTemplate = {
             name: "{name}",
             collections: [
                 {
-                    name: 'sensor_set',
-                    // The parent collection has just one attribute
-                    attrs: [{ name: "set_index", type: 'categorical' }],
+                    name: 'runs',
+                    attrs: [{ name: "Row", type: 'categorical' }],
                 },
                 {
-                    name: 'values',
-                    parent: 'sensor_set',
+                    name: 'measurements',
+                    parent: 'runs',
                     labels: {
-                        pluralCase: "values",
+                        pluralCase: "measurements",
                         setOfCasesWithArticle: "a sample"
                     },
-                    // The child collection also has just one attribute
                     attrs: [
-                        { name: "time", type: 'numeric', precision: 2 },
-                        { name: "value", type: 'numeric', precision: 3 }
+                        { name: "Time", type: 'numeric', precision: 3 },
+                        { name: "Position", type: 'numeric', precision: 4 }
                     ]
                 }
             ]
@@ -62,7 +61,7 @@ class Codap {
         ;
     }
     responseCallback(param) {
-        console.log("codap response: " + param);
+        //console.log("codap response: " + param)
     }
     requestDataContext() {
         return CodapInterface.sendRequest({
@@ -79,18 +78,49 @@ class Codap {
             values: dataSetDef
         }, this.responseCallback);
     }
+    guaranteeCaseTable() {
+        return new Promise((resolve, reject) => {
+            CodapInterface.sendRequest({
+                action: 'get',
+                resource: 'componentList'
+            }, this.responseCallback)
+                .then((iResult) => {
+                if (iResult.success) {
+                    // look for a case table in the list of components.
+                    if (iResult.values && iResult.values.some(function (component) {
+                        return component.type === 'caseTable';
+                    })) {
+                        resolve(iResult);
+                    }
+                    else {
+                        CodapInterface.sendRequest({ action: 'create', resource: 'component', values: {
+                                type: 'caseTable',
+                                dataContext: this.dataSetName
+                            } }, this.responseCallback).then((result) => {
+                            resolve(result);
+                        });
+                    }
+                }
+                else {
+                    reject('api error');
+                }
+            });
+        });
+    }
     sendData(data) {
         // if a sample number has not yet been initialized, do so now.
         if (this.state.sampleNumber === undefined || this.state.sampleNumber === null) {
             this.state.sampleNumber = 0;
         }
+        ++this.runIndex;
         var sampleCount = data.length;
         var sampleIndex = ++this.state.sampleNumber;
         var items = [];
         for (var i = 0; i < sampleCount; i++) {
             var entry = data[i];
-            items.push({ set_index: entry[0], time: entry[0], value: entry[1] });
+            items.push({ Row: this.runIndex, Time: entry[0], Position: entry[1] });
         }
+        this.guaranteeCaseTable();
         return CodapInterface.sendRequest({
             action: 'create',
             resource: 'dataContext[' + this.dataSetName + '].item',
@@ -116,7 +146,8 @@ class Graph extends React.Component {
         super(props);
         this.lastLabel = 0;
         this.state = {
-            data: this.props.data
+            data: this.props.data,
+            xMax: 10
         };
     }
     // TODO: remove redundant calls
@@ -128,11 +159,20 @@ class Graph extends React.Component {
     }
     update() {
         var data = this.checkData(this.state.data);
-        this.dygraph.updateOptions({ 'file': data });
+        this.dygraph.updateOptions({
+            file: data,
+            dateWindow: [0, this.props.xMax]
+        });
     }
     componentDidMount() {
         var data = this.checkData(this.state.data);
-        this.dygraph = new dygraphs_1.default("sensor-graph", data);
+        this.dygraph = new dygraphs_1.default("sensor-graph", data, {
+            dateWindow: [0, this.props.xMax],
+            zoomCallback: (minX, maxX, yRange) => {
+                console.log("zoom: " + minX + " -> " + maxX);
+                this.props.onZoom(Math.ceil(minX), Math.floor(maxX));
+            }
+        });
     }
     componentWillReceiveProps(nextProps) {
         var data = this.checkData(nextProps.data);
@@ -42507,11 +42547,13 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.sensorColumnLengths = [];
+        this.selectionRange = { start: 0, end: undefined };
         this.state = {
             sensorActive: false,
             sensorValue: undefined,
             sensorData: [],
-            collecting: false
+            collecting: false,
+            runLength: 10
         };
         this.codap = new codap_1.Codap();
         this.sensor = new sensor_connector_interface_1.default();
@@ -42535,9 +42577,15 @@ class App extends React.Component {
     }
     startSensor() {
         this.sensor.requestStart();
+        this.setState({
+            collecting: true
+        });
     }
     stopSensor() {
         this.sensor.requestStop();
+        this.setState({
+            collecting: false
+        });
     }
     onSensorData(setId) {
         this.sensor.datasets.forEach(function (dataset) {
@@ -42566,7 +42614,23 @@ class App extends React.Component {
         }, this);
     }
     sendData() {
-        this.codap.sendData(this.state.sensorData);
+        var data = this.state.sensorData.slice();
+        if (this.selectionRange && this.selectionRange.start && this.selectionRange.end) {
+            data = data.slice(this.selectionRange.start, this.selectionRange.end);
+        }
+        this.codap.sendData(data);
+    }
+    newData() {
+        this.setState({ sensorData: [] });
+    }
+    onTimeSelect(event) {
+        console.log("time change: " + event.currentTarget.value);
+        this.setState({ runLength: parseInt(event.currentTarget.value, 10) });
+    }
+    onGraphZoom(xStart, xEnd) {
+        console.log("onGraphZoom");
+        this.selectionRange.start = xStart;
+        this.selectionRange.end = xEnd;
     }
     renderSensorValue() {
         return (React.createElement("div", null,
@@ -42574,7 +42638,24 @@ class App extends React.Component {
             React.createElement("span", null, this.state.sensorActive && this.state.sensorValue)));
     }
     renderGraph() {
-        return React.createElement(graph_1.Graph, { data: this.state.sensorData });
+        return React.createElement(graph_1.Graph, { data: this.state.sensorData, onZoom: (start, end) => { this.onGraphZoom(start, end); }, xMax: this.state.runLength });
+    }
+    renderControls() {
+        var hasData = this.state.sensorData.length > 0;
+        return React.createElement("div", null,
+            React.createElement("select", { id: "timeSelect", onChange: e => this.onTimeSelect(e), value: this.state.runLength },
+                React.createElement("option", { value: "1" }, "1.0"),
+                React.createElement("option", { value: "5" }, "5.0"),
+                React.createElement("option", { value: "10" }, "10.0"),
+                React.createElement("option", { value: "15" }, "15.0"),
+                React.createElement("option", { value: "20" }, "20.0"),
+                React.createElement("option", { value: "30" }, "30.0"),
+                React.createElement("option", { value: "45" }, "45.0"),
+                React.createElement("option", { value: "60" }, "60.0")),
+            React.createElement("button", { id: "startSensor", onClick: () => { this.startSensor(); }, disabled: this.state.collecting }, "Start"),
+            React.createElement("button", { id: "stopSensor", onClick: () => { this.stopSensor(); }, disabled: !this.state.collecting }, "Stop"),
+            React.createElement("button", { id: "sendData", onClick: () => { this.sendData(); }, disabled: !hasData || this.state.collecting }, "Save Data"),
+            React.createElement("button", { id: "newData", onClick: () => { this.newData(); }, disabled: !hasData || this.state.collecting }, "New Run"));
     }
     render() {
         return (React.createElement("div", null,
@@ -42582,10 +42663,7 @@ class App extends React.Component {
                 React.createElement(title_1.Title, null),
                 this.renderSensorValue()),
             this.renderGraph(),
-            React.createElement("div", null,
-                React.createElement("button", { id: "startSensor", onClick: () => { this.startSensor(); } }, "Start"),
-                React.createElement("button", { id: "stopSensor", onClick: () => { this.stopSensor(); } }, "Stop"),
-                React.createElement("button", { id: "sendData", onClick: () => { this.sendData(); } }, "Save Data"))));
+            this.renderControls()));
     }
 }
 exports.App = App;
