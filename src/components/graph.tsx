@@ -2,7 +2,8 @@ import * as React from "react";
 import Dygraph from "dygraphs";
 
 export interface GraphProps {
-    data:number[][]
+    data:number[][],
+    onZoom:Function
 }
 
 export interface GraphState {
@@ -37,7 +38,13 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     
     componentDidMount() {
         var data = this.checkData(this.state.data);
-        this.dygraph = new Dygraph("sensor-graph", data);
+        this.dygraph = new Dygraph("sensor-graph", data, {
+            zoomCallback:(minX:number, maxX:number, yRange:number) => {
+                
+                console.log("zoom: " + minX + " -> " + maxX);
+                this.props.onZoom(Math.ceil(minX), Math.floor(maxX));
+            }
+        });
     }
     
     componentWillReceiveProps(nextProps:GraphProps) {

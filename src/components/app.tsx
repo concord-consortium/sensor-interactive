@@ -20,6 +20,7 @@ export class App extends React.Component<AppProps, AppState> {
     private sensor:SensorConnectorInterface;
     private sensorColumnLengths:number[] = [];
     private codap:Codap;
+    private selectionRange:{start:number,end:number|undefined} = {start:0,end:undefined};
     
     constructor(props: AppProps) {
         super(props);
@@ -101,11 +102,20 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     sendData() {
-        this.codap.sendData(this.state.sensorData);
+        var data = this.state.sensorData.slice();
+        if(this.selectionRange && this.selectionRange.start && this.selectionRange.end) {
+            data = data.slice(this.selectionRange.start, this.selectionRange.end);
+        }
+        this.codap.sendData(data);
     }
     
     newData() {
         this.setState({sensorData:[]});
+    }
+    
+    onGraphZoom(xStart:number, xEnd:number) {
+        this.selectionRange.start = xStart;
+        this.selectionRange.end = xEnd;
     }
     
     renderSensorValue() {
@@ -118,7 +128,7 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     renderGraph() {
-        return <Graph data={this.state.sensorData}/>
+        return <Graph data={this.state.sensorData} onZoom={(start:number,end:number)=>{this.onGraphZoom(start,end)}}/>
     }
     
     renderControls() {
