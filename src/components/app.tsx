@@ -26,7 +26,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.state = {
             sensorActive:false,
             sensorValue:undefined,
-            sensorData:[], // can't create graph with empty data set
+            sensorData:[],
             collecting:false
         };
         
@@ -57,10 +57,16 @@ export class App extends React.Component<AppProps, AppState> {
     
     startSensor() {
         this.sensor.requestStart();
+        this.setState({
+            collecting: true
+        });
     }
     
     stopSensor() {
         this.sensor.requestStop();
+        this.setState({
+            collecting: false
+        });
     }
     
     onSensorData(setId:string) {
@@ -98,6 +104,10 @@ export class App extends React.Component<AppProps, AppState> {
         this.codap.sendData(this.state.sensorData);
     }
     
+    newData() {
+        this.setState({sensorData:[]});
+    }
+    
     renderSensorValue() {
         return (
             <div>
@@ -110,6 +120,24 @@ export class App extends React.Component<AppProps, AppState> {
     renderGraph() {
         return <Graph data={this.state.sensorData}/>
     }
+    
+    renderControls() {
+        var hasData:boolean = this.state.sensorData.length > 0;
+        return <div>
+            <button id="startSensor" 
+                onClick={()=>{this.startSensor()}}
+                disabled={this.state.collecting}>Start</button>
+            <button id="stopSensor" 
+                onClick={()=>{this.stopSensor()}}
+                disabled={!this.state.collecting}>Stop</button>
+            <button id="sendData" 
+                onClick={()=>{this.sendData()}} 
+                disabled={!hasData || this.state.collecting}>Save Data</button>
+            <button id="newData" 
+                onClick={()=>{this.newData()}} 
+                disabled={!hasData || this.state.collecting}>New Run</button>
+            </div>
+    }
 
     render() {
         return (
@@ -119,11 +147,7 @@ export class App extends React.Component<AppProps, AppState> {
                     {this.renderSensorValue()}
                 </div>
                 {this.renderGraph()}
-                <div>
-                    <button id="startSensor" onClick={()=>{this.startSensor()}}>Start</button>
-                    <button id="stopSensor" onClick={()=>{this.stopSensor()}}>Stop</button>
-                    <button id="sendData" onClick={()=>{this.sendData()}}>Save Data</button>
-                </div>
+                {this.renderControls()}
             </div>
         );
     }

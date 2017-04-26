@@ -11,26 +11,25 @@ export class Codap {
     
     private dataSetName:string = "sensor_interactive";
     private dataSetTitle:string = "Sensor Interactive";
+    private runIndex:number = 0;
     
     private dataSetTemplate:IDataSetTemplate = {
         name: "{name}",
-        collections: [  // There are two collections: a parent and a child
+        collections: [
           {
-            name: 'sensor_set',
-            // The parent collection has just one attribute
-            attrs: [ {name: "set_index", type: 'categorical'}],
+            name: 'runs',
+            attrs: [ {name: "Row", type: 'categorical'}],
           },
           {
-            name: 'values',
-            parent: 'sensor_set',
+            name: 'measurements',
+            parent: 'runs',
             labels: {
-              pluralCase: "values",
+              pluralCase: "measurements",
               setOfCasesWithArticle: "a sample"
             },
-            // The child collection also has just one attribute
             attrs: [
-                {name: "time", type: 'numeric', precision: 2},
-                {name: "value", type: 'numeric', precision: 3}
+                {name: "Time", type: 'numeric', precision: 3},
+                {name: "Position", type: 'numeric', precision: 4}
             ]
           }
         ]
@@ -63,7 +62,7 @@ export class Codap {
     }
     
     responseCallback(param:any) {
-        console.log("codap response: " + param)
+        //console.log("codap response: " + param)
     }
     
     requestDataContext():Promise<any> {
@@ -82,22 +81,55 @@ export class Codap {
             values: dataSetDef
         }, this.responseCallback)
     }
+    
+    guaranteeCaseTable():Promise<any> {
+      return new Promise((resolve, reject) => {
+        CodapInterface.sendRequest({
+          action: 'get',
+          resource: 'componentList'
+        }, this.responseCallback)
+        .then ((iResult:any) => {
+          if (iResult.success) {
+            // look for a case table in the list of components.
+            if (iResult.values && iResult.values.some(function (component) {
+                  return component.type === 'caseTable'
+                })) {
+              resolve(iResult);
+            } else {
+              CodapInterface.sendRequest({action: 'create', resource: 'component', values: {
+                type: 'caseTable',
+                dataContext: this.dataSetName
+              }}, this.responseCallback).then((result) => {
+                resolve(result);
+              });
+            }
+          } else {
+            reject('api error');
+          }
+        })
+      });
+    }
+
         
     sendData(data:number[][]):Promise<any> {
         // if a sample number has not yet been initialized, do so now.
         if (this.state.sampleNumber === undefined || this.state.sampleNumber === null) {
             this.state.sampleNumber = 0;
         }
+        
+        ++this.runIndex;
 
         var sampleCount = data.length;
         var sampleIndex = ++this.state.sampleNumber;
         
-        var items:{set_index:number, time:number, value:number}[] = [];
+        var items:{Row:number, Time:number, Position:number}[] = [];
         
         for(var i=0; i < sampleCount; i++) {
             var entry = data[i];
-            items.push({set_index: entry[0], time: entry[0], value: entry[1]});
+            items.push({Row: this.runIndex, Time: entry[0], Position: entry[1]});
         }
+        
+        this.guaranteeCaseTable();
         
         return CodapInterface.sendRequest({
             action: 'create',
