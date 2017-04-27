@@ -11,8 +11,9 @@ export interface AppProps {};
 export interface AppState {
     sensorActive:boolean,
     sensorValue:number|undefined,
-    sensorData:number[][],
-    collecting:boolean
+    sensorData:(number|Date)[][],
+    collecting:boolean,
+    runLength:number
 }
 
 export class App extends React.Component<AppProps, AppState> {
@@ -21,6 +22,7 @@ export class App extends React.Component<AppProps, AppState> {
     private sensorColumnLengths:number[] = [];
     private codap:Codap;
     private selectionRange:{start:number,end:number|undefined} = {start:0,end:undefined};
+    private stopTimer:number;
     
     constructor(props: AppProps) {
         super(props);
@@ -29,6 +31,7 @@ export class App extends React.Component<AppProps, AppState> {
             sensorValue:undefined,
             sensorData:[],
             collecting:false
+            runLength:10
         };
         
         this.codap = new Codap();
@@ -42,6 +45,7 @@ export class App extends React.Component<AppProps, AppState> {
             this.onSensorData(e);
         });
         this.sensor.startPolling(SENSOR_IP);
+        this.onTimeSelect = this.onTimeSelect.bind(this);
     }
     
     sensorHasData():boolean {
@@ -61,6 +65,10 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({
             collecting: true
         });
+        
+        this.stopTimer = setTimeout(()=>{
+            this.stopSensor();
+        }, this.state.runLength * 1000);
     }
     
     stopSensor() {
@@ -68,6 +76,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({
             collecting: false
         });
+        clearTimeout(this.stopTimer);
     }
     
     onSensorData(setId:string) {
@@ -111,6 +120,10 @@ export class App extends React.Component<AppProps, AppState> {
     
     newData() {
         this.setState({sensorData:[]});
+    }    
+    
+    onTimeSelect(event:React.FormEvent<HTMLSelectElement>) {
+        this.setState({runLength:parseInt(event.currentTarget.value,10)});
     }
     
     onGraphZoom(xStart:number, xEnd:number) {
@@ -134,6 +147,16 @@ export class App extends React.Component<AppProps, AppState> {
     renderControls() {
         var hasData:boolean = this.state.sensorData.length > 0;
         return <div>
+            <select id="timeSelect" onChange={ this.onTimeSelect }>
+                <option value="1">1.0</option>
+                <option value="5">5.0</option>
+                <option value="10">10.0</option>
+                <option value="15">15.0</option>
+                <option value="20">20.0</option>
+                <option value="30">30.0</option>
+                <option value="45">45.0</option>
+                <option value="60">60.0</option>
+            </select>
             <button id="startSensor" 
                 onClick={()=>{this.startSensor()}}
                 disabled={this.state.collecting}>Start</button>
