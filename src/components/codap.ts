@@ -7,7 +7,7 @@ export interface IDataSetTemplate {
 
 export class Codap {
     
-    private state:any;
+    private state:any = {};
     
     private dataSetName:string = "sensor_interactive";
     private dataSetTitle:string = "Sensor Interactive";
@@ -113,7 +113,7 @@ export class Codap {
         
     sendData(data:(number|Date)[][]):Promise<any> {
         // if a sample number has not yet been initialized, do so now.
-        if (this.state.sampleNumber === undefined || this.state.sampleNumber === null) {
+        if (this.state.sampleNumber == undefined || this.state.sampleNumber == null) {
             this.state.sampleNumber = 0;
         }
         
