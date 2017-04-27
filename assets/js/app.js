@@ -109,7 +109,7 @@ class Codap {
     }
     sendData(data) {
         // if a sample number has not yet been initialized, do so now.
-        if (this.state.sampleNumber === undefined || this.state.sampleNumber === null) {
+        if (this.state.sampleNumber == undefined || this.state.sampleNumber == null) {
             this.state.sampleNumber = 0;
         }
         ++this.runIndex;
