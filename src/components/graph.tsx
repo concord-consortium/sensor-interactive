@@ -24,6 +24,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             data: this.props.data,
             xMax: 10000
         }
+        
+        this.autoScale = this.autoScale.bind(this);
     }
     
     // TODO: remove redundant calls
@@ -41,6 +43,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             dateWindow: [new Date(0), new Date(this.state.xMax)]
         });
     }
+
+    autoScale() {
+        this.dygraph.resetZoom();
     }
     
     componentDidMount() {
@@ -87,7 +92,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
     render() {
         return (
-            <div id="sensor-graph">
+            <div>
+                <button id="scaleBtn" style={{position:"absolute", top:0, right:0}} 
+                    onClick={this.autoScale}>Auto-scale</button>
+                <div id="sensor-graph"></div>
             </div>
         );
     }
