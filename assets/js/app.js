@@ -10,6 +10,7 @@ const CodapInterface = __webpack_require__(222);
 ;
 class Codap {
     constructor() {
+        this.state = {};
         this.dataSetName = "sensor_interactive";
         this.dataSetTitle = "Sensor Interactive";
         this.runIndex = 0;
