@@ -45,6 +45,11 @@ export class App extends React.Component<AppProps, AppState> {
         this.sensor.startPolling(SENSOR_IP);
         
         this.onTimeSelect = this.onTimeSelect.bind(this);
+        this.onGraphZoom = this.onGraphZoom.bind(this);
+        this.startSensor = this.startSensor.bind(this);
+        this.stopSensor = this.stopSensor.bind(this);
+        this.sendData = this.sendData.bind(this);
+        this.newData = this.newData.bind(this);
     }
     
     onSensorConnect(e) {
@@ -102,7 +107,9 @@ export class App extends React.Component<AppProps, AppState> {
                     // add new data to the graph
                     var updatedData = this.state.sensorData;
                     newData.forEach(function(data, rowIndex) {
-                        updatedData.push([updatedData.length, data]);
+                        //var time = dataset.columns[0].data[rowIndex + 1 + lastLength];
+                        var time = new Date(updatedData.length * 100);
+                        updatedData.push([time, data]);
                     });
                     this.setState({
                         sensorData: updatedData
@@ -145,7 +152,10 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     renderGraph() {
-        return <Graph data={this.state.sensorData} onZoom={(start:number,end:number)=>{this.onGraphZoom(start,end)}}/>
+        return <Graph 
+                   data={this.state.sensorData} 
+                   onZoom={this.onGraphZoom}
+                   xMax={this.state.runLength * 1000}/>
     }
     
     renderControls() {
@@ -162,16 +172,16 @@ export class App extends React.Component<AppProps, AppState> {
                 <option value="60">60.0</option>
             </select>
             <button id="startSensor" 
-                onClick={()=>{this.startSensor()}}
+                onClick={this.startSensor}
                 disabled={this.state.collecting}>Start</button>
             <button id="stopSensor" 
-                onClick={()=>{this.stopSensor()}}
+                onClick={this.stopSensor}
                 disabled={!this.state.collecting}>Stop</button>
             <button id="sendData" 
-                onClick={()=>{this.sendData()}} 
+                onClick={this.sendData} 
                 disabled={!hasData || this.state.collecting}>Save Data</button>
             <button id="newData" 
-                onClick={()=>{this.newData()}} 
+                onClick={this.newData} 
                 disabled={!hasData || this.state.collecting}>New Run</button>
             </div>
     }
