@@ -118,7 +118,10 @@ class Codap {
         var items = [];
         for (var i = 0; i < sampleCount; i++) {
             var entry = data[i];
-            items.push({ Row: this.runIndex, Time: entry[0], Position: entry[1] });
+            var date = entry[0];
+            var time = date.getSeconds() + date.getMilliseconds() / 1000;
+            var value = entry[1];
+            items.push({ Row: this.runIndex, Time: time, Position: value });
         }
         this.guaranteeCaseTable();
         return CodapInterface.sendRequest({
@@ -147,13 +150,14 @@ class Graph extends React.Component {
         this.lastLabel = 0;
         this.state = {
             data: this.props.data,
-            xMax: 10
+            xMax: 10000
         };
+        this.autoScale = this.autoScale.bind(this);
     }
     // TODO: remove redundant calls
     checkData(data) {
         if (data.length == 0) {
-            data = [[0, 0]];
+            data = [[new Date(0), 0]];
         }
         return data;
     }
@@ -161,28 +165,53 @@ class Graph extends React.Component {
         var data = this.checkData(this.state.data);
         this.dygraph.updateOptions({
             file: data,
-            dateWindow: [0, this.props.xMax]
+            dateWindow: [new Date(0), new Date(this.state.xMax)]
         });
+    }
+    autoScale() {
+        this.dygraph.resetZoom();
     }
     componentDidMount() {
         var data = this.checkData(this.state.data);
+        function formatDate(x) {
+            if (!x.getSeconds) {
+                x = new Date(x);
+            }
+            return x.getSeconds() + "." + x.getMilliseconds();
+        }
         this.dygraph = new dygraphs_1.default("sensor-graph", data, {
-            dateWindow: [0, this.props.xMax],
-            zoomCallback: (minX, maxX, yRange) => {
-                console.log("zoom: " + minX + " -> " + maxX);
-                this.props.onZoom(Math.ceil(minX), Math.floor(maxX));
+            dateWindow: [0, new Date(this.props.xMax)],
+            zoomCallback: this.props.onZoom,
+            axes: {
+                x: {
+                    valueFormatter: function (val) {
+                        return formatDate(val);
+                    },
+                    axisLabelFormatter: function (val) {
+                        return formatDate(val);
+                    }
+                }
             }
         });
     }
     componentWillReceiveProps(nextProps) {
         var data = this.checkData(nextProps.data);
-        this.setState({
-            data: data
-        });
+        var newState = {};
+        if (nextProps.xMax != this.props.xMax) {
+            newState.xMax = nextProps.xMax;
+        }
+        if (nextProps.data.length != this.state.data.length) {
+            newState.data = nextProps.data;
+        }
+        this.setState(newState);
+    }
+    componentDidUpdate(prevProps, prevState) {
         this.update();
     }
     render() {
-        return (React.createElement("div", { id: "sensor-graph" }));
+        return (React.createElement("div", null,
+            React.createElement("button", { id: "scaleBtn", style: { position: "absolute", top: 0, right: 0 }, onClick: this.autoScale }, "Auto-scale"),
+            React.createElement("div", { id: "sensor-graph" })));
     }
 }
 exports.Graph = Graph;
@@ -42556,15 +42585,22 @@ class App extends React.Component {
             runLength: 10
         };
         this.codap = new codap_1.Codap();
+        this.onSensorConnect = this.onSensorConnect.bind(this);
+        this.onSensorData = this.onSensorData.bind(this);
         this.sensor = new sensor_connector_interface_1.default();
-        this.sensor.on("*", (e) => {
-            this.setState({
-                sensorActive: this.sensorHasData(),
-                sensorValue: this.getSensorValue()
-            });
-            this.onSensorData(e);
-        });
+        this.sensor.on("*", this.onSensorConnect);
+        this.sensor.on("data", this.onSensorData);
         this.sensor.startPolling(SENSOR_IP);
+        this.onTimeSelect = this.onTimeSelect.bind(this);
+        this.onGraphZoom = this.onGraphZoom.bind(this);
+        this.startSensor = this.startSensor.bind(this);
+        this.stopSensor = this.stopSensor.bind(this);
+        this.sendData = this.sendData.bind(this);
+        this.newData = this.newData.bind(this);
+    }
+    onSensorConnect(e) {
+        this.sensor.off("*", this.onSensorConnect);
+        this.setState({ sensorActive: true });
     }
     sensorHasData() {
         return (this.sensor && this.sensor.datasets[0] && this.sensor.datasets[0].columns[1]);
@@ -42580,12 +42616,16 @@ class App extends React.Component {
         this.setState({
             collecting: true
         });
+        this.stopTimer = setTimeout(() => {
+            this.stopSensor();
+        }, this.state.runLength * 1000);
     }
     stopSensor() {
         this.sensor.requestStop();
         this.setState({
             collecting: false
         });
+        clearTimeout(this.stopTimer);
     }
     onSensorData(setId) {
         this.sensor.datasets.forEach(function (dataset) {
@@ -42602,7 +42642,9 @@ class App extends React.Component {
                     // add new data to the graph
                     var updatedData = this.state.sensorData;
                     newData.forEach(function (data, rowIndex) {
-                        updatedData.push([updatedData.length, data]);
+                        //var time = dataset.columns[0].data[rowIndex + 1 + lastLength];
+                        var time = new Date(updatedData.length * 100);
+                        updatedData.push([time, data]);
                     });
                     this.setState({
                         sensorData: updatedData
@@ -42624,11 +42666,9 @@ class App extends React.Component {
         this.setState({ sensorData: [] });
     }
     onTimeSelect(event) {
-        console.log("time change: " + event.currentTarget.value);
         this.setState({ runLength: parseInt(event.currentTarget.value, 10) });
     }
     onGraphZoom(xStart, xEnd) {
-        console.log("onGraphZoom");
         this.selectionRange.start = xStart;
         this.selectionRange.end = xEnd;
     }
@@ -42638,12 +42678,12 @@ class App extends React.Component {
             React.createElement("span", null, this.state.sensorActive && this.state.sensorValue)));
     }
     renderGraph() {
-        return React.createElement(graph_1.Graph, { data: this.state.sensorData, onZoom: (start, end) => { this.onGraphZoom(start, end); }, xMax: this.state.runLength });
+        return React.createElement(graph_1.Graph, { data: this.state.sensorData, onZoom: this.onGraphZoom, xMax: this.state.runLength * 1000 });
     }
     renderControls() {
         var hasData = this.state.sensorData.length > 0;
         return React.createElement("div", null,
-            React.createElement("select", { id: "timeSelect", onChange: e => this.onTimeSelect(e), value: this.state.runLength },
+            React.createElement("select", { id: "timeSelect", onChange: this.onTimeSelect },
                 React.createElement("option", { value: "1" }, "1.0"),
                 React.createElement("option", { value: "5" }, "5.0"),
                 React.createElement("option", { value: "10" }, "10.0"),
@@ -42652,10 +42692,10 @@ class App extends React.Component {
                 React.createElement("option", { value: "30" }, "30.0"),
                 React.createElement("option", { value: "45" }, "45.0"),
                 React.createElement("option", { value: "60" }, "60.0")),
-            React.createElement("button", { id: "startSensor", onClick: () => { this.startSensor(); }, disabled: this.state.collecting }, "Start"),
-            React.createElement("button", { id: "stopSensor", onClick: () => { this.stopSensor(); }, disabled: !this.state.collecting }, "Stop"),
-            React.createElement("button", { id: "sendData", onClick: () => { this.sendData(); }, disabled: !hasData || this.state.collecting }, "Save Data"),
-            React.createElement("button", { id: "newData", onClick: () => { this.newData(); }, disabled: !hasData || this.state.collecting }, "New Run"));
+            React.createElement("button", { id: "startSensor", onClick: this.startSensor, disabled: this.state.collecting }, "Start"),
+            React.createElement("button", { id: "stopSensor", onClick: this.stopSensor, disabled: !this.state.collecting }, "Stop"),
+            React.createElement("button", { id: "sendData", onClick: this.sendData, disabled: !hasData || this.state.collecting }, "Save Data"),
+            React.createElement("button", { id: "newData", onClick: this.newData, disabled: !hasData || this.state.collecting }, "New Run"));
     }
     render() {
         return (React.createElement("div", null,
