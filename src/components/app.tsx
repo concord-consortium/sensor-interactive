@@ -30,22 +30,26 @@ export class App extends React.Component<AppProps, AppState> {
             sensorActive:false,
             sensorValue:undefined,
             sensorData:[],
-            collecting:false
+            collecting:false,
             runLength:10
         };
         
         this.codap = new Codap();
         
+        this.onSensorConnect = this.onSensorConnect.bind(this);
+        this.onSensorData = this.onSensorData.bind(this);
+        
         this.sensor = new SensorConnectorInterface();
-        this.sensor.on("*", (e)=> {
-            this.setState({
-                sensorActive:this.sensorHasData(),
-                sensorValue:this.getSensorValue()
-            });
-            this.onSensorData(e);
-        });
+        this.sensor.on("*", this.onSensorConnect);
+        this.sensor.on("data", this.onSensorData);
         this.sensor.startPolling(SENSOR_IP);
+        
         this.onTimeSelect = this.onTimeSelect.bind(this);
+    }
+    
+    onSensorConnect(e) {
+        this.sensor.off("*", this.onSensorConnect);
+        this.setState({sensorActive:true});
     }
     
     sensorHasData():boolean {
