@@ -119,8 +119,7 @@ class Codap {
         var items = [];
         for (var i = 0; i < sampleCount; i++) {
             var entry = data[i];
-            var date = entry[0];
-            var time = date.getSeconds() + date.getMilliseconds() / 1000;
+            var time = entry[0];
             var value = entry[1];
             items.push({ Row: this.runIndex, Time: time, Position: value });
         }
@@ -151,14 +150,14 @@ class Graph extends React.Component {
         this.lastLabel = 0;
         this.state = {
             data: this.props.data,
-            xMax: 10000
+            xMax: 10
         };
         this.autoScale = this.autoScale.bind(this);
     }
     // TODO: remove redundant calls
     checkData(data) {
         if (data.length == 0) {
-            data = [[new Date(0), 0]];
+            data = [[0, 0]];
         }
         return data;
     }
@@ -166,7 +165,7 @@ class Graph extends React.Component {
         var data = this.checkData(this.state.data);
         this.dygraph.updateOptions({
             file: data,
-            dateWindow: [new Date(0), new Date(this.state.xMax)]
+            dateWindow: [0, this.state.xMax]
         });
     }
     autoScale() {
@@ -174,22 +173,19 @@ class Graph extends React.Component {
     }
     componentDidMount() {
         var data = this.checkData(this.state.data);
-        function formatDate(x) {
-            if (!x.getSeconds) {
-                x = new Date(x);
-            }
-            return x.getSeconds() + "." + x.getMilliseconds();
+        function formatTime(x) {
+            return x + " s";
         }
         this.dygraph = new dygraphs_1.default("sensor-graph", data, {
-            dateWindow: [0, new Date(this.props.xMax)],
+            dateWindow: [0, this.state.xMax],
             zoomCallback: this.props.onZoom,
             axes: {
                 x: {
                     valueFormatter: function (val) {
-                        return formatDate(val);
+                        return formatTime(val);
                     },
                     axisLabelFormatter: function (val) {
-                        return formatDate(val);
+                        return formatTime(val);
                     }
                 }
             }
@@ -42644,7 +42640,8 @@ class App extends React.Component {
                     var updatedData = this.state.sensorData;
                     newData.forEach(function (data, rowIndex) {
                         //var time = dataset.columns[0].data[rowIndex + 1 + lastLength];
-                        var time = new Date(updatedData.length * 100);
+                        // record time in seconds
+                        var time = updatedData.length / 10;
                         updatedData.push([time, data]);
                     });
                     this.setState({
@@ -42658,9 +42655,9 @@ class App extends React.Component {
     }
     sendData() {
         var data = this.state.sensorData.slice();
-        if (this.selectionRange && this.selectionRange.start && this.selectionRange.end) {
-            data = data.slice(this.selectionRange.start, this.selectionRange.end);
-        }
+        console.log("before data.length:" + data.length);
+        data = data.slice(this.selectionRange.start, this.selectionRange.end);
+        console.log("after data.length:" + data.length);
         this.codap.sendData(data);
     }
     newData() {
@@ -42670,8 +42667,39 @@ class App extends React.Component {
         this.setState({ runLength: parseInt(event.currentTarget.value, 10) });
     }
     onGraphZoom(xStart, xEnd) {
-        this.selectionRange.start = xStart;
-        this.selectionRange.end = xEnd;
+        console.log("onGraphZoom: " + xStart + "-" + xEnd);
+        // convert from time value to index
+        var i, entry, nextEntry;
+        for (i = 0; i < this.state.sensorData.length - 1; i++) {
+            entry = this.state.sensorData[i];
+            nextEntry = this.state.sensorData[i + 1];
+            console.log("i:" + i + ", time:" + entry[0]);
+            if (entry[0] == xStart) {
+                console.log("start index: " + i);
+                this.selectionRange.start = i;
+                break;
+            }
+            else if (entry[0] < xStart && nextEntry[0] >= xStart) {
+                console.log("start index: " + (i + 1));
+                this.selectionRange.start = i + 1;
+                break;
+            }
+        }
+        for (i; i < this.state.sensorData.length - 1; i++) {
+            entry = this.state.sensorData[i];
+            nextEntry = this.state.sensorData[i + 1];
+            console.log("i:" + i + ", time:" + entry[0]);
+            if (entry[0] == xEnd) {
+                console.log("end index: " + i);
+                this.selectionRange.end = i;
+                break;
+            }
+            else if (entry[0] < xEnd && nextEntry[0] >= xEnd) {
+                console.log("end index: " + (i + 1));
+                this.selectionRange.end = i + 1;
+                break;
+            }
+        }
     }
     renderSensorValue() {
         return (React.createElement("div", null,
@@ -42679,7 +42707,7 @@ class App extends React.Component {
             React.createElement("span", null, this.state.sensorActive && this.state.sensorValue)));
     }
     renderGraph() {
-        return React.createElement(graph_1.Graph, { data: this.state.sensorData, onZoom: this.onGraphZoom, xMax: this.state.runLength * 1000 });
+        return React.createElement(graph_1.Graph, { data: this.state.sensorData, onZoom: this.onGraphZoom, xMax: this.state.runLength });
     }
     renderControls() {
         var hasData = this.state.sensorData.length > 0;
