@@ -111,7 +111,7 @@ export class Codap {
     }
 
         
-    sendData(data:(number|Date)[][]):Promise<any> {
+    sendData(data:number[][]):Promise<any> {
         // if a sample number has not yet been initialized, do so now.
         if (this.state.sampleNumber == undefined || this.state.sampleNumber == null) {
             this.state.sampleNumber = 0;
@@ -126,8 +126,7 @@ export class Codap {
         
         for(var i=0; i < sampleCount; i++) {
             var entry = data[i];
-            var date = <Date>entry[0];
-            var time = date.getSeconds() + date.getMilliseconds()/1000;
+            var time = entry[0];
             var value = <number>entry[1];
             items.push({Row: this.runIndex, Time: time, Position: value});
         }

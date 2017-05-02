@@ -11,7 +11,7 @@ export interface AppProps {};
 export interface AppState {
     sensorActive:boolean,
     sensorValue:number|undefined,
-    sensorData:(number|Date)[][],
+    sensorData:number[][],
     collecting:boolean,
     runLength:number
 }
@@ -108,7 +108,8 @@ export class App extends React.Component<AppProps, AppState> {
                     var updatedData = this.state.sensorData;
                     newData.forEach(function(data, rowIndex) {
                         //var time = dataset.columns[0].data[rowIndex + 1 + lastLength];
-                        var time = new Date(updatedData.length * 100);
+                        // record time in seconds
+                        var time = updatedData.length / 10;
                         updatedData.push([time, data]);
                     });
                     this.setState({
@@ -123,9 +124,8 @@ export class App extends React.Component<AppProps, AppState> {
     
     sendData() {
         var data = this.state.sensorData.slice();
-        if(this.selectionRange && this.selectionRange.start && this.selectionRange.end) {
-            data = data.slice(this.selectionRange.start, this.selectionRange.end);
-        }
+        data = data.slice(this.selectionRange.start, this.selectionRange.end);
+        
         this.codap.sendData(data);
     }
     
@@ -138,8 +138,31 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     onGraphZoom(xStart:number, xEnd:number) {
-        this.selectionRange.start = xStart;
-        this.selectionRange.end = xEnd;
+        
+        // convert from time value to index
+        var i:number, entry:number[], nextEntry:number[];
+        for(i=0; i < this.state.sensorData.length-1; i++) {
+            entry = this.state.sensorData[i];
+            nextEntry = this.state.sensorData[i+1];
+            if(entry[0] == xStart) {
+                this.selectionRange.start = i;
+                break;
+            } else if(entry[0] < xStart && nextEntry[0] >= xStart) {
+                this.selectionRange.start = i+1;
+                break;
+            }
+        }
+        for(i; i < this.state.sensorData.length-1; i++) {
+            entry = this.state.sensorData[i];
+            nextEntry = this.state.sensorData[i+1];
+            if(entry[0] == xEnd) {
+                this.selectionRange.end = i;
+                break;
+            } else if(entry[0] < xEnd && nextEntry[0] >= xEnd) {
+                this.selectionRange.end = i+1;
+                break;
+            }
+        }
     }
     
     renderSensorValue() {
@@ -155,7 +178,7 @@ export class App extends React.Component<AppProps, AppState> {
         return <Graph 
                    data={this.state.sensorData} 
                    onZoom={this.onGraphZoom}
-                   xMax={this.state.runLength * 1000}/>
+                   xMax={this.state.runLength}/>
     }
     
     renderControls() {

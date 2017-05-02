@@ -2,13 +2,13 @@ import * as React from "react";
 import Dygraph from "dygraphs";
 
 export interface GraphProps {
-    data:(number|Date)[][],
+    data:number[][],
     onZoom:Function,
     xMax:number
 }
 
 export interface GraphState {
-    data:(number|Date)[][],
+    data:number[][],
     xMax:number
 }
 
@@ -22,16 +22,16 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         
         this.state = {
             data: this.props.data,
-            xMax: 10000
+            xMax: 10
         }
         
         this.autoScale = this.autoScale.bind(this);
     }
     
     // TODO: remove redundant calls
-    checkData(data:(number|Date)[][]):(number|Date)[][] {
+    checkData(data:number[][]):number[][] {
         if(data.length == 0) {
-            data = [[new Date(0),0]];
+            data = [[0,0]];
         }
         return data;
     }
@@ -40,7 +40,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         var data = this.checkData(this.state.data);
         this.dygraph.updateOptions({
             file: data,
-            dateWindow: [new Date(0), new Date(this.state.xMax)]
+            dateWindow: [0, this.state.xMax]
         });
     }
 
@@ -51,23 +51,20 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     componentDidMount() {
         var data = this.checkData(this.state.data);
         
-        function formatDate(x:Date):string {
-            if(!x.getSeconds) {
-                x = new Date(x);
-            }
-            return x.getSeconds() + "." + x.getMilliseconds();
+        function formatTime(x:number):string {
+            return x + " s";
         }
         
         this.dygraph = new Dygraph("sensor-graph", data, {
-            dateWindow: [0, new Date(this.props.xMax)],
+            dateWindow: [0, this.state.xMax],
             zoomCallback: this.props.onZoom,
             axes: {
                 x: {
-                    valueFormatter: function (val:Date) {
-                        return formatDate(val);
+                    valueFormatter: function (val:number) {
+                        return formatTime(val);
                     },
-                    axisLabelFormatter: function (val:Date) {
-                        return formatDate(val);
+                    axisLabelFormatter: function (val:number) {
+                        return formatTime(val);
                     }
                 }
             }
