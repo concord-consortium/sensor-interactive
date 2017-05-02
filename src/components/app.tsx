@@ -19,7 +19,7 @@ export interface AppState {
 export class App extends React.Component<AppProps, AppState> {
     
     private sensor:SensorConnectorInterface;
-    private sensorColumnLengths:number[] = [];
+    private lastDataIndex:number;
     private codap:Codap;
     private selectionRange:{start:number,end:number|undefined} = {start:0,end:undefined};
     private stopTimer:number;
@@ -89,37 +89,44 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     onSensorData(setId:string) {
-        this.sensor.datasets.forEach(function(dataset) {
+        var dataset;
+        for(var i=0; i < this.sensor.datasets.length; i++) {
+            if(this.sensor.datasets[i].id == setId) {
+                dataset = this.sensor.datasets[i];
+                break;
+            }
+        }
+        if(dataset == undefined) {
+            return;
+        }
+        
+        var timeColumn = dataset.columns[0].data;
+        var valueColumn = dataset.columns[1].data;
+        
+        // columns aren't always updated together
+        var newLength = Math.min(timeColumn.length, valueColumn.length);
+        
+        if (this.lastDataIndex === undefined) {
+            this.lastDataIndex = 0;
+        }                    
 
-            dataset.columns.forEach(function(column, columnIndex) {
-                
-                var lastLength = this.sensorColumnLengths[column.id];
-                if (lastLength === undefined) {
-                    lastLength = this.sensorColumnLengths[column.id] = 0;
-                }                    
+        // check there's new data for this column
+        if (newLength > this.lastDataIndex) {
+            var newTimeData = timeColumn.slice(this.lastDataIndex, newLength);
+            var newValueData = valueColumn.slice(this.lastDataIndex, newLength);
+            
+            var updatedData = this.state.sensorData.slice();
+            for(var i=0; i < newTimeData.length; i++) {
+                var time = Number(newTimeData[i].toFixed(2));
+                var value = newValueData[i];
 
-                // check there's new data for this column
-                if (column.data.length > lastLength) {
-                    if(columnIndex == 0) return; //time data
-                    
-                    var newData = column.data.slice(lastLength);
-
-                    // add new data to the graph
-                    var updatedData = this.state.sensorData;
-                    newData.forEach(function(data, rowIndex) {
-                        //var time = dataset.columns[0].data[rowIndex + 1 + lastLength];
-                        // record time in seconds
-                        var time = updatedData.length / 10;
-                        updatedData.push([time, data]);
-                    });
-                    this.setState({
-                        sensorData: updatedData
-                    });
-                    this.render();
-                    this.sensorColumnLengths[column.id] = column.data.length;
-                }
-            }, this);
-        }, this);
+                updatedData.push([time, value]);
+            }
+            this.setState({
+                sensorData: updatedData
+            });
+            this.lastDataIndex = newLength;
+        }
     }
     
     sendData() {
