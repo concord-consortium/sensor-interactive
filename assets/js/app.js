@@ -42655,9 +42655,7 @@ class App extends React.Component {
     }
     sendData() {
         var data = this.state.sensorData.slice();
-        console.log("before data.length:" + data.length);
         data = data.slice(this.selectionRange.start, this.selectionRange.end);
-        console.log("after data.length:" + data.length);
         this.codap.sendData(data);
     }
     newData() {
@@ -42667,20 +42665,16 @@ class App extends React.Component {
         this.setState({ runLength: parseInt(event.currentTarget.value, 10) });
     }
     onGraphZoom(xStart, xEnd) {
-        console.log("onGraphZoom: " + xStart + "-" + xEnd);
         // convert from time value to index
         var i, entry, nextEntry;
         for (i = 0; i < this.state.sensorData.length - 1; i++) {
             entry = this.state.sensorData[i];
             nextEntry = this.state.sensorData[i + 1];
-            console.log("i:" + i + ", time:" + entry[0]);
             if (entry[0] == xStart) {
-                console.log("start index: " + i);
                 this.selectionRange.start = i;
                 break;
             }
             else if (entry[0] < xStart && nextEntry[0] >= xStart) {
-                console.log("start index: " + (i + 1));
                 this.selectionRange.start = i + 1;
                 break;
             }
@@ -42688,14 +42682,11 @@ class App extends React.Component {
         for (i; i < this.state.sensorData.length - 1; i++) {
             entry = this.state.sensorData[i];
             nextEntry = this.state.sensorData[i + 1];
-            console.log("i:" + i + ", time:" + entry[0]);
             if (entry[0] == xEnd) {
-                console.log("end index: " + i);
                 this.selectionRange.end = i;
                 break;
             }
             else if (entry[0] < xEnd && nextEntry[0] >= xEnd) {
-                console.log("end index: " + (i + 1));
                 this.selectionRange.end = i + 1;
                 break;
             }
