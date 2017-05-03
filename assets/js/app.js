@@ -200,7 +200,9 @@ class Graph extends React.Component {
         if (nextProps.data.length != this.state.data.length) {
             newState.data = nextProps.data;
         }
-        this.setState(newState);
+        if (newState.xMax || newState.data) {
+            this.setState(newState);
+        }
     }
     componentDidUpdate(prevProps, prevState) {
         this.update();
@@ -42572,22 +42574,26 @@ const SENSOR_IP = "http://127.0.0.1:11180";
 class App extends React.Component {
     constructor(props) {
         super(props);
-        this.sensorColumnLengths = [];
         this.selectionRange = { start: 0, end: undefined };
         this.state = {
             sensorActive: false,
             sensorValue: undefined,
             sensorData: [],
+            dataChanged: false,
             collecting: false,
-            runLength: 10
+            runLength: 10,
+            tareValue: 0
         };
         this.codap = new codap_1.Codap();
         this.onSensorConnect = this.onSensorConnect.bind(this);
+        this.onSensorStatus = this.onSensorStatus.bind(this);
         this.onSensorData = this.onSensorData.bind(this);
         this.sensor = new sensor_connector_interface_1.default();
         this.sensor.on("*", this.onSensorConnect);
+        this.sensor.on("statusReceived", this.onSensorStatus);
         this.sensor.on("data", this.onSensorData);
         this.sensor.startPolling(SENSOR_IP);
+        this.zeroSensor = this.zeroSensor.bind(this);
         this.onTimeSelect = this.onTimeSelect.bind(this);
         this.onGraphZoom = this.onGraphZoom.bind(this);
         this.startSensor = this.startSensor.bind(this);
@@ -42596,8 +42602,13 @@ class App extends React.Component {
         this.newData = this.newData.bind(this);
     }
     onSensorConnect(e) {
+        console.log("sensor connect");
         this.sensor.off("*", this.onSensorConnect);
         this.setState({ sensorActive: true });
+    }
+    onSensorStatus(e) {
+        var liveValue = this.sensor.stateMachine.datasets[0].columns[1].liveValue;
+        this.setState({ sensorValue: liveValue });
     }
     sensorHasData() {
         return (this.sensor && this.sensor.datasets[0] && this.sensor.datasets[0].columns[1]);
@@ -42607,6 +42618,11 @@ class App extends React.Component {
         if (this.sensorHasData())
             val = this.sensor.datasets[0].columns[1].liveValue;
         return val;
+    }
+    zeroSensor() {
+        this.setState({
+            tareValue: this.getSensorValue()
+        });
     }
     startSensor() {
         this.sensor.requestStart();
@@ -42625,41 +42641,54 @@ class App extends React.Component {
         clearTimeout(this.stopTimer);
     }
     onSensorData(setId) {
-        this.sensor.datasets.forEach(function (dataset) {
-            dataset.columns.forEach(function (column, columnIndex) {
-                var lastLength = this.sensorColumnLengths[column.id];
-                if (lastLength === undefined) {
-                    lastLength = this.sensorColumnLengths[column.id] = 0;
-                }
-                // check there's new data for this column
-                if (column.data.length > lastLength) {
-                    if (columnIndex == 0)
-                        return; //time data
-                    var newData = column.data.slice(lastLength);
-                    // add new data to the graph
-                    var updatedData = this.state.sensorData;
-                    newData.forEach(function (data, rowIndex) {
-                        //var time = dataset.columns[0].data[rowIndex + 1 + lastLength];
-                        // record time in seconds
-                        var time = updatedData.length / 10;
-                        updatedData.push([time, data]);
-                    });
-                    this.setState({
-                        sensorData: updatedData
-                    });
-                    this.render();
-                    this.sensorColumnLengths[column.id] = column.data.length;
-                }
-            }, this);
-        }, this);
+        var dataset;
+        for (var i = 0; i < this.sensor.datasets.length; i++) {
+            if (this.sensor.datasets[i].id == setId) {
+                dataset = this.sensor.datasets[i];
+                break;
+            }
+        }
+        if (dataset == undefined) {
+            return;
+        }
+        var timeColumn = dataset.columns[0].data;
+        var valueColumn = dataset.columns[1].data;
+        // columns aren't always updated together
+        var newLength = Math.min(timeColumn.length, valueColumn.length);
+        if (this.lastDataIndex === undefined) {
+            this.lastDataIndex = 0;
+        }
+        // check there's new data for this column
+        if (newLength > this.lastDataIndex) {
+            var newTimeData = timeColumn.slice(this.lastDataIndex, newLength);
+            var newValueData = valueColumn.slice(this.lastDataIndex, newLength);
+            var updatedData = this.state.sensorData.slice();
+            for (var i = 0; i < newTimeData.length; i++) {
+                var time = Number(newTimeData[i].toFixed(2));
+                var value = newValueData[i] - this.state.tareValue;
+                updatedData.push([time, value]);
+            }
+            this.setState({
+                sensorData: updatedData,
+                dataChanged: true
+            });
+            this.lastDataIndex = newLength;
+        }
     }
     sendData() {
         var data = this.state.sensorData.slice();
         data = data.slice(this.selectionRange.start, this.selectionRange.end);
         this.codap.sendData(data);
+        this.setState({
+            dataChanged: false
+        });
     }
     newData() {
-        this.setState({ sensorData: [] });
+        this.setState({
+            sensorData: [],
+            dataChanged: false
+        });
+        this.lastDataIndex = 0;
     }
     onTimeSelect(event) {
         this.setState({ runLength: parseInt(event.currentTarget.value, 10) });
@@ -42693,9 +42722,14 @@ class App extends React.Component {
         }
     }
     renderSensorValue() {
+        var reading = "";
+        if (this.state.sensorActive && this.state.sensorValue) {
+            reading = (this.state.sensorValue - this.state.tareValue).toFixed(5);
+        }
         return (React.createElement("div", null,
             React.createElement("label", null, "Reading:"),
-            React.createElement("span", null, this.state.sensorActive && this.state.sensorValue)));
+            React.createElement("span", null, reading),
+            React.createElement("button", { id: "zeroBtn", onClick: this.zeroSensor }, "Zero")));
     }
     renderGraph() {
         return React.createElement(graph_1.Graph, { data: this.state.sensorData, onZoom: this.onGraphZoom, xMax: this.state.runLength });
@@ -42714,7 +42748,7 @@ class App extends React.Component {
                 React.createElement("option", { value: "60" }, "60.0")),
             React.createElement("button", { id: "startSensor", onClick: this.startSensor, disabled: this.state.collecting }, "Start"),
             React.createElement("button", { id: "stopSensor", onClick: this.stopSensor, disabled: !this.state.collecting }, "Stop"),
-            React.createElement("button", { id: "sendData", onClick: this.sendData, disabled: !hasData || this.state.collecting }, "Save Data"),
+            React.createElement("button", { id: "sendData", onClick: this.sendData, disabled: !(hasData && this.state.dataChanged) || this.state.collecting }, "Save Data"),
             React.createElement("button", { id: "newData", onClick: this.newData, disabled: !hasData || this.state.collecting }, "New Run"));
     }
     render() {
