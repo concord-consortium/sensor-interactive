@@ -2,6 +2,7 @@ import * as React from "react";
 import { Title } from "./title";
 import { Graph } from "./graph";
 import { Codap } from "./codap";
+import { SensorDefinitions } from "./sensor-definitions";
 import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
 
 const SENSOR_IP = "http://127.0.0.1:11180";
@@ -9,13 +10,18 @@ const SENSOR_IP = "http://127.0.0.1:11180";
 export interface AppProps {};
 
 export interface AppState {
+    sensorType:string,
     sensorActive:boolean,
     sensorValue:number|undefined,
     sensorData:number[][],
     dataChanged:boolean,
     collecting:boolean,
     runLength:number,
-    tareValue:number
+    minReading:number,
+    maxReading:number,
+    tareValue:number,
+    timeUnit:string;
+    valueUnit:string;
 }
 
 export class App extends React.Component<AppProps, AppState> {
@@ -29,13 +35,18 @@ export class App extends React.Component<AppProps, AppState> {
     constructor(props: AppProps) {
         super(props);
         this.state = {
+            sensorType:"",
             sensorActive:false,
             sensorValue:undefined,
             sensorData:[],
             dataChanged:false,
             collecting:false,
             runLength:10,
-            tareValue:0
+            minReading:0,
+            maxReading:10,
+            tareValue:0,
+            timeUnit:"",
+            valueUnit:""
         };
         
         this.codap = new Codap();
@@ -46,8 +57,6 @@ export class App extends React.Component<AppProps, AppState> {
         
         this.sensor = new SensorConnectorInterface();
         this.sensor.on("*", this.onSensorConnect);
-        this.sensor.on("statusReceived", this.onSensorStatus);
-        this.sensor.on("data", this.onSensorData);
         this.sensor.startPolling(SENSOR_IP);
         
         this.zeroSensor = this.zeroSensor.bind(this);
@@ -60,9 +69,37 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     onSensorConnect(e) {
-        console.log("sensor connect")
-        this.sensor.off("*", this.onSensorConnect);
-        this.setState({sensorActive:true});
+        var sensorInfo = this.sensor.stateMachine.currentActionArgs[1];
+        var sensorType = sensorInfo.currentInterface;
+        if(sensorType != "None Found") {
+            this.sensor.off("*", this.onSensorConnect);
+            this.setState({sensorActive:true});
+            console.log("sensor connected: " + sensorType);
+            
+            for(var setID in sensorInfo.columns) {
+                var timeUnit, valueUnit;
+                var set = sensorInfo.columns[setID];
+                if(set.name == "Time") {
+                    timeUnit = set.units;
+                } else {
+                    valueUnit = set.units;
+                    break;
+                }
+            }
+            
+            var sensorDef = SensorDefinitions[valueUnit];
+            
+            this.setState({
+                sensorType: sensorType,
+                timeUnit: timeUnit,
+                valueUnit: valueUnit,
+                minReading: sensorDef.minReading,
+                maxReading: sensorDef.maxReading
+            })
+            
+            this.sensor.on("statusReceived", this.onSensorStatus);
+            this.sensor.on("data", this.onSensorData);
+        }
     }
     
     onSensorStatus(e) {
@@ -127,6 +164,10 @@ export class App extends React.Component<AppProps, AppState> {
         
         if (this.lastDataIndex === undefined) {
             this.lastDataIndex = 0;
+            this.setState({
+                timeUnit: dataset.columns[0].units,
+                valueUnit: dataset.columns[1].units
+            });
         }                    
 
         // check there's new data for this column
@@ -209,7 +250,7 @@ export class App extends React.Component<AppProps, AppState> {
         return (
             <div>
                 <label>Reading:</label>
-                <span>{reading}</span>
+                <span>{reading + " " + this.state.valueUnit}</span>
                 <button id="zeroBtn" onClick={this.zeroSensor}>Zero</button>
             </div>
         );
@@ -219,21 +260,25 @@ export class App extends React.Component<AppProps, AppState> {
         return <Graph 
                    data={this.state.sensorData} 
                    onZoom={this.onGraphZoom}
-                   xMax={this.state.runLength}/>
+                   xMax={this.state.runLength}
+                   yMin={this.state.minReading}
+                   yMax={this.state.maxReading}
+                   xLabel={this.state.timeUnit}
+                   yLabel={this.state.valueUnit}/>
     }
     
     renderControls() {
         var hasData:boolean = this.state.sensorData.length > 0;
         return <div>
-            <select id="timeSelect" onChange={ this.onTimeSelect }>
-                <option value="1">1.0</option>
-                <option value="5">5.0</option>
-                <option value="10">10.0</option>
-                <option value="15">15.0</option>
-                <option value="20">20.0</option>
-                <option value="30">30.0</option>
-                <option value="45">45.0</option>
-                <option value="60">60.0</option>
+            <select id="timeSelect" onChange={ this.onTimeSelect } defaultValue="10">
+                <option value="1">{"1.0" + this.state.timeUnit}</option>
+                <option value="5">{"5.0" + this.state.timeUnit}</option>
+                <option value="10">{"10.0" + this.state.timeUnit}</option>
+                <option value="15">{"15.0" + this.state.timeUnit}</option>
+                <option value="20">{"20.0" + this.state.timeUnit}</option>
+                <option value="30">{"30.0" + this.state.timeUnit}</option>
+                <option value="45">{"45.0" + this.state.timeUnit}</option>
+                <option value="60">{"60.0" + this.state.timeUnit}</option>
             </select>
             <button id="startSensor" 
                 onClick={this.startSensor}
@@ -254,7 +299,7 @@ export class App extends React.Component<AppProps, AppState> {
         return (
             <div>
                 <div>
-                    <Title />
+                    <Title sensorType={this.state.sensorType}/>
                     {this.renderSensorValue()}
                 </div>
                 {this.renderGraph()}

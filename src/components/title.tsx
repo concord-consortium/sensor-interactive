@@ -1,9 +1,11 @@
 import * as React from "react";
 
-export interface TitleProps {}
+export interface TitleProps {
+    sensorType:string
+}
 
 export class Title extends React.Component<TitleProps, undefined> {
     render() {
-        return <h2>Sensor Interactive</h2>;
+        return <h2>{"Sensor Interactive: " + this.props.sensorType}</h2>;
     }
 }
