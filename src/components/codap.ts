@@ -18,7 +18,7 @@ export class Codap {
         collections: [
           {
             name: 'runs',
-            attrs: [ {name: "Row", type: 'categorical'}],
+            attrs: [ {name: "Run", type: 'categorical'}],
           },
           {
             name: 'measurements',
@@ -122,13 +122,13 @@ export class Codap {
         var sampleCount = data.length;
         var sampleIndex = ++this.state.sampleNumber;
         
-        var items:{Row:number, Time:number, Position:number}[] = [];
+        var items:{Run:number, Time:number, Position:number}[] = [];
         
         for(var i=0; i < sampleCount; i++) {
             var entry = data[i];
             var time = entry[0];
             var value = <number>entry[1];
-            items.push({Row: this.runIndex, Time: time, Position: value});
+            items.push({Run: this.runIndex, Time: time, Position: value});
         }
         
         this.guaranteeCaseTable();
