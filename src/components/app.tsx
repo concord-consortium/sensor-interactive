@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as ReactModal from 'react-modal';
 import { Title } from "./title";
 import { Graph } from "./graph";
 import { Codap } from "./codap";
@@ -20,8 +21,9 @@ export interface AppState {
     minReading:number,
     maxReading:number,
     tareValue:number,
-    timeUnit:string;
-    valueUnit:string;
+    timeUnit:string,
+    valueUnit:string,
+    warnNewModal:boolean
 }
 
 export class App extends React.Component<AppProps, AppState> {
@@ -31,6 +33,7 @@ export class App extends React.Component<AppProps, AppState> {
     private codap:Codap;
     private selectionRange:{start:number,end:number|undefined} = {start:0,end:undefined};
     private stopTimer:number;
+    private disableWarning:boolean = false;
     
     constructor(props: AppProps) {
         super(props);
@@ -46,7 +49,8 @@ export class App extends React.Component<AppProps, AppState> {
             maxReading:10,
             tareValue:0,
             timeUnit:"",
-            valueUnit:""
+            valueUnit:"",
+            warnNewModal:false
         };
         
         this.codap = new Codap();
@@ -65,7 +69,10 @@ export class App extends React.Component<AppProps, AppState> {
         this.startSensor = this.startSensor.bind(this);
         this.stopSensor = this.stopSensor.bind(this);
         this.sendData = this.sendData.bind(this);
-        this.newData = this.newData.bind(this);
+        this.checkNewData = this.checkNewData.bind(this);
+        this.closeWarnNewModal = this.closeWarnNewModal.bind(this);
+        this.discardData = this.discardData.bind(this);
+        this.toggleWarning = this.toggleWarning.bind(this);
     }
     
     onSensorConnect(e) {
@@ -201,10 +208,20 @@ export class App extends React.Component<AppProps, AppState> {
         });
     }
     
+    checkNewData() {
+        if(this.state.dataChanged && !this.disableWarning) {
+            this.setState({
+               warnNewModal: true
+            });
+        } else {
+            this.newData();
+        }
+    }
+    
     newData() {
         this.setState({
             sensorData: [],
-            dataChanged: false
+            dataChanged:false
         });
         this.lastDataIndex = 0;
     }    
@@ -239,6 +256,21 @@ export class App extends React.Component<AppProps, AppState> {
                 break;
             }
         }
+    }
+    
+    closeWarnNewModal() {
+        this.setState({
+            warnNewModal: false
+        });
+    }
+        
+    discardData() {
+        this.closeWarnNewModal();
+        this.newData();
+    }
+    
+    toggleWarning() {
+        this.disableWarning = true;
     }
     
     renderSensorValue() {
@@ -290,7 +322,7 @@ export class App extends React.Component<AppProps, AppState> {
                 onClick={this.sendData} 
                 disabled={!(hasData && this.state.dataChanged) || this.state.collecting}>Save Data</button>
             <button id="newData" 
-                onClick={this.newData} 
+                onClick={this.checkNewData} 
                 disabled={!hasData || this.state.collecting}>New Run</button>
             </div>
     }
@@ -298,6 +330,22 @@ export class App extends React.Component<AppProps, AppState> {
     render() {
         return (
             <div>
+                <ReactModal contentLabel="Discard data?" 
+                    isOpen={this.state.warnNewModal}
+                    style={{
+                        content: {
+                            bottom: "auto"
+                        }
+                    }}>
+                    <p>Pressing New Run without pressing Save Data will discard the current data. Set up a new run without saving the data first?</p>
+                    <input type="checkbox" 
+                        onChange={this.toggleWarning}/><label>Don't show this message again</label>
+                    <hr></hr>
+                    <button 
+                        onClick={this.closeWarnNewModal}>Go back</button>
+                    <button
+                        onClick={this.discardData}>Discard the data</button>
+                </ReactModal>
                 <div>
                     <Title sensorType={this.state.sensorType}/>
                     {this.renderSensorValue()}
