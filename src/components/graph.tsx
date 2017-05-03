@@ -85,6 +85,15 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         }
     }
     
+    shouldComponentUpdate(nextProps, nextState):boolean {
+        if(nextState.data.length != this.state.data.length ||
+          nextState.xMax != this.state.xMax ||
+          nextState.xLabel != this.state.xLabel) {
+            return true;
+        }
+        return false;
+    }
+    
     componentDidUpdate(prevProps, prevState) {
         this.update();
     }
