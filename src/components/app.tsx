@@ -12,6 +12,7 @@ export interface AppState {
     sensorActive:boolean,
     sensorValue:number|undefined,
     sensorData:number[][],
+    dataChanged:boolean,
     collecting:boolean,
     runLength:number,
     tareValue:number
@@ -31,6 +32,7 @@ export class App extends React.Component<AppProps, AppState> {
             sensorActive:false,
             sensorValue:undefined,
             sensorData:[],
+            dataChanged:false,
             collecting:false,
             runLength:10,
             tareValue:0
@@ -140,7 +142,8 @@ export class App extends React.Component<AppProps, AppState> {
                 updatedData.push([time, value]);
             }
             this.setState({
-                sensorData: updatedData
+                sensorData: updatedData,
+                dataChanged: true
             });
             this.lastDataIndex = newLength;
         }
@@ -151,10 +154,18 @@ export class App extends React.Component<AppProps, AppState> {
         data = data.slice(this.selectionRange.start, this.selectionRange.end);
         
         this.codap.sendData(data);
+        
+        this.setState({
+            dataChanged: false
+        });
     }
     
     newData() {
-        this.setState({sensorData:[]});
+        this.setState({
+            sensorData: [],
+            dataChanged: false
+        });
+        this.lastDataIndex = 0;
     }    
     
     onTimeSelect(event:React.FormEvent<HTMLSelectElement>) {
@@ -232,7 +243,7 @@ export class App extends React.Component<AppProps, AppState> {
                 disabled={!this.state.collecting}>Stop</button>
             <button id="sendData" 
                 onClick={this.sendData} 
-                disabled={!hasData || this.state.collecting}>Save Data</button>
+                disabled={!(hasData && this.state.dataChanged) || this.state.collecting}>Save Data</button>
             <button id="newData" 
                 onClick={this.newData} 
                 disabled={!hasData || this.state.collecting}>New Run</button>
