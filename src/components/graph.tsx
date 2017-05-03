@@ -73,14 +73,16 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
     componentWillReceiveProps(nextProps:GraphProps) {
         var data = this.checkData(nextProps.data);
-        var newState:any = {}
+        var newState:any = {};
         if(nextProps.xMax != this.props.xMax) {
             newState.xMax = nextProps.xMax;
         }
         if(nextProps.data.length != this.state.data.length) {
             newState.data = nextProps.data;
         }
-        this.setState(newState);
+        if(newState.xMax || newState.data) {
+            this.setState(newState);
+        }
     }
     
     componentDidUpdate(prevProps, prevState) {

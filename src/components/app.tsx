@@ -37,10 +37,12 @@ export class App extends React.Component<AppProps, AppState> {
         this.codap = new Codap();
         
         this.onSensorConnect = this.onSensorConnect.bind(this);
+        this.onSensorStatus = this.onSensorStatus.bind(this);
         this.onSensorData = this.onSensorData.bind(this);
         
         this.sensor = new SensorConnectorInterface();
         this.sensor.on("*", this.onSensorConnect);
+        this.sensor.on("statusReceived", this.onSensorStatus);
         this.sensor.on("data", this.onSensorData);
         this.sensor.startPolling(SENSOR_IP);
         
@@ -53,8 +55,14 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     onSensorConnect(e) {
+        console.log("sensor connect")
         this.sensor.off("*", this.onSensorConnect);
         this.setState({sensorActive:true});
+    }
+    
+    onSensorStatus(e) {
+        var liveValue = this.sensor.stateMachine.datasets[0].columns[1].liveValue;
+        this.setState({sensorValue: liveValue});
     }
     
     sensorHasData():boolean {
