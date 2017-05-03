@@ -13,7 +13,8 @@ export interface AppState {
     sensorValue:number|undefined,
     sensorData:number[][],
     collecting:boolean,
-    runLength:number
+    runLength:number,
+    tareValue:number
 }
 
 export class App extends React.Component<AppProps, AppState> {
@@ -31,7 +32,8 @@ export class App extends React.Component<AppProps, AppState> {
             sensorValue:undefined,
             sensorData:[],
             collecting:false,
-            runLength:10
+            runLength:10,
+            tareValue:0
         };
         
         this.codap = new Codap();
@@ -46,6 +48,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.sensor.on("data", this.onSensorData);
         this.sensor.startPolling(SENSOR_IP);
         
+        this.zeroSensor = this.zeroSensor.bind(this);
         this.onTimeSelect = this.onTimeSelect.bind(this);
         this.onGraphZoom = this.onGraphZoom.bind(this);
         this.startSensor = this.startSensor.bind(this);
@@ -75,6 +78,12 @@ export class App extends React.Component<AppProps, AppState> {
             val = this.sensor.datasets[0].columns[1].liveValue;
         
         return val;
+    }
+    
+    zeroSensor() {
+        this.setState({
+            tareValue: this.getSensorValue()
+        });
     }
     
     startSensor() {
@@ -126,7 +135,7 @@ export class App extends React.Component<AppProps, AppState> {
             var updatedData = this.state.sensorData.slice();
             for(var i=0; i < newTimeData.length; i++) {
                 var time = Number(newTimeData[i].toFixed(2));
-                var value = newValueData[i];
+                var value = newValueData[i] - this.state.tareValue;
 
                 updatedData.push([time, value]);
             }
@@ -181,10 +190,16 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     renderSensorValue() {
+        var reading = "";
+        if(this.state.sensorActive && this.state.sensorValue) {
+            reading = (this.state.sensorValue - this.state.tareValue).toFixed(5);
+        }
+            
         return (
             <div>
                 <label>Reading:</label>
-                <span>{this.state.sensorActive && this.state.sensorValue}</span>
+                <span>{reading}</span>
+                <button id="zeroBtn" onClick={this.zeroSensor}>Zero</button>
             </div>
         );
     }
