@@ -33,7 +33,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             xMax: 10,
             yMin: 0,
             yMax: 10,
-            xLabel: "",
+            xLabel: "Time",
             yLabel: ""
         }
         
@@ -56,7 +56,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         this.dygraph.updateOptions({
             file: data,
             dateWindow: [0, this.state.xMax],
-            valueRange: [this.state.yMin, this.state.yMax]
+            valueRange: [this.state.yMin, this.state.yMax],
+            xlabel: this.state.xLabel,
+            ylabel: this.state.yLabel
         });
     }
 
@@ -77,21 +79,23 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             axes: {
                 x: {
                     valueFormatter: (val:number) => {
-                        return formatVal(val, this.state.xLabel);
+                        return formatVal(val);
                     },
                     axisLabelFormatter: (val:number) => {
-                        return formatVal(val, this.state.xLabel);
+                        return formatVal(val);
                     }
                 },
                 y: {
                     valueFormatter: (val:number) => {
-                        return formatVal(val, this.state.yLabel);
+                        return formatVal(val);
                     },
                     axisLabelFormatter: (val:number) => {
-                        return formatVal(val, this.state.yLabel);
+                        return formatVal(val);
                     }
                 }
-            }
+            },
+            xlabel: this.state.xLabel,
+            ylabel: this.state.yLabel
         });
     }
 

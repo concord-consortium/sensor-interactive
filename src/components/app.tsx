@@ -23,6 +23,7 @@ export interface AppState {
     tareValue:number,
     timeUnit:string,
     valueUnit:string,
+    measurementName:string,
     warnNewModal:boolean
 }
 
@@ -50,6 +51,7 @@ export class App extends React.Component<AppProps, AppState> {
             tareValue:0,
             timeUnit:"",
             valueUnit:"",
+            measurementName:"",
             warnNewModal:false
         };
         
@@ -101,7 +103,8 @@ export class App extends React.Component<AppProps, AppState> {
                 timeUnit: timeUnit,
                 valueUnit: valueUnit,
                 minReading: sensorDef.minReading,
-                maxReading: sensorDef.maxReading
+                maxReading: sensorDef.maxReading,
+                measurementName: sensorDef.measurementName
             })
             
             this.sensor.on("statusReceived", this.onSensorStatus);
@@ -295,8 +298,8 @@ export class App extends React.Component<AppProps, AppState> {
                    xMax={this.state.runLength}
                    yMin={this.state.minReading}
                    yMax={this.state.maxReading}
-                   xLabel={this.state.timeUnit}
-                   yLabel={this.state.valueUnit}/>
+                   xLabel={"Time (" + this.state.timeUnit + ")"} 
+                   yLabel={this.state.measurementName + " (" + this.state.valueUnit + ")"}/>
     }
     
     renderControls() {
