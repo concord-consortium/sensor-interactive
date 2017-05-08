@@ -75,6 +75,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.closeWarnNewModal = this.closeWarnNewModal.bind(this);
         this.discardData = this.discardData.bind(this);
         this.toggleWarning = this.toggleWarning.bind(this);
+        this.reload = this.reload.bind(this);
     }
     
     onSensorConnect(e) {
@@ -276,6 +277,10 @@ export class App extends React.Component<AppProps, AppState> {
         this.disableWarning = true;
     }
     
+    reload() {
+        location.reload();
+    }
+    
     renderSensorValue() {
         var reading = "";
         if(this.state.sensorActive && this.state.sensorValue) {
@@ -350,6 +355,8 @@ export class App extends React.Component<AppProps, AppState> {
                         onClick={this.discardData}>Discard the data</button>
                 </ReactModal>
                 <div>
+                    <button
+                        onClick={this.reload}>Reload</button>
                     <Title sensorType={this.state.sensorType}/>
                     {this.renderSensorValue()}
                 </div>
