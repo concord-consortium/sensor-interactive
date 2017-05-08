@@ -11,7 +11,6 @@ export class Codap {
     
     private dataSetName:string = "sensor_interactive";
     private dataSetTitle:string = "Sensor Interactive";
-    private runIndex:number = 0;
     
     private dataSetTemplate:IDataSetTemplate = {
         name: "{name}",
@@ -112,15 +111,14 @@ export class Codap {
 
         
     sendData(data:number[][]):Promise<any> {
-        // if a sample number has not yet been initialized, do so now.
-        if (this.state.sampleNumber == undefined || this.state.sampleNumber == null) {
-            this.state.sampleNumber = 0;
+        // if a run number has not yet been initialized, do so now.
+        if (this.state.runNumber == undefined || this.state.runNumber == null) {
+            this.state.runNumber = 0;
         }
         
-        ++this.runIndex;
+        ++this.state.runNumber;
 
         var sampleCount = data.length;
-        var sampleIndex = ++this.state.sampleNumber;
         
         var items:{Run:number, Time:number, Position:number}[] = [];
         
@@ -128,7 +126,7 @@ export class Codap {
             var entry = data[i];
             var time = entry[0];
             var value = <number>entry[1];
-            items.push({Run: this.runIndex, Time: time, Position: value});
+            items.push({Run: this.state.runNumber, Time: time, Position: value});
         }
         
         this.guaranteeCaseTable();
