@@ -10074,12 +10074,15 @@ class App extends React.Component {
             tareValue: 0,
             timeUnit: "",
             valueUnit: "",
-            warnNewModal: false
+            measurementName: "",
+            warnNewModal: false,
+            statusMessage: undefined
         };
         this.codap = new codap_1.Codap();
         this.onSensorConnect = this.onSensorConnect.bind(this);
         this.onSensorStatus = this.onSensorStatus.bind(this);
         this.onSensorData = this.onSensorData.bind(this);
+        this.onSensorDisconnect = this.onSensorDisconnect.bind(this);
         this.sensor = new sensor_connector_interface_1.default();
         this.sensor.on("*", this.onSensorConnect);
         this.sensor.startPolling(SENSOR_IP);
@@ -10093,11 +10096,17 @@ class App extends React.Component {
         this.closeWarnNewModal = this.closeWarnNewModal.bind(this);
         this.discardData = this.discardData.bind(this);
         this.toggleWarning = this.toggleWarning.bind(this);
+        this.reload = this.reload.bind(this);
     }
     onSensorConnect(e) {
         var sensorInfo = this.sensor.stateMachine.currentActionArgs[1];
         var sensorType = sensorInfo.currentInterface;
-        if (sensorType != "None Found") {
+        if (sensorType == "None Found") {
+            this.setState({
+                statusMessage: sensor_definitions_1.SensorStrings["messages"]["no_sensors"]
+            });
+        }
+        else {
             this.sensor.off("*", this.onSensorConnect);
             this.setState({ sensorActive: true });
             console.log("sensor connected: " + sensorType);
@@ -10118,10 +10127,13 @@ class App extends React.Component {
                 timeUnit: timeUnit,
                 valueUnit: valueUnit,
                 minReading: sensorDef.minReading,
-                maxReading: sensorDef.maxReading
+                maxReading: sensorDef.maxReading,
+                measurementName: sensorDef.measurementName,
+                statusMessage: sensor_definitions_1.SensorStrings["messages"]["ready"]
             });
             this.sensor.on("statusReceived", this.onSensorStatus);
             this.sensor.on("data", this.onSensorData);
+            this.sensor.on("interfaceRemoved", this.onSensorDisconnect);
         }
     }
     onSensorStatus(e) {
@@ -10145,20 +10157,27 @@ class App extends React.Component {
     startSensor() {
         this.sensor.requestStart();
         this.setState({
-            collecting: true
+            statusMessage: sensor_definitions_1.SensorStrings["messages"]["starting_data_collection"]
         });
-        this.stopTimer = setTimeout(() => {
-            this.stopSensor();
-        }, this.state.runLength * 1000);
     }
     stopSensor() {
         this.sensor.requestStop();
         this.setState({
-            collecting: false
+            collecting: false,
+            statusMessage: sensor_definitions_1.SensorStrings["messages"]["data_collection_stopped"]
         });
         clearTimeout(this.stopTimer);
     }
     onSensorData(setId) {
+        if (!this.state.collecting) {
+            this.setState({
+                collecting: true,
+                statusMessage: sensor_definitions_1.SensorStrings["messages"]["collecting_data"]
+            });
+            this.stopTimer = setTimeout(() => {
+                this.stopSensor();
+            }, this.state.runLength * 1000);
+        }
         var dataset;
         for (var i = 0; i < this.sensor.datasets.length; i++) {
             if (this.sensor.datasets[i].id == setId) {
@@ -10196,6 +10215,12 @@ class App extends React.Component {
             });
             this.lastDataIndex = newLength;
         }
+    }
+    onSensorDisconnect() {
+        this.setState({
+            sensorActive: false,
+            statusMessage: sensor_definitions_1.SensorStrings["messages"]["disconnected"]
+        });
     }
     sendData() {
         var data = this.state.sensorData.slice();
@@ -10265,6 +10290,9 @@ class App extends React.Component {
     toggleWarning() {
         this.disableWarning = true;
     }
+    reload() {
+        location.reload();
+    }
     renderSensorValue() {
         var reading = "";
         if (this.state.sensorActive && this.state.sensorValue) {
@@ -10276,7 +10304,7 @@ class App extends React.Component {
             React.createElement("button", { id: "zeroBtn", onClick: this.zeroSensor }, "Zero")));
     }
     renderGraph() {
-        return React.createElement(graph_1.Graph, { data: this.state.sensorData, onZoom: this.onGraphZoom, xMax: this.state.runLength, yMin: this.state.minReading, yMax: this.state.maxReading, xLabel: this.state.timeUnit, yLabel: this.state.valueUnit });
+        return React.createElement(graph_1.Graph, { data: this.state.sensorData, onZoom: this.onGraphZoom, xMax: this.state.runLength, yMin: this.state.minReading, yMax: this.state.maxReading, xLabel: "Time (" + this.state.timeUnit + ")", yLabel: this.state.measurementName + " (" + this.state.valueUnit + ")" });
     }
     renderControls() {
         var hasData = this.state.sensorData.length > 0;
@@ -10309,8 +10337,10 @@ class App extends React.Component {
                 React.createElement("button", { onClick: this.closeWarnNewModal }, "Go back"),
                 React.createElement("button", { onClick: this.discardData }, "Discard the data")),
             React.createElement("div", null,
+                React.createElement("button", { onClick: this.reload }, "Reload"),
                 React.createElement(title_1.Title, { sensorType: this.state.sensorType }),
                 this.renderSensorValue()),
+            React.createElement("div", null, this.state.statusMessage),
             this.renderGraph(),
             this.renderControls()));
     }
@@ -10345,7 +10375,6 @@ class Codap {
         this.state = {};
         this.dataSetName = "sensor_interactive";
         this.dataSetTitle = "Sensor Interactive";
-        this.runIndex = 0;
         this.dataSetTemplate = {
             name: "{name}",
             collections: [
@@ -10441,19 +10470,18 @@ class Codap {
         });
     }
     sendData(data) {
-        // if a sample number has not yet been initialized, do so now.
-        if (this.state.sampleNumber == undefined || this.state.sampleNumber == null) {
-            this.state.sampleNumber = 0;
+        // if a run number has not yet been initialized, do so now.
+        if (this.state.runNumber == undefined || this.state.runNumber == null) {
+            this.state.runNumber = 0;
         }
-        ++this.runIndex;
+        ++this.state.runNumber;
         var sampleCount = data.length;
-        var sampleIndex = ++this.state.sampleNumber;
         var items = [];
         for (var i = 0; i < sampleCount; i++) {
             var entry = data[i];
             var time = entry[0];
             var value = entry[1];
-            items.push({ Run: this.runIndex, Time: time, Position: value });
+            items.push({ Run: this.state.runNumber, Time: time, Position: value });
         }
         this.guaranteeCaseTable();
         return CodapInterface.sendRequest({
@@ -10484,7 +10512,7 @@ class Graph extends React.Component {
             xMax: 10,
             yMin: 0,
             yMax: 10,
-            xLabel: "",
+            xLabel: "Time",
             yLabel: ""
         };
         this.autoScale = this.autoScale.bind(this);
@@ -10504,7 +10532,9 @@ class Graph extends React.Component {
         this.dygraph.updateOptions({
             file: data,
             dateWindow: [0, this.state.xMax],
-            valueRange: [this.state.yMin, this.state.yMax]
+            valueRange: [this.state.yMin, this.state.yMax],
+            xlabel: this.state.xLabel,
+            ylabel: this.state.yLabel
         });
     }
     autoScale() {
@@ -10521,21 +10551,23 @@ class Graph extends React.Component {
             axes: {
                 x: {
                     valueFormatter: (val) => {
-                        return formatVal(val, this.state.xLabel);
+                        return formatVal(val);
                     },
                     axisLabelFormatter: (val) => {
-                        return formatVal(val, this.state.xLabel);
+                        return formatVal(val);
                     }
                 },
                 y: {
                     valueFormatter: (val) => {
-                        return formatVal(val, this.state.yLabel);
+                        return formatVal(val);
                     },
                     axisLabelFormatter: (val) => {
-                        return formatVal(val, this.state.yLabel);
+                        return formatVal(val);
                     }
                 }
-            }
+            },
+            xlabel: this.state.xLabel,
+            ylabel: this.state.yLabel
         });
     }
     componentWillReceiveProps(nextProps) {
@@ -10724,7 +10756,7 @@ exports.SensorStrings = {
         "labQuestO2": "LabQuest O₂ sensor"
     }
 };
-//temp
+// TODO: remove when i18n module is integrated
 class i18n {
     static t(id) {
         var category = id.substring(id.indexOf(".") + 1, id.lastIndexOf("."));
