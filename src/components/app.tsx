@@ -3,7 +3,7 @@ import * as ReactModal from 'react-modal';
 import { Title } from "./title";
 import { Graph } from "./graph";
 import { Codap } from "./codap";
-import { SensorDefinitions } from "./sensor-definitions";
+import { SensorStrings, SensorDefinitions } from "./sensor-definitions";
 import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
 
 const SENSOR_IP = "http://127.0.0.1:11180";
@@ -24,7 +24,8 @@ export interface AppState {
     timeUnit:string,
     valueUnit:string,
     measurementName:string,
-    warnNewModal:boolean
+    warnNewModal:boolean,
+    statusMessage:string|undefined
 }
 
 export class App extends React.Component<AppProps, AppState> {
@@ -52,7 +53,8 @@ export class App extends React.Component<AppProps, AppState> {
             timeUnit:"",
             valueUnit:"",
             measurementName:"",
-            warnNewModal:false
+            warnNewModal:false,
+            statusMessage:undefined
         };
         
         this.codap = new Codap();
@@ -60,6 +62,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.onSensorConnect = this.onSensorConnect.bind(this);
         this.onSensorStatus = this.onSensorStatus.bind(this);
         this.onSensorData = this.onSensorData.bind(this);
+        this.onSensorDisconnect = this.onSensorDisconnect.bind(this);
         
         this.sensor = new SensorConnectorInterface();
         this.sensor.on("*", this.onSensorConnect);
@@ -81,7 +84,13 @@ export class App extends React.Component<AppProps, AppState> {
     onSensorConnect(e) {
         var sensorInfo = this.sensor.stateMachine.currentActionArgs[1];
         var sensorType = sensorInfo.currentInterface;
-        if(sensorType != "None Found") {
+        
+        if(sensorType == "None Found") {
+            this.setState({
+                statusMessage: SensorStrings["messages"]["no_sensors"]
+            });
+        }
+        else {
             this.sensor.off("*", this.onSensorConnect);
             this.setState({sensorActive:true});
             console.log("sensor connected: " + sensorType);
@@ -105,11 +114,13 @@ export class App extends React.Component<AppProps, AppState> {
                 valueUnit: valueUnit,
                 minReading: sensorDef.minReading,
                 maxReading: sensorDef.maxReading,
-                measurementName: sensorDef.measurementName
+                measurementName: sensorDef.measurementName,
+                statusMessage: SensorStrings["messages"]["ready"]
             })
             
             this.sensor.on("statusReceived", this.onSensorStatus);
             this.sensor.on("data", this.onSensorData);
+            this.sensor.on("interfaceRemoved", this.onSensorDisconnect);
         }
     }
     
@@ -139,23 +150,31 @@ export class App extends React.Component<AppProps, AppState> {
     startSensor() {
         this.sensor.requestStart();
         this.setState({
-            collecting: true
+            statusMessage: SensorStrings["messages"]["starting_data_collection"]
         });
-        
-        this.stopTimer = setTimeout(()=>{
-            this.stopSensor();
-        }, this.state.runLength * 1000);
     }
     
     stopSensor() {
         this.sensor.requestStop();
         this.setState({
-            collecting: false
+            collecting: false,
+            statusMessage: SensorStrings["messages"]["data_collection_stopped"]
         });
         clearTimeout(this.stopTimer);
     }
     
     onSensorData(setId:string) {
+        if(!this.state.collecting) {
+            this.setState({
+                collecting: true,
+                statusMessage: SensorStrings["messages"]["collecting_data"]
+            });
+
+            this.stopTimer = setTimeout(()=>{
+                this.stopSensor();
+            }, this.state.runLength * 1000);
+        }
+        
         var dataset;
         for(var i=0; i < this.sensor.datasets.length; i++) {
             if(this.sensor.datasets[i].id == setId) {
@@ -199,6 +218,13 @@ export class App extends React.Component<AppProps, AppState> {
             });
             this.lastDataIndex = newLength;
         }
+    }
+    
+    onSensorDisconnect() {
+        this.setState({
+            sensorActive: false,
+            statusMessage: SensorStrings["messages"]["disconnected"] 
+        });
     }
     
     sendData() {
@@ -360,6 +386,7 @@ export class App extends React.Component<AppProps, AppState> {
                     <Title sensorType={this.state.sensorType}/>
                     {this.renderSensorValue()}
                 </div>
+                <div>{this.state.statusMessage}</div>
                 {this.renderGraph()}
                 {this.renderControls()}
             </div>

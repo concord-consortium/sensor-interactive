@@ -140,7 +140,7 @@ export const SensorStrings = {
     }
 }
 
-//temp
+// TODO: remove when i18n module is integrated
 export class i18n {
     static t(id:string): string {
         var category = id.substring(id.indexOf(".")+1, id.lastIndexOf("."));
