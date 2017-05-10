@@ -10337,14 +10337,16 @@ class App extends React.Component {
         if (this.state.sensorActive && this.state.sensorValue) {
             reading = (this.state.sensorValue - this.state.tareValue).toFixed(5);
         }
-        var valueOption = function (valueUnit) {
-            var jsx = React.createElement("option", { key: valueUnit, value: valueUnit }, valueUnit);
+        var valueOption = (valueUnit) => {
+            var measurementName = sensor_definitions_1.SensorDefinitions[valueUnit].measurementName;
+            var jsx = React.createElement("option", { key: valueUnit, value: valueUnit }, measurementName + " (" + valueUnit + ")");
             return jsx;
         };
-        return (React.createElement("div", null,
+        return (React.createElement("div", { className: "sensor-reading" },
             React.createElement("label", null, "Reading:"),
             React.createElement("span", null, reading + " " + this.state.valueUnit),
             React.createElement("button", { id: "zeroBtn", onClick: this.zeroSensor }, "Zero"),
+            React.createElement("span", null, "Sensor:"),
             React.createElement("select", { onChange: this.onSensorSelect }, this.valueUnits.map(valueOption))));
     }
     renderGraph() {
