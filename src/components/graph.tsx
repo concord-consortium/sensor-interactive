@@ -104,7 +104,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         
         var newState:any = {};
         
-        if(nextProps.xLabel != this.props.xLabel) {
+        if(nextProps.xLabel != this.props.xLabel || nextProps.yLabel != this.props.yLabel) {
             newState.xLabel = nextProps.xLabel,
             newState.yLabel = nextProps.yLabel,
             newState.yMin = nextProps.yMin,
@@ -124,7 +124,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     shouldComponentUpdate(nextProps, nextState):boolean {
         if(nextState.data.length != this.state.data.length ||
           nextState.xMax != this.state.xMax ||
-          nextState.xLabel != this.state.xLabel) {
+          nextState.xLabel != this.state.xLabel ||
+          nextState.yLabel != this.state.yLabel) {
             return true;
         }
         return false;
