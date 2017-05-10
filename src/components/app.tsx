@@ -355,15 +355,17 @@ export class App extends React.Component<AppProps, AppState> {
             reading = (this.state.sensorValue - this.state.tareValue).toFixed(5);
         }
                     
-        var valueOption = function(valueUnit:string) {
-            var jsx = <option key={valueUnit} value={valueUnit}>{valueUnit}</option>;
+        var valueOption = (valueUnit:string) => {
+            var measurementName = SensorDefinitions[valueUnit].measurementName
+            var jsx = <option key={valueUnit} value={valueUnit}>{measurementName + " ("+valueUnit+")"}</option>;
             return jsx;
         }
         return (
-            <div>
+            <div className="sensor-reading">
                 <label>Reading:</label>
                 <span>{reading + " " + this.state.valueUnit}</span>
                 <button id="zeroBtn" onClick={this.zeroSensor}>Zero</button>
+                <span>Sensor:</span>
                 <select onChange={ this.onSensorSelect }>
                     {this.valueUnits.map(valueOption)}
                 </select>
