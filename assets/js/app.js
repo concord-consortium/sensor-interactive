@@ -10129,6 +10129,10 @@ class App extends React.Component {
                     this.valueUnits.push(set.units);
                 }
             }
+            this.setState({
+                sensorType: sensorType,
+                timeUnit: timeUnit
+            });
             this.setSensor(this.valueUnits[0]);
             this.sensorConnector.on("statusReceived", this.onSensorStatus);
             this.sensorConnector.on("data", this.onSensorData);
