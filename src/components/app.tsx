@@ -111,6 +111,11 @@ export class App extends React.Component<AppProps, AppState> {
                 }
             }
             
+            this.setState({
+                sensorType: sensorType,
+                timeUnit: timeUnit
+            });
+
             this.setSensor(this.valueUnits[0]);
             
             this.sensorConnector.on("statusReceived", this.onSensorStatus);
