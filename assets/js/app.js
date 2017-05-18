@@ -10693,6 +10693,8 @@ class App extends React.Component {
             dataReset: false,
             collecting: false,
             runLength: 10,
+            xStart: 0,
+            xEnd: 10,
             timeUnit: "",
             warnNewModal: false,
             statusMessage: undefined,
@@ -10827,36 +10829,45 @@ class App extends React.Component {
         this.sensorDataByType = {};
     }
     onTimeSelect(event) {
-        this.setState({ runLength: parseInt(event.currentTarget.value, 10) });
+        var newTime = parseInt(event.currentTarget.value, 10);
+        this.setState({
+            runLength: newTime,
+            xStart: 0,
+            xEnd: newTime
+        });
     }
     onGraphZoom(xStart, xEnd) {
         // convert from time value to index
-        //TODO: update to handle multiple graphs
-        /*
-        var i:number, entry:number[], nextEntry:number[];
-        for(i=0; i < this.state.sensor1.data.length-1; i++) {
-            entry = this.state.sensor1.data[i];
-            nextEntry = this.state.sensor1.data[i+1];
-            if(entry[0] == xStart) {
+        var i, entry, nextEntry;
+        for (i = 0; i < this.sensor1.sensorData.length - 1; i++) {
+            entry = this.sensor1.sensorData[i];
+            nextEntry = this.sensor1.sensorData[i + 1];
+            if (entry[0] == xStart) {
                 this.selectionRange.start = i;
                 break;
-            } else if(entry[0] < xStart && nextEntry[0] >= xStart) {
-                this.selectionRange.start = i+1;
+            }
+            else if (entry[0] < xStart && nextEntry[0] >= xStart) {
+                this.selectionRange.start = i + 1;
                 break;
             }
         }
-        for(i; i < this.state.sensor1.data.length-1; i++) {
-            entry = this.state.sensor1.data[i];
-            nextEntry = this.state.sensor1.data[i+1];
-            if(entry[0] == xEnd) {
+        for (i; i < this.sensor1.sensorData.length - 1; i++) {
+            entry = this.sensor1.sensorData[i];
+            nextEntry = this.sensor1.sensorData[i + 1];
+            if (entry[0] == xEnd) {
                 this.selectionRange.end = i;
                 break;
-            } else if(entry[0] < xEnd && nextEntry[0] >= xEnd) {
-                this.selectionRange.end = i+1;
+            }
+            else if (entry[0] < xEnd && nextEntry[0] >= xEnd) {
+                this.selectionRange.end = i + 1;
                 break;
             }
         }
-        */
+        this.setState({
+            xStart: xStart,
+            xEnd: xEnd,
+            dataChanged: true
+        });
     }
     closeWarnNewModal() {
         this.setState({
@@ -10886,7 +10897,7 @@ class App extends React.Component {
         }
     }
     renderGraph(sensor, title) {
-        return React.createElement(sensor_graph_1.SensorGraph, { sensor: sensor, title: title, sensorConnector: this.sensorConnector, onGraphZoom: this.onGraphZoom, runLength: this.state.runLength, valueUnits: this.valueUnits, collecting: this.state.collecting, dataReset: this.state.dataReset });
+        return React.createElement(sensor_graph_1.SensorGraph, { sensor: sensor, title: title, sensorConnector: this.sensorConnector, onGraphZoom: this.onGraphZoom, runLength: this.state.runLength, xStart: this.state.xStart, xEnd: this.state.xEnd, valueUnits: this.valueUnits, collecting: this.state.collecting, dataReset: this.state.dataReset });
     }
     renderControls() {
         return React.createElement("div", null,
@@ -11140,6 +11151,7 @@ class Graph extends React.Component {
         this.lastLabel = 0;
         this.state = {
             data: this.props.data,
+            xMin: 0,
             xMax: 10,
             yMin: 0,
             yMax: 10,
@@ -11396,7 +11408,7 @@ class SensorGraph extends React.Component {
     render() {
         return (React.createElement("div", null,
             this.renderReading(),
-            React.createElement(graph_1.Graph, { title: this.props.title, data: this.state.sensorData, onZoom: this.props.onGraphZoom, xMax: this.props.runLength, yMin: this.props.sensor.definition.minReading, yMax: this.props.sensor.definition.maxReading, xLabel: "Time (" + this.state.timeUnit + ")", yLabel: this.props.sensor.definition.measurementName + " (" + this.state.valueUnit + ")" })));
+            React.createElement(graph_1.Graph, { title: this.props.title, data: this.state.sensorData, onZoom: this.props.onGraphZoom, xMin: this.props.xStart, xMax: this.props.xEnd, yMin: this.props.sensor.definition.minReading, yMax: this.props.sensor.definition.maxReading, xLabel: "Time (" + this.state.timeUnit + ")", yLabel: this.props.sensor.definition.measurementName + " (" + this.state.valueUnit + ")" })));
     }
 }
 exports.SensorGraph = SensorGraph;
