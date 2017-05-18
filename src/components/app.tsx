@@ -244,7 +244,8 @@ export class App extends React.Component<AppProps, AppState> {
         
         this.setState({
             xStart: xStart,
-            xEnd: xEnd
+            xEnd: xEnd,
+            dataChanged: true
         });
         
     }
