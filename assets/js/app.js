@@ -1328,7 +1328,7 @@ function dateValueFormatter(d, opts) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__datahandler__ = __webpack_require__(36);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dygraph_layout__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dygraph_layout__ = __webpack_require__(67);
 /**
  * @license
  * Copyright 2013 David Eberlein (david.eberlein@ch.sauter-bc.com)
@@ -2888,28 +2888,28 @@ var getDateAxis = function(start_time, end_time, granularity, opts, dg) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(process) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dygraph_layout__ = __webpack_require__(66);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dygraph_canvas__ = __webpack_require__(64);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dygraph_options__ = __webpack_require__(117);
+/* WEBPACK VAR INJECTION */(function(process) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dygraph_layout__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dygraph_canvas__ = __webpack_require__(65);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dygraph_options__ = __webpack_require__(119);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__dygraph_interaction_model__ = __webpack_require__(37);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__dygraph_tickers__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__dygraph_utils__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__dygraph_default_attrs__ = __webpack_require__(65);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__dygraph_options_reference__ = __webpack_require__(67);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__iframe_tarp__ = __webpack_require__(68);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__datahandler_default__ = __webpack_require__(63);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__datahandler_bars_error__ = __webpack_require__(113);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__datahandler_bars_custom__ = __webpack_require__(112);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__datahandler_default_fractions__ = __webpack_require__(115);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__datahandler_bars_fractions__ = __webpack_require__(114);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__dygraph_default_attrs__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__dygraph_options_reference__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__iframe_tarp__ = __webpack_require__(69);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__datahandler_default__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__datahandler_bars_error__ = __webpack_require__(115);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__datahandler_bars_custom__ = __webpack_require__(114);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__datahandler_default_fractions__ = __webpack_require__(117);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__datahandler_bars_fractions__ = __webpack_require__(116);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__datahandler_bars__ = __webpack_require__(29);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__plugins_annotations__ = __webpack_require__(118);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__plugins_axes__ = __webpack_require__(119);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__plugins_chart_labels__ = __webpack_require__(120);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__plugins_grid__ = __webpack_require__(121);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__plugins_legend__ = __webpack_require__(122);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__plugins_range_selector__ = __webpack_require__(123);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__dygraph_gviz__ = __webpack_require__(116);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__plugins_annotations__ = __webpack_require__(120);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__plugins_axes__ = __webpack_require__(121);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__plugins_chart_labels__ = __webpack_require__(122);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__plugins_grid__ = __webpack_require__(123);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__plugins_legend__ = __webpack_require__(124);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__plugins_range_selector__ = __webpack_require__(125);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__dygraph_gviz__ = __webpack_require__(118);
 /**
  * @license
  * Copyright 2006 Dan Vanderkam (danvdk@gmail.com)
@@ -6454,6 +6454,630 @@ exports.supported = function supported() {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+// from concord-consortium/lab
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SensorStrings = {
+    "select_sensor": "Select Sensor",
+    "select_sensor_type": "Select type of sensor...",
+    "reading": "Reading:",
+    "zero": "Zero",
+    "zeroing": "Zeroing...",
+    "loading_sensor": "Loading sensor...",
+    "choose_sensor_title": "Select a sensor:",
+    "connect": "Connect",
+    "address_labquest2": "address of LabQuest2",
+    "messages": {
+        "ready": "Ready to collect.",
+        "ready_nocontrol": "Please stop the __controlling_client__ data collector to collect data here.",
+        "ready_nocontrol_noname": "Please stop the other active data collector to collect data here.",
+        "no_sensors": "No sensors found.",
+        "no_devices": "No devices plugged in.",
+        "not_connected": "Not connected.",
+        "connecting": "Connecting...",
+        "connection_in_progress": "Connecting to your sensors. If a message comes up about sensorconnector.concord.org, please accept it.",
+        "connection_failed": "Connection failed. __retry_link__",
+        "connection_failed_retry_link_text": "Try again",
+        "connection_failed_alert": "The Concord Consortium Sensor Connector is not installed or is not running. Please __click_here_link__ for instructions on using the Sensor Connector.",
+        "connection_failed_labquest2_alert": "Could not connect to the LabQuest2. Please make sure the address is correct and that the LabQuest2 can be reached from this computer",
+        "tare_labquest2_alert": "The LabQuest2 needs to be collecting live data in order to zero. Either set up a new run on the LabQuest2, or click the meter icon in the upper left.",
+        "click_here": "click here",
+        "connected": "Connected.",
+        "connected_start_labquest2": "Connected. Press start on your LabQuest2 to begin.",
+        "connected_start_sensorconnector": "Please stop the __controlling_client__ data collector to collect data here.",
+        "connected_start_sensorconnector_noname": "Please stop the other active data collector to collect data here.",
+        "starting_data_collection": "Starting data collection...",
+        "error_starting_data_collection": "Error starting data collection.",
+        "error_starting_data_collection_alert": "Could not start data collection. Make sure that (remote starting) is enabled",
+        "collecting_data": "Collecting data.",
+        "collecting_data_stop_labquest2": "Collecting data. Press stop on your LabQuest2 to end.",
+        "collecting_data_stop_sensorconnector": "Collecting data.",
+        "no_data": "No data is available.",
+        "no_data_alert": "The Sensor Connector does not appear to be reporting data for the plugged-in device",
+        "no_data_labquest2_alert": "The LabQuest does not appear to be reporting data for the plugged-in device",
+        "canceling_data_collection": "Canceling data collection...",
+        "error_canceling_data_collection": "Error canceling data collection.",
+        "error_canceling_data_collection_alert": "Could not cancel data collection. Make sure that (remote starting) is enabled",
+        "stopping_data_collection": "Stopping data collection...",
+        "error_stopping_data_collection": "Error stopping data collection.",
+        "error_stopping_data_collection_alert": "Could not stop data collection. Make sure that (remote starting) is enabled",
+        "data_collection_stopped": "Data collection stopped.",
+        "data_collection_complete": "Data collection complete.",
+        "disconnected": "Disconnected.",
+        "java_applet_error": "It appears that Java applets cannot run in your browser. If you are able to fix this, reload the page to use the sensor",
+        "java_applet_not_loading": "The sensor applet appears not to be loading. If you are able to fix this, reload the page to use the sensor",
+        "unexpected_error": "There was an unexpected error when connecting to the sensor.",
+        "sensor_not_attached": "The __sensor_name__ does not appear to be attached. Try re-attaching it, and then click \"$t(sensor.messages.try_again)\".",
+        "sensor_or_device_unplugged": "The __sensor_or_device_name__ was unplugged. Try plugging it back in, and then click \"$t(sensor.messages.try_again)\".",
+        "try_again": "Try Again",
+        "cancel": "Cancel"
+    },
+    "measurements": {
+        "sensor_reading": "Sensor Reading",
+        "time": "Time",
+        "distance": "Distance",
+        "acceleration": "Acceleration",
+        "altitude": "Altitude",
+        "angle": "Angle",
+        "CO2": "CO₂",
+        "CO2_concentration": "CO₂ Concentration",
+        "charge": "Charge",
+        "conductivity": "Conductivity",
+        "current": "Current",
+        "dissolved_oxygen": "DO",
+        "flow_rate": "Flow Rate",
+        "fluorescence_405_nm": "Fluorescence 405 nm",
+        "fluorescence_500_nm": "Fluorescence 500 nm",
+        "force": "Force",
+        "intensity": "Intensity",
+        "light_level": "Light Level",
+        "light_intensity": "Light Intensity",
+        "magnetic_field": "Magnetic Field",
+        "position": "Position",
+        "potential": "Potential",
+        "pressure": "Pressure",
+        "signal": "Signal",
+        "sound_level": "Sound Level",
+        "speed": "Speed",
+        "temperature": "Temperature",
+        "transmittance": "Transmittance",
+        "turbidity": "Turbidity",
+        "UV_intensity": "UV Intensity",
+        "velocity": "Velocity",
+        "volume": "Volume",
+        "pH": "pH",
+        "acidity": "Acidity",
+        "O2_concentration": "O₂ Concentration"
+    },
+    "names": {
+        "sensor": "sensor",
+        "no_sensor": "(no sensor)",
+        "light": "Light",
+        "motion": "Motion",
+        "accelerometer": "Accelerometer",
+        "dissolved_oxygen": "Dissolved Oxygen",
+        "pressure": "Pressure",
+        "charge_sensor": "Charge Sensor",
+        "voltage": "Voltage",
+        "pH": "pH",
+        "CO2_gas": "CO₂ Gas",
+        "colorimeter": "Colorimeter",
+        "conductivity": "Conductivity",
+        "current": "Current",
+        "temperature": "Temperature",
+        "force": "Force",
+        "anemometer": "Anemometer",
+        "hand_dynamometer": "Hand Dynamometer",
+        "heart_rate": "Heart Rate",
+        "magnetic_field": "Magnetic Field",
+        "rotary_motion": "Rotary Motion",
+        "linear_position_sensor": "Linear Position Sensor",
+        "sound_level": "Sound Level",
+        "spectrophotometer": "Spectrophotometer",
+        "spirometer": "Spirometer",
+        "turbidity": "Turbidity",
+        "UV_sensor": "UV Sensor",
+        "drop_counter": "Drop Counter",
+        "altitude": "Altitude",
+        "goMotion": "GoMotion",
+        "goTemp": "GoIO Temperature Sensor",
+        "goLinkTemperature": "GoIO Temperature Sensor",
+        "goLinkLight": "GoIO Light Sensor",
+        "goLinkForce": "GoIO Force Sensor",
+        "goLinkPH": "GoIO pH Sensor",
+        "goLinkCO2": "GoIO CO₂ sensor",
+        "goLinkO2": "GoIO O₂ sensor",
+        "labQuestMotion": "LabQuest Motion Sensor",
+        "labQuestTemperature": "LabQuest Temperature Sensor",
+        "labQuestLight": "LabQuest Light Sensor",
+        "labQuestForce": "LabQuest Force Sensor",
+        "labQuestPH": "LabQuest pH Sensor",
+        "labQuestCO2": "LabQuest CO₂ sensor",
+        "labQuestO2": "LabQuest O₂ sensor"
+    }
+};
+// TODO: remove when i18n module is integrated
+class i18n {
+    static t(id) {
+        var category = id.substring(id.indexOf(".") + 1, id.lastIndexOf("."));
+        var prop = id.substring(id.lastIndexOf(".") + 1);
+        return exports.SensorStrings[category][prop];
+    }
+}
+exports.i18n = i18n;
+exports.SensorDefinitions = {
+    "lux": {
+        "sensorName": i18n.t("sensor.names.light"),
+        "measurementName": i18n.t("sensor.measurements.light_level"),
+        "measurementType": "light level",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 2000.0
+    },
+    "m": {
+        "sensorName": i18n.t("sensor.names.motion"),
+        "measurementName": i18n.t("sensor.measurements.position"),
+        "measurementType": "position",
+        "tareable": true,
+        "minReading": -2.0,
+        "maxReading": 2.0
+    },
+    "m/s²": {
+        "sensorName": i18n.t("sensor.names.accelerometer"),
+        "measurementName": i18n.t("sensor.measurements.acceleration"),
+        "measurementType": "acceleration",
+        "tareable": true,
+        "minReading": -50.0,
+        "maxReading": 50.0
+    },
+    "m/s^2": {
+        "sensorName": i18n.t("sensor.names.accelerometer"),
+        "measurementName": i18n.t("sensor.measurements.acceleration"),
+        "measurementType": "acceleration",
+        "tareable": true,
+        "minReading": -50.0,
+        "maxReading": 50.0
+    },
+    "g": {
+        "sensorName": i18n.t("sensor.names.accelerometer"),
+        "measurementName": i18n.t("sensor.measurements.acceleration"),
+        "measurementType": "acceleration",
+        "tareable": true,
+        "minReading": -5.0,
+        "maxReading": 5.0
+    },
+    "N/kg": {
+        "sensorName": i18n.t("sensor.names.accelerometer"),
+        "measurementName": i18n.t("sensor.measurements.acceleration"),
+        "measurementType": "acceleration",
+        "tareable": true,
+        "minReading": -25.0,
+        "maxReading": 25.0
+    },
+    "mg/L": {
+        "sensorName": i18n.t("sensor.names.dissolved_oxygen"),
+        "measurementName": i18n.t("sensor.measurements.dissolved_oxygen"),
+        "measurementType": "do",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 12.0
+    },
+    "kPa": {
+        "sensorName": i18n.t("sensor.names.pressure"),
+        "measurementName": i18n.t("sensor.measurements.pressure"),
+        "measurementType": "pressure",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 220.0
+    },
+    "N/m^2": {
+        "sensorName": i18n.t("sensor.names.pressure"),
+        "measurementName": i18n.t("sensor.measurements.pressure"),
+        "measurementType": "pressure",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 220000.0
+    },
+    "mm Hg": {
+        "sensorName": i18n.t("sensor.names.pressure"),
+        "measurementName": i18n.t("sensor.measurements.pressure"),
+        "measurementType": "pressure",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 2000.0
+    },
+    "in Hg": {
+        "sensorName": i18n.t("sensor.names.pressure"),
+        "measurementName": i18n.t("sensor.measurements.pressure"),
+        "measurementType": "pressure",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 80.0
+    },
+    "mbar": {
+        "sensorName": i18n.t("sensor.names.pressure"),
+        "measurementName": i18n.t("sensor.measurements.pressure"),
+        "measurementType": "pressure",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 2200.0
+    },
+    "psi": {
+        "sensorName": i18n.t("sensor.names.pressure"),
+        "measurementName": i18n.t("sensor.measurements.pressure"),
+        "measurementType": "pressure",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 40.0
+    },
+    "atm": {
+        "sensorName": i18n.t("sensor.names.pressure"),
+        "measurementName": i18n.t("sensor.measurements.pressure"),
+        "measurementType": "pressure",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 2.5
+    },
+    "torr": {
+        "sensorName": i18n.t("sensor.names.pressure"),
+        "measurementName": i18n.t("sensor.measurements.pressure"),
+        "measurementType": "pressure",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 2000.0
+    },
+    "nC": {
+        "sensorName": i18n.t("sensor.names.charge_sensor"),
+        "measurementName": i18n.t("sensor.measurements.charge"),
+        "measurementType": "charge",
+        "tareable": false,
+        "minReading": -20.0,
+        "maxReading": 20.0
+    },
+    "V": {
+        "sensorName": i18n.t("sensor.names.voltage"),
+        "measurementName": i18n.t("sensor.measurements.potential"),
+        "measurementType": "potential",
+        "tareable": true,
+        "minReading": -30.0,
+        "maxReading": 30.0
+    },
+    "pH": {
+        "sensorName": i18n.t("sensor.names.pH"),
+        "measurementName": i18n.t("sensor.measurements.pH"),
+        "measurementType": "ph",
+        "tareable": false,
+        "minReading": 0.0,
+        "maxReading": 14.0
+    },
+    "ppm": {
+        "sensorName": i18n.t("sensor.names.CO2_gas"),
+        "measurementName": i18n.t("sensor.measurements.CO2"),
+        "measurementType": "co2",
+        "tareable": false,
+        "minReading": 0.0,
+        "maxReading": 5000.0
+    },
+    "ppt": {
+        "sensorName": i18n.t("sensor.names.CO2_gas"),
+        "measurementName": i18n.t("sensor.measurements.CO2"),
+        "measurementType": "co2",
+        "tareable": false,
+        "minReading": 0.0,
+        "maxReading": 5.0
+    },
+    "%": {
+        "sensorName": i18n.t("sensor.names.CO2_gas"),
+        "measurementName": i18n.t("sensor.measurements.CO2"),
+        "measurementType": "co2",
+        "tareable": false,
+        "minReading": 0.0,
+        "maxReading": 0.5
+    },
+    "%T": {
+        "sensorName": i18n.t("sensor.names.colorimeter"),
+        "measurementName": i18n.t("sensor.measurements.transmittance"),
+        "measurementType": "transmittance",
+        "tareable": false,
+        "minReading": 0.0,
+        "maxReading": 100.0
+    },
+    "µS/cm": {
+        "sensorName": i18n.t("sensor.names.conductivity"),
+        "measurementName": i18n.t("sensor.measurements.conductivity"),
+        "measurementType": "conductivity",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 2000.0
+    },
+    "dS/m": {
+        "sensorName": i18n.t("sensor.names.conductivity"),
+        "measurementName": i18n.t("sensor.measurements.conductivity"),
+        "measurementType": "conductivity",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 2.0
+    },
+    "A": {
+        "sensorName": i18n.t("sensor.names.current"),
+        "measurementName": i18n.t("sensor.measurements.current"),
+        "measurementType": "current",
+        "tareable": true,
+        "minReading": -1.2,
+        "maxReading": 1.2
+    },
+    "mA": {
+        "sensorName": i18n.t("sensor.names.current"),
+        "measurementName": i18n.t("sensor.measurements.current"),
+        "measurementType": "current",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 500.0
+    },
+    "°C": {
+        "sensorName": i18n.t("sensor.names.temperature"),
+        "measurementName": i18n.t("sensor.measurements.temperature"),
+        "measurementType": "temperature",
+        "tareable": false,
+        "minReading": 0.0,
+        "maxReading": 40.0
+    },
+    "degC": {
+        "sensorName": i18n.t("sensor.names.temperature"),
+        "measurementName": i18n.t("sensor.measurements.temperature"),
+        "measurementType": "temperature",
+        "tareable": false,
+        "minReading": 0.0,
+        "maxReading": 40.0
+    },
+    "°F": {
+        "sensorName": i18n.t("sensor.names.temperature"),
+        "measurementName": i18n.t("sensor.measurements.temperature"),
+        "measurementType": "temperature",
+        "tareable": false,
+        "minReading": 30.0,
+        "maxReading": 100.0
+    },
+    "degF": {
+        "sensorName": i18n.t("sensor.names.temperature"),
+        "measurementName": i18n.t("sensor.measurements.temperature"),
+        "measurementType": "temperature",
+        "tareable": false,
+        "minReading": 30.0,
+        "maxReading": 100.0
+    },
+    "K": {
+        "sensorName": i18n.t("sensor.names.temperature"),
+        "measurementName": i18n.t("sensor.measurements.temperature"),
+        "measurementType": "temperature",
+        "tareable": false,
+        "minReading": 250.0,
+        "maxReading": 400.0
+    },
+    "N": {
+        "sensorName": i18n.t("sensor.names.force"),
+        "measurementName": i18n.t("sensor.measurements.force"),
+        "measurementType": "force",
+        "tareable": true,
+        "minReading": -50.0,
+        "maxReading": 50.0
+    },
+    "lb": {
+        "sensorName": i18n.t("sensor.names.force"),
+        "measurementName": i18n.t("sensor.measurements.force"),
+        "measurementType": "force",
+        "tareable": true,
+        "minReading": -12.5,
+        "maxReading": 12.5
+    },
+    "mV": {
+        "sensorName": null,
+        "measurementName": i18n.t("sensor.measurements.potential"),
+        "measurementType": "potential",
+        "tareable": true,
+        "minReading": -500.0,
+        "maxReading": 1100.0
+    },
+    "m/s": {
+        "sensorName": i18n.t("sensor.names.motion"),
+        "measurementName": i18n.t("sensor.measurements.velocity"),
+        "measurementType": "velocity",
+        "tareable": true,
+        "minReading": -5.0,
+        "maxReading": 5.0
+    },
+    "ft/s": {
+        "sensorName": i18n.t("sensor.names.anemometer"),
+        "measurementName": i18n.t("sensor.measurements.speed"),
+        "measurementType": "speed",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 100.0
+    },
+    "ft": {
+        "sensorName": i18n.t("sensor.names.motion"),
+        "measurementName": i18n.t("sensor.measurements.position"),
+        "measurementType": "position",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 6.0
+    },
+    "kg": {
+        "sensorName": i18n.t("sensor.names.hand_dynamometer"),
+        "measurementName": i18n.t("sensor.measurements.force"),
+        "measurementType": "force",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 50.0
+    },
+    "v": {
+        "sensorName": i18n.t("sensor.names.heart_rate"),
+        "measurementName": i18n.t("sensor.measurements.signal"),
+        "measurementType": "signal",
+        "tareable": false,
+        "minReading": 0.0,
+        "maxReading": 3.0
+    },
+    "mT": {
+        "sensorName": i18n.t("sensor.names.magnetic_field"),
+        "measurementName": i18n.t("sensor.measurements.magnetic_field"),
+        "measurementType": "magnetic field",
+        "tareable": true,
+        "minReading": -8.0,
+        "maxReading": 8.0
+    },
+    "G": {
+        "sensorName": i18n.t("sensor.names.magnetic_field"),
+        "measurementName": i18n.t("sensor.measurements.magnetic_field"),
+        "measurementType": "magnetic field",
+        "tareable": true,
+        "minReading": -80.0,
+        "maxReading": 80.0
+    },
+    "rad": {
+        "sensorName": i18n.t("sensor.names.rotary_motion"),
+        "measurementName": i18n.t("sensor.measurements.angle"),
+        "measurementType": "angle",
+        "tareable": true,
+        "minReading": -15.0,
+        "maxReading": 15.0
+    },
+    "°": {
+        "sensorName": i18n.t("sensor.names.rotary_motion"),
+        "measurementName": i18n.t("sensor.measurements.angle"),
+        "measurementType": "angle",
+        "tareable": true,
+        "minReading": -1000.0,
+        "maxReading": 1000.0
+    },
+    "cm": {
+        "sensorName": i18n.t("sensor.names.linear_position_sensor"),
+        "measurementName": i18n.t("sensor.measurements.position"),
+        "measurementType": "position",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 15.0
+    },
+    "dB": {
+        "sensorName": i18n.t("sensor.names.sound_level"),
+        "measurementName": i18n.t("sensor.measurements.sound_level"),
+        "measurementType": "sound level",
+        "tareable": true,
+        "minReading": 40.0,
+        "maxReading": 110.0
+    },
+    "dbA": {
+        "sensorName": i18n.t("sensor.names.sound_level"),
+        "measurementName": i18n.t("sensor.measurements.sound_level"),
+        "measurementType": "sound level",
+        "tareable": true,
+        "minReading": 40.0,
+        "maxReading": 110.0
+    },
+    "rel": {
+        "sensorName": i18n.t("sensor.names.spectrophotometer"),
+        "measurementName": i18n.t("sensor.measurements.intensity"),
+        "measurementType": "intensity",
+        "tareable": false,
+        "minReading": 0.0,
+        "maxReading": 1.0
+    },
+    "Rel": {
+        "sensorName": i18n.t("sensor.names.spectrophotometer"),
+        "measurementName": i18n.t("sensor.measurements.fluorescence_405_nm"),
+        "measurementType": "fluorescence 405 nm",
+        "tareable": false,
+        "minReading": 0.0,
+        "maxReading": 1.0
+    },
+    "Rel.": {
+        "sensorName": i18n.t("sensor.names.spectrophotometer"),
+        "measurementName": i18n.t("sensor.measurements.fluorescence_500_nm"),
+        "measurementType": "fluorescence 500 nm",
+        "tareable": false,
+        "minReading": 0.0,
+        "maxReading": 1.0
+    },
+    "L/s": {
+        "sensorName": i18n.t("sensor.names.spirometer"),
+        "measurementName": i18n.t("sensor.measurements.flow_rate"),
+        "measurementType": "flow rate",
+        "tareable": true,
+        "minReading": -4.0,
+        "maxReading": 4.0
+    },
+    "mL/s": {
+        "sensorName": i18n.t("sensor.names.spirometer"),
+        "measurementName": i18n.t("sensor.measurements.flow_rate"),
+        "measurementType": "flow rate",
+        "tareable": true,
+        "minReading": -4000.0,
+        "maxReading": 4000.0
+    },
+    "NTU": {
+        "sensorName": i18n.t("sensor.names.turbidity"),
+        "measurementName": i18n.t("sensor.measurements.turbidity"),
+        "measurementType": "turbidity",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 50.0
+    },
+    "mW/m²": {
+        "sensorName": i18n.t("sensor.names.UV_sensor"),
+        "measurementName": i18n.t("sensor.measurements.UV_intensity"),
+        "measurementType": "uv intensity",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 20000.0
+    },
+    "mL": {
+        "sensorName": i18n.t("sensor.names.drop_counter"),
+        "measurementName": i18n.t("sensor.measurements.volume"),
+        "measurementType": "volume",
+        "tareable": false,
+        "minReading": 0.0,
+        "maxReading": 3.0
+    },
+    "f": {
+        "sensorName": i18n.t("sensor.names.altitude"),
+        "measurementName": i18n.t("sensor.measurements.altitude"),
+        "measurementType": "altitude",
+        "tareable": true,
+        "minReading": -300.0,
+        "maxReading": 300.0
+    },
+    "mph": {
+        "sensorName": i18n.t("sensor.names.anemometer"),
+        "measurementName": i18n.t("sensor.measurements.speed"),
+        "measurementType": "speed",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 10.0
+    },
+    "km/h": {
+        "sensorName": i18n.t("sensor.names.anemometer"),
+        "measurementName": i18n.t("sensor.measurements.speed"),
+        "measurementType": "speed",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 20.0
+    },
+    "knots": {
+        "sensorName": i18n.t("sensor.names.anemometer"),
+        "measurementName": i18n.t("sensor.measurements.speed"),
+        "measurementType": "speed",
+        "tareable": true,
+        "minReading": 0.0,
+        "maxReading": 50.0
+    }
+};
+
+
+/***/ }),
+/* 63 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.
@@ -6466,8 +7090,8 @@ exports.supported = function supported() {
 
 
 
-var React = __webpack_require__(13);
-var factory = __webpack_require__(110);
+var React = __webpack_require__(11);
+var factory = __webpack_require__(112);
 
 // Hack to grab NoopUpdateQueue from isomorphic React
 var ReactNoopUpdateQueue = new React.Component().updater;
@@ -6480,7 +7104,7 @@ module.exports = factory(
 
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6587,7 +7211,7 @@ DefaultHandler.prototype.getExtremeYValues = function(series, dateWindow,
 
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -7463,13 +8087,13 @@ DygraphCanvasRenderer._fillPlotter = function(e) {
 
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dygraph_tickers__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dygraph_interaction_model__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dygraph_canvas__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dygraph_canvas__ = __webpack_require__(65);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__dygraph_utils__ = __webpack_require__(10);
 
 
@@ -7604,7 +8228,7 @@ var DEFAULT_ATTRS = {
 
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -7965,7 +8589,7 @@ DygraphLayout.prototype.removeAllDatasets = function() {
 
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8855,7 +9479,7 @@ for (var k in OPTIONS_REFERENCE) {
 /* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(0)))
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8932,10 +9556,10 @@ IFrameTarp.prototype.uncover = function() {
 
 
 /***/ }),
-/* 69 */,
 /* 70 */,
 /* 71 */,
-/* 72 */
+/* 72 */,
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var structuredClone = __webpack_require__(41);
@@ -9079,7 +9703,7 @@ module.exports = function getIFrameEndpoint() {
 
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var structuredClone = __webpack_require__(41);
@@ -9269,7 +9893,7 @@ module.exports = function ParentEndpoint(targetWindowOrIframeEl, targetOrigin, a
 
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, exports) {
 
 /**
@@ -9912,7 +10536,7 @@ module.exports = assign;
 
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -9933,7 +10557,6 @@ module.exports = ReactPropTypesSecret;
 
 
 /***/ }),
-/* 76 */,
 /* 77 */,
 /* 78 */,
 /* 79 */,
@@ -9954,7 +10577,8 @@ module.exports = ReactPropTypesSecret;
 /* 94 */,
 /* 95 */,
 /* 96 */,
-/* 97 */
+/* 97 */,
+/* 98 */
 /***/ (function(module, exports) {
 
 /*!
@@ -10010,10 +10634,10 @@ module.exports = findTabbableDescendants;
 
 
 /***/ }),
-/* 98 */,
 /* 99 */,
 /* 100 */,
-/* 101 */
+/* 101 */,
+/* 102 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -10041,24 +10665,22 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 102 */
+/* 103 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const React = __webpack_require__(13);
-const ReactModal = __webpack_require__(226);
-const title_1 = __webpack_require__(107);
-const graph_1 = __webpack_require__(105);
-const codap_1 = __webpack_require__(104);
-const sensor_definitions_1 = __webpack_require__(106);
-const sensor_connector_interface_1 = __webpack_require__(108);
+const React = __webpack_require__(11);
+const ReactModal = __webpack_require__(228);
+const title_1 = __webpack_require__(109);
+const sensor_1 = __webpack_require__(108);
+const sensor_graph_1 = __webpack_require__(107);
+const codap_1 = __webpack_require__(105);
+const sensor_definitions_1 = __webpack_require__(62);
+const sensor_connector_interface_1 = __webpack_require__(110);
 const SENSOR_IP = "http://127.0.0.1:11180";
 ;
-class Sensor {
-}
-exports.Sensor = Sensor;
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -10066,35 +10688,27 @@ class App extends React.Component {
         this.disableWarning = false;
         this.state = {
             sensorType: "",
-            sensorActive: false,
-            sensorValue: undefined,
-            sensorData: [],
+            hasData: false,
             dataChanged: false,
+            dataReset: false,
             collecting: false,
             runLength: 10,
-            minReading: 0,
-            maxReading: 10,
-            tareValue: 0,
             timeUnit: "",
-            valueUnit: "",
-            measurementName: "",
             warnNewModal: false,
             statusMessage: undefined,
-            sensor1: undefined,
-            sensor2: undefined
+            secondGraph: false
         };
+        this.sensor1 = new sensor_1.Sensor();
+        this.sensor2 = new sensor_1.Sensor();
         this.codap = new codap_1.Codap();
         this.valueUnits = [];
         this.sensorDataByType = {};
         this.onSensorConnect = this.onSensorConnect.bind(this);
-        this.onSensorStatus = this.onSensorStatus.bind(this);
         this.onSensorData = this.onSensorData.bind(this);
         this.onSensorDisconnect = this.onSensorDisconnect.bind(this);
         this.sensorConnector = new sensor_connector_interface_1.default();
         this.sensorConnector.on("*", this.onSensorConnect);
         this.sensorConnector.startPolling(SENSOR_IP);
-        this.onSensorSelect = this.onSensorSelect.bind(this);
-        this.zeroSensor = this.zeroSensor.bind(this);
         this.onTimeSelect = this.onTimeSelect.bind(this);
         this.onGraphZoom = this.onGraphZoom.bind(this);
         this.startSensor = this.startSensor.bind(this);
@@ -10104,6 +10718,7 @@ class App extends React.Component {
         this.closeWarnNewModal = this.closeWarnNewModal.bind(this);
         this.discardData = this.discardData.bind(this);
         this.toggleWarning = this.toggleWarning.bind(this);
+        this.toggleGraph = this.toggleGraph.bind(this);
         this.reload = this.reload.bind(this);
     }
     onSensorConnect(e) {
@@ -10116,7 +10731,6 @@ class App extends React.Component {
         }
         else {
             this.sensorConnector.off("*", this.onSensorConnect);
-            this.setState({ sensorActive: true });
             console.log("sensor connected: " + sensorType);
             var timeUnit;
             this.valueUnits = [];
@@ -10129,69 +10743,38 @@ class App extends React.Component {
                     this.valueUnits.push(set.units);
                 }
             }
+            this.sensor1.valueUnit = this.valueUnits[0];
+            this.sensor1.definition = sensor_definitions_1.SensorDefinitions[this.valueUnits[0]];
+            if (this.valueUnits.length > 1) {
+                this.sensor2.valueUnit = this.valueUnits[1];
+                this.sensor2.definition = sensor_definitions_1.SensorDefinitions[this.valueUnits[1]];
+            }
             this.setState({
                 sensorType: sensorType,
                 timeUnit: timeUnit
             });
-            this.setSensor(this.valueUnits[0]);
-            this.sensorConnector.on("statusReceived", this.onSensorStatus);
             this.sensorConnector.on("data", this.onSensorData);
             this.sensorConnector.on("interfaceRemoved", this.onSensorDisconnect);
         }
     }
-    setSensor(valueUnit) {
-        if (valueUnit == this.state.valueUnit) {
-            return;
-        }
-        // save current data
-        this.sensorDataByType[this.state.valueUnit] = this.state.sensorData;
-        // load any existing data for this value type
-        var newData = this.sensorDataByType[valueUnit] ? this.sensorDataByType[valueUnit] : [];
-        var sensorDef = sensor_definitions_1.SensorDefinitions[valueUnit];
-        this.setState({
-            valueUnit: valueUnit,
-            minReading: sensorDef.minReading,
-            maxReading: sensorDef.maxReading,
-            measurementName: sensorDef.measurementName,
-            tareValue: 0,
-            sensorData: newData
-        });
-        this.lastDataIndex = 0;
-    }
-    onSensorStatus(e) {
-        // find the value for the currently selected sensor
-        var dataColumn = this.getDataColumn(this.state.valueUnit);
-        if (dataColumn) {
-            this.setState({ sensorValue: dataColumn.liveValue });
-        }
-    }
-    getDataColumn(valueUnit, dataset) {
-        if (dataset == undefined) {
-            dataset = this.sensorConnector.stateMachine.datasets[0];
-        }
-        var dataColumns = dataset.columns;
-        for (var i = 0; i < dataColumns.length; i++) {
-            var dataColumn = dataColumns[i];
-            if (dataColumn.units == valueUnit) {
-                return dataColumn;
-            }
-        }
-        console.log("data column not found");
-        return null;
-    }
+    /*
+       getDataColumn(valueUnit:string, dataset?:any) {
+           if(dataset == undefined) {
+               dataset = this.sensorConnector.stateMachine.datasets[0];
+           }
+           var dataColumns = dataset.columns;
+           for(var i=0; i < dataColumns.length; i++) {
+               var dataColumn = dataColumns[i];
+               if(dataColumn.units == valueUnit) {
+                   return dataColumn;
+               }
+           }
+           console.log("data column not found (" + valueUnit + ")");
+           return null
+       }
+   */
     sensorHasData() {
         return (this.sensorConnector && this.sensorConnector.datasets[0] && this.sensorConnector.datasets[0].columns[1]);
-    }
-    getSensorValue() {
-        var val = -1;
-        if (this.sensorHasData())
-            val = this.getDataColumn(this.state.valueUnit).liveValue;
-        return val;
-    }
-    zeroSensor() {
-        this.setState({
-            tareValue: this.getSensorValue()
-        });
     }
     startSensor() {
         this.sensorConnector.requestStart();
@@ -10210,6 +10793,8 @@ class App extends React.Component {
     onSensorData(setId) {
         if (!this.state.collecting) {
             this.setState({
+                hasData: true,
+                dataChanged: true,
                 collecting: true,
                 statusMessage: sensor_definitions_1.SensorStrings["messages"]["collecting_data"]
             });
@@ -10217,53 +10802,24 @@ class App extends React.Component {
                 this.stopSensor();
             }, this.state.runLength * 1000);
         }
-        var dataset;
-        for (var i = 0; i < this.sensorConnector.datasets.length; i++) {
-            if (this.sensorConnector.datasets[i].id == setId) {
-                dataset = this.sensorConnector.datasets[i];
-                break;
-            }
-        }
-        if (dataset == undefined) {
-            return;
-        }
-        var timeColumn = dataset.columns[0].data;
-        var valueColumn = this.getDataColumn(this.state.valueUnit, dataset).data;
-        // columns aren't always updated together
-        var newLength = Math.min(timeColumn.length, valueColumn.length);
-        if (this.lastDataIndex === undefined) {
-            this.lastDataIndex = 0;
-        }
-        // check there's new data for this column
-        if (newLength > this.lastDataIndex) {
-            var newTimeData = timeColumn.slice(this.lastDataIndex, newLength);
-            var newValueData = valueColumn.slice(this.lastDataIndex, newLength);
-            var updatedData = this.state.sensorData.slice();
-            for (var i = 0; i < newTimeData.length; i++) {
-                var time = Number(newTimeData[i].toFixed(2));
-                var value = newValueData[i] - this.state.tareValue;
-                updatedData.push([time, value]);
-            }
-            this.setState({
-                sensorData: updatedData,
-                dataChanged: true
-            });
-            this.lastDataIndex = newLength;
-        }
     }
     onSensorDisconnect() {
         this.setState({
-            sensorActive: false,
             statusMessage: sensor_definitions_1.SensorStrings["messages"]["disconnected"]
         });
     }
-    onSensorSelect(event) {
-        this.setSensor(event.currentTarget.value);
-    }
     sendData() {
-        var data = this.state.sensorData.slice();
-        data = data.slice(this.selectionRange.start, this.selectionRange.end);
-        this.codap.sendData(data);
+        var data1 = this.sensor1.sensorData.slice();
+        data1 = data1.slice(this.selectionRange.start, this.selectionRange.end);
+        console.log("data1.length: " + data1.length);
+        if (this.sensor2.sensorData.length == 0) {
+            this.codap.sendData(data1, this.sensor1.definition.measurementName);
+        }
+        else {
+            var data2 = this.sensor2.sensorData.slice();
+            data2 = data2.slice(this.selectionRange.start, this.selectionRange.end);
+            this.codap.sendDualData(data1, this.sensor1.definition.measurementName, data2, this.sensor2.definition.measurementName);
+        }
         this.setState({
             dataChanged: false
         });
@@ -10280,7 +10836,8 @@ class App extends React.Component {
     }
     newData() {
         this.setState({
-            sensorData: [],
+            hasData: false,
+            dataReset: true,
             dataChanged: false
         });
         this.lastDataIndex = 0;
@@ -10291,31 +10848,32 @@ class App extends React.Component {
     }
     onGraphZoom(xStart, xEnd) {
         // convert from time value to index
-        var i, entry, nextEntry;
-        for (i = 0; i < this.state.sensorData.length - 1; i++) {
-            entry = this.state.sensorData[i];
-            nextEntry = this.state.sensorData[i + 1];
-            if (entry[0] == xStart) {
+        //TODO: update to handle multiple graphs
+        /*
+        var i:number, entry:number[], nextEntry:number[];
+        for(i=0; i < this.state.sensor1.data.length-1; i++) {
+            entry = this.state.sensor1.data[i];
+            nextEntry = this.state.sensor1.data[i+1];
+            if(entry[0] == xStart) {
                 this.selectionRange.start = i;
                 break;
-            }
-            else if (entry[0] < xStart && nextEntry[0] >= xStart) {
-                this.selectionRange.start = i + 1;
+            } else if(entry[0] < xStart && nextEntry[0] >= xStart) {
+                this.selectionRange.start = i+1;
                 break;
             }
         }
-        for (i; i < this.state.sensorData.length - 1; i++) {
-            entry = this.state.sensorData[i];
-            nextEntry = this.state.sensorData[i + 1];
-            if (entry[0] == xEnd) {
+        for(i; i < this.state.sensor1.data.length-1; i++) {
+            entry = this.state.sensor1.data[i];
+            nextEntry = this.state.sensor1.data[i+1];
+            if(entry[0] == xEnd) {
                 this.selectionRange.end = i;
                 break;
-            }
-            else if (entry[0] < xEnd && nextEntry[0] >= xEnd) {
-                this.selectionRange.end = i + 1;
+            } else if(entry[0] < xEnd && nextEntry[0] >= xEnd) {
+                this.selectionRange.end = i+1;
                 break;
             }
         }
+        */
     }
     closeWarnNewModal() {
         this.setState({
@@ -10329,31 +10887,25 @@ class App extends React.Component {
     toggleWarning() {
         this.disableWarning = true;
     }
+    toggleGraph() {
+        this.setState({
+            secondGraph: !this.state.secondGraph
+        });
+    }
     reload() {
         location.reload();
     }
-    renderSensorValue() {
-        var reading = "";
-        if (this.state.sensorActive && this.state.sensorValue) {
-            reading = (this.state.sensorValue - this.state.tareValue).toFixed(5);
+    componentDidUpdate(prevProps, prevState) {
+        if (!prevState.dataReset && this.state.dataReset) {
+            this.setState({
+                dataReset: false
+            });
         }
-        var valueOption = (valueUnit) => {
-            var measurementName = sensor_definitions_1.SensorDefinitions[valueUnit].measurementName;
-            var jsx = React.createElement("option", { key: valueUnit, value: valueUnit }, measurementName + " (" + valueUnit + ")");
-            return jsx;
-        };
-        return (React.createElement("div", { className: "sensor-reading" },
-            React.createElement("label", null, "Reading:"),
-            React.createElement("span", null, reading + " " + this.state.valueUnit),
-            React.createElement("button", { id: "zeroBtn", onClick: this.zeroSensor }, "Zero"),
-            React.createElement("span", null, "Sensor:"),
-            React.createElement("select", { onChange: this.onSensorSelect }, this.valueUnits.map(valueOption))));
     }
-    renderGraph() {
-        return React.createElement(graph_1.Graph, { data: this.state.sensorData, onZoom: this.onGraphZoom, xMax: this.state.runLength, yMin: this.state.minReading, yMax: this.state.maxReading, xLabel: "Time (" + this.state.timeUnit + ")", yLabel: this.state.measurementName + " (" + this.state.valueUnit + ")" });
+    renderGraph(sensor, title) {
+        return React.createElement(sensor_graph_1.SensorGraph, { sensor: sensor, title: title, sensorConnector: this.sensorConnector, onGraphZoom: this.onGraphZoom, runLength: this.state.runLength, valueUnits: this.valueUnits, collecting: this.state.collecting, dataReset: this.state.dataReset });
     }
     renderControls() {
-        var hasData = this.state.sensorData.length > 0;
         return React.createElement("div", null,
             React.createElement("select", { id: "timeSelect", onChange: this.onTimeSelect, defaultValue: "10" },
                 React.createElement("option", { value: "1" }, "1.0" + this.state.timeUnit),
@@ -10366,8 +10918,8 @@ class App extends React.Component {
                 React.createElement("option", { value: "60" }, "60.0" + this.state.timeUnit)),
             React.createElement("button", { id: "startSensor", onClick: this.startSensor, disabled: this.state.collecting }, "Start"),
             React.createElement("button", { id: "stopSensor", onClick: this.stopSensor, disabled: !this.state.collecting }, "Stop"),
-            React.createElement("button", { id: "sendData", onClick: this.sendData, disabled: !(hasData && this.state.dataChanged) || this.state.collecting }, "Save Data"),
-            React.createElement("button", { id: "newData", onClick: this.checkNewData, disabled: !hasData || this.state.collecting }, "New Run"));
+            React.createElement("button", { id: "sendData", onClick: this.sendData, disabled: !(this.state.hasData && this.state.dataChanged) || this.state.collecting }, "Save Data"),
+            React.createElement("button", { id: "newData", onClick: this.checkNewData, disabled: !this.state.hasData || this.state.collecting }, "New Run"));
     }
     render() {
         return (React.createElement("div", null,
@@ -10385,26 +10937,15 @@ class App extends React.Component {
             React.createElement("div", null,
                 React.createElement("button", { onClick: this.reload }, "Reload"),
                 React.createElement(title_1.Title, { sensorType: this.state.sensorType }),
-                this.renderSensorValue()),
+                React.createElement("div", null,
+                    React.createElement("button", { id: "toggleGraphBtn", onClick: this.toggleGraph }, this.state.secondGraph ? "Remove Graph" : "Add Graph"))),
             React.createElement("div", null, this.state.statusMessage),
-            this.renderGraph(),
+            this.renderGraph(this.sensor1, "graph1"),
+            this.state.secondGraph ? this.renderGraph(this.sensor2, "graph2") : null,
             this.renderControls()));
     }
 }
 exports.App = App;
-
-
-/***/ }),
-/* 103 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-const React = __webpack_require__(13);
-const ReactDOM = __webpack_require__(23);
-const app_1 = __webpack_require__(102);
-ReactDOM.render(React.createElement(app_1.App, null), document.getElementById("app"));
 
 
 /***/ }),
@@ -10414,13 +10955,27 @@ ReactDOM.render(React.createElement(app_1.App, null), document.getElementById("a
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const CodapInterface = __webpack_require__(241);
+const React = __webpack_require__(11);
+const ReactDOM = __webpack_require__(23);
+const app_1 = __webpack_require__(103);
+ReactDOM.render(React.createElement(app_1.App, null), document.getElementById("app"));
+
+
+/***/ }),
+/* 105 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const CodapInterface = __webpack_require__(243);
 ;
 class Codap {
     constructor() {
         this.state = {};
         this.dataSetName = "sensor_interactive";
         this.dataSetTitle = "Sensor Interactive";
+        this.dataSetAttrs = [{ name: "Time", type: 'numeric', precision: 3 }];
         this.dataSetTemplate = {
             name: "{name}",
             collections: [
@@ -10435,10 +10990,7 @@ class Codap {
                         pluralCase: "measurements",
                         setOfCasesWithArticle: "a sample"
                     },
-                    attrs: [
-                        { name: "Time", type: 'numeric', precision: 3 },
-                        { name: "Position", type: 'numeric', precision: 4 }
-                    ]
+                    attrs: this.dataSetAttrs
                 }
             ]
         };
@@ -10450,32 +11002,39 @@ class Codap {
         }, this.responseCallback).then((iResult) => {
             // get interactive state so we can save the data set index.
             this.state = CodapInterface.getInteractiveState();
-            // Determine if CODAP already has the Data Context we need.
-            return this.requestDataContext();
-        }).then((iResult) => {
-            // if we did not find a data set, make one
-            if (iResult && !iResult.success) {
-                // If not not found, create it.
-                return this.requestCreateDataSet();
-            }
-            else {
-                // else we are fine as we are, so return a resolved promise.
-                return Promise.resolve(iResult);
-            }
-        }).catch(function (msg) {
-            // handle errors
-            console.log(msg);
         });
-        ;
     }
-    responseCallback(param) {
-        //console.log("codap response: " + param)
+    responseCallback(response) {
+        if (response)
+            console.log("codap response: " + response.success);
     }
     requestDataContext() {
         return CodapInterface.sendRequest({
             action: 'get',
             resource: 'dataContext[' + this.dataSetName + ']'
         }, this.responseCallback);
+    }
+    updateDataContext(attrs) {
+        console.log("updateDataContext: " + attrs);
+        var newAttrs = [];
+        attrs.forEach((attr) => {
+            //TODO: check if attr already exists
+            var exists = false;
+            this.dataSetAttrs.forEach((dataSetAttr) => {
+                if (dataSetAttr.name == attr) {
+                    exists = true;
+                }
+            });
+            if (!exists) {
+                this.dataSetAttrs.push({ name: attr, type: 'numeric', precision: 4 });
+            }
+        });
+        /*
+        return CodapInterface.sendRequest({
+            action: 'create',
+            resource: 'dataContext[' + this.dataSetName + '].collection["runs/measurements"].attribute',
+            values: newAttrs
+        }, this.responseCallback);*/
     }
     requestCreateDataSet() {
         var dataSetDef = Object.assign({}, this.dataSetTemplate);
@@ -10515,7 +11074,7 @@ class Codap {
             });
         });
     }
-    sendData(data) {
+    sendData(data, dataType) {
         // if a run number has not yet been initialized, do so now.
         if (this.state.runNumber == undefined || this.state.runNumber == null) {
             this.state.runNumber = 0;
@@ -10527,28 +11086,72 @@ class Codap {
             var entry = data[i];
             var time = entry[0];
             var value = entry[1];
-            items.push({ Run: this.state.runNumber, Time: time, Position: value });
+            var item = { Run: this.state.runNumber, Time: time };
+            item[dataType] = value;
+            items.push(item);
         }
-        this.guaranteeCaseTable();
-        return CodapInterface.sendRequest({
-            action: 'create',
-            resource: 'dataContext[' + this.dataSetName + '].item',
-            values: items
-        }, this.responseCallback);
+        this.updateDataContext([dataType]);
+        this.prepAndSend(items);
+    }
+    prepAndSend(items) {
+        // Determine if CODAP already has the Data Context we need.
+        this.requestDataContext().then((iResult) => {
+            // if we did not find a data set, make one
+            if (iResult && !iResult.success) {
+                // If not not found, create it.
+                return this.requestCreateDataSet();
+            }
+            else {
+                // else we are fine as we are, so return a resolved promise.
+                return Promise.resolve(iResult);
+            }
+        }).then((iResult) => {
+            this.guaranteeCaseTable().then((iResult) => {
+                CodapInterface.sendRequest({
+                    action: 'create',
+                    resource: 'dataContext[' + this.dataSetName + '].item',
+                    values: items
+                }, this.responseCallback);
+            });
+        });
+    }
+    sendDualData(data1, data1Type, data2, data2Type) {
+        // if a run number has not yet been initialized, do so now.
+        if (this.state.runNumber == undefined || this.state.runNumber == null) {
+            this.state.runNumber = 0;
+        }
+        ++this.state.runNumber;
+        var sampleCount = Math.max(data1.length, data2.length);
+        var items = [];
+        this.dataSetTemplate.collections[1]["attrs"][1] = { name: data1Type, type: 'numeric', precision: 4 };
+        this.dataSetTemplate.collections[1]["attrs"][2] = { name: data2Type, type: 'numeric', precision: 4 };
+        for (var i = 0; i < sampleCount; i++) {
+            var entry1 = data1[i];
+            var entry2 = data2[i];
+            var time = entry1[0];
+            var value1 = entry1[1];
+            var value2 = entry2[1];
+            var item = { Run: this.state.runNumber, Time: time };
+            item[data1Type] = value1;
+            item[data2Type] = value2;
+            items.push(item);
+        }
+        this.updateDataContext([data2Type, data2Type]);
+        this.prepAndSend(items);
     }
 }
 exports.Codap = Codap;
 
 
 /***/ }),
-/* 105 */
+/* 106 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const React = __webpack_require__(13);
-const dygraphs_1 = __webpack_require__(111);
+const React = __webpack_require__(11);
+const dygraphs_1 = __webpack_require__(113);
 class Graph extends React.Component {
     constructor(props) {
         super(props);
@@ -10591,7 +11194,13 @@ class Graph extends React.Component {
         function formatVal(x, unit = "") {
             return x.toFixed(2) + " " + unit;
         }
-        this.dygraph = new dygraphs_1.default("sensor-graph", data, {
+        function formatAxisVal(x, unit = "") {
+            if (x > 10000) {
+                return (x / 1000).toFixed(0) + "k " + unit;
+            }
+            return x.toFixed(2) + " " + unit;
+        }
+        this.dygraph = new dygraphs_1.default("sensor-graph-" + this.props.title, data, {
             dateWindow: [0, this.state.xMax],
             zoomCallback: this.props.onZoom,
             axes: {
@@ -10608,7 +11217,7 @@ class Graph extends React.Component {
                         return formatVal(val);
                     },
                     axisLabelFormatter: (val) => {
-                        return formatVal(val);
+                        return formatAxisVal(val);
                     }
                 }
             },
@@ -10650,626 +11259,10 @@ class Graph extends React.Component {
     render() {
         return (React.createElement("div", null,
             React.createElement("button", { id: "scaleBtn", style: { position: "absolute", top: 0, right: 0 }, onClick: this.autoScale }, "Auto-scale"),
-            React.createElement("div", { id: "sensor-graph" })));
+            React.createElement("div", { id: "sensor-graph-" + this.props.title })));
     }
 }
 exports.Graph = Graph;
-
-
-/***/ }),
-/* 106 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-// from concord-consortium/lab
-
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.SensorStrings = {
-    "select_sensor": "Select Sensor",
-    "select_sensor_type": "Select type of sensor...",
-    "reading": "Reading:",
-    "zero": "Zero",
-    "zeroing": "Zeroing...",
-    "loading_sensor": "Loading sensor...",
-    "choose_sensor_title": "Select a sensor:",
-    "connect": "Connect",
-    "address_labquest2": "address of LabQuest2",
-    "messages": {
-        "ready": "Ready to collect.",
-        "ready_nocontrol": "Please stop the __controlling_client__ data collector to collect data here.",
-        "ready_nocontrol_noname": "Please stop the other active data collector to collect data here.",
-        "no_sensors": "No sensors found.",
-        "no_devices": "No devices plugged in.",
-        "not_connected": "Not connected.",
-        "connecting": "Connecting...",
-        "connection_in_progress": "Connecting to your sensors. If a message comes up about sensorconnector.concord.org, please accept it.",
-        "connection_failed": "Connection failed. __retry_link__",
-        "connection_failed_retry_link_text": "Try again",
-        "connection_failed_alert": "The Concord Consortium Sensor Connector is not installed or is not running. Please __click_here_link__ for instructions on using the Sensor Connector.",
-        "connection_failed_labquest2_alert": "Could not connect to the LabQuest2. Please make sure the address is correct and that the LabQuest2 can be reached from this computer",
-        "tare_labquest2_alert": "The LabQuest2 needs to be collecting live data in order to zero. Either set up a new run on the LabQuest2, or click the meter icon in the upper left.",
-        "click_here": "click here",
-        "connected": "Connected.",
-        "connected_start_labquest2": "Connected. Press start on your LabQuest2 to begin.",
-        "connected_start_sensorconnector": "Please stop the __controlling_client__ data collector to collect data here.",
-        "connected_start_sensorconnector_noname": "Please stop the other active data collector to collect data here.",
-        "starting_data_collection": "Starting data collection...",
-        "error_starting_data_collection": "Error starting data collection.",
-        "error_starting_data_collection_alert": "Could not start data collection. Make sure that (remote starting) is enabled",
-        "collecting_data": "Collecting data.",
-        "collecting_data_stop_labquest2": "Collecting data. Press stop on your LabQuest2 to end.",
-        "collecting_data_stop_sensorconnector": "Collecting data.",
-        "no_data": "No data is available.",
-        "no_data_alert": "The Sensor Connector does not appear to be reporting data for the plugged-in device",
-        "no_data_labquest2_alert": "The LabQuest does not appear to be reporting data for the plugged-in device",
-        "canceling_data_collection": "Canceling data collection...",
-        "error_canceling_data_collection": "Error canceling data collection.",
-        "error_canceling_data_collection_alert": "Could not cancel data collection. Make sure that (remote starting) is enabled",
-        "stopping_data_collection": "Stopping data collection...",
-        "error_stopping_data_collection": "Error stopping data collection.",
-        "error_stopping_data_collection_alert": "Could not stop data collection. Make sure that (remote starting) is enabled",
-        "data_collection_stopped": "Data collection stopped.",
-        "data_collection_complete": "Data collection complete.",
-        "disconnected": "Disconnected.",
-        "java_applet_error": "It appears that Java applets cannot run in your browser. If you are able to fix this, reload the page to use the sensor",
-        "java_applet_not_loading": "The sensor applet appears not to be loading. If you are able to fix this, reload the page to use the sensor",
-        "unexpected_error": "There was an unexpected error when connecting to the sensor.",
-        "sensor_not_attached": "The __sensor_name__ does not appear to be attached. Try re-attaching it, and then click \"$t(sensor.messages.try_again)\".",
-        "sensor_or_device_unplugged": "The __sensor_or_device_name__ was unplugged. Try plugging it back in, and then click \"$t(sensor.messages.try_again)\".",
-        "try_again": "Try Again",
-        "cancel": "Cancel"
-    },
-    "measurements": {
-        "sensor_reading": "Sensor Reading",
-        "time": "Time",
-        "distance": "Distance",
-        "acceleration": "Acceleration",
-        "altitude": "Altitude",
-        "angle": "Angle",
-        "CO2": "CO₂",
-        "CO2_concentration": "CO₂ Concentration",
-        "charge": "Charge",
-        "conductivity": "Conductivity",
-        "current": "Current",
-        "dissolved_oxygen": "DO",
-        "flow_rate": "Flow Rate",
-        "fluorescence_405_nm": "Fluorescence 405 nm",
-        "fluorescence_500_nm": "Fluorescence 500 nm",
-        "force": "Force",
-        "intensity": "Intensity",
-        "light_level": "Light Level",
-        "light_intensity": "Light Intensity",
-        "magnetic_field": "Magnetic Field",
-        "position": "Position",
-        "potential": "Potential",
-        "pressure": "Pressure",
-        "signal": "Signal",
-        "sound_level": "Sound Level",
-        "speed": "Speed",
-        "temperature": "Temperature",
-        "transmittance": "Transmittance",
-        "turbidity": "Turbidity",
-        "UV_intensity": "UV Intensity",
-        "velocity": "Velocity",
-        "volume": "Volume",
-        "pH": "pH",
-        "acidity": "Acidity",
-        "O2_concentration": "O₂ Concentration"
-    },
-    "names": {
-        "sensor": "sensor",
-        "no_sensor": "(no sensor)",
-        "light": "Light",
-        "motion": "Motion",
-        "accelerometer": "Accelerometer",
-        "dissolved_oxygen": "Dissolved Oxygen",
-        "pressure": "Pressure",
-        "charge_sensor": "Charge Sensor",
-        "voltage": "Voltage",
-        "pH": "pH",
-        "CO2_gas": "CO₂ Gas",
-        "colorimeter": "Colorimeter",
-        "conductivity": "Conductivity",
-        "current": "Current",
-        "temperature": "Temperature",
-        "force": "Force",
-        "anemometer": "Anemometer",
-        "hand_dynamometer": "Hand Dynamometer",
-        "heart_rate": "Heart Rate",
-        "magnetic_field": "Magnetic Field",
-        "rotary_motion": "Rotary Motion",
-        "linear_position_sensor": "Linear Position Sensor",
-        "sound_level": "Sound Level",
-        "spectrophotometer": "Spectrophotometer",
-        "spirometer": "Spirometer",
-        "turbidity": "Turbidity",
-        "UV_sensor": "UV Sensor",
-        "drop_counter": "Drop Counter",
-        "altitude": "Altitude",
-        "goMotion": "GoMotion",
-        "goTemp": "GoIO Temperature Sensor",
-        "goLinkTemperature": "GoIO Temperature Sensor",
-        "goLinkLight": "GoIO Light Sensor",
-        "goLinkForce": "GoIO Force Sensor",
-        "goLinkPH": "GoIO pH Sensor",
-        "goLinkCO2": "GoIO CO₂ sensor",
-        "goLinkO2": "GoIO O₂ sensor",
-        "labQuestMotion": "LabQuest Motion Sensor",
-        "labQuestTemperature": "LabQuest Temperature Sensor",
-        "labQuestLight": "LabQuest Light Sensor",
-        "labQuestForce": "LabQuest Force Sensor",
-        "labQuestPH": "LabQuest pH Sensor",
-        "labQuestCO2": "LabQuest CO₂ sensor",
-        "labQuestO2": "LabQuest O₂ sensor"
-    }
-};
-// TODO: remove when i18n module is integrated
-class i18n {
-    static t(id) {
-        var category = id.substring(id.indexOf(".") + 1, id.lastIndexOf("."));
-        var prop = id.substring(id.lastIndexOf(".") + 1);
-        return exports.SensorStrings[category][prop];
-    }
-}
-exports.i18n = i18n;
-exports.SensorDefinitions = {
-    "lux": {
-        "sensorName": i18n.t("sensor.names.light"),
-        "measurementName": i18n.t("sensor.measurements.light_level"),
-        "measurementType": "light level",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 2000.0
-    },
-    "m": {
-        "sensorName": i18n.t("sensor.names.motion"),
-        "measurementName": i18n.t("sensor.measurements.position"),
-        "measurementType": "position",
-        "tareable": true,
-        "minReading": -2.0,
-        "maxReading": 2.0
-    },
-    "m/s²": {
-        "sensorName": i18n.t("sensor.names.accelerometer"),
-        "measurementName": i18n.t("sensor.measurements.acceleration"),
-        "measurementType": "acceleration",
-        "tareable": true,
-        "minReading": -50.0,
-        "maxReading": 50.0
-    },
-    "m/s^2": {
-        "sensorName": i18n.t("sensor.names.accelerometer"),
-        "measurementName": i18n.t("sensor.measurements.acceleration"),
-        "measurementType": "acceleration",
-        "tareable": true,
-        "minReading": -50.0,
-        "maxReading": 50.0
-    },
-    "g": {
-        "sensorName": i18n.t("sensor.names.accelerometer"),
-        "measurementName": i18n.t("sensor.measurements.acceleration"),
-        "measurementType": "acceleration",
-        "tareable": true,
-        "minReading": -5.0,
-        "maxReading": 5.0
-    },
-    "N/kg": {
-        "sensorName": i18n.t("sensor.names.accelerometer"),
-        "measurementName": i18n.t("sensor.measurements.acceleration"),
-        "measurementType": "acceleration",
-        "tareable": true,
-        "minReading": -25.0,
-        "maxReading": 25.0
-    },
-    "mg/L": {
-        "sensorName": i18n.t("sensor.names.dissolved_oxygen"),
-        "measurementName": i18n.t("sensor.measurements.dissolved_oxygen"),
-        "measurementType": "do",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 12.0
-    },
-    "kPa": {
-        "sensorName": i18n.t("sensor.names.pressure"),
-        "measurementName": i18n.t("sensor.measurements.pressure"),
-        "measurementType": "pressure",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 220.0
-    },
-    "mm Hg": {
-        "sensorName": i18n.t("sensor.names.pressure"),
-        "measurementName": i18n.t("sensor.measurements.pressure"),
-        "measurementType": "pressure",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 2000.0
-    },
-    "in Hg": {
-        "sensorName": i18n.t("sensor.names.pressure"),
-        "measurementName": i18n.t("sensor.measurements.pressure"),
-        "measurementType": "pressure",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 80.0
-    },
-    "mbar": {
-        "sensorName": i18n.t("sensor.names.pressure"),
-        "measurementName": i18n.t("sensor.measurements.pressure"),
-        "measurementType": "pressure",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 2200.0
-    },
-    "psi": {
-        "sensorName": i18n.t("sensor.names.pressure"),
-        "measurementName": i18n.t("sensor.measurements.pressure"),
-        "measurementType": "pressure",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 40.0
-    },
-    "atm": {
-        "sensorName": i18n.t("sensor.names.pressure"),
-        "measurementName": i18n.t("sensor.measurements.pressure"),
-        "measurementType": "pressure",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 2.5
-    },
-    "torr": {
-        "sensorName": i18n.t("sensor.names.pressure"),
-        "measurementName": i18n.t("sensor.measurements.pressure"),
-        "measurementType": "pressure",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 2000.0
-    },
-    "nC": {
-        "sensorName": i18n.t("sensor.names.charge_sensor"),
-        "measurementName": i18n.t("sensor.measurements.charge"),
-        "measurementType": "charge",
-        "tareable": false,
-        "minReading": -20.0,
-        "maxReading": 20.0
-    },
-    "V": {
-        "sensorName": i18n.t("sensor.names.voltage"),
-        "measurementName": i18n.t("sensor.measurements.potential"),
-        "measurementType": "potential",
-        "tareable": true,
-        "minReading": -30.0,
-        "maxReading": 30.0
-    },
-    "pH": {
-        "sensorName": i18n.t("sensor.names.pH"),
-        "measurementName": i18n.t("sensor.measurements.pH"),
-        "measurementType": "ph",
-        "tareable": false,
-        "minReading": 0.0,
-        "maxReading": 14.0
-    },
-    "ppm": {
-        "sensorName": i18n.t("sensor.names.CO2_gas"),
-        "measurementName": i18n.t("sensor.measurements.CO2"),
-        "measurementType": "co2",
-        "tareable": false,
-        "minReading": 0.0,
-        "maxReading": 5000.0
-    },
-    "ppt": {
-        "sensorName": i18n.t("sensor.names.CO2_gas"),
-        "measurementName": i18n.t("sensor.measurements.CO2"),
-        "measurementType": "co2",
-        "tareable": false,
-        "minReading": 0.0,
-        "maxReading": 5.0
-    },
-    "%": {
-        "sensorName": i18n.t("sensor.names.CO2_gas"),
-        "measurementName": i18n.t("sensor.measurements.CO2"),
-        "measurementType": "co2",
-        "tareable": false,
-        "minReading": 0.0,
-        "maxReading": 0.5
-    },
-    "%T": {
-        "sensorName": i18n.t("sensor.names.colorimeter"),
-        "measurementName": i18n.t("sensor.measurements.transmittance"),
-        "measurementType": "transmittance",
-        "tareable": false,
-        "minReading": 0.0,
-        "maxReading": 100.0
-    },
-    "µS/cm": {
-        "sensorName": i18n.t("sensor.names.conductivity"),
-        "measurementName": i18n.t("sensor.measurements.conductivity"),
-        "measurementType": "conductivity",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 2000.0
-    },
-    "dS/m": {
-        "sensorName": i18n.t("sensor.names.conductivity"),
-        "measurementName": i18n.t("sensor.measurements.conductivity"),
-        "measurementType": "conductivity",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 2.0
-    },
-    "A": {
-        "sensorName": i18n.t("sensor.names.current"),
-        "measurementName": i18n.t("sensor.measurements.current"),
-        "measurementType": "current",
-        "tareable": true,
-        "minReading": -1.2,
-        "maxReading": 1.2
-    },
-    "mA": {
-        "sensorName": i18n.t("sensor.names.current"),
-        "measurementName": i18n.t("sensor.measurements.current"),
-        "measurementType": "current",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 500.0
-    },
-    "°C": {
-        "sensorName": i18n.t("sensor.names.temperature"),
-        "measurementName": i18n.t("sensor.measurements.temperature"),
-        "measurementType": "temperature",
-        "tareable": false,
-        "minReading": 0.0,
-        "maxReading": 40.0
-    },
-    "degC": {
-        "sensorName": i18n.t("sensor.names.temperature"),
-        "measurementName": i18n.t("sensor.measurements.temperature"),
-        "measurementType": "temperature",
-        "tareable": false,
-        "minReading": 0.0,
-        "maxReading": 40.0
-    },
-    "°F": {
-        "sensorName": i18n.t("sensor.names.temperature"),
-        "measurementName": i18n.t("sensor.measurements.temperature"),
-        "measurementType": "temperature",
-        "tareable": false,
-        "minReading": 30.0,
-        "maxReading": 100.0
-    },
-    "degF": {
-        "sensorName": i18n.t("sensor.names.temperature"),
-        "measurementName": i18n.t("sensor.measurements.temperature"),
-        "measurementType": "temperature",
-        "tareable": false,
-        "minReading": 30.0,
-        "maxReading": 100.0
-    },
-    "K": {
-        "sensorName": i18n.t("sensor.names.temperature"),
-        "measurementName": i18n.t("sensor.measurements.temperature"),
-        "measurementType": "temperature",
-        "tareable": false,
-        "minReading": 250.0,
-        "maxReading": 400.0
-    },
-    "N": {
-        "sensorName": i18n.t("sensor.names.force"),
-        "measurementName": i18n.t("sensor.measurements.force"),
-        "measurementType": "force",
-        "tareable": true,
-        "minReading": -50.0,
-        "maxReading": 50.0
-    },
-    "lb": {
-        "sensorName": i18n.t("sensor.names.force"),
-        "measurementName": i18n.t("sensor.measurements.force"),
-        "measurementType": "force",
-        "tareable": true,
-        "minReading": -12.5,
-        "maxReading": 12.5
-    },
-    "mV": {
-        "sensorName": null,
-        "measurementName": i18n.t("sensor.measurements.potential"),
-        "measurementType": "potential",
-        "tareable": true,
-        "minReading": -500.0,
-        "maxReading": 1100.0
-    },
-    "m/s": {
-        "sensorName": i18n.t("sensor.names.motion"),
-        "measurementName": i18n.t("sensor.measurements.velocity"),
-        "measurementType": "velocity",
-        "tareable": true,
-        "minReading": -5.0,
-        "maxReading": 5.0
-    },
-    "ft/s": {
-        "sensorName": i18n.t("sensor.names.anemometer"),
-        "measurementName": i18n.t("sensor.measurements.speed"),
-        "measurementType": "speed",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 100.0
-    },
-    "ft": {
-        "sensorName": i18n.t("sensor.names.motion"),
-        "measurementName": i18n.t("sensor.measurements.position"),
-        "measurementType": "position",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 6.0
-    },
-    "kg": {
-        "sensorName": i18n.t("sensor.names.hand_dynamometer"),
-        "measurementName": i18n.t("sensor.measurements.force"),
-        "measurementType": "force",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 50.0
-    },
-    "v": {
-        "sensorName": i18n.t("sensor.names.heart_rate"),
-        "measurementName": i18n.t("sensor.measurements.signal"),
-        "measurementType": "signal",
-        "tareable": false,
-        "minReading": 0.0,
-        "maxReading": 3.0
-    },
-    "mT": {
-        "sensorName": i18n.t("sensor.names.magnetic_field"),
-        "measurementName": i18n.t("sensor.measurements.magnetic_field"),
-        "measurementType": "magnetic field",
-        "tareable": true,
-        "minReading": -8.0,
-        "maxReading": 8.0
-    },
-    "G": {
-        "sensorName": i18n.t("sensor.names.magnetic_field"),
-        "measurementName": i18n.t("sensor.measurements.magnetic_field"),
-        "measurementType": "magnetic field",
-        "tareable": true,
-        "minReading": -80.0,
-        "maxReading": 80.0
-    },
-    "rad": {
-        "sensorName": i18n.t("sensor.names.rotary_motion"),
-        "measurementName": i18n.t("sensor.measurements.angle"),
-        "measurementType": "angle",
-        "tareable": true,
-        "minReading": -15.0,
-        "maxReading": 15.0
-    },
-    "°": {
-        "sensorName": i18n.t("sensor.names.rotary_motion"),
-        "measurementName": i18n.t("sensor.measurements.angle"),
-        "measurementType": "angle",
-        "tareable": true,
-        "minReading": -1000.0,
-        "maxReading": 1000.0
-    },
-    "cm": {
-        "sensorName": i18n.t("sensor.names.linear_position_sensor"),
-        "measurementName": i18n.t("sensor.measurements.position"),
-        "measurementType": "position",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 15.0
-    },
-    "dB": {
-        "sensorName": i18n.t("sensor.names.sound_level"),
-        "measurementName": i18n.t("sensor.measurements.sound_level"),
-        "measurementType": "sound level",
-        "tareable": true,
-        "minReading": 40.0,
-        "maxReading": 110.0
-    },
-    "dbA": {
-        "sensorName": i18n.t("sensor.names.sound_level"),
-        "measurementName": i18n.t("sensor.measurements.sound_level"),
-        "measurementType": "sound level",
-        "tareable": true,
-        "minReading": 40.0,
-        "maxReading": 110.0
-    },
-    "rel": {
-        "sensorName": i18n.t("sensor.names.spectrophotometer"),
-        "measurementName": i18n.t("sensor.measurements.intensity"),
-        "measurementType": "intensity",
-        "tareable": false,
-        "minReading": 0.0,
-        "maxReading": 1.0
-    },
-    "Rel": {
-        "sensorName": i18n.t("sensor.names.spectrophotometer"),
-        "measurementName": i18n.t("sensor.measurements.fluorescence_405_nm"),
-        "measurementType": "fluorescence 405 nm",
-        "tareable": false,
-        "minReading": 0.0,
-        "maxReading": 1.0
-    },
-    "Rel.": {
-        "sensorName": i18n.t("sensor.names.spectrophotometer"),
-        "measurementName": i18n.t("sensor.measurements.fluorescence_500_nm"),
-        "measurementType": "fluorescence 500 nm",
-        "tareable": false,
-        "minReading": 0.0,
-        "maxReading": 1.0
-    },
-    "L/s": {
-        "sensorName": i18n.t("sensor.names.spirometer"),
-        "measurementName": i18n.t("sensor.measurements.flow_rate"),
-        "measurementType": "flow rate",
-        "tareable": true,
-        "minReading": -4.0,
-        "maxReading": 4.0
-    },
-    "mL/s": {
-        "sensorName": i18n.t("sensor.names.spirometer"),
-        "measurementName": i18n.t("sensor.measurements.flow_rate"),
-        "measurementType": "flow rate",
-        "tareable": true,
-        "minReading": -4000.0,
-        "maxReading": 4000.0
-    },
-    "NTU": {
-        "sensorName": i18n.t("sensor.names.turbidity"),
-        "measurementName": i18n.t("sensor.measurements.turbidity"),
-        "measurementType": "turbidity",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 50.0
-    },
-    "mW/m²": {
-        "sensorName": i18n.t("sensor.names.UV_sensor"),
-        "measurementName": i18n.t("sensor.measurements.UV_intensity"),
-        "measurementType": "uv intensity",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 20000.0
-    },
-    "mL": {
-        "sensorName": i18n.t("sensor.names.drop_counter"),
-        "measurementName": i18n.t("sensor.measurements.volume"),
-        "measurementType": "volume",
-        "tareable": false,
-        "minReading": 0.0,
-        "maxReading": 3.0
-    },
-    "f": {
-        "sensorName": i18n.t("sensor.names.altitude"),
-        "measurementName": i18n.t("sensor.measurements.altitude"),
-        "measurementType": "altitude",
-        "tareable": true,
-        "minReading": -300.0,
-        "maxReading": 300.0
-    },
-    "mph": {
-        "sensorName": i18n.t("sensor.names.anemometer"),
-        "measurementName": i18n.t("sensor.measurements.speed"),
-        "measurementType": "speed",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 10.0
-    },
-    "km/h": {
-        "sensorName": i18n.t("sensor.names.anemometer"),
-        "measurementName": i18n.t("sensor.measurements.speed"),
-        "measurementType": "speed",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 20.0
-    },
-    "knots": {
-        "sensorName": i18n.t("sensor.names.anemometer"),
-        "measurementName": i18n.t("sensor.measurements.speed"),
-        "measurementType": "speed",
-        "tareable": true,
-        "minReading": 0.0,
-        "maxReading": 50.0
-    }
-};
 
 
 /***/ }),
@@ -11279,7 +11272,178 @@ exports.SensorDefinitions = {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const React = __webpack_require__(13);
+const React = __webpack_require__(11);
+const graph_1 = __webpack_require__(106);
+const sensor_definitions_1 = __webpack_require__(62);
+class SensorGraph extends React.Component {
+    constructor(props) {
+        super(props);
+        this.lastDataIndex = 0;
+        this.state = {
+            sensorActive: false,
+            sensorValue: undefined,
+            sensorData: this.props.sensor.sensorData,
+            dataChanged: false,
+            tareValue: 0,
+            timeUnit: "s",
+            valueUnit: this.props.sensor.valueUnit
+        };
+        this.onUnitSelect = this.onUnitSelect.bind(this);
+        this.zeroSensor = this.zeroSensor.bind(this);
+        this.onSensorStatus = this.onSensorStatus.bind(this);
+        this.onSensorData = this.onSensorData.bind(this);
+        this.props.sensorConnector.on("statusReceived", this.onSensorStatus);
+        this.props.sensorConnector.on("data", this.onSensorData);
+    }
+    onUnitSelect(event) {
+        this.setUnit(event.currentTarget.value);
+    }
+    setUnit(valueUnit) {
+        if (valueUnit == this.state.valueUnit) {
+            return;
+        }
+        this.props.sensor.definition = sensor_definitions_1.SensorDefinitions[valueUnit];
+        this.props.sensor.valueUnit = valueUnit;
+        this.setState({
+            valueUnit: valueUnit,
+            tareValue: 0
+        });
+    }
+    zeroSensor() {
+        this.setState({
+            tareValue: this.state.sensorValue || 0
+        });
+    }
+    onSensorStatus(e) {
+        if (!this.state.valueUnit) {
+            this.setUnit(this.props.valueUnits[0]);
+        }
+        // find the value for the currently selected sensor/unit type
+        var dataColumn = this.getDataColumn(this.props.sensor.valueUnit);
+        if (dataColumn) {
+            this.setState({ sensorValue: dataColumn.liveValue });
+        }
+    }
+    onSensorData(setId) {
+        if (!this.props.collecting) {
+            return;
+        }
+        var dataset;
+        for (var i = 0; i < this.props.sensorConnector.datasets.length; i++) {
+            if (this.props.sensorConnector.datasets[i].id == setId) {
+                dataset = this.props.sensorConnector.datasets[i];
+                break;
+            }
+        }
+        if (dataset == undefined) {
+            return;
+        }
+        var timeColumn = dataset.columns[0].data;
+        var valueColumn = this.getDataColumn(this.props.sensor.valueUnit, dataset).data;
+        // columns aren't always updated together
+        var newLength = Math.min(timeColumn.length, valueColumn.length);
+        if (this.lastDataIndex === undefined) {
+            this.lastDataIndex = 0;
+        }
+        // check there's new data for this column
+        if (newLength > this.lastDataIndex) {
+            var newTimeData = timeColumn.slice(this.lastDataIndex, newLength);
+            var newValueData = valueColumn.slice(this.lastDataIndex, newLength);
+            var updatedData = this.state.sensorData.slice();
+            for (var i = 0; i < newTimeData.length; i++) {
+                var time = Number(newTimeData[i].toFixed(2));
+                var value = newValueData[i] - this.state.tareValue;
+                updatedData.push([time, value]);
+            }
+            this.props.sensor.sensorData = updatedData;
+            this.setState({
+                sensorData: updatedData,
+                dataChanged: true
+            });
+            this.lastDataIndex = newLength;
+        }
+    }
+    getDataColumn(valueUnit, dataset) {
+        if (dataset == undefined) {
+            dataset = this.props.sensorConnector.stateMachine.datasets[0];
+        }
+        var dataColumns = dataset.columns;
+        for (var i = 0; i < dataColumns.length; i++) {
+            var dataColumn = dataColumns[i];
+            if (dataColumn.units == valueUnit) {
+                return dataColumn;
+            }
+        }
+        console.log("data column not found (" + valueUnit + ")");
+        return null;
+    }
+    componentWillReceiveProps(nextProps) {
+        if (!this.props.dataReset && nextProps.dataReset) {
+            this.lastDataIndex = 0;
+            this.setState({
+                sensorData: []
+            });
+        }
+    }
+    renderReading() {
+        var reading = "";
+        if (this.state.sensorValue) {
+            reading = (this.state.sensorValue - this.state.tareValue).toFixed(5);
+        }
+        var valueOption = function (valueUnit) {
+            var sensorDef = sensor_definitions_1.SensorDefinitions[valueUnit];
+            if (!sensorDef) {
+                return null;
+            }
+            var measurementName = sensorDef.measurementName;
+            var jsx = React.createElement("option", { key: valueUnit, value: valueUnit }, measurementName + " (" + valueUnit + ")");
+            return jsx;
+        };
+        return React.createElement("div", { className: "sensor-reading" },
+            React.createElement("label", null, "Reading:"),
+            this.props.sensor.definition ?
+                React.createElement("span", null, reading + " " + this.state.valueUnit) : null,
+            React.createElement("button", { id: "zeroBtn", onClick: this.zeroSensor }, "Zero"),
+            React.createElement("span", null, "Sensor:"),
+            React.createElement("select", { onChange: this.onUnitSelect, defaultValue: this.state.valueUnit }, this.props.valueUnits.map(valueOption, this)));
+    }
+    render() {
+        return (React.createElement("div", null,
+            this.renderReading(),
+            React.createElement(graph_1.Graph, { title: this.props.title, data: this.state.sensorData, onZoom: this.props.onGraphZoom, xMax: this.props.runLength, yMin: this.props.sensor.definition.minReading, yMax: this.props.sensor.definition.maxReading, xLabel: "Time (" + this.state.timeUnit + ")", yLabel: this.props.sensor.definition.measurementName + " (" + this.state.valueUnit + ")" })));
+    }
+}
+exports.SensorGraph = SensorGraph;
+
+
+/***/ }),
+/* 108 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+class Sensor {
+    constructor() {
+        this.sensorData = [];
+        this.definition = {
+            measurementName: "",
+            minReading: 0,
+            maxReading: 10
+        };
+    }
+}
+exports.Sensor = Sensor;
+
+
+/***/ }),
+/* 109 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+const React = __webpack_require__(11);
 class Title extends React.Component {
     render() {
         return React.createElement("h2", null, "Sensor Interactive: " + this.props.sensorType);
@@ -11289,7 +11453,7 @@ exports.Title = Title;
 
 
 /***/ }),
-/* 108 */
+/* 110 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11306,11 +11470,11 @@ exports.Title = Title;
 //     requestedValuesTimeStamp
 //     receivedValuesTimeStamp
 
-var RSVP = __webpack_require__(238);
-var _ = __webpack_require__(109);
-var Machina = __webpack_require__(143);
+var RSVP = __webpack_require__(240);
+var _ = __webpack_require__(111);
+var Machina = __webpack_require__(145);
 
-var EventEmitter2 = __webpack_require__(125).EventEmitter2;
+var EventEmitter2 = __webpack_require__(127).EventEmitter2;
 var events = new EventEmitter2({
   wildcard: true
 });
@@ -11951,7 +12115,7 @@ module.exports = exports['default'];
 */
 
 /***/ }),
-/* 109 */
+/* 111 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, global) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -24307,10 +24471,10 @@ module.exports = exports['default'];
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(101)(module), __webpack_require__(28)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(102)(module), __webpack_require__(28)))
 
 /***/ }),
-/* 110 */
+/* 112 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25042,7 +25206,7 @@ module.exports = factory;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 111 */
+/* 113 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -25053,7 +25217,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /***/ }),
-/* 112 */
+/* 114 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -25163,7 +25327,7 @@ CustomBarsHandler.prototype.rollingAverage =
 
 
 /***/ }),
-/* 113 */
+/* 115 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -25272,7 +25436,7 @@ ErrorBarsHandler.prototype.rollingAverage =
 
 
 /***/ }),
-/* 114 */
+/* 116 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -25392,12 +25556,12 @@ FractionsBarsHandler.prototype.rollingAverage =
 
 
 /***/ }),
-/* 115 */
+/* 117 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__datahandler__ = __webpack_require__(36);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__default__ = __webpack_require__(63);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__default__ = __webpack_require__(64);
 /**
  * @license
  * Copyright 2013 David Eberlein (david.eberlein@ch.sauter-bc.com)
@@ -25488,7 +25652,7 @@ DefaultFractionHandler.prototype.rollingAverage = function(originalData, rollPer
 
 
 /***/ }),
-/* 116 */
+/* 118 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -25581,13 +25745,13 @@ GVizChart.prototype.getSelection = function() {
 
 
 /***/ }),
-/* 117 */
+/* 119 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dygraph_utils__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dygraph_default_attrs__ = __webpack_require__(65);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dygraph_options_reference__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dygraph_default_attrs__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dygraph_options_reference__ = __webpack_require__(68);
 /**
  * @license
  * Copyright 2011 Dan Vanderkam (danvdk@gmail.com)
@@ -25995,7 +26159,7 @@ DygraphOptions.resetWarnings_ = function() {
 /* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(0)))
 
 /***/ }),
-/* 118 */
+/* 120 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -26174,7 +26338,7 @@ annotations.prototype.destroy = function() {
 
 
 /***/ }),
-/* 119 */
+/* 121 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -26496,7 +26660,7 @@ axes.prototype.willDrawChart = function(e) {
 
 
 /***/ }),
-/* 120 */
+/* 122 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -26677,7 +26841,7 @@ chart_labels.prototype.destroy = function() {
 
 
 /***/ }),
-/* 121 */
+/* 123 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -26803,7 +26967,7 @@ grid.prototype.destroy = function() {
 
 
 /***/ }),
-/* 122 */
+/* 124 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -27179,13 +27343,13 @@ function generateLegendDashHTML(strokePattern, color, oneEmWidth) {
 
 
 /***/ }),
-/* 123 */
+/* 125 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dygraph_utils__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dygraph_interaction_model__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__iframe_tarp__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__iframe_tarp__ = __webpack_require__(69);
 /**
  * @license
  * Copyright 2011 Paul Felix (paul.eric.felix@gmail.com)
@@ -27989,7 +28153,7 @@ rangeSelector.prototype.getZoomHandleStatus_ = function() {
 
 
 /***/ }),
-/* 124 */
+/* 126 */
 /***/ (function(module, exports) {
 
 module.exports = function(opts) {
@@ -28054,7 +28218,7 @@ ElementClass.prototype.toggle = function(className) {
 
 
 /***/ }),
-/* 125 */
+/* 127 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -28838,7 +29002,7 @@ ElementClass.prototype.toggle = function(className) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 126 */
+/* 128 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -28884,8 +29048,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 
 /***/ }),
-/* 127 */,
-/* 128 */,
 /* 129 */,
 /* 130 */,
 /* 131 */,
@@ -28898,11 +29060,13 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 /* 138 */,
 /* 139 */,
 /* 140 */,
-/* 141 */
+/* 141 */,
+/* 142 */,
+/* 143 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ParentEndpoint = __webpack_require__(73);
-var getIFrameEndpoint = __webpack_require__(72);
+var ParentEndpoint = __webpack_require__(74);
+var getIFrameEndpoint = __webpack_require__(73);
 
 // Not a real UUID as there's an RFC for that (needed for proper distributed computing).
 // But in this fairly parochial situation, we just need to be fairly sure to avoid repeats.
@@ -28992,29 +29156,29 @@ module.exports = function IframePhoneRpcEndpoint(handler, namespace, targetWindo
 
 
 /***/ }),
-/* 142 */
+/* 144 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = {
   /**
    * Allows to communicate with an iframe.
    */
-  ParentEndpoint:  __webpack_require__(73),
+  ParentEndpoint:  __webpack_require__(74),
   /**
    * Allows to communicate with a parent page.
    * IFrameEndpoint is a singleton, as iframe can't have multiple parents anyway.
    */
-  getIFrameEndpoint: __webpack_require__(72),
+  getIFrameEndpoint: __webpack_require__(73),
   structuredClone: __webpack_require__(41),
 
   // TODO: May be misnamed
-  IframePhoneRpcEndpoint: __webpack_require__(141)
+  IframePhoneRpcEndpoint: __webpack_require__(143)
 
 };
 
 
 /***/ }),
-/* 143 */
+/* 145 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -29029,7 +29193,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 	/* istanbul ignore if  */
 	if ( true ) {
 		// AMD. Register as an anonymous module.
-		!(__WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(144) ], __WEBPACK_AMD_DEFINE_RESULT__ = function( _ ) {
+		!(__WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(146) ], __WEBPACK_AMD_DEFINE_RESULT__ = function( _ ) {
 			return factory( _, root );
 		}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -29617,7 +29781,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
 
 /***/ }),
-/* 144 */
+/* 146 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, global) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -41973,10 +42137,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(101)(module), __webpack_require__(28)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(102)(module), __webpack_require__(28)))
 
 /***/ }),
-/* 145 */
+/* 147 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41994,7 +42158,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 if (process.env.NODE_ENV !== 'production') {
   var invariant = __webpack_require__(1);
   var warning = __webpack_require__(2);
-  var ReactPropTypesSecret = __webpack_require__(75);
+  var ReactPropTypesSecret = __webpack_require__(76);
   var loggedTypeFailures = {};
 }
 
@@ -42045,7 +42209,7 @@ module.exports = checkPropTypes;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 146 */
+/* 148 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42106,7 +42270,7 @@ module.exports = function() {
 
 
 /***/ }),
-/* 147 */
+/* 149 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42125,8 +42289,8 @@ var emptyFunction = __webpack_require__(7);
 var invariant = __webpack_require__(1);
 var warning = __webpack_require__(2);
 
-var ReactPropTypesSecret = __webpack_require__(75);
-var checkPropTypes = __webpack_require__(145);
+var ReactPropTypesSecret = __webpack_require__(76);
+var checkPropTypes = __webpack_require__(147);
 
 module.exports = function(isValidElement, throwOnDirectAccess) {
   /* global Symbol */
@@ -42592,7 +42756,7 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 148 */
+/* 150 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {/**
@@ -42619,18 +42783,16 @@ if (process.env.NODE_ENV !== 'production') {
   // By explicitly using `prop-types` you are opting into new development behavior.
   // http://fb.me/prop-types-in-prod
   var throwOnDirectAccess = true;
-  module.exports = __webpack_require__(147)(isValidElement, throwOnDirectAccess);
+  module.exports = __webpack_require__(149)(isValidElement, throwOnDirectAccess);
 } else {
   // By explicitly using `prop-types` you are opting into new production behavior.
   // http://fb.me/prop-types-in-prod
-  module.exports = __webpack_require__(146)();
+  module.exports = __webpack_require__(148)();
 }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 149 */,
-/* 150 */,
 /* 151 */,
 /* 152 */,
 /* 153 */,
@@ -42700,20 +42862,22 @@ if (process.env.NODE_ENV !== 'production') {
 /* 217 */,
 /* 218 */,
 /* 219 */,
-/* 220 */
+/* 220 */,
+/* 221 */,
+/* 222 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(process) {var React = __webpack_require__(13);
+/* WEBPACK VAR INJECTION */(function(process) {var React = __webpack_require__(11);
 var ReactDOM = __webpack_require__(23);
-var PropTypes = __webpack_require__(148);
-var ExecutionEnvironment = __webpack_require__(126);
-var ModalPortal = React.createFactory(__webpack_require__(221));
-var ariaAppHider = __webpack_require__(222);
-var refCount = __webpack_require__(224);
-var elementClass = __webpack_require__(124);
+var PropTypes = __webpack_require__(150);
+var ExecutionEnvironment = __webpack_require__(128);
+var ModalPortal = React.createFactory(__webpack_require__(223));
+var ariaAppHider = __webpack_require__(224);
+var refCount = __webpack_require__(226);
+var elementClass = __webpack_require__(126);
 var renderSubtreeIntoContainer = __webpack_require__(23).unstable_renderSubtreeIntoContainer;
-var Assign = __webpack_require__(74);
-var createReactClass = __webpack_require__(62)
+var Assign = __webpack_require__(75);
+var createReactClass = __webpack_require__(63)
 
 var SafeHTMLElement = ExecutionEnvironment.canUseDOM ? window.HTMLElement : {};
 var AppElement = ExecutionEnvironment.canUseDOM ? document.body : {appendChild: function() {}};
@@ -42873,15 +43037,15 @@ module.exports = Modal
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 221 */
+/* 223 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var React = __webpack_require__(13);
+var React = __webpack_require__(11);
 var div = React.DOM.div;
-var focusManager = __webpack_require__(223);
-var scopeTab = __webpack_require__(225);
-var Assign = __webpack_require__(74);
-var createReactClass = __webpack_require__(62);
+var focusManager = __webpack_require__(225);
+var scopeTab = __webpack_require__(227);
+var Assign = __webpack_require__(75);
+var createReactClass = __webpack_require__(63);
 
 // so that our CSS is statically analyzable
 var CLASS_NAMES = {
@@ -43085,7 +43249,7 @@ var ModalPortal = module.exports = createReactClass({
 
 
 /***/ }),
-/* 222 */
+/* 224 */
 /***/ (function(module, exports) {
 
 var _element = typeof document !== 'undefined' ? document.body : null;
@@ -43133,10 +43297,10 @@ exports.resetForTesting = resetForTesting;
 
 
 /***/ }),
-/* 223 */
+/* 225 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var findTabbable = __webpack_require__(97);
+var findTabbable = __webpack_require__(98);
 var focusLaterElements = [];
 var modalElement = null;
 var needToFocus = false;
@@ -43207,7 +43371,7 @@ exports.teardownScopedFocus = function() {
 
 
 /***/ }),
-/* 224 */
+/* 226 */
 /***/ (function(module, exports) {
 
 var modals = [];
@@ -43232,10 +43396,10 @@ module.exports = {
 
 
 /***/ }),
-/* 225 */
+/* 227 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var findTabbable = __webpack_require__(97);
+var findTabbable = __webpack_require__(98);
 
 module.exports = function(node, event) {
   var tabbable = findTabbable(node);
@@ -43257,16 +43421,14 @@ module.exports = function(node, event) {
 
 
 /***/ }),
-/* 226 */
+/* 228 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(220);
+module.exports = __webpack_require__(222);
 
 
 
 /***/ }),
-/* 227 */,
-/* 228 */,
 /* 229 */,
 /* 230 */,
 /* 231 */,
@@ -43276,7 +43438,9 @@ module.exports = __webpack_require__(220);
 /* 235 */,
 /* 236 */,
 /* 237 */,
-/* 238 */
+/* 238 */,
+/* 239 */,
+/* 240 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -45720,7 +45884,7 @@ function flush() {
 function attemptVertex() {
   try {
     var r = require;
-    var vertx = __webpack_require__(242);
+    var vertx = __webpack_require__(244);
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -45815,10 +45979,10 @@ filter$1), _async$filter);
 /* harmony default export */ __webpack_exports__["default"] = (rsvp);
 
 
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(0), __webpack_require__(240).setImmediate, __webpack_require__(28)))
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(0), __webpack_require__(242).setImmediate, __webpack_require__(28)))
 
 /***/ }),
-/* 239 */
+/* 241 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -46011,7 +46175,7 @@ filter$1), _async$filter);
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28), __webpack_require__(0)))
 
 /***/ }),
-/* 240 */
+/* 242 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var apply = Function.prototype.apply;
@@ -46064,13 +46228,13 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(239);
+__webpack_require__(241);
 exports.setImmediate = setImmediate;
 exports.clearImmediate = clearImmediate;
 
 
 /***/ }),
-/* 241 */
+/* 243 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // ==========================================================================
@@ -46151,7 +46315,7 @@ exports.clearImmediate = clearImmediate;
 
 (function (global) {
 
-  var iframePh = ( true)? __webpack_require__(142) : iframePhone;
+  var iframePh = ( true)? __webpack_require__(144) : iframePhone;
 
   var config = null;
 
@@ -46512,11 +46676,11 @@ exports.clearImmediate = clearImmediate;
 
 
 /***/ }),
-/* 242 */
+/* 244 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ })
-],[103]);
+],[104]);
 //# sourceMappingURL=app.js.map
