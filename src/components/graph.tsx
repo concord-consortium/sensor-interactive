@@ -2,8 +2,10 @@ import * as React from "react";
 import Dygraph from "dygraphs";
 
 export interface GraphProps {
+    title:string|undefined,
     data:number[][],
     onZoom:Function,
+    xMin:number,
     xMax:number,
     yMin:number,
     yMax:number,
@@ -13,6 +15,7 @@ export interface GraphProps {
 
 export interface GraphState {
     data:number[][],
+    xMin:number,
     xMax:number,
     yMin:number,
     yMax:number,
@@ -30,6 +33,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         
         this.state = {
             data: this.props.data,
+            xMin: 0,
             xMax: 10,
             yMin: 0,
             yMax: 10,
@@ -73,7 +77,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             return x.toFixed(2) + " " + unit;
         }
         
-        this.dygraph = new Dygraph("sensor-graph", data, {
+        function formatAxisVal(x:number, unit:string=""):string {
+            if(x > 10000) {
+                return (x/1000).toFixed(0) + "k " + unit;
+            }
+            return x.toFixed(2) + " " + unit;
+        }
+        
+        this.dygraph = new Dygraph("sensor-graph-" + this.props.title, data, {
             dateWindow: [0, this.state.xMax],
             zoomCallback: this.props.onZoom,
             axes: {
@@ -90,7 +101,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                         return formatVal(val);
                     },
                     axisLabelFormatter: (val:number) => {
-                        return formatVal(val);
+                        return formatAxisVal(val);
                     }
                 }
             },
@@ -140,7 +151,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             <div>
                 <button id="scaleBtn" style={{position:"absolute", top:0, right:0}} 
                     onClick={this.autoScale}>Auto-scale</button>
-                <div id="sensor-graph"></div>
+                <div id={"sensor-graph-" + this.props.title}></div>
             </div>
         );
     }

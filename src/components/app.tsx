@@ -22,6 +22,8 @@ export interface AppState {
     warnNewModal:boolean,
     statusMessage:string|undefined,
     secondGraph:boolean
+    xStart:number,
+    xEnd:number
 }
 
 export class App extends React.Component<AppProps, AppState> {
@@ -46,6 +48,8 @@ export class App extends React.Component<AppProps, AppState> {
             dataReset:false,
             collecting:false,
             runLength:10,
+            xStart:0,
+            xEnd:10,
             timeUnit:"",
             warnNewModal:false,
             statusMessage:undefined,
@@ -203,18 +207,21 @@ export class App extends React.Component<AppProps, AppState> {
     }    
     
     onTimeSelect(event:React.FormEvent<HTMLSelectElement>) {
-        this.setState({runLength:parseInt(event.currentTarget.value,10)});
+        var newTime = parseInt(event.currentTarget.value,10);
+        this.setState({
+            runLength: newTime,
+            xStart: 0,
+            xEnd: newTime
+        });
     }
     
     onGraphZoom(xStart:number, xEnd:number) {
         
         // convert from time value to index
-        //TODO: update to handle multiple graphs
-        /*
         var i:number, entry:number[], nextEntry:number[];
-        for(i=0; i < this.state.sensor1.data.length-1; i++) {
-            entry = this.state.sensor1.data[i];
-            nextEntry = this.state.sensor1.data[i+1];
+        for(i=0; i < this.sensor1.sensorData.length-1; i++) {
+            entry = this.sensor1.sensorData[i];
+            nextEntry = this.sensor1.sensorData[i+1];
             if(entry[0] == xStart) {
                 this.selectionRange.start = i;
                 break;
@@ -223,9 +230,9 @@ export class App extends React.Component<AppProps, AppState> {
                 break;
             }
         }
-        for(i; i < this.state.sensor1.data.length-1; i++) {
-            entry = this.state.sensor1.data[i];
-            nextEntry = this.state.sensor1.data[i+1];
+        for(i; i < this.sensor1.sensorData.length-1; i++) {
+            entry = this.sensor1.sensorData[i];
+            nextEntry = this.sensor1.sensorData[i+1];
             if(entry[0] == xEnd) {
                 this.selectionRange.end = i;
                 break;
@@ -234,7 +241,12 @@ export class App extends React.Component<AppProps, AppState> {
                 break;
             }
         }
-        */
+        
+        this.setState({
+            xStart: xStart,
+            xEnd: xEnd
+        });
+        
     }
     
     closeWarnNewModal() {
@@ -276,6 +288,8 @@ export class App extends React.Component<AppProps, AppState> {
             sensorConnector={this.sensorConnector}
             onGraphZoom={this.onGraphZoom} 
             runLength={this.state.runLength}
+            xStart={this.state.xStart}
+            xEnd={this.state.xEnd}
             valueUnits={this.valueUnits}
             collecting={this.state.collecting}
             dataReset={this.state.dataReset}/>;

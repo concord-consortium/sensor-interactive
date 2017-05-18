@@ -13,7 +13,9 @@ export interface SensorGraphProps {
     runLength:number,
     valueUnits:string[],
     collecting:boolean,
-    dataReset:boolean
+    dataReset:boolean,
+    xStart:number,
+    xEnd:number
 }
 
 export interface SensorGraphState {
@@ -204,7 +206,8 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
                    title={this.props.title}
                    data={this.state.sensorData} 
                    onZoom={this.props.onGraphZoom}
-                   xMax={this.props.runLength}
+                   xMin={this.props.xStart}
+                   xMax={this.props.xEnd}
                    yMin={this.props.sensor.definition.minReading}
                    yMax={this.props.sensor.definition.maxReading}
                    xLabel={"Time (" + this.state.timeUnit + ")"} 

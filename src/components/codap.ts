@@ -11,6 +11,7 @@ export class Codap {
     
     private dataSetName:string = "sensor_interactive";
     private dataSetTitle:string = "Sensor Interactive";
+    private dataSetAttrs:any[] = [{name: "Time", type: 'numeric', precision: 3}];
     
     private dataSetTemplate:IDataSetTemplate = {
         name: "{name}",
@@ -26,10 +27,7 @@ export class Codap {
               pluralCase: "measurements",
               setOfCasesWithArticle: "a sample"
             },
-            attrs: [
-                {name: "Time", type: 'numeric', precision: 3},
-                {name: "Position", type: 'numeric', precision: 4}
-            ]
+            attrs: this.dataSetAttrs
           }
         ]
     };
@@ -43,25 +41,13 @@ export class Codap {
         }, this.responseCallback).then((iResult) => {
           // get interactive state so we can save the data set index.
           this.state = CodapInterface.getInteractiveState();
-          // Determine if CODAP already has the Data Context we need.
-          return this.requestDataContext();
-        }).then((iResult:any) => {
-          // if we did not find a data set, make one
-          if (iResult && !iResult.success) {
-            // If not not found, create it.
-            return this.requestCreateDataSet();
-          } else {
-            // else we are fine as we are, so return a resolved promise.
-            return Promise.resolve(iResult);
-          }
-        }).catch(function (msg) {
-          // handle errors
-          console.log(msg);
-        });;
+        });
     }
     
-    responseCallback(param:any) {
-        //console.log("codap response: " + param)
+    responseCallback(response:any) {
+        if(response) {
+            //console.log("codap response: success=" + response.success);
+        }
     }
     
     requestDataContext():Promise<any> {
@@ -69,6 +55,27 @@ export class Codap {
             action: 'get',
             resource: 'dataContext[' + this.dataSetName + ']'
         }, this.responseCallback);
+    }
+    
+    updateDataContext(attrs:string[]) {
+        var newAttrs:any[] = [];
+        attrs.forEach((attr)=>{
+            var exists:boolean = false;
+            this.dataSetAttrs.forEach((dataSetAttr) => {
+                if(dataSetAttr.name == attr) {
+                    exists = true;
+                }
+            });
+            if(!exists) {
+                this.dataSetAttrs.push({name: attr, type: 'numeric', precision: 4});
+            }   
+        });
+        /*
+        return CodapInterface.sendRequest({
+            action: 'create',
+            resource: 'dataContext[' + this.dataSetName + '].collection["runs/measurements"].attribute',
+            values: newAttrs
+        }, this.responseCallback);*/
     }
     
     requestCreateDataSet():Promise<any> {
@@ -110,7 +117,7 @@ export class Codap {
     }
 
         
-    sendData(data:number[][]):Promise<any> {
+    sendData(data:number[][], dataType:string) {
         // if a run number has not yet been initialized, do so now.
         if (this.state.runNumber == undefined || this.state.runNumber == null) {
             this.state.runNumber = 0;
@@ -120,21 +127,72 @@ export class Codap {
 
         var sampleCount = data.length;
         
-        var items:{Run:number, Time:number, Position:number}[] = [];
+        var items:any[] = [];
         
         for(var i=0; i < sampleCount; i++) {
             var entry = data[i];
             var time = entry[0];
             var value = <number>entry[1];
-            items.push({Run: this.state.runNumber, Time: time, Position: value});
+            var item = {Run: this.state.runNumber, Time: time};
+            item[dataType] = value;
+            items.push(item);
         }
         
-        this.guaranteeCaseTable();
+        this.updateDataContext([dataType]);
+        this.prepAndSend(items);
+    }
+    
+    private prepAndSend(items:any[]) {
+        // Determine if CODAP already has the Data Context we need.
+        this.requestDataContext().then((iResult:any) => {
+            // if we did not find a data set, make one
+            if (iResult && !iResult.success) {
+                // If not not found, create it.
+                return this.requestCreateDataSet();
+            } else {
+                // else we are fine as we are, so return a resolved promise.
+                return Promise.resolve(iResult);
+            }
+        }).then((iResult:any)=> {
+            this.guaranteeCaseTable().then((iResult:any) => {
+                CodapInterface.sendRequest({
+                    action: 'create',
+                    resource: 'dataContext[' + this.dataSetName + '].item',
+                    values: items
+                }, this.responseCallback);
+            });
+        });
+    }
+    
+    sendDualData(data1:number[][], data1Type:string, data2:number[][], data2Type:string) {
+        // if a run number has not yet been initialized, do so now.
+        if (this.state.runNumber == undefined || this.state.runNumber == null) {
+            this.state.runNumber = 0;
+        }
         
-        return CodapInterface.sendRequest({
-            action: 'create',
-            resource: 'dataContext[' + this.dataSetName + '].item',
-            values: items
-        }, this.responseCallback);
+        ++this.state.runNumber;
+
+        var sampleCount = Math.max(data1.length, data2.length);
+        
+        var items:any[] = [];
+        
+        this.dataSetTemplate.collections[1]["attrs"][1] = {name: data1Type, type: 'numeric', precision: 4};
+        this.dataSetTemplate.collections[1]["attrs"][2] = {name: data2Type, type: 'numeric', precision: 4};
+        
+        for(var i=0; i < sampleCount; i++) {
+            var entry1 = data1[i];
+            var entry2 = data2[i];
+            var time = entry1[0];
+            var value1 = <number>entry1[1];
+            var value2 = <number>entry2[1];
+            var item = {Run: this.state.runNumber, Time: time};
+            item[data1Type] = value1;
+            item[data2Type] = value2;
+            items.push(item);
+        }
+        
+        this.updateDataContext([data1Type, data2Type]);
+        
+        this.prepAndSend(items);
     }
 }
