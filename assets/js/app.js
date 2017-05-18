@@ -10757,22 +10757,6 @@ class App extends React.Component {
             this.sensorConnector.on("interfaceRemoved", this.onSensorDisconnect);
         }
     }
-    /*
-       getDataColumn(valueUnit:string, dataset?:any) {
-           if(dataset == undefined) {
-               dataset = this.sensorConnector.stateMachine.datasets[0];
-           }
-           var dataColumns = dataset.columns;
-           for(var i=0; i < dataColumns.length; i++) {
-               var dataColumn = dataColumns[i];
-               if(dataColumn.units == valueUnit) {
-                   return dataColumn;
-               }
-           }
-           console.log("data column not found (" + valueUnit + ")");
-           return null
-       }
-   */
     sensorHasData() {
         return (this.sensorConnector && this.sensorConnector.datasets[0] && this.sensorConnector.datasets[0].columns[1]);
     }
@@ -10811,8 +10795,7 @@ class App extends React.Component {
     sendData() {
         var data1 = this.sensor1.sensorData.slice();
         data1 = data1.slice(this.selectionRange.start, this.selectionRange.end);
-        console.log("data1.length: " + data1.length);
-        if (this.sensor2.sensorData.length == 0) {
+        if (!this.state.secondGraph) {
             this.codap.sendData(data1, this.sensor1.definition.measurementName);
         }
         else {
@@ -11005,8 +10988,9 @@ class Codap {
         });
     }
     responseCallback(response) {
-        if (response)
-            console.log("codap response: " + response.success);
+        if (response) {
+            //console.log("codap response: success=" + response.success);
+        }
     }
     requestDataContext() {
         return CodapInterface.sendRequest({
@@ -11015,10 +10999,8 @@ class Codap {
         }, this.responseCallback);
     }
     updateDataContext(attrs) {
-        console.log("updateDataContext: " + attrs);
         var newAttrs = [];
         attrs.forEach((attr) => {
-            //TODO: check if attr already exists
             var exists = false;
             this.dataSetAttrs.forEach((dataSetAttr) => {
                 if (dataSetAttr.name == attr) {
@@ -11136,7 +11118,7 @@ class Codap {
             item[data2Type] = value2;
             items.push(item);
         }
-        this.updateDataContext([data2Type, data2Type]);
+        this.updateDataContext([data1Type, data2Type]);
         this.prepAndSend(items);
     }
 }
@@ -11294,6 +11276,10 @@ class SensorGraph extends React.Component {
         this.onSensorData = this.onSensorData.bind(this);
         this.props.sensorConnector.on("statusReceived", this.onSensorStatus);
         this.props.sensorConnector.on("data", this.onSensorData);
+    }
+    componentWillUnmount() {
+        this.props.sensorConnector.off("statusReceived", this.onSensorStatus);
+        this.props.sensorConnector.off("data", this.onSensorData);
     }
     onUnitSelect(event) {
         this.setUnit(event.currentTarget.value);
