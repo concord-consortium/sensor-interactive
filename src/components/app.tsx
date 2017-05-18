@@ -1,7 +1,8 @@
 import * as React from "react";
 import * as ReactModal from 'react-modal';
 import { Title } from "./title";
-import { Graph } from "./graph";
+import { Sensor } from "./sensor";
+import { SensorGraph } from "./sensor-graph";
 import { Codap } from "./codap";
 import { SensorStrings, SensorDefinitions } from "./sensor-definitions";
 import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
@@ -12,25 +13,22 @@ export interface AppProps {};
 
 export interface AppState {
     sensorType:string,
-    sensorActive:boolean,
-    sensorValue:number|undefined,
-    sensorData:number[][],
+    hasData:boolean,
     dataChanged:boolean,
+    dataReset:boolean,
     collecting:boolean,
     runLength:number,
-    minReading:number,
-    maxReading:number,
-    tareValue:number,
     timeUnit:string,
-    valueUnit:string,
-    measurementName:string,
     warnNewModal:boolean,
-    statusMessage:string|undefined
+    statusMessage:string|undefined,
+    secondGraph:boolean
 }
 
 export class App extends React.Component<AppProps, AppState> {
     
     private sensorConnector:SensorConnectorInterface;
+    private sensor1:Sensor;
+    private sensor2:Sensor;
     private lastDataIndex:number;
     private codap:Codap;
     private selectionRange:{start:number,end:number|undefined} = {start:0,end:undefined};
@@ -43,28 +41,25 @@ export class App extends React.Component<AppProps, AppState> {
         super(props);
         this.state = {
             sensorType:"",
-            sensorActive:false,
-            sensorValue:undefined,
-            sensorData:[],
+            hasData:false,
             dataChanged:false,
+            dataReset:false,
             collecting:false,
             runLength:10,
-            minReading:0,
-            maxReading:10,
-            tareValue:0,
             timeUnit:"",
-            valueUnit:"",
-            measurementName:"",
             warnNewModal:false,
-            statusMessage:undefined
+            statusMessage:undefined,
+            secondGraph:false
         };
+        
+        this.sensor1 = new Sensor();
+        this.sensor2 = new Sensor();
         
         this.codap = new Codap();
         this.valueUnits = [];
         this.sensorDataByType = {};
         
         this.onSensorConnect = this.onSensorConnect.bind(this);
-        this.onSensorStatus = this.onSensorStatus.bind(this);
         this.onSensorData = this.onSensorData.bind(this);
         this.onSensorDisconnect = this.onSensorDisconnect.bind(this);
         
@@ -72,8 +67,6 @@ export class App extends React.Component<AppProps, AppState> {
         this.sensorConnector.on("*", this.onSensorConnect);
         this.sensorConnector.startPolling(SENSOR_IP);
         
-        this.onSensorSelect = this.onSensorSelect.bind(this);
-        this.zeroSensor = this.zeroSensor.bind(this);
         this.onTimeSelect = this.onTimeSelect.bind(this);
         this.onGraphZoom = this.onGraphZoom.bind(this);
         this.startSensor = this.startSensor.bind(this);
@@ -83,6 +76,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.closeWarnNewModal = this.closeWarnNewModal.bind(this);
         this.discardData = this.discardData.bind(this);
         this.toggleWarning = this.toggleWarning.bind(this);
+        this.toggleGraph = this.toggleGraph.bind(this);
         this.reload = this.reload.bind(this);
     }
     
@@ -97,7 +91,6 @@ export class App extends React.Component<AppProps, AppState> {
         }
         else {
             this.sensorConnector.off("*", this.onSensorConnect);
-            this.setState({sensorActive:true});
             console.log("sensor connected: " + sensorType);
             
             var timeUnit;
@@ -111,82 +104,25 @@ export class App extends React.Component<AppProps, AppState> {
                 }
             }
             
+            this.sensor1.valueUnit = this.valueUnits[0];
+            this.sensor1.definition = SensorDefinitions[this.valueUnits[0]];
+            if(this.valueUnits.length > 1) {
+                this.sensor2.valueUnit = this.valueUnits[1];
+                this.sensor2.definition = SensorDefinitions[this.valueUnits[1]];
+            }
+            
             this.setState({
                 sensorType: sensorType,
                 timeUnit: timeUnit
             });
 
-            this.setSensor(this.valueUnits[0]);
-            
-            this.sensorConnector.on("statusReceived", this.onSensorStatus);
             this.sensorConnector.on("data", this.onSensorData);
             this.sensorConnector.on("interfaceRemoved", this.onSensorDisconnect);
         }
     }
     
-    setSensor(valueUnit:string) {
-        if(valueUnit == this.state.valueUnit) {
-            return;
-        }
-        
-        // save current data
-        this.sensorDataByType[this.state.valueUnit] = this.state.sensorData;
-        
-        // load any existing data for this value type
-        var newData = this.sensorDataByType[valueUnit] ? this.sensorDataByType[valueUnit] : [];
-        
-        var sensorDef = SensorDefinitions[valueUnit];
-
-        this.setState({
-            valueUnit: valueUnit,
-            minReading: sensorDef.minReading,
-            maxReading: sensorDef.maxReading,
-            measurementName: sensorDef.measurementName,
-            tareValue: 0,
-            sensorData: newData
-        })
-        this.lastDataIndex = 0;
-    }
-    
-    onSensorStatus(e) {
-        // find the value for the currently selected sensor
-        var dataColumn = this.getDataColumn(this.state.valueUnit);
-        if(dataColumn) {
-            this.setState({sensorValue: dataColumn.liveValue});
-        }
-    }
-    
-    getDataColumn(valueUnit:string, dataset?:any) {
-        if(dataset == undefined) {
-            dataset = this.sensorConnector.stateMachine.datasets[0];
-        }
-        var dataColumns = dataset.columns;
-        for(var i=0; i < dataColumns.length; i++) {
-            var dataColumn = dataColumns[i];
-            if(dataColumn.units == valueUnit) {
-                return dataColumn;
-            }
-        }
-        console.log("data column not found");
-        return null
-    }
-    
     sensorHasData():boolean {
         return (this.sensorConnector && this.sensorConnector.datasets[0] && this.sensorConnector.datasets[0].columns[1]);
-    }
-    
-    getSensorValue():number {
-        var val = -1;
-        if(this.sensorHasData())
-            val = this.getDataColumn(this.state.valueUnit).liveValue;
-        
-        return val;
-    }
-    
-    zeroSensor() {
-        this.setState({
-            tareValue: this.getSensorValue()
-        });
     }
     
     startSensor() {
@@ -208,6 +144,8 @@ export class App extends React.Component<AppProps, AppState> {
     onSensorData(setId:string) {
         if(!this.state.collecting) {
             this.setState({
+                hasData: true,
+                dataChanged: true,
                 collecting: true,
                 statusMessage: SensorStrings["messages"]["collecting_data"]
             });
@@ -216,67 +154,32 @@ export class App extends React.Component<AppProps, AppState> {
                 this.stopSensor();
             }, this.state.runLength * 1000);
         }
-        
-        var dataset;
-        for(var i=0; i < this.sensorConnector.datasets.length; i++) {
-            if(this.sensorConnector.datasets[i].id == setId) {
-                dataset = this.sensorConnector.datasets[i];
-                break;
-            }
-        }
-        if(dataset == undefined) {
-            return;
-        }
-        
-        var timeColumn = dataset.columns[0].data;
-        var valueColumn = this.getDataColumn(this.state.valueUnit, dataset).data;
-        
-        // columns aren't always updated together
-        var newLength = Math.min(timeColumn.length, valueColumn.length);
-        
-        if (this.lastDataIndex === undefined) {
-            this.lastDataIndex = 0;
-        }                    
-
-        // check there's new data for this column
-        if (newLength > this.lastDataIndex) {
-            var newTimeData = timeColumn.slice(this.lastDataIndex, newLength);
-            var newValueData = valueColumn.slice(this.lastDataIndex, newLength);
-            
-            var updatedData = this.state.sensorData.slice();
-            for(var i=0; i < newTimeData.length; i++) {
-                var time = Number(newTimeData[i].toFixed(2));
-                var value = newValueData[i] - this.state.tareValue;
-                updatedData.push([time, value]);
-            }
-            this.setState({
-                sensorData: updatedData,
-                dataChanged: true
-            });
-            this.lastDataIndex = newLength;
-        }
     }
-    
+        
     onSensorDisconnect() {
         this.setState({
-            sensorActive: false,
             statusMessage: SensorStrings["messages"]["disconnected"] 
         });
     }
     
-    onSensorSelect(event:React.FormEvent<HTMLSelectElement>) {
-        this.setSensor(event.currentTarget.value);
-    }
-    
     sendData() {
-        var data = this.state.sensorData.slice();
-        data = data.slice(this.selectionRange.start, this.selectionRange.end);
+        var data1 = this.sensor1.sensorData.slice();
+        data1 = data1.slice(this.selectionRange.start, this.selectionRange.end);
         
-        this.codap.sendData(data);
+        if(!this.state.secondGraph) {
+            this.codap.sendData(data1, this.sensor1.definition.measurementName);   
+        } else {
+            var data2 = this.sensor2.sensorData.slice();
+            data2 = data2.slice(this.selectionRange.start, this.selectionRange.end);
+            
+            this.codap.sendDualData(data1, this.sensor1.definition.measurementName, 
+                                data2, this.sensor2.definition.measurementName);
+        }
         
         this.setState({
             dataChanged: false
         });
+        
     }
     
     checkNewData() {
@@ -291,7 +194,8 @@ export class App extends React.Component<AppProps, AppState> {
     
     newData() {
         this.setState({
-            sensorData: [],
+            hasData:false,
+            dataReset:true,
             dataChanged:false
         });
         this.lastDataIndex = 0;
@@ -305,10 +209,12 @@ export class App extends React.Component<AppProps, AppState> {
     onGraphZoom(xStart:number, xEnd:number) {
         
         // convert from time value to index
+        //TODO: update to handle multiple graphs
+        /*
         var i:number, entry:number[], nextEntry:number[];
-        for(i=0; i < this.state.sensorData.length-1; i++) {
-            entry = this.state.sensorData[i];
-            nextEntry = this.state.sensorData[i+1];
+        for(i=0; i < this.state.sensor1.data.length-1; i++) {
+            entry = this.state.sensor1.data[i];
+            nextEntry = this.state.sensor1.data[i+1];
             if(entry[0] == xStart) {
                 this.selectionRange.start = i;
                 break;
@@ -317,9 +223,9 @@ export class App extends React.Component<AppProps, AppState> {
                 break;
             }
         }
-        for(i; i < this.state.sensorData.length-1; i++) {
-            entry = this.state.sensorData[i];
-            nextEntry = this.state.sensorData[i+1];
+        for(i; i < this.state.sensor1.data.length-1; i++) {
+            entry = this.state.sensor1.data[i];
+            nextEntry = this.state.sensor1.data[i+1];
             if(entry[0] == xEnd) {
                 this.selectionRange.end = i;
                 break;
@@ -328,6 +234,7 @@ export class App extends React.Component<AppProps, AppState> {
                 break;
             }
         }
+        */
     }
     
     closeWarnNewModal() {
@@ -345,47 +252,36 @@ export class App extends React.Component<AppProps, AppState> {
         this.disableWarning = true;
     }
     
+    toggleGraph() {
+        this.setState({
+            secondGraph: !this.state.secondGraph
+        });
+    }
+    
     reload() {
         location.reload();
     }
     
-    renderSensorValue() {
-        var reading = "";
-        if(this.state.sensorActive && this.state.sensorValue) {
-            reading = (this.state.sensorValue - this.state.tareValue).toFixed(5);
+    componentDidUpdate(prevProps, prevState) {
+        if(!prevState.dataReset && this.state.dataReset) {
+            this.setState({
+                dataReset:false
+            });
         }
-                    
-        var valueOption = (valueUnit:string) => {
-            var measurementName = SensorDefinitions[valueUnit].measurementName
-            var jsx = <option key={valueUnit} value={valueUnit}>{measurementName + " ("+valueUnit+")"}</option>;
-            return jsx;
-        }
-        return (
-            <div className="sensor-reading">
-                <label>Reading:</label>
-                <span>{reading + " " + this.state.valueUnit}</span>
-                <button id="zeroBtn" onClick={this.zeroSensor}>Zero</button>
-                <span>Sensor:</span>
-                <select onChange={ this.onSensorSelect }>
-                    {this.valueUnits.map(valueOption)}
-                </select>
-            </div>
-        );
     }
     
-    renderGraph() {
-        return <Graph 
-                   data={this.state.sensorData} 
-                   onZoom={this.onGraphZoom}
-                   xMax={this.state.runLength}
-                   yMin={this.state.minReading}
-                   yMax={this.state.maxReading}
-                   xLabel={"Time (" + this.state.timeUnit + ")"} 
-                   yLabel={this.state.measurementName + " (" + this.state.valueUnit + ")"}/>
+    renderGraph(sensor:Sensor, title:string) {
+        return <SensorGraph sensor={sensor}
+            title={title} 
+            sensorConnector={this.sensorConnector}
+            onGraphZoom={this.onGraphZoom} 
+            runLength={this.state.runLength}
+            valueUnits={this.valueUnits}
+            collecting={this.state.collecting}
+            dataReset={this.state.dataReset}/>;
     }
     
     renderControls() {
-        var hasData:boolean = this.state.sensorData.length > 0;
         return <div>
             <select id="timeSelect" onChange={ this.onTimeSelect } defaultValue="10">
                 <option value="1">{"1.0" + this.state.timeUnit}</option>
@@ -405,10 +301,10 @@ export class App extends React.Component<AppProps, AppState> {
                 disabled={!this.state.collecting}>Stop</button>
             <button id="sendData" 
                 onClick={this.sendData} 
-                disabled={!(hasData && this.state.dataChanged) || this.state.collecting}>Save Data</button>
+                disabled={!(this.state.hasData && this.state.dataChanged) || this.state.collecting}>Save Data</button>
             <button id="newData" 
                 onClick={this.checkNewData} 
-                disabled={!hasData || this.state.collecting}>New Run</button>
+                disabled={!this.state.hasData || this.state.collecting}>New Run</button>
             </div>
     }
 
@@ -435,10 +331,15 @@ export class App extends React.Component<AppProps, AppState> {
                     <button
                         onClick={this.reload}>Reload</button>
                     <Title sensorType={this.state.sensorType}/>
-                    {this.renderSensorValue()}
+                    <div>
+                        <button id="toggleGraphBtn"
+                             onClick={this.toggleGraph}>
+                            {this.state.secondGraph ? "Remove Graph" : "Add Graph"}</button>
+                    </div>
                 </div>
                 <div>{this.state.statusMessage}</div>
-                {this.renderGraph()}
+                {this.renderGraph(this.sensor1, "graph1")}
+                {this.state.secondGraph ? this.renderGraph(this.sensor2, "graph2"): null}
                 {this.renderControls()}
             </div>
         );

@@ -214,6 +214,14 @@ export const SensorDefinitions = {
     "minReading": 0.0,
     "maxReading": 220.0
   },
+  "N/m^2": {
+    "sensorName": i18n.t("sensor.names.pressure"),
+    "measurementName": i18n.t("sensor.measurements.pressure"),
+    "measurementType": "pressure",
+    "tareable": true,
+    "minReading": 0.0,
+    "maxReading": 220000.0 
+  },
   "mm Hg": {
     "sensorName": i18n.t("sensor.names.pressure"),
     "measurementName": i18n.t("sensor.measurements.pressure"),
