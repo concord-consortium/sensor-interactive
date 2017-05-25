@@ -59,7 +59,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
     
     update():void {
-        console.log("graph.update")
         if(!this.dygraph) {
             return;
         }
@@ -84,7 +83,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             xPrecision: Format.getFixValue(xRange[1] - xRange[0]),
             yPrecision: Format.getFixValue(yRange[1] - yRange[0])
         });
-        console.log("zoom:")
         this.props.onZoom(xStart, xEnd);
     }
     
@@ -124,8 +122,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         var updateProps = ["xMin", "xMax", "yMin", "yMax", "xLabel", "yLabel"];
         updateProps.forEach((prop)=> {
             if(nextProps[prop] != this.props[prop]) {
-                console.log("prop: " + prop + ", old: " + this.props[prop] + ", new: " + nextProps[prop]);
-            
                 newState[prop] = nextProps[prop];
             }
         });
