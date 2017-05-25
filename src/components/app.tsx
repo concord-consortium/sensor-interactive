@@ -309,7 +309,7 @@ export class App extends React.Component<AppProps, AppState> {
             </select>
             <button id="startSensor" 
                 onClick={this.startSensor}
-                disabled={this.state.collecting}>Start</button>
+                disabled={this.state.collecting || this.state.hasData}>Start</button>
             <button id="stopSensor" 
                 onClick={this.stopSensor}
                 disabled={!this.state.collecting}>Stop</button>
