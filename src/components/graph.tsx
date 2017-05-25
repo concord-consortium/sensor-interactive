@@ -1,5 +1,6 @@
 import * as React from "react";
 import Dygraph from "dygraphs";
+import { Format } from "./format";
 
 export interface GraphProps {
     title:string|undefined,
@@ -20,7 +21,9 @@ export interface GraphState {
     yMin:number,
     yMax:number,
     xLabel:string|undefined,
-    yLabel:string|undefined
+    yLabel:string|undefined,
+    xPrecision:number,
+    yPrecision:number
 }
 
 export class Graph extends React.Component<GraphProps, GraphState> {
@@ -33,15 +36,18 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         
         this.state = {
             data: this.props.data,
-            xMin: 0,
-            xMax: 10,
-            yMin: 0,
-            yMax: 10,
+            xMin: this.props.xMin,
+            xMax: this.props.xMax,
+            yMin: this.props.yMin,
+            yMax: this.props.yMax,
             xLabel: "Time",
-            yLabel: ""
+            yLabel: "",
+            xPrecision: Format.getFixValue(this.props.xMax - this.props.xMin),
+            yPrecision: Format.getFixValue(this.props.yMax - this.props.yMin)
         }
         
         this.autoScale = this.autoScale.bind(this);
+        this.onZoom = this.onZoom.bind(this);
     }
     
     // TODO: remove redundant calls
@@ -53,6 +59,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
     
     update():void {
+        console.log("graph.update")
         if(!this.dygraph) {
             return;
         }
@@ -70,38 +77,38 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         this.dygraph.resetZoom();
     }
     
+    onZoom(xStart:number, xEnd:number) {
+        var yRange = this.dygraph.yAxisRange();
+        var xRange = this.dygraph.xAxisRange();
+        this.setState({
+            xPrecision: Format.getFixValue(xRange[1] - xRange[0]),
+            yPrecision: Format.getFixValue(yRange[1] - yRange[0])
+        });
+        console.log("zoom:")
+        this.props.onZoom(xStart, xEnd);
+    }
+    
     componentDidMount() {
         var data = this.checkData(this.state.data);
         
-        function formatVal(x:number, unit:string=""):string {
-            return x.toFixed(2) + " " + unit;
-        }
-        
-        function formatAxisVal(x:number, unit:string=""):string {
-            if(x > 10000) {
-                return (x/1000).toFixed(0) + "k " + unit;
-            }
-            return x.toFixed(2) + " " + unit;
-        }
-        
         this.dygraph = new Dygraph("sensor-graph-" + this.props.title, data, {
             dateWindow: [0, this.state.xMax],
-            zoomCallback: this.props.onZoom,
+            zoomCallback: this.onZoom,
             axes: {
                 x: {
                     valueFormatter: (val:number) => {
-                        return formatVal(val);
+                        return Format.formatValue(val, this.state.xPrecision);
                     },
                     axisLabelFormatter: (val:number) => {
-                        return formatVal(val);
+                        return Format.formatValue(val, this.state.xPrecision);
                     }
                 },
                 y: {
                     valueFormatter: (val:number) => {
-                        return formatVal(val);
+                        return Format.formatValue(val, this.state.yPrecision);
                     },
                     axisLabelFormatter: (val:number) => {
-                        return formatAxisVal(val);
+                        return Format.formatValue(val, this.state.yPrecision);
                     }
                 }
             },
@@ -114,22 +121,20 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         var data = this.checkData(nextProps.data);
         
         var newState:any = {};
+        var updateProps = ["xMin", "xMax", "yMin", "yMax", "xLabel", "yLabel"];
+        updateProps.forEach((prop)=> {
+            if(nextProps[prop] != this.props[prop]) {
+                console.log("prop: " + prop + ", old: " + this.props[prop] + ", new: " + nextProps[prop]);
+            
+                newState[prop] = nextProps[prop];
+            }
+        });
         
-        if(nextProps.xLabel != this.props.xLabel || nextProps.yLabel != this.props.yLabel) {
-            newState.xLabel = nextProps.xLabel,
-            newState.yLabel = nextProps.yLabel,
-            newState.yMin = nextProps.yMin,
-            newState.yMax = nextProps.yMax
-        }
-        if(nextProps.xMax != this.props.xMax) {
-            newState.xMax = nextProps.xMax;
-        }
         if(nextProps.data.length != this.state.data.length) {
             newState.data = nextProps.data;
         }
-        if(newState.xMax || newState.data || newState.xLabel) {
-            this.setState(newState);
-        }
+        
+        this.setState(newState);
     }
     
     shouldComponentUpdate(nextProps, nextState):boolean {

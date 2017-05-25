@@ -2,6 +2,7 @@ import * as React from "react";
 import { Sensor } from "./sensor";
 import { Graph } from "./graph";
 import { SensorStrings, SensorDefinitions } from "./sensor-definitions";
+import { Format } from "./format";
 import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
 
 
@@ -171,7 +172,8 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
     renderReading() {
         var reading = "";
         if(this.state.sensorValue) {
-            reading = (this.state.sensorValue - this.state.tareValue).toFixed(5);
+            reading = Format.formatValue(
+                this.state.sensorValue - this.state.tareValue, Format.getPrecision(this.props.sensor.definition.maxReading - this.props.sensor.definition.minReading) + 2);
         }
         
         var valueOption = function(valueUnit:string) {
@@ -211,7 +213,7 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
                    yMin={this.props.sensor.definition.minReading}
                    yMax={this.props.sensor.definition.maxReading}
                    xLabel={"Time (" + this.state.timeUnit + ")"} 
-                   yLabel={this.props.sensor.definition.measurementName + " (" + this.state.valueUnit + ")"} />
+                   yLabel={this.props.sensor.definition.measurementName + " (" + this.state.valueUnit + ")"}/>
             </div>
         );
             

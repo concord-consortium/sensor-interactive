@@ -1,0 +1,35 @@
+export class Format {
+    
+    static getPrecision(range:number):number {
+        var stepSize = range / 4000;
+        var precision;
+        if(stepSize < 1) {
+            precision = Math.round(-Math.log10(stepSize));
+        } else {
+            precision = Math.round(Math.log10(Math.round(stepSize)));
+        }
+        precision = Math.min(precision, 21);
+        console.log("precision: " + precision + ", range: " + range);
+        return precision;
+    }
+    
+    static getFixValue(range:number):number {
+        var stepSize = range / 10;
+        var fixValue;
+        if(stepSize < 1) {
+            fixValue = Math.round(-Math.log10(stepSize));
+        } else {
+            fixValue = 0;
+        }
+        console.log("fix value: " + fixValue)
+        return fixValue;
+    }
+    
+    static formatValue(value:number, fixValue:number, unit:string=""):string {
+        if(value < 10000) {
+            return value.toFixed(fixValue) + " " + unit;
+        } else {
+            return (Math.round(value) / 1000) + "k " + unit;
+        }
+    }
+}

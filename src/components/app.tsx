@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as ReactModal from 'react-modal';
-import { Title } from "./title";
 import { Sensor } from "./sensor";
 import { SensorGraph } from "./sensor-graph";
 import { Codap } from "./codap";
@@ -49,7 +48,7 @@ export class App extends React.Component<AppProps, AppState> {
             collecting:false,
             runLength:10,
             xStart:0,
-            xEnd:10,
+            xEnd:11,
             timeUnit:"",
             warnNewModal:false,
             statusMessage:undefined,
@@ -211,7 +210,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({
             runLength: newTime,
             xStart: 0,
-            xEnd: newTime
+            xEnd: newTime * 1.2
         });
     }
     
@@ -336,7 +335,7 @@ export class App extends React.Component<AppProps, AppState> {
                     <p>Pressing New Run without pressing Save Data will discard the current data. Set up a new run without saving the data first?</p>
                     <input type="checkbox" 
                         onChange={this.toggleWarning}/><label>Don't show this message again</label>
-                    <hr></hr>
+                    <hr/>
                     <button 
                         onClick={this.closeWarnNewModal}>Go back</button>
                     <button
@@ -345,7 +344,6 @@ export class App extends React.Component<AppProps, AppState> {
                 <div>
                     <button
                         onClick={this.reload}>Reload</button>
-                    <Title sensorType={this.state.sensorType}/>
                     <div>
                         <button id="toggleGraphBtn"
                              onClick={this.toggleGraph}>
