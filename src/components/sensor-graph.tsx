@@ -169,6 +169,11 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
         }
     }
     
+    shouldComponentUpdate(nextProps, nextState):boolean {
+        if(nextProps.valueUnits) return true;
+        return false;
+    }
+    
     renderReading() {
         var reading = "";
         if(this.state.sensorValue) {
@@ -202,7 +207,7 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
     render() {
         
         return (
-            <div>
+            <div className="sensor-graph">
                 {this.renderReading()}
                 <Graph 
                    title={this.props.title}

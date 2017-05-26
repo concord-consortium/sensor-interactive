@@ -1,3 +1,22 @@
+body {
+    background-color: #F9EDC3;
+    font-family: Arial;
+    font-size: 12px;
+}
+
+.dygraph-label {
+    font-size: 12px;
+}
+
 .sensor-reading  * {
     margin-right: 8px;
+}
+
+.sensor-graph {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.graph-box {
+    height: 190px;
 }

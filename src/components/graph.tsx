@@ -111,7 +111,11 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                 }
             },
             xlabel: this.state.xLabel,
-            ylabel: this.state.yLabel
+            ylabel: this.state.yLabel,
+            underlayCallback: function(canvas, area, g) {
+                canvas.fillStyle = "rgba(255, 255, 255, 1.0)";
+                canvas.fillRect(area.x, area.y, area.w, area.h);
+            }
         });
     }
 
@@ -152,7 +156,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             <div>
                 <button id="scaleBtn" style={{position:"absolute", top:0, right:0}} 
                     onClick={this.autoScale}>Auto-scale</button>
-                <div id={"sensor-graph-" + this.props.title}></div>
+                <div id={"sensor-graph-" + this.props.title} className="graph-box"></div>
             </div>
         );
     }
