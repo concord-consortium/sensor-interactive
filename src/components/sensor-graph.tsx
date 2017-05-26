@@ -127,12 +127,13 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
         if (newLength > this.lastDataIndex) {
             var newTimeData = timeColumn.slice(this.lastDataIndex, newLength);
             var newValueData = valueColumn.slice(this.lastDataIndex, newLength);
-            
             var updatedData = this.state.sensorData.slice();
             for(var i=0; i < newTimeData.length; i++) {
                 var time = Number(newTimeData[i].toFixed(2));
                 var value = newValueData[i] - this.state.tareValue;
-                updatedData.push([time, value]);
+                if(time <= this.props.runLength) {
+                    updatedData.push([time, value]);
+                }
             }
             
             this.props.sensor.sensorData = updatedData;

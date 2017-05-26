@@ -33,9 +33,9 @@ export class App extends React.Component<AppProps, AppState> {
     private sensor1:Sensor;
     private sensor2:Sensor;
     private lastDataIndex:number;
+    private lastTime:number;
     private codap:Codap;
     private selectionRange:{start:number,end:number|undefined} = {start:0,end:undefined};
-    private stopTimer:number;
     private disableWarning:boolean = false;
     private sensorDataByType:any;
     
@@ -66,12 +66,14 @@ export class App extends React.Component<AppProps, AppState> {
         this.connectCodap = this.connectCodap.bind(this);
         this.onSensorConnect = this.onSensorConnect.bind(this);
         this.onSensorData = this.onSensorData.bind(this);
+        this.onSensorCollectionStopped = this.onSensorCollectionStopped.bind(this);
         this.onSensorDisconnect = this.onSensorDisconnect.bind(this);
         
         setTimeout(this.connectCodap, 1000);
         this.sensorConnector = new SensorConnectorInterface();
         this.sensorConnector.on("datasetAdded", this.onSensorConnect);
         this.sensorConnector.on("interfaceConnected", this.onSensorConnect);
+        this.sensorConnector.on("collectionStopped", this.onSensorCollectionStopped);
         this.sensorConnector.startPolling(SENSOR_IP);
         
         this.onTimeSelect = this.onTimeSelect.bind(this);
@@ -159,11 +161,13 @@ export class App extends React.Component<AppProps, AppState> {
     
     stopSensor() {
         this.sensorConnector.requestStop();
+    }
+    
+    onSensorCollectionStopped() {
         this.setState({
             collecting: false,
             statusMessage: SensorStrings["messages"]["data_collection_stopped"]
         });
-        clearTimeout(this.stopTimer);
     }
     
     onSensorData(setId:string) {
@@ -174,10 +178,17 @@ export class App extends React.Component<AppProps, AppState> {
                 collecting: true,
                 statusMessage: SensorStrings["messages"]["collecting_data"]
             });
-
-            this.stopTimer = setTimeout(()=>{
+        }
+        
+        var sensorInfo = this.sensorConnector.stateMachine.currentActionArgs;
+        var setID = sensorInfo[1];
+        if(setID.slice(setID.length-1) == 0) {
+            var timeData = sensorInfo[2];
+            // make sure the sensor graph has received the update for the final value
+            if(this.lastTime && this.lastTime > this.state.runLength) {
                 this.stopSensor();
-            }, this.state.runLength * 1000);
+            }
+            this.lastTime = timeData[timeData.length-1];
         }
     }
         
@@ -230,6 +241,7 @@ export class App extends React.Component<AppProps, AppState> {
     
     onTimeSelect(event:React.FormEvent<HTMLSelectElement>) {
         var newTime = parseInt(event.currentTarget.value,10);
+        
         this.setState({
             runLength: newTime,
             xStart: 0,
@@ -390,7 +402,7 @@ export class App extends React.Component<AppProps, AppState> {
                     <input type="checkbox" 
                         id="toggleGraphBtn"
                         onClick={this.toggleGraph} />
-                        Add Sensor
+                        Two sensors
                 </div>
                 <div>{this.state.statusMessage}</div>
                 {this.renderGraph(this.sensor1, "graph1")}
