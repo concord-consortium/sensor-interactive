@@ -12,13 +12,13 @@ export class Format {
         return precision;
     }
     
-    static getFixValue(range:number):number {
-        var stepSize = range / 10;
+    static getAxisPrecision(range:number):number {
+        var stepSize = range / 40;
         var fixValue;
         if(stepSize < 1) {
             fixValue = Math.round(-Math.log10(stepSize));
         } else {
-            fixValue = 0;
+            fixValue = Math.round(Math.log10(Math.round(stepSize)));
         }
         return fixValue;
     }

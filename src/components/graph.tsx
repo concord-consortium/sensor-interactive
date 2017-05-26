@@ -42,8 +42,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             yMax: this.props.yMax,
             xLabel: "Time",
             yLabel: "",
-            xPrecision: Format.getFixValue(this.props.xMax - this.props.xMin),
-            yPrecision: Format.getFixValue(this.props.yMax - this.props.yMin)
+            xPrecision: Format.getAxisPrecision(this.props.xMax - this.props.xMin),
+            yPrecision: Format.getAxisPrecision(this.props.yMax - this.props.yMin)
         }
         
         this.autoScale = this.autoScale.bind(this);
@@ -80,8 +80,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         var yRange = this.dygraph.yAxisRange();
         var xRange = this.dygraph.xAxisRange();
         this.setState({
-            xPrecision: Format.getFixValue(xRange[1] - xRange[0]),
-            yPrecision: Format.getFixValue(yRange[1] - yRange[0])
+            xPrecision: Format.getAxisPrecision(xRange[1] - xRange[0]),
+            yPrecision: Format.getAxisPrecision(yRange[1] - yRange[0])
         });
         this.props.onZoom(xStart, xEnd);
     }
@@ -95,7 +95,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             axes: {
                 x: {
                     valueFormatter: (val:number) => {
-                        return Format.formatValue(val, this.state.xPrecision);
+                        return Format.formatValue(val, this.state.xPrecision + 1);
                     },
                     axisLabelFormatter: (val:number) => {
                         return Format.formatValue(val, this.state.xPrecision);
@@ -103,7 +103,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                 },
                 y: {
                     valueFormatter: (val:number) => {
-                        return Format.formatValue(val, this.state.yPrecision);
+                        return Format.formatValue(val, this.state.yPrecision + 2);
                     },
                     axisLabelFormatter: (val:number) => {
                         return Format.formatValue(val, this.state.yPrecision);
@@ -112,6 +112,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             },
             xlabel: this.state.xLabel,
             ylabel: this.state.yLabel,
+            legend: "follow",
             underlayCallback: function(canvas, area, g) {
                 canvas.fillStyle = "rgba(255, 255, 255, 1.0)";
                 canvas.fillRect(area.x, area.y, area.w, area.h);
@@ -132,6 +133,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         
         if(nextProps.data.length != this.state.data.length) {
             newState.data = nextProps.data;
+        }
+        
+        if(newState.yMax) {
+            newState.yPrecision = Format.getAxisPrecision(newState.yMax);
         }
         
         this.setState(newState);
