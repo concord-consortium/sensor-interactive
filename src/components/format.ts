@@ -9,7 +9,6 @@ export class Format {
             precision = Math.round(Math.log10(Math.round(stepSize)));
         }
         precision = Math.min(precision, 21);
-        console.log("precision: " + precision + ", range: " + range);
         return precision;
     }
     
@@ -21,7 +20,6 @@ export class Format {
         } else {
             fixValue = 0;
         }
-        console.log("fix value: " + fixValue)
         return fixValue;
     }
     

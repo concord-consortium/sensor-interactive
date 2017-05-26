@@ -12,6 +12,7 @@ export interface AppProps {};
 
 export interface AppState {
     sensorType:string,
+    valueUnits:string[],
     hasData:boolean,
     dataChanged:boolean,
     dataReset:boolean,
@@ -19,8 +20,9 @@ export interface AppState {
     runLength:number,
     timeUnit:string,
     warnNewModal:boolean,
+    reconnectModal:boolean,
     statusMessage:string|undefined,
-    secondGraph:boolean
+    secondGraph:boolean,
     xStart:number,
     xEnd:number
 }
@@ -35,13 +37,13 @@ export class App extends React.Component<AppProps, AppState> {
     private selectionRange:{start:number,end:number|undefined} = {start:0,end:undefined};
     private stopTimer:number;
     private disableWarning:boolean = false;
-    private valueUnits:string[];
     private sensorDataByType:any;
     
     constructor(props: AppProps) {
         super(props);
         this.state = {
             sensorType:"",
+            valueUnits:[],
             hasData:false,
             dataChanged:false,
             dataReset:false,
@@ -51,6 +53,7 @@ export class App extends React.Component<AppProps, AppState> {
             xEnd:11,
             timeUnit:"",
             warnNewModal:false,
+            reconnectModal:false,
             statusMessage:undefined,
             secondGraph:false
         };
@@ -58,16 +61,17 @@ export class App extends React.Component<AppProps, AppState> {
         this.sensor1 = new Sensor();
         this.sensor2 = new Sensor();
         
-        this.codap = new Codap();
-        this.valueUnits = [];
         this.sensorDataByType = {};
         
+        this.connectCodap = this.connectCodap.bind(this);
         this.onSensorConnect = this.onSensorConnect.bind(this);
         this.onSensorData = this.onSensorData.bind(this);
         this.onSensorDisconnect = this.onSensorDisconnect.bind(this);
         
+        setTimeout(this.connectCodap, 1000);
         this.sensorConnector = new SensorConnectorInterface();
-        this.sensorConnector.on("*", this.onSensorConnect);
+        this.sensorConnector.on("datasetAdded", this.onSensorConnect);
+        this.sensorConnector.on("interfaceConnected", this.onSensorConnect);
         this.sensorConnector.startPolling(SENSOR_IP);
         
         this.onTimeSelect = this.onTimeSelect.bind(this);
@@ -77,13 +81,18 @@ export class App extends React.Component<AppProps, AppState> {
         this.sendData = this.sendData.bind(this);
         this.checkNewData = this.checkNewData.bind(this);
         this.closeWarnNewModal = this.closeWarnNewModal.bind(this);
+        this.tryReconnectModal = this.tryReconnectModal.bind(this);
         this.discardData = this.discardData.bind(this);
         this.toggleWarning = this.toggleWarning.bind(this);
         this.toggleGraph = this.toggleGraph.bind(this);
         this.reload = this.reload.bind(this);
     }
     
-    onSensorConnect(e) {
+    connectCodap() {
+        this.codap = new Codap();
+    }
+    
+    onSensorConnect() {
         var sensorInfo = this.sensorConnector.stateMachine.currentActionArgs[1];
         var sensorType = sensorInfo.currentInterface;
         
@@ -96,27 +105,40 @@ export class App extends React.Component<AppProps, AppState> {
             this.sensorConnector.off("*", this.onSensorConnect);
             console.log("sensor connected: " + sensorType);
             
+            this.setState({
+                statusMessage: ""
+            });
+            
             var timeUnit;
-            this.valueUnits = [];
-            for(var setID in sensorInfo.columns) {
-                var set = sensorInfo.columns[setID];
-                if(set.name == "Time") {
-                    timeUnit = set.units;
-                } else if(this.valueUnits.indexOf(set.units) == -1) {
-                    this.valueUnits.push(set.units);
+            var valueUnits:string[] = [];
+            var curSetID = 0;
+            for(var setID in sensorInfo.sets) {
+                if(parseInt(setID) > curSetID) {
+                    curSetID = parseInt(setID);
                 }
             }
             
-            this.sensor1.valueUnit = this.valueUnits[0];
-            this.sensor1.definition = SensorDefinitions[this.valueUnits[0]];
-            if(this.valueUnits.length > 1) {
-                this.sensor2.valueUnit = this.valueUnits[1];
-                this.sensor2.definition = SensorDefinitions[this.valueUnits[1]];
+            var colIDs = sensorInfo.sets[curSetID].colIDs;
+            colIDs.forEach((colID) => {
+                var set = sensorInfo.columns[colID];
+                if(set.name == "Time") {
+                    timeUnit = set.units;
+                } else if(valueUnits.indexOf(set.units) == -1) {
+                    valueUnits.push(set.units);
+                }
+            });
+            
+            this.sensor1.valueUnit = valueUnits[0];
+            this.sensor1.definition = SensorDefinitions[valueUnits[0]];
+            if(valueUnits.length > 1) {
+                this.sensor2.valueUnit = valueUnits[1];
+                this.sensor2.definition = SensorDefinitions[valueUnits[1]];
             }
             
             this.setState({
                 sensorType: sensorType,
-                timeUnit: timeUnit
+                timeUnit: timeUnit,
+                valueUnits: valueUnits
             });
 
             this.sensorConnector.on("data", this.onSensorData);
@@ -161,7 +183,8 @@ export class App extends React.Component<AppProps, AppState> {
         
     onSensorDisconnect() {
         this.setState({
-            statusMessage: SensorStrings["messages"]["disconnected"] 
+            reconnectModal: true,
+            valueUnits: []
         });
     }
     
@@ -260,6 +283,13 @@ export class App extends React.Component<AppProps, AppState> {
         this.newData();
     }
     
+    tryReconnectModal() {
+        this.setState({
+            reconnectModal: false
+        });
+        this.onSensorConnect();
+    }
+    
     toggleWarning() {
         this.disableWarning = true;
     }
@@ -290,7 +320,7 @@ export class App extends React.Component<AppProps, AppState> {
             runLength={this.state.runLength}
             xStart={this.state.xStart}
             xEnd={this.state.xEnd}
-            valueUnits={this.valueUnits}
+            valueUnits={this.state.valueUnits}
             collecting={this.state.collecting}
             dataReset={this.state.dataReset}/>;
     }
@@ -332,7 +362,7 @@ export class App extends React.Component<AppProps, AppState> {
                             bottom: "auto"
                         }
                     }}>
-                    <p>Pressing New Run without pressing Save Data will discard the current data. Set up a new run without saving the data first?</p>
+                    <p>{SensorStrings["messages"]["check_save"]}</p>
                     <input type="checkbox" 
                         onChange={this.toggleWarning}/><label>Don't show this message again</label>
                     <hr/>
@@ -341,14 +371,26 @@ export class App extends React.Component<AppProps, AppState> {
                     <button
                         onClick={this.discardData}>Discard the data</button>
                 </ReactModal>
+                <ReactModal contentLabel="Sensor not attached" 
+                    isOpen={this.state.reconnectModal}
+                    style={{
+                        content: {
+                            bottom: "auto"
+                        }
+                    }}>
+                    <p>{SensorStrings["messages"]["sensor_not_attached"]}</p>
+                    
+                    <hr/>
+                    <button 
+                        onClick={this.tryReconnectModal}>Try again</button>
+                </ReactModal>
                 <div>
                     <button
                         onClick={this.reload}>Reload</button>
-                    <div>
-                        <button id="toggleGraphBtn"
-                             onClick={this.toggleGraph}>
-                            {this.state.secondGraph ? "Remove Graph" : "Add Graph"}</button>
-                    </div>
+                    <input type="checkbox" 
+                        id="toggleGraphBtn"
+                        onClick={this.toggleGraph} />
+                        Add Sensor
                 </div>
                 <div>{this.state.statusMessage}</div>
                 {this.renderGraph(this.sensor1, "graph1")}
