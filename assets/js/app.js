@@ -6460,33 +6460,53 @@ class Format {
     static getPrecision(range) {
         var stepSize = range / 4000;
         var precision;
+        var fixVal = 0;
+        if (stepSize < 1) {
+            fixVal = Math.round(-Math.log10(stepSize)) + 2;
+        }
+        precision = Math.log10(Math.round(stepSize)) + fixVal;
+        precision = Math.max(1, Math.min(precision, 21));
+        console.log("range: " + range + ", prec: " + precision);
+        return precision;
+    }
+    static getFixValue(range) {
+        var stepSize = range / 4000;
+        var precision;
         if (stepSize < 1) {
             precision = Math.round(-Math.log10(stepSize));
         }
         else {
-            precision = Math.round(Math.log10(Math.round(stepSize)));
+            precision = 0; //Math.round(Math.log10(Math.round(stepSize))) + 1;
         }
-        precision = Math.min(precision, 21);
+        precision = Math.max(0, Math.min(precision, 21));
+        console.log("range: " + range + ", prec: " + precision);
         return precision;
     }
-    static getAxisPrecision(range) {
-        var stepSize = range / 40;
-        var fixValue;
-        if (stepSize < 1) {
-            fixValue = Math.round(-Math.log10(stepSize));
+    static getAxisFix(range) {
+        var stepSize = range / 8;
+        var precision;
+        if (stepSize < 5) {
+            precision = Math.round(-Math.log10(stepSize));
         }
         else {
-            fixValue = Math.round(Math.log10(Math.round(stepSize)));
+            precision = 0;
         }
-        return fixValue;
+        precision = Math.max(0, Math.min(precision, 21));
+        return precision;
     }
-    static formatValue(value, fixValue, unit = "") {
-        if (value < 10000) {
-            return value.toFixed(fixValue) + " " + unit;
-        }
-        else {
+    /*
+    static formatValue(value:number, precision:number, unit:string="", shorthand:boolean=false):string {
+        if(shorthand && value >= 10000) {
             return (Math.round(value) / 1000) + "k " + unit;
         }
+        return value.toPrecision(precision) + " " + unit;
+    }
+    */
+    static formatFixedValue(value, fix, unit = "", shorthand = false) {
+        if (shorthand && value >= 10000) {
+            return (Math.round(value) / 1000) + "k " + unit;
+        }
+        return value.toFixed(fix) + " " + unit;
     }
 }
 exports.Format = Format;
@@ -11248,8 +11268,10 @@ class Graph extends React.Component {
             yMax: this.props.yMax,
             xLabel: "Time",
             yLabel: "",
-            xPrecision: format_1.Format.getAxisPrecision(this.props.xMax - this.props.xMin),
-            yPrecision: format_1.Format.getAxisPrecision(this.props.yMax - this.props.yMin)
+            xFix: format_1.Format.getFixValue(this.props.xMax - this.props.xMin),
+            yFix: format_1.Format.getFixValue(this.props.yMax - this.props.yMin),
+            xAxisFix: format_1.Format.getAxisFix(this.props.xMax - this.props.xMin),
+            yAxisFix: format_1.Format.getAxisFix(this.props.yMax - this.props.yMin),
         };
         this.autoScale = this.autoScale.bind(this);
         this.onZoom = this.onZoom.bind(this);
@@ -11281,8 +11303,10 @@ class Graph extends React.Component {
         var yRange = this.dygraph.yAxisRange();
         var xRange = this.dygraph.xAxisRange();
         this.setState({
-            xPrecision: format_1.Format.getAxisPrecision(xRange[1] - xRange[0]),
-            yPrecision: format_1.Format.getAxisPrecision(yRange[1] - yRange[0])
+            xFix: format_1.Format.getFixValue(xRange[1] - xRange[0]),
+            yFix: format_1.Format.getFixValue(yRange[1] - yRange[0]),
+            xAxisFix: format_1.Format.getAxisFix(xRange[1] - xRange[0]),
+            yAxisFix: format_1.Format.getAxisFix(yRange[1] - yRange[0])
         });
         this.props.onZoom(xStart, xEnd);
     }
@@ -11294,18 +11318,18 @@ class Graph extends React.Component {
             axes: {
                 x: {
                     valueFormatter: (val) => {
-                        return format_1.Format.formatValue(val, this.state.xPrecision + 1);
+                        return format_1.Format.formatFixedValue(val, 2);
                     },
                     axisLabelFormatter: (val) => {
-                        return format_1.Format.formatValue(val, this.state.xPrecision);
+                        return format_1.Format.formatFixedValue(val, this.state.xAxisFix);
                     }
                 },
                 y: {
                     valueFormatter: (val) => {
-                        return format_1.Format.formatValue(val, this.state.yPrecision + 2);
+                        return format_1.Format.formatFixedValue(val, this.state.yFix);
                     },
                     axisLabelFormatter: (val) => {
-                        return format_1.Format.formatValue(val, this.state.yPrecision);
+                        return format_1.Format.formatFixedValue(val, this.state.yAxisFix, "", true);
                     }
                 }
             },
@@ -11331,7 +11355,8 @@ class Graph extends React.Component {
             newState.data = nextProps.data;
         }
         if (newState.yMax) {
-            newState.yPrecision = format_1.Format.getAxisPrecision(newState.yMax);
+            newState.yFix = format_1.Format.getFixValue(newState.yMax);
+            newState.yAxisFix = format_1.Format.getAxisFix(newState.yMax);
         }
         this.setState(newState);
     }
@@ -11492,7 +11517,7 @@ class SensorGraph extends React.Component {
     renderReading() {
         var reading = "";
         if (this.state.sensorValue) {
-            reading = format_1.Format.formatValue(this.state.sensorValue - this.state.tareValue, format_1.Format.getPrecision(this.props.sensor.definition.maxReading - this.props.sensor.definition.minReading));
+            reading = format_1.Format.formatFixedValue(this.state.sensorValue - this.state.tareValue, format_1.Format.getFixValue(this.props.sensor.definition.maxReading - this.props.sensor.definition.minReading));
         }
         var valueOption = function (valueUnit) {
             var sensorDef = sensor_definitions_1.SensorDefinitions[valueUnit];
