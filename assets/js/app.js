@@ -10757,7 +10757,6 @@ class App extends React.Component {
         this.sensorConnector = new sensor_connector_interface_1.default();
         this.sensorConnector.on("datasetAdded", this.onSensorConnect);
         this.sensorConnector.on("interfaceConnected", this.onSensorConnect);
-        this.sensorConnector.on("collectionStopped", this.onSensorCollectionStopped);
         this.sensorConnector.startPolling(SENSOR_IP);
         this.onTimeSelect = this.onTimeSelect.bind(this);
         this.onGraphZoom = this.onGraphZoom.bind(this);
@@ -10833,12 +10832,14 @@ class App extends React.Component {
     }
     stopSensor() {
         this.sensorConnector.requestStop();
+        this.lastTime = 0;
     }
     onSensorCollectionStopped() {
         this.setState({
             collecting: false,
             statusMessage: sensor_definitions_1.SensorStrings["messages"]["data_collection_stopped"]
         });
+        this.sensorConnector.off("collectionStopped", this.onSensorCollectionStopped);
     }
     onSensorData(setId) {
         if (!this.state.collecting) {
@@ -10848,16 +10849,20 @@ class App extends React.Component {
                 collecting: true,
                 statusMessage: sensor_definitions_1.SensorStrings["messages"]["collecting_data"]
             });
+            this.sensorConnector.on("collectionStopped", this.onSensorCollectionStopped);
         }
         var sensorInfo = this.sensorConnector.stateMachine.currentActionArgs;
         var setID = sensorInfo[1];
+        // set IDs ending in 0 contain time data
         if (setID.slice(setID.length - 1) == 0) {
             var timeData = sensorInfo[2];
             // make sure the sensor graph has received the update for the final value
             if (this.lastTime && this.lastTime > this.state.runLength) {
                 this.stopSensor();
             }
-            this.lastTime = timeData[timeData.length - 1];
+            else {
+                this.lastTime = timeData[timeData.length - 1];
+            }
         }
     }
     onSensorDisconnect() {
