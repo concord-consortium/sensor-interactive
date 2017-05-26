@@ -11,7 +11,6 @@ export class Format {
         precision = Math.log10(Math.round(stepSize)) + fixVal;
         precision = Math.max(1, Math.min(precision, 21));
         
-        console.log("range: " + range + ", prec: " + precision)
         return precision;
     }
     
@@ -24,7 +23,6 @@ export class Format {
             precision = 0//Math.round(Math.log10(Math.round(stepSize))) + 1;
         }
         precision = Math.max(0, Math.min(precision, 21));
-        console.log("range: " + range + ", prec: " + precision)
         return precision;
     }
     
@@ -39,14 +37,7 @@ export class Format {
         precision = Math.max(0, Math.min(precision, 21));
         return precision;
     }
-    /*
-    static formatValue(value:number, precision:number, unit:string="", shorthand:boolean=false):string {
-        if(shorthand && value >= 10000) {
-            return (Math.round(value) / 1000) + "k " + unit;
-        }
-        return value.toPrecision(precision) + " " + unit;
-    }
-    */
+    
     static formatFixedValue(value:number, fix:number, unit:string="", shorthand:boolean=false):string {
         if(shorthand && value >= 10000) {
             return (Math.round(value) / 1000) + "k " + unit;
