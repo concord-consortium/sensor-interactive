@@ -22,8 +22,10 @@ export interface GraphState {
     yMax:number,
     xLabel:string|undefined,
     yLabel:string|undefined,
-    xPrecision:number,
-    yPrecision:number
+    xFix:number,
+    yFix:number,
+    xAxisFix:number,
+    yAxisFix:number
 }
 
 export class Graph extends React.Component<GraphProps, GraphState> {
@@ -42,8 +44,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             yMax: this.props.yMax,
             xLabel: "Time",
             yLabel: "",
-            xPrecision: Format.getAxisPrecision(this.props.xMax - this.props.xMin),
-            yPrecision: Format.getAxisPrecision(this.props.yMax - this.props.yMin)
+            xFix: Format.getFixValue(this.props.xMax - this.props.xMin),
+            yFix: Format.getFixValue(this.props.yMax - this.props.yMin),
+            xAxisFix: Format.getAxisFix(this.props.xMax - this.props.xMin),
+            yAxisFix: Format.getAxisFix(this.props.yMax - this.props.yMin),
         }
         
         this.autoScale = this.autoScale.bind(this);
@@ -80,8 +84,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         var yRange = this.dygraph.yAxisRange();
         var xRange = this.dygraph.xAxisRange();
         this.setState({
-            xPrecision: Format.getAxisPrecision(xRange[1] - xRange[0]),
-            yPrecision: Format.getAxisPrecision(yRange[1] - yRange[0])
+            xFix: Format.getFixValue(xRange[1] - xRange[0]),
+            yFix: Format.getFixValue(yRange[1] - yRange[0]),
+            xAxisFix: Format.getAxisFix(xRange[1] - xRange[0]),
+            yAxisFix: Format.getAxisFix(yRange[1] - yRange[0])
         });
         this.props.onZoom(xStart, xEnd);
     }
@@ -95,18 +101,18 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             axes: {
                 x: {
                     valueFormatter: (val:number) => {
-                        return Format.formatValue(val, this.state.xPrecision + 1);
+                        return Format.formatFixedValue(val, 2);
                     },
                     axisLabelFormatter: (val:number) => {
-                        return Format.formatValue(val, this.state.xPrecision);
+                        return Format.formatFixedValue(val, this.state.xAxisFix);
                     }
                 },
                 y: {
                     valueFormatter: (val:number) => {
-                        return Format.formatValue(val, this.state.yPrecision + 2);
+                        return Format.formatFixedValue(val, this.state.yFix);
                     },
                     axisLabelFormatter: (val:number) => {
-                        return Format.formatValue(val, this.state.yPrecision);
+                        return Format.formatFixedValue(val, this.state.yAxisFix, "", true);
                     }
                 }
             },
@@ -136,7 +142,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         }
         
         if(newState.yMax) {
-            newState.yPrecision = Format.getAxisPrecision(newState.yMax);
+            newState.yFix = Format.getFixValue(newState.yMax);
+            newState.yAxisFix = Format.getAxisFix(newState.yMax);
         }
         
         this.setState(newState);
@@ -159,8 +166,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     render() {
         return (
             <div>
-                <button id="scaleBtn" style={{position:"absolute", top:0, right:0}} 
-                    onClick={this.autoScale}>Auto-scale</button>
+                <a onClick={this.autoScale}
+                    title="Show all data (autoscale)"><i className="fa fa-picture-o"></i></a>
                 <div id={"sensor-graph-" + this.props.title} className="graph-box"></div>
             </div>
         );

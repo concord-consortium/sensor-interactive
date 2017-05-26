@@ -3,31 +3,54 @@ export class Format {
     static getPrecision(range:number):number {
         var stepSize = range / 4000;
         var precision;
+        var fixVal = 0;
         if(stepSize < 1) {
-            precision = Math.round(-Math.log10(stepSize));
-        } else {
-            precision = Math.round(Math.log10(Math.round(stepSize)));
+            fixVal = Math.round(-Math.log10(stepSize))+2;
         }
-        precision = Math.min(precision, 21);
+        
+        precision = Math.log10(Math.round(stepSize)) + fixVal;
+        precision = Math.max(1, Math.min(precision, 21));
+        
+        console.log("range: " + range + ", prec: " + precision)
         return precision;
     }
     
-    static getAxisPrecision(range:number):number {
-        var stepSize = range / 40;
-        var fixValue;
+    static getFixValue(range:number):number {
+        var stepSize = range / 4000;
+        var precision;
         if(stepSize < 1) {
-            fixValue = Math.round(-Math.log10(stepSize));
+            precision = Math.round(-Math.log10(stepSize));
         } else {
-            fixValue = Math.round(Math.log10(Math.round(stepSize)));
+            precision = 0//Math.round(Math.log10(Math.round(stepSize))) + 1;
         }
-        return fixValue;
+        precision = Math.max(0, Math.min(precision, 21));
+        console.log("range: " + range + ", prec: " + precision)
+        return precision;
     }
     
-    static formatValue(value:number, fixValue:number, unit:string=""):string {
-        if(value < 10000) {
-            return value.toFixed(fixValue) + " " + unit;
+    static getAxisFix(range:number):number {
+        var stepSize = range / 8;
+        var precision;
+        if(stepSize < 5) {
+            precision = Math.round(-Math.log10(stepSize));
         } else {
+            precision = 0;
+        }
+        precision = Math.max(0, Math.min(precision, 21));
+        return precision;
+    }
+    /*
+    static formatValue(value:number, precision:number, unit:string="", shorthand:boolean=false):string {
+        if(shorthand && value >= 10000) {
             return (Math.round(value) / 1000) + "k " + unit;
         }
+        return value.toPrecision(precision) + " " + unit;
+    }
+    */
+    static formatFixedValue(value:number, fix:number, unit:string="", shorthand:boolean=false):string {
+        if(shorthand && value >= 10000) {
+            return (Math.round(value) / 1000) + "k " + unit;
+        }
+        return value.toFixed(fix) + " " + unit;
     }
 }

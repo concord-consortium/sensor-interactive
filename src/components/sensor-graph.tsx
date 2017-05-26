@@ -178,8 +178,8 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
     renderReading() {
         var reading = "";
         if(this.state.sensorValue) {
-            reading = Format.formatValue(
-                this.state.sensorValue - this.state.tareValue, Format.getPrecision(this.props.sensor.definition.maxReading - this.props.sensor.definition.minReading));
+            reading = Format.formatFixedValue(
+                this.state.sensorValue - this.state.tareValue, Format.getFixValue(this.props.sensor.definition.maxReading - this.props.sensor.definition.minReading));
         }
         
         var valueOption = function(valueUnit:string) {
