@@ -42,7 +42,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             xMax: this.props.xMax,
             yMin: this.props.yMin,
             yMax: this.props.yMax,
-            xLabel: "Time",
+            xLabel: "",
             yLabel: "",
             xFix: Format.getFixValue(this.props.xMax - this.props.xMin),
             yFix: Format.getFixValue(this.props.yMax - this.props.yMin),
@@ -145,6 +145,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             newState.yFix = Format.getFixValue(newState.yMax);
             newState.yAxisFix = Format.getAxisFix(newState.yMax);
         }
+        if(newState.xMax) {
+            newState.xFix = Format.getFixValue(newState.xMax);
+            newState.xAxisFix = Format.getAxisFix(newState.xMax);
+        }
         
         this.setState(newState);
     }
@@ -167,7 +171,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         return (
             <div>
                 <a onClick={this.autoScale}
-                    title="Show all data (autoscale)"><i className="fa fa-picture-o"></i></a>
+                    className="graph-button"
+                    title="Show all data (autoscale)"><i className="fa fa-arrows"></i></a>
                 <div id={"sensor-graph-" + this.props.title} className="graph-box"></div>
             </div>
         );
