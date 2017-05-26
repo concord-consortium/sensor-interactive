@@ -36,7 +36,7 @@ export class Codap {
         CodapInterface.init({
             name: this.dataSetName,
             title: this.dataSetTitle,
-            dimensions: {width: 500, height: 500},
+            dimensions: {width: 460, height: 500},
             version: '0.1'
         }, this.responseCallback).then((iResult) => {
           // get interactive state so we can save the data set index.
@@ -57,7 +57,7 @@ export class Codap {
         }, this.responseCallback);
     }
     
-    updateDataContext(attrs:string[]) {
+    updateDataContext(attrs:string[]):Promise<any> {
         var newAttrs:any[] = [];
         attrs.forEach((attr)=>{
             var exists:boolean = false;
@@ -70,12 +70,12 @@ export class Codap {
                 this.dataSetAttrs.push({name: attr, type: 'numeric', precision: 4});
             }   
         });
-        /*
+        
         return CodapInterface.sendRequest({
             action: 'create',
-            resource: 'dataContext[' + this.dataSetName + '].collection["runs/measurements"].attribute',
-            values: newAttrs
-        }, this.responseCallback);*/
+            resource: 'dataContext[' + this.dataSetName + '].collection[measurements].attribute',
+            values: this.dataSetAttrs
+        }, this.responseCallback);
     }
     
     requestCreateDataSet():Promise<any> {
@@ -100,6 +100,7 @@ export class Codap {
             if (iResult.values && iResult.values.some(function (component) {
                   return component.type === 'caseTable'
                 })) {
+                //return updateTable(); 
               resolve(iResult);
             } else {
               CodapInterface.sendRequest({action: 'create', resource: 'component', values: {
@@ -115,7 +116,6 @@ export class Codap {
         })
       });
     }
-
         
     sendData(data:number[][], dataType:string) {
         // if a run number has not yet been initialized, do so now.
@@ -138,8 +138,10 @@ export class Codap {
             items.push(item);
         }
         
-        this.updateDataContext([dataType]);
-        this.prepAndSend(items);
+        this.updateDataContext([dataType]).then((iResult:any)=>{
+            this.prepAndSend(items);
+        });
+        
     }
     
     private prepAndSend(items:any[]) {
