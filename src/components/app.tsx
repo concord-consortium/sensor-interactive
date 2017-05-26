@@ -73,7 +73,6 @@ export class App extends React.Component<AppProps, AppState> {
         this.sensorConnector = new SensorConnectorInterface();
         this.sensorConnector.on("datasetAdded", this.onSensorConnect);
         this.sensorConnector.on("interfaceConnected", this.onSensorConnect);
-        this.sensorConnector.on("collectionStopped", this.onSensorCollectionStopped);
         this.sensorConnector.startPolling(SENSOR_IP);
         
         this.onTimeSelect = this.onTimeSelect.bind(this);
@@ -161,6 +160,7 @@ export class App extends React.Component<AppProps, AppState> {
     
     stopSensor() {
         this.sensorConnector.requestStop();
+        this.lastTime = 0;
     }
     
     onSensorCollectionStopped() {
@@ -168,6 +168,8 @@ export class App extends React.Component<AppProps, AppState> {
             collecting: false,
             statusMessage: SensorStrings["messages"]["data_collection_stopped"]
         });
+        
+        this.sensorConnector.off("collectionStopped", this.onSensorCollectionStopped);
     }
     
     onSensorData(setId:string) {
@@ -178,17 +180,21 @@ export class App extends React.Component<AppProps, AppState> {
                 collecting: true,
                 statusMessage: SensorStrings["messages"]["collecting_data"]
             });
+        
+            this.sensorConnector.on("collectionStopped", this.onSensorCollectionStopped);
         }
         
         var sensorInfo = this.sensorConnector.stateMachine.currentActionArgs;
         var setID = sensorInfo[1];
+        // set IDs ending in 0 contain time data
         if(setID.slice(setID.length-1) == 0) {
             var timeData = sensorInfo[2];
             // make sure the sensor graph has received the update for the final value
             if(this.lastTime && this.lastTime > this.state.runLength) {
                 this.stopSensor();
+            } else {
+                this.lastTime = timeData[timeData.length-1];
             }
-            this.lastTime = timeData[timeData.length-1];
         }
     }
         
