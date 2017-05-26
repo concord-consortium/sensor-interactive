@@ -11124,8 +11124,8 @@ class Codap {
         });
         return CodapInterface.sendRequest({
             action: 'create',
-            resource: 'dataContext[' + this.dataSetName + '].collection[runs/measurements].attribute',
-            values: newAttrs
+            resource: 'dataContext[' + this.dataSetName + '].collection[measurements].attribute',
+            values: this.dataSetAttrs
         }, this.responseCallback);
     }
     requestCreateDataSet() {
@@ -11149,6 +11149,7 @@ class Codap {
                     if (iResult.values && iResult.values.some(function (component) {
                         return component.type === 'caseTable';
                     })) {
+                        //return updateTable(); 
                         resolve(iResult);
                     }
                     else {
@@ -11182,8 +11183,9 @@ class Codap {
             item[dataType] = value;
             items.push(item);
         }
-        this.updateDataContext([dataType]);
-        this.prepAndSend(items);
+        this.updateDataContext([dataType]).then((iResult) => {
+            this.prepAndSend(items);
+        });
     }
     prepAndSend(items) {
         // Determine if CODAP already has the Data Context we need.
