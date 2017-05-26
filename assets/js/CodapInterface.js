@@ -130,7 +130,9 @@
     var resource = request.resource;
     var requestValues = request.values;
     var returnMessage = {success: true};
-
+console.log("codap request: action: " + action);
+console.log(" - resource: " + resource);
+if(requestValues) for(value in requestValues) {console.log(" - value: " + value);}
     connectionState = 'active';
     stats.countCodapReq += 1;
     stats.timeCodapLastReq = new Date();
@@ -216,6 +218,8 @@
           var success = resp && resp[1] && resp[1].success;
           var receivedFrame = success && resp[1].values;
           var savedState = receivedFrame && receivedFrame.savedState;
+console.log("receivedFrame: " + receivedFrame + ", state: " + (receivedFrame ? receivedFrame.savedState : "null"))
+if(savedState) for(var prop in savedState) {console.log(" - " + prop + ":" + savedState[prop])}
           this_.updateInteractiveState(savedState);
           if (success) {
             // deprecated way of conveying state
@@ -262,7 +266,7 @@
           return ({success: true, values: this.getInteractiveState()});
         }.bind(this));
 
-        console.log('sending interactiveState: ' + JSON.stringify(this.getInteractiveState));
+        console.log('sending interactiveState: ' + JSON.stringify(this.getInteractiveState()));
         // update, then get the interactiveFrame.
         return this.sendRequest([updateFrameReq, getFrameReq])
           .then(getFrameRespHandler, reject);

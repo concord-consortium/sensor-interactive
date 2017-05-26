@@ -1328,7 +1328,7 @@ function dateValueFormatter(d, opts) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__datahandler__ = __webpack_require__(36);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dygraph_layout__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dygraph_layout__ = __webpack_require__(68);
 /**
  * @license
  * Copyright 2013 David Eberlein (david.eberlein@ch.sauter-bc.com)
@@ -2888,28 +2888,28 @@ var getDateAxis = function(start_time, end_time, granularity, opts, dg) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(process) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dygraph_layout__ = __webpack_require__(67);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dygraph_canvas__ = __webpack_require__(65);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dygraph_options__ = __webpack_require__(118);
+/* WEBPACK VAR INJECTION */(function(process) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dygraph_layout__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dygraph_canvas__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dygraph_options__ = __webpack_require__(119);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__dygraph_interaction_model__ = __webpack_require__(37);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__dygraph_tickers__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__dygraph_utils__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__dygraph_default_attrs__ = __webpack_require__(66);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__dygraph_options_reference__ = __webpack_require__(68);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__iframe_tarp__ = __webpack_require__(69);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__datahandler_default__ = __webpack_require__(64);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__datahandler_bars_error__ = __webpack_require__(114);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__datahandler_bars_custom__ = __webpack_require__(113);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__datahandler_default_fractions__ = __webpack_require__(116);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__datahandler_bars_fractions__ = __webpack_require__(115);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__dygraph_default_attrs__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__dygraph_options_reference__ = __webpack_require__(69);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__iframe_tarp__ = __webpack_require__(70);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__datahandler_default__ = __webpack_require__(65);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__datahandler_bars_error__ = __webpack_require__(115);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__datahandler_bars_custom__ = __webpack_require__(114);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__datahandler_default_fractions__ = __webpack_require__(117);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__datahandler_bars_fractions__ = __webpack_require__(116);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__datahandler_bars__ = __webpack_require__(29);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__plugins_annotations__ = __webpack_require__(119);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__plugins_axes__ = __webpack_require__(120);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__plugins_chart_labels__ = __webpack_require__(121);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__plugins_grid__ = __webpack_require__(122);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__plugins_legend__ = __webpack_require__(123);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__plugins_range_selector__ = __webpack_require__(124);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__dygraph_gviz__ = __webpack_require__(117);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__plugins_annotations__ = __webpack_require__(120);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__plugins_axes__ = __webpack_require__(121);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__plugins_chart_labels__ = __webpack_require__(122);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__plugins_grid__ = __webpack_require__(123);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__plugins_legend__ = __webpack_require__(124);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_20__plugins_range_selector__ = __webpack_require__(125);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_21__dygraph_gviz__ = __webpack_require__(118);
 /**
  * @license
  * Copyright 2006 Dan Vanderkam (danvdk@gmail.com)
@@ -6454,6 +6454,49 @@ exports.supported = function supported() {
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+class Format {
+    static getPrecision(range) {
+        var stepSize = range / 4000;
+        var precision;
+        if (stepSize < 1) {
+            precision = Math.round(-Math.log10(stepSize));
+        }
+        else {
+            precision = Math.round(Math.log10(Math.round(stepSize)));
+        }
+        precision = Math.min(precision, 21);
+        return precision;
+    }
+    static getAxisPrecision(range) {
+        var stepSize = range / 40;
+        var fixValue;
+        if (stepSize < 1) {
+            fixValue = Math.round(-Math.log10(stepSize));
+        }
+        else {
+            fixValue = Math.round(Math.log10(Math.round(stepSize)));
+        }
+        return fixValue;
+    }
+    static formatValue(value, fixValue, unit = "") {
+        if (value < 10000) {
+            return value.toFixed(fixValue) + " " + unit;
+        }
+        else {
+            return (Math.round(value) / 1000) + "k " + unit;
+        }
+    }
+}
+exports.Format = Format;
+
+
+/***/ }),
+/* 63 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 // from concord-consortium/lab
 
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -6507,10 +6550,11 @@ exports.SensorStrings = {
         "java_applet_error": "It appears that Java applets cannot run in your browser. If you are able to fix this, reload the page to use the sensor",
         "java_applet_not_loading": "The sensor applet appears not to be loading. If you are able to fix this, reload the page to use the sensor",
         "unexpected_error": "There was an unexpected error when connecting to the sensor.",
-        "sensor_not_attached": "The __sensor_name__ does not appear to be attached. Try re-attaching it, and then click \"$t(sensor.messages.try_again)\".",
+        "sensor_not_attached": "The sensor does not appear to be attached. Try re-attaching it, and then click \"Try Again\"",
         "sensor_or_device_unplugged": "The __sensor_or_device_name__ was unplugged. Try plugging it back in, and then click \"$t(sensor.messages.try_again)\".",
         "try_again": "Try Again",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "check_save": "Pressing New Run without pressing Save Data will discard the current data. Set up a new run without saving the data first?"
     },
     "measurements": {
         "sensor_reading": "Sensor Reading",
@@ -7074,7 +7118,7 @@ exports.SensorDefinitions = {
 
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -7091,7 +7135,7 @@ exports.SensorDefinitions = {
 
 
 var React = __webpack_require__(13);
-var factory = __webpack_require__(111);
+var factory = __webpack_require__(112);
 
 // Hack to grab NoopUpdateQueue from isomorphic React
 var ReactNoopUpdateQueue = new React.Component().updater;
@@ -7104,7 +7148,7 @@ module.exports = factory(
 
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -7211,7 +7255,7 @@ DefaultHandler.prototype.getExtremeYValues = function(series, dateWindow,
 
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8087,13 +8131,13 @@ DygraphCanvasRenderer._fillPlotter = function(e) {
 
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dygraph_tickers__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dygraph_interaction_model__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dygraph_canvas__ = __webpack_require__(65);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dygraph_canvas__ = __webpack_require__(66);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__dygraph_utils__ = __webpack_require__(10);
 
 
@@ -8228,7 +8272,7 @@ var DEFAULT_ATTRS = {
 
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -8589,7 +8633,7 @@ DygraphLayout.prototype.removeAllDatasets = function() {
 
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -9479,7 +9523,7 @@ for (var k in OPTIONS_REFERENCE) {
 /* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(0)))
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -9556,10 +9600,10 @@ IFrameTarp.prototype.uncover = function() {
 
 
 /***/ }),
-/* 70 */,
 /* 71 */,
 /* 72 */,
-/* 73 */
+/* 73 */,
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var structuredClone = __webpack_require__(41);
@@ -9703,7 +9747,7 @@ module.exports = function getIFrameEndpoint() {
 
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var structuredClone = __webpack_require__(41);
@@ -9893,7 +9937,7 @@ module.exports = function ParentEndpoint(targetWindowOrIframeEl, targetOrigin, a
 
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports) {
 
 /**
@@ -10536,7 +10580,7 @@ module.exports = assign;
 
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10557,7 +10601,6 @@ module.exports = ReactPropTypesSecret;
 
 
 /***/ }),
-/* 77 */,
 /* 78 */,
 /* 79 */,
 /* 80 */,
@@ -10578,7 +10621,8 @@ module.exports = ReactPropTypesSecret;
 /* 95 */,
 /* 96 */,
 /* 97 */,
-/* 98 */
+/* 98 */,
+/* 99 */
 /***/ (function(module, exports) {
 
 /*!
@@ -10634,10 +10678,10 @@ module.exports = findTabbableDescendants;
 
 
 /***/ }),
-/* 99 */,
 /* 100 */,
 /* 101 */,
-/* 102 */
+/* 102 */,
+/* 103 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -10665,19 +10709,19 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 103 */
+/* 104 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const React = __webpack_require__(13);
-const ReactModal = __webpack_require__(227);
-const sensor_1 = __webpack_require__(108);
-const sensor_graph_1 = __webpack_require__(107);
-const codap_1 = __webpack_require__(105);
-const sensor_definitions_1 = __webpack_require__(62);
-const sensor_connector_interface_1 = __webpack_require__(109);
+const ReactModal = __webpack_require__(228);
+const sensor_1 = __webpack_require__(109);
+const sensor_graph_1 = __webpack_require__(108);
+const codap_1 = __webpack_require__(106);
+const sensor_definitions_1 = __webpack_require__(63);
+const sensor_connector_interface_1 = __webpack_require__(110);
 const SENSOR_IP = "http://127.0.0.1:11180";
 ;
 class App extends React.Component {
@@ -10687,6 +10731,7 @@ class App extends React.Component {
         this.disableWarning = false;
         this.state = {
             sensorType: "",
+            valueUnits: [],
             hasData: false,
             dataChanged: false,
             dataReset: false,
@@ -10696,19 +10741,21 @@ class App extends React.Component {
             xEnd: 11,
             timeUnit: "",
             warnNewModal: false,
+            reconnectModal: false,
             statusMessage: undefined,
             secondGraph: false
         };
         this.sensor1 = new sensor_1.Sensor();
         this.sensor2 = new sensor_1.Sensor();
-        this.codap = new codap_1.Codap();
-        this.valueUnits = [];
         this.sensorDataByType = {};
+        this.connectCodap = this.connectCodap.bind(this);
         this.onSensorConnect = this.onSensorConnect.bind(this);
         this.onSensorData = this.onSensorData.bind(this);
         this.onSensorDisconnect = this.onSensorDisconnect.bind(this);
+        setTimeout(this.connectCodap, 1000);
         this.sensorConnector = new sensor_connector_interface_1.default();
-        this.sensorConnector.on("*", this.onSensorConnect);
+        this.sensorConnector.on("datasetAdded", this.onSensorConnect);
+        this.sensorConnector.on("interfaceConnected", this.onSensorConnect);
         this.sensorConnector.startPolling(SENSOR_IP);
         this.onTimeSelect = this.onTimeSelect.bind(this);
         this.onGraphZoom = this.onGraphZoom.bind(this);
@@ -10717,12 +10764,16 @@ class App extends React.Component {
         this.sendData = this.sendData.bind(this);
         this.checkNewData = this.checkNewData.bind(this);
         this.closeWarnNewModal = this.closeWarnNewModal.bind(this);
+        this.tryReconnectModal = this.tryReconnectModal.bind(this);
         this.discardData = this.discardData.bind(this);
         this.toggleWarning = this.toggleWarning.bind(this);
         this.toggleGraph = this.toggleGraph.bind(this);
         this.reload = this.reload.bind(this);
     }
-    onSensorConnect(e) {
+    connectCodap() {
+        this.codap = new codap_1.Codap();
+    }
+    onSensorConnect() {
         var sensorInfo = this.sensorConnector.stateMachine.currentActionArgs[1];
         var sensorType = sensorInfo.currentInterface;
         if (sensorType == "None Found") {
@@ -10733,26 +10784,37 @@ class App extends React.Component {
         else {
             this.sensorConnector.off("*", this.onSensorConnect);
             console.log("sensor connected: " + sensorType);
+            this.setState({
+                statusMessage: ""
+            });
             var timeUnit;
-            this.valueUnits = [];
-            for (var setID in sensorInfo.columns) {
-                var set = sensorInfo.columns[setID];
+            var valueUnits = [];
+            var curSetID = 0;
+            for (var setID in sensorInfo.sets) {
+                if (parseInt(setID) > curSetID) {
+                    curSetID = parseInt(setID);
+                }
+            }
+            var colIDs = sensorInfo.sets[curSetID].colIDs;
+            colIDs.forEach((colID) => {
+                var set = sensorInfo.columns[colID];
                 if (set.name == "Time") {
                     timeUnit = set.units;
                 }
-                else if (this.valueUnits.indexOf(set.units) == -1) {
-                    this.valueUnits.push(set.units);
+                else if (valueUnits.indexOf(set.units) == -1) {
+                    valueUnits.push(set.units);
                 }
-            }
-            this.sensor1.valueUnit = this.valueUnits[0];
-            this.sensor1.definition = sensor_definitions_1.SensorDefinitions[this.valueUnits[0]];
-            if (this.valueUnits.length > 1) {
-                this.sensor2.valueUnit = this.valueUnits[1];
-                this.sensor2.definition = sensor_definitions_1.SensorDefinitions[this.valueUnits[1]];
+            });
+            this.sensor1.valueUnit = valueUnits[0];
+            this.sensor1.definition = sensor_definitions_1.SensorDefinitions[valueUnits[0]];
+            if (valueUnits.length > 1) {
+                this.sensor2.valueUnit = valueUnits[1];
+                this.sensor2.definition = sensor_definitions_1.SensorDefinitions[valueUnits[1]];
             }
             this.setState({
                 sensorType: sensorType,
-                timeUnit: timeUnit
+                timeUnit: timeUnit,
+                valueUnits: valueUnits
             });
             this.sensorConnector.on("data", this.onSensorData);
             this.sensorConnector.on("interfaceRemoved", this.onSensorDisconnect);
@@ -10790,7 +10852,8 @@ class App extends React.Component {
     }
     onSensorDisconnect() {
         this.setState({
-            statusMessage: sensor_definitions_1.SensorStrings["messages"]["disconnected"]
+            reconnectModal: true,
+            valueUnits: []
         });
     }
     sendData() {
@@ -10877,6 +10940,12 @@ class App extends React.Component {
         this.closeWarnNewModal();
         this.newData();
     }
+    tryReconnectModal() {
+        this.setState({
+            reconnectModal: false
+        });
+        this.onSensorConnect();
+    }
     toggleWarning() {
         this.disableWarning = true;
     }
@@ -10896,7 +10965,7 @@ class App extends React.Component {
         }
     }
     renderGraph(sensor, title) {
-        return React.createElement(sensor_graph_1.SensorGraph, { sensor: sensor, title: title, sensorConnector: this.sensorConnector, onGraphZoom: this.onGraphZoom, runLength: this.state.runLength, xStart: this.state.xStart, xEnd: this.state.xEnd, valueUnits: this.valueUnits, collecting: this.state.collecting, dataReset: this.state.dataReset });
+        return React.createElement(sensor_graph_1.SensorGraph, { sensor: sensor, title: title, sensorConnector: this.sensorConnector, onGraphZoom: this.onGraphZoom, runLength: this.state.runLength, xStart: this.state.xStart, xEnd: this.state.xEnd, valueUnits: this.state.valueUnits, collecting: this.state.collecting, dataReset: this.state.dataReset });
     }
     renderControls() {
         return React.createElement("div", null,
@@ -10909,7 +10978,7 @@ class App extends React.Component {
                 React.createElement("option", { value: "30" }, "30.0" + this.state.timeUnit),
                 React.createElement("option", { value: "45" }, "45.0" + this.state.timeUnit),
                 React.createElement("option", { value: "60" }, "60.0" + this.state.timeUnit)),
-            React.createElement("button", { id: "startSensor", onClick: this.startSensor, disabled: this.state.collecting }, "Start"),
+            React.createElement("button", { id: "startSensor", onClick: this.startSensor, disabled: this.state.collecting || this.state.hasData }, "Start"),
             React.createElement("button", { id: "stopSensor", onClick: this.stopSensor, disabled: !this.state.collecting }, "Stop"),
             React.createElement("button", { id: "sendData", onClick: this.sendData, disabled: !(this.state.hasData && this.state.dataChanged) || this.state.collecting }, "Save Data"),
             React.createElement("button", { id: "newData", onClick: this.checkNewData, disabled: !this.state.hasData || this.state.collecting }, "New Run"));
@@ -10921,16 +10990,24 @@ class App extends React.Component {
                         bottom: "auto"
                     }
                 } },
-                React.createElement("p", null, "Pressing New Run without pressing Save Data will discard the current data. Set up a new run without saving the data first?"),
+                React.createElement("p", null, sensor_definitions_1.SensorStrings["messages"]["check_save"]),
                 React.createElement("input", { type: "checkbox", onChange: this.toggleWarning }),
                 React.createElement("label", null, "Don't show this message again"),
                 React.createElement("hr", null),
                 React.createElement("button", { onClick: this.closeWarnNewModal }, "Go back"),
                 React.createElement("button", { onClick: this.discardData }, "Discard the data")),
+            React.createElement(ReactModal, { contentLabel: "Sensor not attached", isOpen: this.state.reconnectModal, style: {
+                    content: {
+                        bottom: "auto"
+                    }
+                } },
+                React.createElement("p", null, sensor_definitions_1.SensorStrings["messages"]["sensor_not_attached"]),
+                React.createElement("hr", null),
+                React.createElement("button", { onClick: this.tryReconnectModal }, "Try again")),
             React.createElement("div", null,
                 React.createElement("button", { onClick: this.reload }, "Reload"),
-                React.createElement("div", null,
-                    React.createElement("button", { id: "toggleGraphBtn", onClick: this.toggleGraph }, this.state.secondGraph ? "Remove Graph" : "Add Graph"))),
+                React.createElement("input", { type: "checkbox", id: "toggleGraphBtn", onClick: this.toggleGraph }),
+                "Add Sensor"),
             React.createElement("div", null, this.state.statusMessage),
             this.renderGraph(this.sensor1, "graph1"),
             this.state.secondGraph ? this.renderGraph(this.sensor2, "graph2") : null,
@@ -10941,7 +11018,7 @@ exports.App = App;
 
 
 /***/ }),
-/* 104 */
+/* 105 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -10949,18 +11026,18 @@ exports.App = App;
 Object.defineProperty(exports, "__esModule", { value: true });
 const React = __webpack_require__(13);
 const ReactDOM = __webpack_require__(23);
-const app_1 = __webpack_require__(103);
+const app_1 = __webpack_require__(104);
 ReactDOM.render(React.createElement(app_1.App, null), document.getElementById("app"));
 
 
 /***/ }),
-/* 105 */
+/* 106 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-const CodapInterface = __webpack_require__(242);
+const CodapInterface = __webpack_require__(243);
 ;
 class Codap {
     constructor() {
@@ -10989,7 +11066,7 @@ class Codap {
         CodapInterface.init({
             name: this.dataSetName,
             title: this.dataSetTitle,
-            dimensions: { width: 500, height: 500 },
+            dimensions: { width: 460, height: 500 },
             version: '0.1'
         }, this.responseCallback).then((iResult) => {
             // get interactive state so we can save the data set index.
@@ -11135,14 +11212,15 @@ exports.Codap = Codap;
 
 
 /***/ }),
-/* 106 */
+/* 107 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const React = __webpack_require__(13);
-const dygraphs_1 = __webpack_require__(112);
+const dygraphs_1 = __webpack_require__(113);
+const format_1 = __webpack_require__(62);
 class Graph extends React.Component {
     constructor(props) {
         super(props);
@@ -11155,8 +11233,8 @@ class Graph extends React.Component {
             yMax: this.props.yMax,
             xLabel: "Time",
             yLabel: "",
-            xPrecision: 3,
-            yPrecision: 3
+            xPrecision: format_1.Format.getAxisPrecision(this.props.xMax - this.props.xMin),
+            yPrecision: format_1.Format.getAxisPrecision(this.props.yMax - this.props.yMin)
         };
         this.autoScale = this.autoScale.bind(this);
         this.onZoom = this.onZoom.bind(this);
@@ -11169,7 +11247,6 @@ class Graph extends React.Component {
         return data;
     }
     update() {
-        console.log("graph.update");
         if (!this.dygraph) {
             return;
         }
@@ -11183,87 +11260,65 @@ class Graph extends React.Component {
         });
     }
     autoScale() {
-        console.log("graph.autoscale");
         this.dygraph.resetZoom();
-        var yRange = this.dygraph.yAxisRange();
-        this.setState({
-            xPrecision: this.getPrecision(this.state.xMax - this.state.xMin),
-            yPrecision: this.getPrecision(yRange[1] - yRange[0])
-        });
-    }
-    // TODO: set as property, only update when axis scale changes
-    getPrecision(range) {
-        var stepSize = range / 4000;
-        var precision;
-        if (stepSize < 1) {
-            precision = Math.round(-Math.log10(stepSize));
-        }
-        else {
-            precision = Math.round(Math.log10(Math.round(stepSize)));
-        }
-        precision = Math.min(precision, 21);
-        console.log("precision: " + precision + ", range: " + range);
-        return precision;
     }
     onZoom(xStart, xEnd) {
+        var yRange = this.dygraph.yAxisRange();
+        var xRange = this.dygraph.xAxisRange();
         this.setState({
-            xPrecision: this.getPrecision(this.state.xMax - this.state.xMin),
-            yPrecision: this.getPrecision(this.state.yMax - this.state.yMin)
+            xPrecision: format_1.Format.getAxisPrecision(xRange[1] - xRange[0]),
+            yPrecision: format_1.Format.getAxisPrecision(yRange[1] - yRange[0])
         });
-        console.log("zoom:");
         this.props.onZoom(xStart, xEnd);
     }
     componentDidMount() {
         var data = this.checkData(this.state.data);
-        function formatVal(x, precision, unit = "") {
-            return x.toPrecision(precision) + " " + unit;
-        }
         this.dygraph = new dygraphs_1.default("sensor-graph-" + this.props.title, data, {
             dateWindow: [0, this.state.xMax],
             zoomCallback: this.onZoom,
             axes: {
                 x: {
                     valueFormatter: (val) => {
-                        return formatVal(val, this.state.xPrecision);
+                        return format_1.Format.formatValue(val, this.state.xPrecision + 1);
                     },
                     axisLabelFormatter: (val) => {
-                        return formatVal(val, this.state.xPrecision);
+                        return format_1.Format.formatValue(val, this.state.xPrecision);
                     }
                 },
                 y: {
                     valueFormatter: (val) => {
-                        return formatVal(val, this.state.yPrecision);
+                        return format_1.Format.formatValue(val, this.state.yPrecision + 2);
                     },
                     axisLabelFormatter: (val) => {
-                        return formatVal(val, this.state.yPrecision);
+                        return format_1.Format.formatValue(val, this.state.yPrecision);
                     }
                 }
             },
             xlabel: this.state.xLabel,
-            ylabel: this.state.yLabel
+            ylabel: this.state.yLabel,
+            legend: "follow",
+            underlayCallback: function (canvas, area, g) {
+                canvas.fillStyle = "rgba(255, 255, 255, 1.0)";
+                canvas.fillRect(area.x, area.y, area.w, area.h);
+            }
         });
     }
     componentWillReceiveProps(nextProps) {
         var data = this.checkData(nextProps.data);
         var newState = {};
-        if (nextProps.xLabel != this.props.xLabel || nextProps.yLabel != this.props.yLabel) {
-            newState.xLabel = nextProps.xLabel,
-                newState.yLabel = nextProps.yLabel,
-                newState.yMin = nextProps.yMin,
-                newState.yMax = nextProps.yMax;
-        }
-        if (nextProps.xMin != this.props.xMin) {
-            newState.xMin = nextProps.xMin;
-        }
-        if (nextProps.xMax != this.props.xMax) {
-            newState.xMax = nextProps.xMax;
-        }
+        var updateProps = ["xMin", "xMax", "yMin", "yMax", "xLabel", "yLabel"];
+        updateProps.forEach((prop) => {
+            if (nextProps[prop] != this.props[prop]) {
+                newState[prop] = nextProps[prop];
+            }
+        });
         if (nextProps.data.length != this.state.data.length) {
             newState.data = nextProps.data;
         }
-        if (newState.xMin || newState.xMax || newState.data || newState.xLabel) {
-            this.setState(newState);
+        if (newState.yMax) {
+            newState.yPrecision = format_1.Format.getAxisPrecision(newState.yMax);
         }
+        this.setState(newState);
     }
     shouldComponentUpdate(nextProps, nextState) {
         if (nextState.data.length != this.state.data.length ||
@@ -11279,23 +11334,25 @@ class Graph extends React.Component {
     }
     render() {
         return (React.createElement("div", null,
-            React.createElement("button", { id: "scaleBtn", style: { position: "absolute", top: 0, right: 0 }, onClick: this.autoScale }, "Auto-scale"),
-            React.createElement("div", { id: "sensor-graph-" + this.props.title })));
+            React.createElement("a", { onClick: this.autoScale, title: "Show all data (autoscale)" },
+                React.createElement("i", { className: "fa fa-picture-o" })),
+            React.createElement("div", { id: "sensor-graph-" + this.props.title, className: "graph-box" })));
     }
 }
 exports.Graph = Graph;
 
 
 /***/ }),
-/* 107 */
+/* 108 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
 const React = __webpack_require__(13);
-const graph_1 = __webpack_require__(106);
-const sensor_definitions_1 = __webpack_require__(62);
+const graph_1 = __webpack_require__(107);
+const sensor_definitions_1 = __webpack_require__(63);
+const format_1 = __webpack_require__(62);
 class SensorGraph extends React.Component {
     constructor(props) {
         super(props);
@@ -11410,10 +11467,15 @@ class SensorGraph extends React.Component {
             });
         }
     }
+    shouldComponentUpdate(nextProps, nextState) {
+        if (nextProps.valueUnits)
+            return true;
+        return false;
+    }
     renderReading() {
         var reading = "";
         if (this.state.sensorValue) {
-            reading = (this.state.sensorValue - this.state.tareValue).toFixed(2);
+            reading = format_1.Format.formatValue(this.state.sensorValue - this.state.tareValue, format_1.Format.getPrecision(this.props.sensor.definition.maxReading - this.props.sensor.definition.minReading));
         }
         var valueOption = function (valueUnit) {
             var sensorDef = sensor_definitions_1.SensorDefinitions[valueUnit];
@@ -11433,7 +11495,7 @@ class SensorGraph extends React.Component {
             React.createElement("select", { onChange: this.onUnitSelect, defaultValue: this.state.valueUnit }, this.props.valueUnits.map(valueOption, this)));
     }
     render() {
-        return (React.createElement("div", null,
+        return (React.createElement("div", { className: "sensor-graph" },
             this.renderReading(),
             React.createElement(graph_1.Graph, { title: this.props.title, data: this.state.sensorData, onZoom: this.props.onGraphZoom, xMin: this.props.xStart, xMax: this.props.xEnd, yMin: this.props.sensor.definition.minReading, yMax: this.props.sensor.definition.maxReading, xLabel: "Time (" + this.state.timeUnit + ")", yLabel: this.props.sensor.definition.measurementName + " (" + this.state.valueUnit + ")" })));
     }
@@ -11442,7 +11504,7 @@ exports.SensorGraph = SensorGraph;
 
 
 /***/ }),
-/* 108 */
+/* 109 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11462,7 +11524,7 @@ exports.Sensor = Sensor;
 
 
 /***/ }),
-/* 109 */
+/* 110 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -11479,11 +11541,11 @@ exports.Sensor = Sensor;
 //     requestedValuesTimeStamp
 //     receivedValuesTimeStamp
 
-var RSVP = __webpack_require__(239);
-var _ = __webpack_require__(110);
-var Machina = __webpack_require__(144);
+var RSVP = __webpack_require__(240);
+var _ = __webpack_require__(111);
+var Machina = __webpack_require__(145);
 
-var EventEmitter2 = __webpack_require__(126).EventEmitter2;
+var EventEmitter2 = __webpack_require__(127).EventEmitter2;
 var events = new EventEmitter2({
   wildcard: true
 });
@@ -12124,7 +12186,7 @@ module.exports = exports['default'];
 */
 
 /***/ }),
-/* 110 */
+/* 111 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, global) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -24480,10 +24542,10 @@ module.exports = exports['default'];
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(102)(module), __webpack_require__(28)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(103)(module), __webpack_require__(28)))
 
 /***/ }),
-/* 111 */
+/* 112 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -25215,7 +25277,7 @@ module.exports = factory;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 112 */
+/* 113 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -25226,7 +25288,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /***/ }),
-/* 113 */
+/* 114 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -25336,7 +25398,7 @@ CustomBarsHandler.prototype.rollingAverage =
 
 
 /***/ }),
-/* 114 */
+/* 115 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -25445,7 +25507,7 @@ ErrorBarsHandler.prototype.rollingAverage =
 
 
 /***/ }),
-/* 115 */
+/* 116 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -25565,12 +25627,12 @@ FractionsBarsHandler.prototype.rollingAverage =
 
 
 /***/ }),
-/* 116 */
+/* 117 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__datahandler__ = __webpack_require__(36);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__default__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__default__ = __webpack_require__(65);
 /**
  * @license
  * Copyright 2013 David Eberlein (david.eberlein@ch.sauter-bc.com)
@@ -25661,7 +25723,7 @@ DefaultFractionHandler.prototype.rollingAverage = function(originalData, rollPer
 
 
 /***/ }),
-/* 117 */
+/* 118 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -25754,13 +25816,13 @@ GVizChart.prototype.getSelection = function() {
 
 
 /***/ }),
-/* 118 */
+/* 119 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dygraph_utils__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dygraph_default_attrs__ = __webpack_require__(66);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dygraph_options_reference__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dygraph_default_attrs__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__dygraph_options_reference__ = __webpack_require__(69);
 /**
  * @license
  * Copyright 2011 Dan Vanderkam (danvdk@gmail.com)
@@ -26168,7 +26230,7 @@ DygraphOptions.resetWarnings_ = function() {
 /* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(0)))
 
 /***/ }),
-/* 119 */
+/* 120 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -26347,7 +26409,7 @@ annotations.prototype.destroy = function() {
 
 
 /***/ }),
-/* 120 */
+/* 121 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -26669,7 +26731,7 @@ axes.prototype.willDrawChart = function(e) {
 
 
 /***/ }),
-/* 121 */
+/* 122 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -26850,7 +26912,7 @@ chart_labels.prototype.destroy = function() {
 
 
 /***/ }),
-/* 122 */
+/* 123 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -26976,7 +27038,7 @@ grid.prototype.destroy = function() {
 
 
 /***/ }),
-/* 123 */
+/* 124 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -27352,13 +27414,13 @@ function generateLegendDashHTML(strokePattern, color, oneEmWidth) {
 
 
 /***/ }),
-/* 124 */
+/* 125 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dygraph_utils__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dygraph_interaction_model__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__iframe_tarp__ = __webpack_require__(69);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__iframe_tarp__ = __webpack_require__(70);
 /**
  * @license
  * Copyright 2011 Paul Felix (paul.eric.felix@gmail.com)
@@ -28162,7 +28224,7 @@ rangeSelector.prototype.getZoomHandleStatus_ = function() {
 
 
 /***/ }),
-/* 125 */
+/* 126 */
 /***/ (function(module, exports) {
 
 module.exports = function(opts) {
@@ -28227,7 +28289,7 @@ ElementClass.prototype.toggle = function(className) {
 
 
 /***/ }),
-/* 126 */
+/* 127 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -29011,7 +29073,7 @@ ElementClass.prototype.toggle = function(className) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 127 */
+/* 128 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -29057,7 +29119,6 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 
 
 /***/ }),
-/* 128 */,
 /* 129 */,
 /* 130 */,
 /* 131 */,
@@ -29071,11 +29132,12 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/*!
 /* 139 */,
 /* 140 */,
 /* 141 */,
-/* 142 */
+/* 142 */,
+/* 143 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var ParentEndpoint = __webpack_require__(74);
-var getIFrameEndpoint = __webpack_require__(73);
+var ParentEndpoint = __webpack_require__(75);
+var getIFrameEndpoint = __webpack_require__(74);
 
 // Not a real UUID as there's an RFC for that (needed for proper distributed computing).
 // But in this fairly parochial situation, we just need to be fairly sure to avoid repeats.
@@ -29165,29 +29227,29 @@ module.exports = function IframePhoneRpcEndpoint(handler, namespace, targetWindo
 
 
 /***/ }),
-/* 143 */
+/* 144 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = {
   /**
    * Allows to communicate with an iframe.
    */
-  ParentEndpoint:  __webpack_require__(74),
+  ParentEndpoint:  __webpack_require__(75),
   /**
    * Allows to communicate with a parent page.
    * IFrameEndpoint is a singleton, as iframe can't have multiple parents anyway.
    */
-  getIFrameEndpoint: __webpack_require__(73),
+  getIFrameEndpoint: __webpack_require__(74),
   structuredClone: __webpack_require__(41),
 
   // TODO: May be misnamed
-  IframePhoneRpcEndpoint: __webpack_require__(142)
+  IframePhoneRpcEndpoint: __webpack_require__(143)
 
 };
 
 
 /***/ }),
-/* 144 */
+/* 145 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -29202,7 +29264,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 	/* istanbul ignore if  */
 	if ( true ) {
 		// AMD. Register as an anonymous module.
-		!(__WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(145) ], __WEBPACK_AMD_DEFINE_RESULT__ = function( _ ) {
+		!(__WEBPACK_AMD_DEFINE_ARRAY__ = [ __webpack_require__(146) ], __WEBPACK_AMD_DEFINE_RESULT__ = function( _ ) {
 			return factory( _, root );
 		}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
 				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
@@ -29790,7 +29852,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 
 
 /***/ }),
-/* 145 */
+/* 146 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(module, global) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -42146,10 +42208,10 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(102)(module), __webpack_require__(28)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(103)(module), __webpack_require__(28)))
 
 /***/ }),
-/* 146 */
+/* 147 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42167,7 +42229,7 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/**
 if (process.env.NODE_ENV !== 'production') {
   var invariant = __webpack_require__(1);
   var warning = __webpack_require__(2);
-  var ReactPropTypesSecret = __webpack_require__(76);
+  var ReactPropTypesSecret = __webpack_require__(77);
   var loggedTypeFailures = {};
 }
 
@@ -42218,7 +42280,7 @@ module.exports = checkPropTypes;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 147 */
+/* 148 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42279,7 +42341,7 @@ module.exports = function() {
 
 
 /***/ }),
-/* 148 */
+/* 149 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42298,8 +42360,8 @@ var emptyFunction = __webpack_require__(7);
 var invariant = __webpack_require__(1);
 var warning = __webpack_require__(2);
 
-var ReactPropTypesSecret = __webpack_require__(76);
-var checkPropTypes = __webpack_require__(146);
+var ReactPropTypesSecret = __webpack_require__(77);
+var checkPropTypes = __webpack_require__(147);
 
 module.exports = function(isValidElement, throwOnDirectAccess) {
   /* global Symbol */
@@ -42765,7 +42827,7 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 149 */
+/* 150 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {/**
@@ -42792,17 +42854,16 @@ if (process.env.NODE_ENV !== 'production') {
   // By explicitly using `prop-types` you are opting into new development behavior.
   // http://fb.me/prop-types-in-prod
   var throwOnDirectAccess = true;
-  module.exports = __webpack_require__(148)(isValidElement, throwOnDirectAccess);
+  module.exports = __webpack_require__(149)(isValidElement, throwOnDirectAccess);
 } else {
   // By explicitly using `prop-types` you are opting into new production behavior.
   // http://fb.me/prop-types-in-prod
-  module.exports = __webpack_require__(147)();
+  module.exports = __webpack_require__(148)();
 }
 
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 150 */,
 /* 151 */,
 /* 152 */,
 /* 153 */,
@@ -42873,20 +42934,21 @@ if (process.env.NODE_ENV !== 'production') {
 /* 218 */,
 /* 219 */,
 /* 220 */,
-/* 221 */
+/* 221 */,
+/* 222 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {var React = __webpack_require__(13);
 var ReactDOM = __webpack_require__(23);
-var PropTypes = __webpack_require__(149);
-var ExecutionEnvironment = __webpack_require__(127);
-var ModalPortal = React.createFactory(__webpack_require__(222));
-var ariaAppHider = __webpack_require__(223);
-var refCount = __webpack_require__(225);
-var elementClass = __webpack_require__(125);
+var PropTypes = __webpack_require__(150);
+var ExecutionEnvironment = __webpack_require__(128);
+var ModalPortal = React.createFactory(__webpack_require__(223));
+var ariaAppHider = __webpack_require__(224);
+var refCount = __webpack_require__(226);
+var elementClass = __webpack_require__(126);
 var renderSubtreeIntoContainer = __webpack_require__(23).unstable_renderSubtreeIntoContainer;
-var Assign = __webpack_require__(75);
-var createReactClass = __webpack_require__(63)
+var Assign = __webpack_require__(76);
+var createReactClass = __webpack_require__(64)
 
 var SafeHTMLElement = ExecutionEnvironment.canUseDOM ? window.HTMLElement : {};
 var AppElement = ExecutionEnvironment.canUseDOM ? document.body : {appendChild: function() {}};
@@ -43046,15 +43108,15 @@ module.exports = Modal
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 222 */
+/* 223 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var React = __webpack_require__(13);
 var div = React.DOM.div;
-var focusManager = __webpack_require__(224);
-var scopeTab = __webpack_require__(226);
-var Assign = __webpack_require__(75);
-var createReactClass = __webpack_require__(63);
+var focusManager = __webpack_require__(225);
+var scopeTab = __webpack_require__(227);
+var Assign = __webpack_require__(76);
+var createReactClass = __webpack_require__(64);
 
 // so that our CSS is statically analyzable
 var CLASS_NAMES = {
@@ -43258,7 +43320,7 @@ var ModalPortal = module.exports = createReactClass({
 
 
 /***/ }),
-/* 223 */
+/* 224 */
 /***/ (function(module, exports) {
 
 var _element = typeof document !== 'undefined' ? document.body : null;
@@ -43306,10 +43368,10 @@ exports.resetForTesting = resetForTesting;
 
 
 /***/ }),
-/* 224 */
+/* 225 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var findTabbable = __webpack_require__(98);
+var findTabbable = __webpack_require__(99);
 var focusLaterElements = [];
 var modalElement = null;
 var needToFocus = false;
@@ -43380,7 +43442,7 @@ exports.teardownScopedFocus = function() {
 
 
 /***/ }),
-/* 225 */
+/* 226 */
 /***/ (function(module, exports) {
 
 var modals = [];
@@ -43405,10 +43467,10 @@ module.exports = {
 
 
 /***/ }),
-/* 226 */
+/* 227 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var findTabbable = __webpack_require__(98);
+var findTabbable = __webpack_require__(99);
 
 module.exports = function(node, event) {
   var tabbable = findTabbable(node);
@@ -43430,15 +43492,14 @@ module.exports = function(node, event) {
 
 
 /***/ }),
-/* 227 */
+/* 228 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(221);
+module.exports = __webpack_require__(222);
 
 
 
 /***/ }),
-/* 228 */,
 /* 229 */,
 /* 230 */,
 /* 231 */,
@@ -43449,7 +43510,8 @@ module.exports = __webpack_require__(221);
 /* 236 */,
 /* 237 */,
 /* 238 */,
-/* 239 */
+/* 239 */,
+/* 240 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -45893,7 +45955,7 @@ function flush() {
 function attemptVertex() {
   try {
     var r = require;
-    var vertx = __webpack_require__(243);
+    var vertx = __webpack_require__(244);
     vertxNext = vertx.runOnLoop || vertx.runOnContext;
     return useVertxTimer();
   } catch (e) {
@@ -45988,10 +46050,10 @@ filter$1), _async$filter);
 /* harmony default export */ __webpack_exports__["default"] = (rsvp);
 
 
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(0), __webpack_require__(241).setImmediate, __webpack_require__(28)))
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(0), __webpack_require__(242).setImmediate, __webpack_require__(28)))
 
 /***/ }),
-/* 240 */
+/* 241 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, process) {(function (global, undefined) {
@@ -46184,7 +46246,7 @@ filter$1), _async$filter);
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(28), __webpack_require__(0)))
 
 /***/ }),
-/* 241 */
+/* 242 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var apply = Function.prototype.apply;
@@ -46237,13 +46299,13 @@ exports._unrefActive = exports.active = function(item) {
 };
 
 // setimmediate attaches itself to the global object
-__webpack_require__(240);
+__webpack_require__(241);
 exports.setImmediate = setImmediate;
 exports.clearImmediate = clearImmediate;
 
 
 /***/ }),
-/* 242 */
+/* 243 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // ==========================================================================
@@ -46324,7 +46386,7 @@ exports.clearImmediate = clearImmediate;
 
 (function (global) {
 
-  var iframePh = ( true)? __webpack_require__(143) : iframePhone;
+  var iframePh = ( true)? __webpack_require__(144) : iframePhone;
 
   var config = null;
 
@@ -46378,7 +46440,9 @@ exports.clearImmediate = clearImmediate;
     var resource = request.resource;
     var requestValues = request.values;
     var returnMessage = {success: true};
-
+console.log("codap request: action: " + action);
+console.log(" - resource: " + resource);
+if(requestValues) for(value in requestValues) {console.log(" - value: " + value);}
     connectionState = 'active';
     stats.countCodapReq += 1;
     stats.timeCodapLastReq = new Date();
@@ -46464,6 +46528,8 @@ exports.clearImmediate = clearImmediate;
           var success = resp && resp[1] && resp[1].success;
           var receivedFrame = success && resp[1].values;
           var savedState = receivedFrame && receivedFrame.savedState;
+console.log("receivedFrame: " + receivedFrame + ", state: " + (receivedFrame ? receivedFrame.savedState : "null"))
+if(savedState) for(var prop in savedState) {console.log(" - " + prop + ":" + savedState[prop])}
           this_.updateInteractiveState(savedState);
           if (success) {
             // deprecated way of conveying state
@@ -46510,7 +46576,7 @@ exports.clearImmediate = clearImmediate;
           return ({success: true, values: this.getInteractiveState()});
         }.bind(this));
 
-        console.log('sending interactiveState: ' + JSON.stringify(this.getInteractiveState));
+        console.log('sending interactiveState: ' + JSON.stringify(this.getInteractiveState()));
         // update, then get the interactiveFrame.
         return this.sendRequest([updateFrameReq, getFrameReq])
           .then(getFrameRespHandler, reject);
@@ -46685,11 +46751,11 @@ exports.clearImmediate = clearImmediate;
 
 
 /***/ }),
-/* 243 */
+/* 244 */
 /***/ (function(module, exports) {
 
 /* (ignored) */
 
 /***/ })
-],[104]);
+],[105]);
 //# sourceMappingURL=app.js.map
