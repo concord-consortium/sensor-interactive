@@ -6483,7 +6483,7 @@ class Format {
         return precision;
     }
     static getAxisFix(range) {
-        var stepSize = range / 8;
+        var stepSize = range / 10;
         var precision;
         if (stepSize < 5) {
             precision = Math.round(-Math.log10(stepSize));
