@@ -6466,7 +6466,6 @@ class Format {
         }
         precision = Math.log10(Math.round(stepSize)) + fixVal;
         precision = Math.max(1, Math.min(precision, 21));
-        console.log("range: " + range + ", prec: " + precision);
         return precision;
     }
     static getFixValue(range) {
@@ -6479,7 +6478,6 @@ class Format {
             precision = 0; //Math.round(Math.log10(Math.round(stepSize))) + 1;
         }
         precision = Math.max(0, Math.min(precision, 21));
-        console.log("range: " + range + ", prec: " + precision);
         return precision;
     }
     static getAxisFix(range) {
@@ -6494,14 +6492,6 @@ class Format {
         precision = Math.max(0, Math.min(precision, 21));
         return precision;
     }
-    /*
-    static formatValue(value:number, precision:number, unit:string="", shorthand:boolean=false):string {
-        if(shorthand && value >= 10000) {
-            return (Math.round(value) / 1000) + "k " + unit;
-        }
-        return value.toPrecision(precision) + " " + unit;
-    }
-    */
     static formatFixedValue(value, fix, unit = "", shorthand = false) {
         if (shorthand && value >= 10000) {
             return (Math.round(value) / 1000) + "k " + unit;
@@ -11042,8 +11032,8 @@ class App extends React.Component {
             React.createElement("div", null,
                 React.createElement("button", { onClick: this.reload }, "Reload"),
                 React.createElement("input", { type: "checkbox", id: "toggleGraphBtn", onClick: this.toggleGraph }),
-                "Two sensors"),
-            React.createElement("div", null, this.state.statusMessage),
+                React.createElement("label", null, "Two sensors"),
+                React.createElement("span", { className: "message" }, this.state.statusMessage)),
             this.renderGraph(this.sensor1, "graph1"),
             this.state.secondGraph ? this.renderGraph(this.sensor2, "graph2") : null,
             this.renderControls()));
@@ -11266,7 +11256,7 @@ class Graph extends React.Component {
             xMax: this.props.xMax,
             yMin: this.props.yMin,
             yMax: this.props.yMax,
-            xLabel: "Time",
+            xLabel: "",
             yLabel: "",
             xFix: format_1.Format.getFixValue(this.props.xMax - this.props.xMin),
             yFix: format_1.Format.getFixValue(this.props.yMax - this.props.yMin),
@@ -11374,8 +11364,8 @@ class Graph extends React.Component {
     }
     render() {
         return (React.createElement("div", null,
-            React.createElement("a", { onClick: this.autoScale, title: "Show all data (autoscale)" },
-                React.createElement("i", { className: "fa fa-picture-o" })),
+            React.createElement("a", { onClick: this.autoScale, className: "graph-button", title: "Show all data (autoscale)" },
+                React.createElement("i", { className: "fa fa-arrows" })),
             React.createElement("div", { id: "sensor-graph-" + this.props.title, className: "graph-box" })));
     }
 }
