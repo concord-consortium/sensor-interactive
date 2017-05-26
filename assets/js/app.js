@@ -11122,12 +11122,11 @@ class Codap {
                 this.dataSetAttrs.push({ name: attr, type: 'numeric', precision: 4 });
             }
         });
-        /*
         return CodapInterface.sendRequest({
             action: 'create',
-            resource: 'dataContext[' + this.dataSetName + '].collection["runs/measurements"].attribute',
+            resource: 'dataContext[' + this.dataSetName + '].collection[runs/measurements].attribute',
             values: newAttrs
-        }, this.responseCallback);*/
+        }, this.responseCallback);
     }
     requestCreateDataSet() {
         var dataSetDef = Object.assign({}, this.dataSetTemplate);
@@ -11347,6 +11346,10 @@ class Graph extends React.Component {
         if (newState.yMax) {
             newState.yFix = format_1.Format.getFixValue(newState.yMax);
             newState.yAxisFix = format_1.Format.getAxisFix(newState.yMax);
+        }
+        if (newState.xMax) {
+            newState.xFix = format_1.Format.getFixValue(newState.xMax);
+            newState.xAxisFix = format_1.Format.getAxisFix(newState.xMax);
         }
         this.setState(newState);
     }
