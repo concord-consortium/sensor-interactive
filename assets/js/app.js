@@ -11110,7 +11110,7 @@ class Codap {
         }, this.responseCallback);
     }
     updateDataContext(attrs) {
-        var newAttrs = [];
+        console.log("updateDataContext");
         attrs.forEach((attr) => {
             var exists = false;
             this.dataSetAttrs.forEach((dataSetAttr) => {
@@ -11149,14 +11149,17 @@ class Codap {
                     if (iResult.values && iResult.values.some(function (component) {
                         return component.type === 'caseTable';
                     })) {
-                        //return updateTable(); 
                         resolve(iResult);
                     }
                     else {
-                        CodapInterface.sendRequest({ action: 'create', resource: 'component', values: {
+                        CodapInterface.sendRequest({
+                            action: 'create',
+                            resource: 'component',
+                            values: {
                                 type: 'caseTable',
                                 dataContext: this.dataSetName
-                            } }, this.responseCallback).then((result) => {
+                            }
+                        }, this.responseCallback).then((result) => {
                             resolve(result);
                         });
                     }
@@ -11183,11 +11186,9 @@ class Codap {
             item[dataType] = value;
             items.push(item);
         }
-        this.updateDataContext([dataType]).then((iResult) => {
-            this.prepAndSend(items);
-        });
+        this.prepAndSend(items, [dataType]);
     }
-    prepAndSend(items) {
+    prepAndSend(items, dataTypes) {
         // Determine if CODAP already has the Data Context we need.
         this.requestDataContext().then((iResult) => {
             // if we did not find a data set, make one
@@ -11199,6 +11200,9 @@ class Codap {
                 // else we are fine as we are, so return a resolved promise.
                 return Promise.resolve(iResult);
             }
+        }).then((iResult) => {
+            // make sure the Data Context has the current data type
+            return this.updateDataContext(dataTypes);
         }).then((iResult) => {
             this.guaranteeCaseTable().then((iResult) => {
                 CodapInterface.sendRequest({
@@ -11230,8 +11234,7 @@ class Codap {
             item[data2Type] = value2;
             items.push(item);
         }
-        this.updateDataContext([data1Type, data2Type]);
-        this.prepAndSend(items);
+        this.prepAndSend(items, [data1Type, data2Type]);
     }
 }
 exports.Codap = Codap;
