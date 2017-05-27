@@ -39,8 +39,8 @@ export class Codap {
             dimensions: {width: 460, height: 500},
             version: '0.1'
         }, this.responseCallback).then((iResult) => {
-          // get interactive state so we can save the data set index.
-          this.state = CodapInterface.getInteractiveState();
+            // get interactive state so we can save the data set index.
+            this.state = CodapInterface.getInteractiveState();
         });
     }
     
@@ -58,7 +58,7 @@ export class Codap {
     }
     
     updateDataContext(attrs:string[]):Promise<any> {
-        var newAttrs:any[] = [];
+        console.log("updateDataContext");
         attrs.forEach((attr)=>{
             var exists:boolean = false;
             this.dataSetAttrs.forEach((dataSetAttr) => {
@@ -89,32 +89,35 @@ export class Codap {
     }
     
     guaranteeCaseTable():Promise<any> {
-      return new Promise((resolve, reject) => {
-        CodapInterface.sendRequest({
-          action: 'get',
-          resource: 'componentList'
-        }, this.responseCallback)
-        .then ((iResult:any) => {
-          if (iResult.success) {
-            // look for a case table in the list of components.
-            if (iResult.values && iResult.values.some(function (component) {
-                  return component.type === 'caseTable'
-                })) {
-                //return updateTable(); 
-              resolve(iResult);
-            } else {
-              CodapInterface.sendRequest({action: 'create', resource: 'component', values: {
-                type: 'caseTable',
-                dataContext: this.dataSetName
-              }}, this.responseCallback).then((result) => {
-                resolve(result);
-              });
-            }
-          } else {
-            reject('api error');
-          }
-        })
-      });
+        return new Promise((resolve, reject) => {
+            CodapInterface.sendRequest({
+                action: 'get',
+                resource: 'componentList'
+            }, this.responseCallback)
+            .then((iResult:any) => {
+                if (iResult.success) {
+                    // look for a case table in the list of components.
+                    if (iResult.values && iResult.values.some(function (component) {
+                        return component.type === 'caseTable'
+                    })) {
+                        resolve(iResult);
+                    } else {
+                        CodapInterface.sendRequest({
+                            action: 'create', 
+                            resource: 'component', 
+                            values: {
+                                type: 'caseTable',
+                                dataContext: this.dataSetName
+                            }
+                        }, this.responseCallback).then((result) => {
+                            resolve(result);
+                        });
+                    }
+                } else {
+                    reject('api error');
+                }
+            });
+        });
     }
         
     sendData(data:number[][], dataType:string) {
@@ -138,13 +141,10 @@ export class Codap {
             items.push(item);
         }
         
-        this.updateDataContext([dataType]).then((iResult:any)=>{
-            this.prepAndSend(items);
-        });
-        
+        this.prepAndSend(items, [dataType]);
     }
     
-    private prepAndSend(items:any[]) {
+    private prepAndSend(items:any[], dataTypes:string[]) {
         // Determine if CODAP already has the Data Context we need.
         this.requestDataContext().then((iResult:any) => {
             // if we did not find a data set, make one
@@ -155,6 +155,9 @@ export class Codap {
                 // else we are fine as we are, so return a resolved promise.
                 return Promise.resolve(iResult);
             }
+        }).then((iResult:any)=> {
+            // make sure the Data Context has the current data type
+            return this.updateDataContext(dataTypes);
         }).then((iResult:any)=> {
             this.guaranteeCaseTable().then((iResult:any) => {
                 CodapInterface.sendRequest({
@@ -193,8 +196,6 @@ export class Codap {
             items.push(item);
         }
         
-        this.updateDataContext([data1Type, data2Type]);
-        
-        this.prepAndSend(items);
+        this.prepAndSend(items, [data1Type, data2Type]);
     }
 }
