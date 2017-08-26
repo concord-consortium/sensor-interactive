@@ -1,5 +1,7 @@
 // from concord-consortium/lab
 
+/* tslint:disable:max-line-length */
+
 export const SensorStrings = {
     "select_sensor": "Select Sensor",
     "select_sensor_type": "Select type of sensor...",
@@ -139,10 +141,10 @@ export const SensorStrings = {
       "labQuestCO2": "LabQuest CO₂ sensor",
       "labQuestO2": "LabQuest O₂ sensor"
     }
-}
+};
 
 // TODO: remove when i18n module is integrated
-export class i18n {
+export class i18n { // tslint:disable-line:class-name
     static t(id:string): string {
         var category = id.substring(id.indexOf(".")+1, id.lastIndexOf("."));
         var prop = id.substring(id.lastIndexOf(".")+1);

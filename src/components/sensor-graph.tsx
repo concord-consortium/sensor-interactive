@@ -7,16 +7,16 @@ import SensorConnectorInterface from "@concord-consortium/sensor-connector-inter
 
 
 export interface SensorGraphProps {
-    sensorConnector:SensorConnectorInterface,
-    sensor:Sensor,
-    title:string,
-    onGraphZoom:Function,
-    runLength:number,
-    valueUnits:string[],
-    collecting:boolean,
-    dataReset:boolean,
-    xStart:number,
-    xEnd:number
+    sensorConnector:SensorConnectorInterface;
+    sensor:Sensor;
+    title:string;
+    onGraphZoom:(xStart:number, xEnd:number) => void;
+    runLength:number;
+    valueUnits:string[];
+    collecting:boolean;
+    dataReset:boolean;
+    xStart:number;
+    xEnd:number;
 }
 
 export interface SensorGraphState {
@@ -66,7 +66,7 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
     }
     
     setUnit(valueUnit:string) {
-        if(valueUnit == this.state.valueUnit) {
+        if(valueUnit === this.state.valueUnit) {
             return;
         }
         
@@ -104,12 +104,12 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
         
         var dataset;
         for(var i=0; i < this.props.sensorConnector.datasets.length; i++) {
-            if(this.props.sensorConnector.datasets[i].id == setId) {
+            if(this.props.sensorConnector.datasets[i].id === setId) {
                 dataset = this.props.sensorConnector.datasets[i];
                 break;
             }
         }
-        if(dataset == undefined) {
+        if(dataset == null) {
             return;
         }
         
@@ -147,13 +147,13 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
     }
     
     getDataColumn(valueUnit:string, dataset?:any) {
-        if(dataset == undefined) {
+        if(dataset == null) {
             dataset = this.props.sensorConnector.stateMachine.datasets[0];
         }
         var dataColumns = dataset.columns;
         for(var i=0; i < dataColumns.length; i++) {
             var dataColumn = dataColumns[i];
-            if(dataColumn.units == valueUnit) {
+            if(dataColumn.units === valueUnit) {
                 return dataColumn;
             }
         }
@@ -166,7 +166,7 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
             this.lastDataIndex = 0;
             this.setState({
                 sensorData:[]
-            })
+            });
         }
     }
     
@@ -179,7 +179,8 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
         var reading = "";
         if(this.state.sensorValue) {
             reading = Format.formatFixedValue(
-                this.state.sensorValue - this.state.tareValue, Format.getFixValue(this.props.sensor.definition.maxReading - this.props.sensor.definition.minReading));
+                this.state.sensorValue - this.state.tareValue,
+                Format.getFixValue(this.props.sensor.definition.maxReading - this.props.sensor.definition.minReading));
         }
         
         var valueOption = function(valueUnit:string) {
@@ -191,7 +192,7 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
             var jsx = <option key={valueUnit} value={valueUnit}>
                     {measurementName + " ("+valueUnit+")"}</option>;
             return jsx;
-        }
+        };
         
         return <div className="sensor-reading">
                     <label>Reading:</label>

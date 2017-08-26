@@ -1,5 +1,5 @@
 import * as React from "react";
-import * as ReactModal from 'react-modal';
+import Modal from "react-modal";
 import { Sensor } from "./sensor";
 import { SensorGraph } from "./sensor-graph";
 import { Codap } from "./codap";
@@ -8,23 +8,23 @@ import SensorConnectorInterface from "@concord-consortium/sensor-connector-inter
 
 const SENSOR_IP = "http://127.0.0.1:11180";
 
-export interface AppProps {};
+export interface AppProps {}
 
 export interface AppState {
-    sensorType:string,
-    valueUnits:string[],
-    hasData:boolean,
-    dataChanged:boolean,
-    dataReset:boolean,
-    collecting:boolean,
-    runLength:number,
-    timeUnit:string,
-    warnNewModal:boolean,
-    reconnectModal:boolean,
-    statusMessage:string|undefined,
-    secondGraph:boolean,
-    xStart:number,
-    xEnd:number
+    sensorType:string;
+    valueUnits:string[];
+    hasData:boolean;
+    dataChanged:boolean;
+    dataReset:boolean;
+    collecting:boolean;
+    runLength:number;
+    timeUnit:string;
+    warnNewModal:boolean;
+    reconnectModal:boolean;
+    statusMessage:string|undefined;
+    secondGraph:boolean;
+    xStart:number;
+    xEnd:number;
 }
 
 export class App extends React.Component<AppProps, AppState> {
@@ -97,7 +97,7 @@ export class App extends React.Component<AppProps, AppState> {
         var sensorInfo = this.sensorConnector.stateMachine.currentActionArgs[1];
         var sensorType = sensorInfo.currentInterface;
         
-        if(sensorType == "None Found") {
+        if(sensorType === "None Found") {
             this.setState({
                 statusMessage: SensorStrings["messages"]["no_sensors"]
             });
@@ -114,17 +114,18 @@ export class App extends React.Component<AppProps, AppState> {
             var valueUnits:string[] = [];
             var curSetID = 0;
             for(var setID in sensorInfo.sets) {
-                if(parseInt(setID) > curSetID) {
-                    curSetID = parseInt(setID);
+                const newSetID = parseInt(setID, 10);
+                if(newSetID > curSetID) {
+                    curSetID = newSetID;
                 }
             }
             
             var colIDs = sensorInfo.sets[curSetID].colIDs;
             colIDs.forEach((colID) => {
                 var set = sensorInfo.columns[colID];
-                if(set.name == "Time") {
+                if(set.name === "Time") {
                     timeUnit = set.units;
-                } else if(valueUnits.indexOf(set.units) == -1) {
+                } else if(valueUnits.indexOf(set.units) === -1) {
                     valueUnits.push(set.units);
                 }
             });
@@ -148,7 +149,9 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     sensorHasData():boolean {
-        return (this.sensorConnector && this.sensorConnector.datasets[0] && this.sensorConnector.datasets[0].columns[1]);
+        return (this.sensorConnector &&
+                    this.sensorConnector.datasets[0] &&
+                    this.sensorConnector.datasets[0].columns[1]);
     }
     
     startSensor() {
@@ -187,7 +190,7 @@ export class App extends React.Component<AppProps, AppState> {
         var sensorInfo = this.sensorConnector.stateMachine.currentActionArgs;
         var setID = sensorInfo[1];
         // set IDs ending in 0 contain time data
-        if(setID.slice(setID.length-1) == 0) {
+        if(setID.slice(setID.length-1) === 0) {
             var timeData = sensorInfo[2];
             // make sure the sensor graph has received the update for the final value
             if(this.lastTime && this.lastTime > this.state.runLength) {
@@ -262,7 +265,7 @@ export class App extends React.Component<AppProps, AppState> {
         for(i=0; i < this.sensor1.sensorData.length-1; i++) {
             entry = this.sensor1.sensorData[i];
             nextEntry = this.sensor1.sensorData[i+1];
-            if(entry[0] == xStart) {
+            if(entry[0] === xStart) {
                 this.selectionRange.start = i;
                 break;
             } else if(entry[0] < xStart && nextEntry[0] >= xStart) {
@@ -273,7 +276,7 @@ export class App extends React.Component<AppProps, AppState> {
         for(i; i < this.sensor1.sensorData.length-1; i++) {
             entry = this.sensor1.sensorData[i];
             nextEntry = this.sensor1.sensorData[i+1];
-            if(entry[0] == xEnd) {
+            if(entry[0] === xEnd) {
                 this.selectionRange.end = i;
                 break;
             } else if(entry[0] < xEnd && nextEntry[0] >= xEnd) {
@@ -344,36 +347,43 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     renderControls() {
-        return <div>
-            <select id="timeSelect" onChange={ this.onTimeSelect } defaultValue="10">
-                <option value="1">{"1.0" + this.state.timeUnit}</option>
-                <option value="5">{"5.0" + this.state.timeUnit}</option>
-                <option value="10">{"10.0" + this.state.timeUnit}</option>
-                <option value="15">{"15.0" + this.state.timeUnit}</option>
-                <option value="20">{"20.0" + this.state.timeUnit}</option>
-                <option value="30">{"30.0" + this.state.timeUnit}</option>
-                <option value="45">{"45.0" + this.state.timeUnit}</option>
-                <option value="60">{"60.0" + this.state.timeUnit}</option>
-            </select>
-            <button id="startSensor" 
-                onClick={this.startSensor}
-                disabled={this.state.collecting || this.state.hasData}>Start</button>
-            <button id="stopSensor" 
-                onClick={this.stopSensor}
-                disabled={!this.state.collecting}>Stop</button>
-            <button id="sendData" 
-                onClick={this.sendData} 
-                disabled={!(this.state.hasData && this.state.dataChanged) || this.state.collecting}>Save Data</button>
-            <button id="newData" 
-                onClick={this.checkNewData} 
-                disabled={!this.state.hasData || this.state.collecting}>New Run</button>
+        const
+            disableStartSensor = this.state.collecting || this.state.hasData,
+            disableStopSensor = !this.state.collecting,
+            disableSendData = !(this.state.hasData && this.state.dataChanged) || this.state.collecting,
+            disableNewData = !this.state.hasData || this.state.collecting;
+        return (
+            <div>
+                <select id="timeSelect" onChange={ this.onTimeSelect } defaultValue="10">
+                    <option value="1">{"1.0" + this.state.timeUnit}</option>
+                    <option value="5">{"5.0" + this.state.timeUnit}</option>
+                    <option value="10">{"10.0" + this.state.timeUnit}</option>
+                    <option value="15">{"15.0" + this.state.timeUnit}</option>
+                    <option value="20">{"20.0" + this.state.timeUnit}</option>
+                    <option value="30">{"30.0" + this.state.timeUnit}</option>
+                    <option value="45">{"45.0" + this.state.timeUnit}</option>
+                    <option value="60">{"60.0" + this.state.timeUnit}</option>
+                </select>
+                <button id="startSensor" 
+                    onClick={this.startSensor}
+                    disabled={disableStartSensor}>Start</button>
+                <button id="stopSensor" 
+                    onClick={this.stopSensor}
+                    disabled={disableStopSensor}>Stop</button>
+                <button id="sendData" 
+                    onClick={this.sendData} 
+                    disabled={disableSendData}>Save Data</button>
+                <button id="newData" 
+                    onClick={this.checkNewData} 
+                    disabled={disableNewData}>New Run</button>
             </div>
+        );
     }
 
     render() {
         return (
             <div>
-                <ReactModal contentLabel="Discard data?" 
+                <Modal contentLabel="Discard data?" 
                     isOpen={this.state.warnNewModal}
                     style={{
                         content: {
@@ -388,8 +398,8 @@ export class App extends React.Component<AppProps, AppState> {
                         onClick={this.closeWarnNewModal}>Go back</button>
                     <button
                         onClick={this.discardData}>Discard the data</button>
-                </ReactModal>
-                <ReactModal contentLabel="Sensor not attached" 
+                </Modal>
+                <Modal contentLabel="Sensor not attached" 
                     isOpen={this.state.reconnectModal}
                     style={{
                         content: {
@@ -401,7 +411,7 @@ export class App extends React.Component<AppProps, AppState> {
                     <hr/>
                     <button 
                         onClick={this.tryReconnectModal}>Try again</button>
-                </ReactModal>
+                </Modal>
                 <div>
                     <button
                         onClick={this.reload}>Reload</button>

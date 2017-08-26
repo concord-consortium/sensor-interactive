@@ -1,9 +1,9 @@
 import * as CodapInterface from "../public/assets/js/CodapInterface";
 
 export interface IDataSetTemplate {
-    name: string,
-    collections: Object[]
-};
+    name: string;
+    collections: object[];
+}
 
 export class Codap {
     
@@ -62,7 +62,7 @@ export class Codap {
         attrs.forEach((attr)=>{
             var exists:boolean = false;
             this.dataSetAttrs.forEach((dataSetAttr) => {
-                if(dataSetAttr.name == attr) {
+                if(dataSetAttr.name === attr) {
                     exists = true;
                 }
             });
@@ -85,7 +85,7 @@ export class Codap {
             action: 'create',
             resource: 'dataContext',
             values: dataSetDef
-        }, this.responseCallback)
+        }, this.responseCallback);
     }
     
     guaranteeCaseTable():Promise<any> {
@@ -98,7 +98,7 @@ export class Codap {
                 if (iResult.success) {
                     // look for a case table in the list of components.
                     if (iResult.values && iResult.values.some(function (component) {
-                        return component.type === 'caseTable'
+                        return component.type === 'caseTable';
                     })) {
                         resolve(iResult);
                     } else {
@@ -122,7 +122,7 @@ export class Codap {
         
     sendData(data:number[][], dataType:string) {
         // if a run number has not yet been initialized, do so now.
-        if (this.state.runNumber == undefined || this.state.runNumber == null) {
+        if (this.state.runNumber == null) {
             this.state.runNumber = 0;
         }
         
@@ -171,7 +171,7 @@ export class Codap {
     
     sendDualData(data1:number[][], data1Type:string, data2:number[][], data2Type:string) {
         // if a run number has not yet been initialized, do so now.
-        if (this.state.runNumber == undefined || this.state.runNumber == null) {
+        if (this.state.runNumber == null) {
             this.state.runNumber = 0;
         }
         

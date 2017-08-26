@@ -20,7 +20,7 @@ export class Format {
         if(stepSize < 1) {
             precision = Math.round(-Math.log10(stepSize));
         } else {
-            precision = 0//Math.round(Math.log10(Math.round(stepSize))) + 1;
+            precision = 0;  //Math.round(Math.log10(Math.round(stepSize))) + 1;
         }
         precision = Math.max(0, Math.min(precision, 21));
         return precision;
