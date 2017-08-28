@@ -1,8 +1,8 @@
 import * as React from "react";
-import { Sensor } from "./sensor";
+import { Sensor } from "../models/sensor";
 import { Graph } from "./graph";
-import { SensorStrings, SensorDefinitions } from "./sensor-definitions";
-import { Format } from "./format";
+import { SensorStrings, SensorDefinitions } from "../models/sensor-definitions";
+import { Format } from "../utils/format";
 import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
 
 

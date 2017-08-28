@@ -39,6 +39,7 @@ export class Format {
     }
     
     static formatFixedValue(value:number, fix:number, unit:string="", shorthand:boolean=false):string {
+        if ((value == null) || isNaN(value)) return "";
         if(shorthand && value >= 10000) {
             return (Math.round(value) / 1000) + "k " + unit;
         }

@@ -1,6 +1,6 @@
 import * as React from "react";
 import Dygraph from "dygraphs";
-import { Format } from "./format";
+import { Format } from "../utils/format";
 
 export interface GraphProps {
     title:string|undefined;

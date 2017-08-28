@@ -1,9 +1,9 @@
 import * as React from "react";
 import Modal from "react-modal";
-import { Sensor } from "./sensor";
+import { Sensor } from "../models/sensor";
 import { SensorGraph } from "./sensor-graph";
-import { Codap } from "./codap";
-import { SensorStrings, SensorDefinitions } from "./sensor-definitions";
+import { Codap } from "../models/codap";
+import { SensorStrings, SensorDefinitions } from "../models/sensor-definitions";
 import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
 
 const SENSOR_IP = "http://127.0.0.1:11180";
