@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "lint": "tslint --project . --exclude src/public/**/*.*",
     "copy-public": "ncp src/public/ dist/",
     "copy-public:watch": "onchange \"src/public/**/*.*\" -v -- npm run copy-public",
     "webpack": "cross-env NODE_ENV=production webpack",
@@ -20,7 +21,7 @@
     "type": "git",
     "url": "git+https://github.com/concord-consortium/sensor-interactive.git"
   },
-  "author": "",
+  "author": "Concord Consortium",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/concord-consortium/sensor-interactive/issues"
@@ -28,22 +29,24 @@
   "homepage": "https://github.com/concord-consortium/sensor-interactive#readme",
   "dependencies": {
     "@concord-consortium/sensor-connector-interface": "^0.1.0",
-    "@types/react": "^15.0.20",
-    "@types/react-dom": "^0.14.23",
     "dygraphs": "^2.0.0",
     "iframe-phone": "^1.2.0",
-    "react": "^15.4.2",
-    "react-dom": "^15.4.2",
-    "react-modal": "^1.7.7"
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1",
+    "react-modal": "^2.2.4"
   },
   "devDependencies": {
-    "awesome-typescript-loader": "^3.1.2",
+    "@types/react": "^16.0.5",
+    "@types/react-dom": "^15.5.4",
+    "awesome-typescript-loader": "^3.2.3",
     "cross-env": "^4.0.0",
     "live-server": "^1.2.0",
+    "ncp": "^2.0.0",
     "npm-run-all": "^4.0.2",
     "onchange": "^3.2.1",
     "source-map-loader": "^0.2.0",
-    "typescript": "^2.2.1",
-    "webpack": "^2.4.1"
+    "tslint": "^5.7.0",
+    "typescript": "^2.4.2",
+    "webpack": "^3.5.5"
   }
 }

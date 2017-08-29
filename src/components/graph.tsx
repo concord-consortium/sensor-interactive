@@ -1,31 +1,31 @@
 import * as React from "react";
 import Dygraph from "dygraphs";
-import { Format } from "./format";
+import { Format } from "../utils/format";
 
 export interface GraphProps {
-    title:string|undefined,
-    data:number[][],
-    onZoom:Function,
-    xMin:number,
-    xMax:number,
-    yMin:number,
-    yMax:number,
-    xLabel:string|undefined,
-    yLabel:string|undefined
+    title:string|undefined;
+    data:number[][];
+    onZoom:(xStart:number, xEnd:number) => void;
+    xMin:number;
+    xMax:number;
+    yMin:number;
+    yMax:number;
+    xLabel:string|undefined;
+    yLabel:string|undefined;
 }
 
 export interface GraphState {
-    data:number[][],
-    xMin:number,
-    xMax:number,
-    yMin:number,
-    yMax:number,
-    xLabel:string|undefined,
-    yLabel:string|undefined,
-    xFix:number,
-    yFix:number,
-    xAxisFix:number,
-    yAxisFix:number
+    data:number[][];
+    xMin:number;
+    xMax:number;
+    yMin:number;
+    yMax:number;
+    xLabel:string|undefined;
+    yLabel:string|undefined;
+    xFix:number;
+    yFix:number;
+    xAxisFix:number;
+    yAxisFix:number;
 }
 
 export class Graph extends React.Component<GraphProps, GraphState> {
@@ -48,7 +48,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             yFix: Format.getFixValue(this.props.yMax - this.props.yMin),
             xAxisFix: Format.getAxisFix(this.props.xMax - this.props.xMin),
             yAxisFix: Format.getAxisFix(this.props.yMax - this.props.yMin),
-        }
+        };
         
         this.autoScale = this.autoScale.bind(this);
         this.onZoom = this.onZoom.bind(this);
@@ -56,7 +56,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     
     // TODO: remove redundant calls
     checkData(data:number[][]):number[][] {
-        if(data.length == 0) {
+        if(!data.length) {
             data = [[0,0]];
         }
         return data;
@@ -132,12 +132,12 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         var newState:any = {};
         var updateProps = ["xMin", "xMax", "yMin", "yMax", "xLabel", "yLabel"];
         updateProps.forEach((prop)=> {
-            if(nextProps[prop] != this.props[prop]) {
+            if(nextProps[prop] !== this.props[prop]) {
                 newState[prop] = nextProps[prop];
             }
         });
         
-        if(nextProps.data.length != this.state.data.length) {
+        if(nextProps.data.length !== this.state.data.length) {
             newState.data = nextProps.data;
         }
         
@@ -154,10 +154,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
     
     shouldComponentUpdate(nextProps, nextState):boolean {
-        if(nextState.data.length != this.state.data.length ||
-          nextState.xMax != this.state.xMax ||
-          nextState.xLabel != this.state.xLabel ||
-          nextState.yLabel != this.state.yLabel) {
+        if(nextState.data.length !== this.state.data.length ||
+          nextState.xMax !== this.state.xMax ||
+          nextState.xLabel !== this.state.xLabel ||
+          nextState.yLabel !== this.state.yLabel) {
             return true;
         }
         return false;
