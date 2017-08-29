@@ -11,22 +11,10 @@
   </head>
   <body>
     <div id="app"></div>
-    <a id="codapLink">Embed in CODAP</a>
         
     <script src="./assets/js/globals.js"></script>
     <script src="./assets/js/iframe-phone.js"></script>
     <script src="./assets/js/CodapInterface.js"></script>
     <script src="./assets/js/app.js"></script>
-      
-    <script>
-        var codapURL = "http://codap.concord.org/releases/latest?di=";
-        var codapLink = document.getElementById("codapLink");
-        
-        if(window.self != window.top) {
-            codapLink.parentNode.removeChild(codapLink);
-        } else {
-            codapLink.href = codapURL + window.location.href;
-        }
-    </script>
   </body>
 </html>

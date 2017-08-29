@@ -20,3 +20,49 @@ body {
 .graph-box {
     height: 190px;
 }
+
+.control-panel {
+    width: 100%;
+    height: 36px;
+    background-color: white;
+    display: flex;
+    align-items: center;
+}
+
+.control-panel .duration-label {
+    margin-left: 6px;
+    margin-right: 4px;
+}
+
+.control-panel .duration-select {
+    margin-right: 10px;
+}
+
+.control-panel-button {
+    height: 20px;
+}
+
+.cc-logo {
+    width: 84px;
+    height: 36px;
+    min-width: 42px;
+    background-image: url("../images/cc-logo.png");
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.control-panel .right-controls {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.embed-codap-link {
+    margin-right: 8px;
+    margin-top: 4px;
+}
+
+.reload-page {
+    margin-right: 8px;
+}

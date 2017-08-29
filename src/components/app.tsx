@@ -2,6 +2,7 @@ import * as React from "react";
 import Modal from "react-modal";
 import { Sensor } from "../models/sensor";
 import { SensorGraph } from "./sensor-graph";
+import { ControlPanel } from "./control-panel";
 import { Codap } from "../models/codap";
 import { SensorStrings, SensorDefinitions } from "../models/sensor-definitions";
 import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
@@ -95,10 +96,11 @@ export class App extends React.Component<AppProps, AppState> {
     
     onSensorConnect() {
         var sensorInfo = this.sensorConnector.stateMachine.currentActionArgs[1];
-        var sensorType = sensorInfo.currentInterface;
+        var sensorType = sensorInfo && sensorInfo.currentInterface;
         
-        if(sensorType === "None Found") {
+        if(!sensorType || (sensorType === "None Found")) {
             this.setState({
+                sensorType: "",
                 statusMessage: SensorStrings["messages"]["no_sensors"]
             });
         }
@@ -248,9 +250,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.sensorDataByType = {};
     }    
     
-    onTimeSelect(event:React.FormEvent<HTMLSelectElement>) {
-        var newTime = parseInt(event.currentTarget.value,10);
-        
+    onTimeSelect(newTime:number) {
         this.setState({
             runLength: newTime,
             xStart: 0,
@@ -346,41 +346,10 @@ export class App extends React.Component<AppProps, AppState> {
             dataReset={this.state.dataReset}/>;
     }
     
-    renderControls() {
-        const
-            disableStartSensor = this.state.collecting || this.state.hasData,
-            disableStopSensor = !this.state.collecting,
-            disableSendData = !(this.state.hasData && this.state.dataChanged) || this.state.collecting,
-            disableNewData = !this.state.hasData || this.state.collecting;
-        return (
-            <div>
-                <select id="timeSelect" onChange={ this.onTimeSelect } defaultValue="10">
-                    <option value="1">{"1.0" + this.state.timeUnit}</option>
-                    <option value="5">{"5.0" + this.state.timeUnit}</option>
-                    <option value="10">{"10.0" + this.state.timeUnit}</option>
-                    <option value="15">{"15.0" + this.state.timeUnit}</option>
-                    <option value="20">{"20.0" + this.state.timeUnit}</option>
-                    <option value="30">{"30.0" + this.state.timeUnit}</option>
-                    <option value="45">{"45.0" + this.state.timeUnit}</option>
-                    <option value="60">{"60.0" + this.state.timeUnit}</option>
-                </select>
-                <button id="startSensor" 
-                    onClick={this.startSensor}
-                    disabled={disableStartSensor}>Start</button>
-                <button id="stopSensor" 
-                    onClick={this.stopSensor}
-                    disabled={disableStopSensor}>Stop</button>
-                <button id="sendData" 
-                    onClick={this.sendData} 
-                    disabled={disableSendData}>Save Data</button>
-                <button id="newData" 
-                    onClick={this.checkNewData} 
-                    disabled={disableNewData}>New Run</button>
-            </div>
-        );
-    }
-
     render() {
+        var codapURL = window.self === window.top
+                        ? "http://codap.concord.org/releases/latest?di=" + window.location.href
+                        : "";
         return (
             <div>
                 <Modal contentLabel="Discard data?" 
@@ -413,8 +382,6 @@ export class App extends React.Component<AppProps, AppState> {
                         onClick={this.tryReconnectModal}>Try again</button>
                 </Modal>
                 <div>
-                    <button
-                        onClick={this.reload}>Reload</button>
                     <input type="checkbox" 
                         id="toggleGraphBtn"
                         onClick={this.toggleGraph} />
@@ -423,7 +390,20 @@ export class App extends React.Component<AppProps, AppState> {
                 <div>{this.state.statusMessage}</div>
                 {this.renderGraph(this.sensor1, "graph1")}
                 {this.state.secondGraph ? this.renderGraph(this.sensor2, "graph2"): null}
-                {this.renderControls()}
+                <ControlPanel   sensorType={this.state.sensorType}
+                                collecting={this.state.collecting}
+                                hasData={this.state.hasData}
+                                dataChanged={this.state.dataChanged}
+                                duration={10} durationUnit="s"
+                                durationOptions={[1, 5, 10, 15, 20, 30, 45, 60]}
+                                embedInCodapUrl={codapURL}
+                                onDurationChange={this.onTimeSelect}
+                                onStartCollecting={this.startSensor}
+                                onStopCollecting={this.stopSensor}
+                                onNewRun={this.checkNewData}
+                                onSaveData={this.sendData}
+                                onReloadPage={this.reload}
+                />
             </div>
         );
     }

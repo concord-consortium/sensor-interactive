@@ -91,7 +91,8 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
         }
         
         // find the value for the currently selected sensor/unit type
-        var dataColumn = this.getDataColumn(this.props.sensor.valueUnit);
+        var sensorValueUnit = this.props.sensor.valueUnit,
+            dataColumn = sensorValueUnit && this.getDataColumn(sensorValueUnit);
         if(dataColumn) {
             this.setState({sensorValue: dataColumn.liveValue});
         }
@@ -176,11 +177,12 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
     }
     
     renderReading() {
-        var reading = "";
-        if(this.state.sensorValue) {
+        let reading = "";
+        if(this.state.sensorValue != null) {
+            const sensorRange = this.props.sensor.definition.maxReading - this.props.sensor.definition.minReading,
+                  sensorPrecision = Format.getFixValue(sensorRange);
             reading = Format.formatFixedValue(
-                this.state.sensorValue - this.state.tareValue,
-                Format.getFixValue(this.props.sensor.definition.maxReading - this.props.sensor.definition.minReading));
+                this.state.sensorValue - this.state.tareValue, sensorPrecision);
         }
         
         var valueOption = function(valueUnit:string) {
@@ -194,13 +196,14 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
             return jsx;
         };
         
+        const stateValueUnit = this.state.valueUnit || "";
         return <div className="sensor-reading">
                     <label>Reading:</label>
                     {this.props.sensor.definition ? 
-                    <span>{reading + " " + this.state.valueUnit}</span> : null}
+                    <span>{reading + " " + stateValueUnit}</span> : null}
                     <button id="zeroBtn" onClick={this.zeroSensor}>Zero</button>
                     <span>Sensor:</span>
-                    <select onChange={ this.onUnitSelect } defaultValue={this.state.valueUnit}>
+                    <select onChange={ this.onUnitSelect } defaultValue={stateValueUnit}>
                         {this.props.valueUnits.map(valueOption, this)}
                     </select>
                 </div>;
