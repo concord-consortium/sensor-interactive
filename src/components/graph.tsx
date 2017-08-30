@@ -50,7 +50,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             yMin: this.props.yMin,
             yMax: this.props.yMax,
             xLabel: this.props.xLabel,
-            yLabel: "",
+            yLabel: this.props.yLabel,
             xFix: Format.getFixValue(this.props.xMax - this.props.xMin),
             yFix: Format.getFixValue(this.props.yMax - this.props.yMin),
             xAxisFix: Format.getAxisFix(this.props.xMax - this.props.xMin),
@@ -86,7 +86,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     autoScale() {
-        this.dygraph.resetZoom();
+        if (this.state.data && (this.state.data.length > 1))
+            this.dygraph.resetZoom();
     }
     
     onZoom(xStart:number, xEnd:number) {
@@ -171,17 +172,27 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     render() {
-        var style:{width?:number; height?:number} = {};
+        let graphStyle:{width?:number; height?:number} = {};
         if (this.props.width && isFinite(this.props.width))
-            style.width = this.props.width;
+            graphStyle.width = this.props.width;
         if (this.props.height && isFinite(this.props.height))
-            style.height = this.props.height;
+            graphStyle.height = this.props.height;
+
+        // don't show the rescale button if there's no data to scale
+        let buttonStyle:{display?:string} = {},
+            hasData = this.state.data && (this.state.data.length > 1);
+        if (!hasData)
+            buttonStyle.display = "none";
+
         return (
-            <div>
+            <div style={{position: "relative"}}>
+                <div id={"sensor-graph-" + this.props.title} className="graph-box" style={graphStyle}></div>
                 <a onClick={this.autoScale}
-                    className="graph-button"
-                    title="Show all data (autoscale)"><i className="fa fa-arrows"></i></a>
-                <div id={"sensor-graph-" + this.props.title} className="graph-box" style={style}></div>
+                    className="graph-rescale-button"
+                    style={buttonStyle}
+                    title="Show all data (autoscale)">
+                    <i className="fa fa-arrows fa-lg"></i>
+                </a>
             </div>
         );
     }
