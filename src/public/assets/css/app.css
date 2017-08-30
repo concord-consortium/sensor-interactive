@@ -18,6 +18,10 @@ body {
     font-size: 12px;
 }
 
+.dygraph-xlabel {
+    margin-top: 8px;
+}
+
 .sensor-graph-panel {
     width: 100%;
     margin-top: 10px;
@@ -27,10 +31,6 @@ body {
 
 .sensor-graph {
     flex: 1 1;
-}
-
-.graph-box {
-    height: 190px;
 }
 
 .graph-side-panel {

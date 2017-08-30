@@ -5,6 +5,7 @@ import { Format } from "../utils/format";
 export interface GraphProps {
     title:string|undefined;
     width:number;
+    height:number;
     data:number[][];
     onZoom:(xStart:number, xEnd:number) => void;
     xMin:number;
@@ -17,6 +18,7 @@ export interface GraphProps {
 
 export interface GraphState {
     width:number;
+    height:number;
     data:number[][];
     xMin:number;
     xMax:number;
@@ -41,12 +43,13 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         
         this.state = {
             width: this.props.width,
+            height: this.props.height,
             data: this.props.data,
             xMin: this.props.xMin,
             xMax: this.props.xMax,
             yMin: this.props.yMin,
             yMax: this.props.yMax,
-            xLabel: "",
+            xLabel: this.props.xLabel,
             yLabel: "",
             xFix: Format.getFixValue(this.props.xMax - this.props.xMin),
             yFix: Format.getFixValue(this.props.yMax - this.props.yMin),
@@ -54,7 +57,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             yAxisFix: Format.getAxisFix(this.props.yMax - this.props.yMin),
         };
         
-        this.dyUpdateProps = ["width", "xMin", "xMax", "yMin", "yMax", "xLabel", "yLabel"];
+        this.dyUpdateProps = ["width", "height", "xMin", "xMax", "yMin", "yMax", "xLabel", "yLabel"];
         this.autoScale = this.autoScale.bind(this);
         this.onZoom = this.onZoom.bind(this);
     }
@@ -168,12 +171,17 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     render() {
+        var style:{width?:number; height?:number} = {};
+        if (this.props.width && isFinite(this.props.width))
+            style.width = this.props.width;
+        if (this.props.height && isFinite(this.props.height))
+            style.height = this.props.height;
         return (
-            <div style={{width: this.props.width}}>
+            <div>
                 <a onClick={this.autoScale}
                     className="graph-button"
                     title="Show all data (autoscale)"><i className="fa fa-arrows"></i></a>
-                <div id={"sensor-graph-" + this.props.title} className="graph-box"></div>
+                <div id={"sensor-graph-" + this.props.title} className="graph-box" style={style}></div>
             </div>
         );
     }

@@ -333,17 +333,18 @@ export class App extends React.Component<AppProps, AppState> {
         }
     }
     
-    renderGraph(sensor:Sensor, title:string) {
+    renderGraph(sensor:Sensor, title:string, showXLabel:boolean) {
         return <SensorGraph sensor={sensor}
-            title={title} 
-            sensorConnector={this.sensorConnector}
-            onGraphZoom={this.onGraphZoom} 
-            runLength={this.state.runLength}
-            xStart={this.state.xStart}
-            xEnd={this.state.xEnd}
-            valueUnits={this.state.valueUnits}
-            collecting={this.state.collecting}
-            dataReset={this.state.dataReset}/>;
+                            title={title} 
+                            sensorConnector={this.sensorConnector}
+                            onGraphZoom={this.onGraphZoom} 
+                            runLength={this.state.runLength}
+                            xStart={this.state.xStart}
+                            xEnd={this.state.xEnd}
+                            showXLabel={showXLabel}
+                            valueUnits={this.state.valueUnits}
+                            collecting={this.state.collecting}
+                            dataReset={this.state.dataReset}/>;
     }
     
     render() {
@@ -390,8 +391,8 @@ export class App extends React.Component<AppProps, AppState> {
                     </label>
                     <div>{this.state.statusMessage || "\xA0"}</div>
                 </div>
-                {this.renderGraph(this.sensor1, "graph1")}
-                {this.state.secondGraph ? this.renderGraph(this.sensor2, "graph2"): null}
+                {this.renderGraph(this.sensor1, "graph1", !this.state.secondGraph)}
+                {this.state.secondGraph ? this.renderGraph(this.sensor2, "graph2", true): null}
                 <ControlPanel   sensorType={this.state.sensorType}
                                 collecting={this.state.collecting}
                                 hasData={this.state.hasData}

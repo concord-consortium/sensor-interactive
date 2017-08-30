@@ -7,7 +7,9 @@ import { Format } from "../utils/format";
 import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
 import sizeMe from "react-sizeme";
 
-const kSidePanelWidth = 160;
+const kSidePanelWidth = 160,
+      kDefaultGraphHeight = 190,
+      kGraphLabelHeight = 18;
 
 export interface SensorGraphProps {
     size:any;
@@ -21,6 +23,7 @@ export interface SensorGraphProps {
     dataReset:boolean;
     xStart:number;
     xEnd:number;
+    showXLabel:boolean;
 }
 
 export interface SensorGraphState {
@@ -176,7 +179,8 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
     }
 
     renderGraph(graphWidth:number) {
-        const sensorDefinition = this.props.sensor && this.props.sensor.definition,
+        const height = kDefaultGraphHeight + (this.props.showXLabel ? kGraphLabelHeight : 0),
+              sensorDefinition = this.props.sensor && this.props.sensor.definition,
               minReading = sensorDefinition && sensorDefinition.minReading,
               maxReading = sensorDefinition && sensorDefinition.maxReading,
               measurementName = (sensorDefinition && sensorDefinition.measurementName) || "",
@@ -186,13 +190,14 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
               <Graph 
                 title={this.props.title}
                 width={graphWidth}
+                height={height}
                 data={this.state.sensorData} 
                 onZoom={this.props.onGraphZoom}
                 xMin={this.props.xStart}
                 xMax={this.props.xEnd}
                 yMin={minReading != null ? minReading : 0}
                 yMax={maxReading != null ? maxReading : 10}
-                xLabel={`Time (${this.state.timeUnit})`}
+                xLabel={this.props.showXLabel ? `Time (${this.state.timeUnit})` : ""}
                 yLabel={`${measurementName} (${stateValueUnit})`}/>
             </div>
         );
