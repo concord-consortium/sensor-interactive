@@ -4,6 +4,7 @@ import { Format } from "../utils/format";
 
 export interface GraphProps {
     title:string|undefined;
+    width:number;
     data:number[][];
     onZoom:(xStart:number, xEnd:number) => void;
     xMin:number;
@@ -15,6 +16,7 @@ export interface GraphProps {
 }
 
 export interface GraphState {
+    width:number;
     data:number[][];
     xMin:number;
     xMax:number;
@@ -31,12 +33,14 @@ export interface GraphState {
 export class Graph extends React.Component<GraphProps, GraphState> {
     
     private dygraph:Dygraph;
+    private dyUpdateProps:string[];
     private lastLabel:number = 0;
     
     constructor(props: GraphProps) {
         super(props);
         
         this.state = {
+            width: this.props.width,
             data: this.props.data,
             xMin: this.props.xMin,
             xMax: this.props.xMax,
@@ -50,6 +54,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             yAxisFix: Format.getAxisFix(this.props.yMax - this.props.yMin),
         };
         
+        this.dyUpdateProps = ["width", "xMin", "xMax", "yMin", "yMax", "xLabel", "yLabel"];
         this.autoScale = this.autoScale.bind(this);
         this.onZoom = this.onZoom.bind(this);
     }
@@ -74,6 +79,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             xlabel: this.state.xLabel,
             ylabel: this.state.yLabel
         });
+        this.dygraph.resize();
     }
 
     autoScale() {
@@ -130,8 +136,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         var data = this.checkData(nextProps.data);
         
         var newState:any = {};
-        var updateProps = ["xMin", "xMax", "yMin", "yMax", "xLabel", "yLabel"];
-        updateProps.forEach((prop)=> {
+        this.dyUpdateProps.forEach((prop)=> {
             if(nextProps[prop] !== this.props[prop]) {
                 newState[prop] = nextProps[prop];
             }
@@ -154,13 +159,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
     
     shouldComponentUpdate(nextProps, nextState):boolean {
-        if(nextState.data.length !== this.state.data.length ||
-          nextState.xMax !== this.state.xMax ||
-          nextState.xLabel !== this.state.xLabel ||
-          nextState.yLabel !== this.state.yLabel) {
-            return true;
-        }
-        return false;
+        return (nextState.data.length !== this.state.data.length) ||
+                this.dyUpdateProps.some((prop) => nextState[prop] !== this.state[prop]);
     }
     
     componentDidUpdate(prevProps, prevState) {
@@ -169,7 +169,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
     render() {
         return (
-            <div>
+            <div style={{width: this.props.width}}>
                 <a onClick={this.autoScale}
                     className="graph-button"
                     title="Show all data (autoscale)"><i className="fa fa-arrows"></i></a>

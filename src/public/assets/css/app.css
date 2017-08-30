@@ -4,21 +4,61 @@ body {
     font-size: 12px;
 }
 
+.app-top-bar {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+}
+
+.two-sensors-checkbox {
+    margin-right: 70px;
+}
+
 .dygraph-label {
     font-size: 12px;
 }
 
-.sensor-reading  * {
-    margin-right: 8px;
+.sensor-graph-panel {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: flex;
 }
 
 .sensor-graph {
-    margin-top: 10px;
-    margin-bottom: 10px;
+    flex: 1 1;
 }
 
 .graph-box {
     height: 190px;
+}
+
+.graph-side-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.side-panel-item {
+    height: 24px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.sensor-reading {
+    text-align: center;
+}
+
+.sensor-select {
+    background-color: #eee;
+}
+
+.zero-button {
+    width: 100px;
+    background-color: #eee;
+    border-radius: 4px;
+    margin-left: 33px;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 .control-panel {
@@ -35,18 +75,28 @@ body {
 }
 
 .control-panel .duration-select {
-    margin-right: 10px;
+    margin-right: 16px;
+}
+
+.control-panel-select {
+    height: 20px;
+    background-color: #eee;
 }
 
 .control-panel-button {
-    height: 20px;
+    width: 80px;
+    height: 22px;
+    background-color: #eee;
+    border-radius: 4px;
 }
 
 .cc-logo {
     width: 84px;
     height: 36px;
     min-width: 42px;
-    background-image: url("../images/cc-logo.png");
+    margin-left: 6px;
+    margin-right: 10px;
+    background-image: url("../images/cc-logo-crop.png");
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;

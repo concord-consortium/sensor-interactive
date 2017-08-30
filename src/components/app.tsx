@@ -381,13 +381,15 @@ export class App extends React.Component<AppProps, AppState> {
                     <button 
                         onClick={this.tryReconnectModal}>Try again</button>
                 </Modal>
-                <div>
-                    <input type="checkbox" 
-                        id="toggleGraphBtn"
-                        onClick={this.toggleGraph} />
+                <div className="app-top-bar">
+                    <label className="two-sensors-checkbox">
+                        <input type="checkbox" 
+                            id="toggleGraphBtn"
+                            onClick={this.toggleGraph} />
                         Two sensors
+                    </label>
+                    <div>{this.state.statusMessage || "\xA0"}</div>
                 </div>
-                <div>{this.state.statusMessage}</div>
                 {this.renderGraph(this.sensor1, "graph1")}
                 {this.state.secondGraph ? this.renderGraph(this.sensor2, "graph2"): null}
                 <ControlPanel   sensorType={this.state.sensorType}
