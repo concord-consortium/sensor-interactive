@@ -20,13 +20,13 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
         sensorUnitStr = sensorUnit || "";
   
   const handleZeroSensor = () => {
-    if (props.onZeroSensor)
-      props.onZeroSensor();
+    if (onZeroSensor)
+      onZeroSensor();
   };
 
   const handleSensorChange = (evt:React.FormEvent<HTMLSelectElement>) => {
-    if (props.onSensorChange)
-      props.onSensorChange(evt.currentTarget.value);
+    if (onSensorChange)
+      onSensorChange(evt.currentTarget.value);
   };
 
   const sensorReading = () => {
@@ -62,7 +62,7 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
       <select className="sensor-select side-panel-item" onChange={handleSensorChange} defaultValue={sensorUnitStr}>
         {sensorUnitOptions(sensorUnits)}
       </select>
-      <button className="zero-button side-panel-item" onClick={this.handleZeroSensor}>Zero Sensor</button>
+      <button className="zero-button side-panel-item" onClick={handleZeroSensor}>Zero Sensor</button>
     </div>
   );
 };

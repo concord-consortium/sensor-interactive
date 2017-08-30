@@ -36,7 +36,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     
     private dygraph:Dygraph;
     private dyUpdateProps:string[];
-    private lastLabel:number = 0;
     
     constructor(props: GraphProps) {
         super(props);
@@ -146,8 +145,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             }
         });
         
-        if(nextProps.data.length !== this.state.data.length) {
-            newState.data = nextProps.data;
+        if(data.length !== this.state.data.length) {
+            newState.data = data;
         }
         
         if(newState.yMax) {

@@ -2,8 +2,7 @@ import * as React from "react";
 import { Sensor } from "../models/sensor";
 import { Graph } from "./graph";
 import { GraphSidePanel } from "./graph-side-panel";
-import { SensorStrings, SensorDefinitions } from "../models/sensor-definitions";
-import { Format } from "../utils/format";
+import { SensorDefinitions } from "../models/sensor-definitions";
 import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
 import sizeMe from "react-sizeme";
 
