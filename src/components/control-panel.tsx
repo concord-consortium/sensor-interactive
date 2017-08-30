@@ -61,8 +61,13 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
         onClick={this.sendData} 
         disabled={disableSendData}>Save Data</button>
       <div className="right-controls">
-        <button className="reload-page control-panel-button"
-                onClick={props.onReloadPage}>Reload</button>
+        <div>
+          <a onClick={props.onReloadPage}
+              className="reload-page-button"
+              title="Reload page">
+              <i className="fa fa-repeat fa-2x"></i>
+          </a>
+        </div>
         {renderEmbedInCodapUrl(props.embedInCodapUrl)}
       </div>
     </div>

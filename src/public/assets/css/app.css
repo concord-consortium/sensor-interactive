@@ -116,10 +116,11 @@ body {
 }
 
 .embed-codap-link {
-    margin-right: 8px;
     margin-top: 4px;
+    margin-right: 16px;
 }
 
-.reload-page {
-    margin-right: 8px;
+.reload-page-button {
+    margin-right: 16px;
+    opacity: 0.5;
 }
