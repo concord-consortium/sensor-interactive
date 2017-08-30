@@ -333,7 +333,7 @@ export class App extends React.Component<AppProps, AppState> {
         }
     }
     
-    renderGraph(sensor:Sensor, title:string, showXLabel:boolean) {
+    renderGraph(sensor:Sensor, title:string, isSingletonGraph:boolean, isLastGraph:boolean = isSingletonGraph) {
         return <SensorGraph sensor={sensor}
                             title={title} 
                             sensorConnector={this.sensorConnector}
@@ -341,7 +341,8 @@ export class App extends React.Component<AppProps, AppState> {
                             runLength={this.state.runLength}
                             xStart={this.state.xStart}
                             xEnd={this.state.xEnd}
-                            showXLabel={showXLabel}
+                            isSingletonGraph={isSingletonGraph}
+                            isLastGraph={isLastGraph}
                             valueUnits={this.state.valueUnits}
                             collecting={this.state.collecting}
                             dataReset={this.state.dataReset}/>;
@@ -392,7 +393,9 @@ export class App extends React.Component<AppProps, AppState> {
                     <div>{this.state.statusMessage || "\xA0"}</div>
                 </div>
                 {this.renderGraph(this.sensor1, "graph1", !this.state.secondGraph)}
-                {this.state.secondGraph ? this.renderGraph(this.sensor2, "graph2", true): null}
+                {this.state.secondGraph
+                    ? this.renderGraph(this.sensor2, "graph2", false, true)
+                    : null}
                 <ControlPanel   sensorType={this.state.sensorType}
                                 collecting={this.state.collecting}
                                 hasData={this.state.hasData}

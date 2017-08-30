@@ -8,9 +8,12 @@ import SensorConnectorInterface from "@concord-consortium/sensor-connector-inter
 import sizeMe from "react-sizeme";
 
 const kSidePanelWidth = 160,
-      kDefaultGraphHeight = 190,
-      kGraphLabelHeight = 18;
-
+      kPairedGraphHeight = 190,
+      kGraphLabelHeight = 18,
+      kGraphWithLabelHeight = kPairedGraphHeight + kGraphLabelHeight,
+      kBetweenGraphMargin = 10,
+      kSingletonGraphHeight = kGraphWithLabelHeight + kBetweenGraphMargin + kPairedGraphHeight;
+      
 export interface SensorGraphProps {
     size:any;
     sensorConnector:SensorConnectorInterface;
@@ -23,7 +26,8 @@ export interface SensorGraphProps {
     dataReset:boolean;
     xStart:number;
     xEnd:number;
-    showXLabel:boolean;
+    isSingletonGraph:boolean;
+    isLastGraph:boolean;
 }
 
 export interface SensorGraphState {
@@ -179,7 +183,9 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
     }
 
     renderGraph(graphWidth:number) {
-        const height = kDefaultGraphHeight + (this.props.showXLabel ? kGraphLabelHeight : 0),
+        const height = this.props.isSingletonGraph
+                        ? kSingletonGraphHeight
+                        : (this.props.isLastGraph ? kGraphWithLabelHeight : kPairedGraphHeight),
               sensorDefinition = this.props.sensor && this.props.sensor.definition,
               minReading = sensorDefinition && sensorDefinition.minReading,
               maxReading = sensorDefinition && sensorDefinition.maxReading,
@@ -197,7 +203,7 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
                 xMax={this.props.xEnd}
                 yMin={minReading != null ? minReading : 0}
                 yMax={maxReading != null ? maxReading : 10}
-                xLabel={this.props.showXLabel ? `Time (${this.state.timeUnit})` : ""}
+                xLabel={this.props.isLastGraph ? `Time (${this.state.timeUnit})` : ""}
                 yLabel={`${measurementName} (${stateValueUnit})`}/>
             </div>
         );
