@@ -29,7 +29,9 @@ export class Format {
     static getAxisFix(range:number):number {
         var stepSize = range / 10;
         var precision;
-        if(stepSize < 5) {
+        if(stepSize < 1) {
+            precision = Math.round(-Math.log10(stepSize) + 0.5);
+        } else if(stepSize < 5) {
             precision = Math.round(-Math.log10(stepSize));
         } else {
             precision = 0;

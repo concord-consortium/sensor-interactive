@@ -189,7 +189,10 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
               minReading = sensorDefinition && sensorDefinition.minReading,
               maxReading = sensorDefinition && sensorDefinition.maxReading,
               measurementName = (sensorDefinition && sensorDefinition.measurementName) || "",
-              stateValueUnit = this.state.valueUnit || "";
+              stateValueUnit = this.state.valueUnit || "",
+              yLabel = measurementName
+                        ? `${measurementName} (${stateValueUnit})`
+                        : "Sensor Reading (-)";
         return (
             <div className="sensor-graph">
               <Graph 
@@ -203,7 +206,7 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
                 yMin={minReading != null ? minReading : 0}
                 yMax={maxReading != null ? maxReading : 10}
                 xLabel={this.props.isLastGraph ? `Time (${this.state.timeUnit})` : ""}
-                yLabel={`${measurementName} (${stateValueUnit})`}/>
+                yLabel={yLabel} />
             </div>
         );
     }

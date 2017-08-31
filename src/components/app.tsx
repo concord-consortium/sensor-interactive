@@ -51,7 +51,7 @@ export class App extends React.Component<AppProps, AppState> {
             collecting:false,
             runLength:10,
             xStart:0,
-            xEnd:11,
+            xEnd:10.01, // without the .01, last tick number sometimes fails to display
             timeUnit:"",
             warnNewModal:false,
             reconnectModal:false,
@@ -254,7 +254,8 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({
             runLength: newTime,
             xStart: 0,
-            xEnd: newTime * 1.2
+            // without the .01, last tick number sometimes fails to display
+            xEnd: newTime + 0.01
         });
     }
     

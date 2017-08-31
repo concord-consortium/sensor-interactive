@@ -1,6 +1,11 @@
 body {
     background-color: #F9EDC3;
-    font-family: Arial;
+    font-family: Lato, Verdana, Geneva, sans-serif;
+    font-size: 12px;
+}
+
+input, textarea, select, button {
+    font-family: Lato, Verdana, Geneva, sans-serif;    
     font-size: 12px;
 }
 
@@ -11,7 +16,7 @@ body {
 }
 
 .two-sensors-checkbox {
-    margin-right: 70px;
+    margin-right: 62px;
 }
 
 .dygraph-label {
@@ -37,6 +42,11 @@ body {
     position: absolute;
     top: 10px;
     right: 15px;
+    opacity: 0.5;
+}
+
+.graph-rescale-button:hover {
+    opacity: 1;
 }
 
 .graph-side-panel {
@@ -69,7 +79,8 @@ body {
 
 .control-panel {
     width: 100vw;
-    height: 36px;
+    height: 40px;
+    margin-top: 20px;
     margin-left: -8px;
     background-color: white;
     display: flex;
@@ -86,20 +97,21 @@ body {
 }
 
 .control-panel-select {
-    height: 20px;
+    height: 24px;
     background-color: #eee;
 }
 
 .control-panel-button {
     width: 80px;
-    height: 22px;
+    height: 26px;
     background-color: #eee;
     border-radius: 4px;
 }
 
 .cc-logo {
-    width: 84px;
-    height: 36px;
+    /* 354 x 110 native */
+    width: 122px;
+    height: 38px;
     min-width: 42px;
     margin-left: 6px;
     margin-right: 10px;
@@ -123,4 +135,8 @@ body {
 .reload-page-button {
     margin-right: 16px;
     opacity: 0.5;
+}
+
+.reload-page-button:hover {
+    opacity: 1;
 }

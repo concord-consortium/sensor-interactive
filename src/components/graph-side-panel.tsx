@@ -53,7 +53,8 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
   };
 
   const width = props.width && isFinite(props.width) ? props.width : null,
-        style = width ? { flex: `0 0 ${width}px` } : {};
+        style = width ? { flex: `0 0 ${width}px` } : {},
+        disableZeroSensor = !sensorDefinition || !sensorDefinition.tareable;
   return (
     <div className="graph-side-panel" style={style}>
       <label className="reading-label side-panel-item">Reading:</label>
@@ -62,7 +63,9 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
       <select className="sensor-select side-panel-item" onChange={handleSensorChange} defaultValue={sensorUnitStr}>
         {sensorUnitOptions(sensorUnits)}
       </select>
-      <button className="zero-button side-panel-item" onClick={handleZeroSensor}>Zero Sensor</button>
+      <button className="zero-button side-panel-item" onClick={handleZeroSensor} disabled={disableZeroSensor}>
+        Zero Sensor
+      </button>
     </div>
   );
 };
