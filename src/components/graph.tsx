@@ -14,6 +14,7 @@ export interface GraphProps {
     yMax:number;
     xLabel:string|undefined;
     yLabel:string|undefined;
+    [key:string]: any;
 }
 
 export interface GraphState {
@@ -30,6 +31,7 @@ export interface GraphState {
     yFix:number;
     xAxisFix:number;
     yAxisFix:number;
+    [key:string]: any;
 }
 
 export class Graph extends React.Component<GraphProps, GraphState> {
@@ -81,7 +83,11 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             xlabel: this.state.xLabel,
             ylabel: this.state.yLabel
         });
-        this.dygraph.resize();
+
+        // override @types/dygraphs definition to allow no arguments
+        // (which is explicitly described by the docs as resizing to parent div)
+        type FResize = (width?:number, height?:number) => void;
+        (this.dygraph.resize as FResize)();
     }
 
     autoScale() {
@@ -128,7 +134,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             xlabel: this.state.xLabel,
             ylabel: this.state.yLabel,
             legend: "follow",
-            underlayCallback: function(canvas, area, g) {
+            underlayCallback: function(canvas:any, area:any, g:any) {
                 canvas.fillStyle = "rgba(255, 255, 255, 1.0)";
                 canvas.fillRect(area.x, area.y, area.w, area.h);
             }
@@ -161,12 +167,12 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         this.setState(newState);
     }
     
-    shouldComponentUpdate(nextProps, nextState):boolean {
+    shouldComponentUpdate(nextProps:GraphProps, nextState:GraphState):boolean {
         return (nextState.data.length !== this.state.data.length) ||
                 this.dyUpdateProps.some((prop) => nextState[prop] !== this.state[prop]);
     }
     
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(prevProps:GraphProps, prevState:GraphState) {
         this.update();
     }
 

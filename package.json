@@ -37,8 +37,10 @@
     "react-sizeme": "^2.3.4"
   },
   "devDependencies": {
+    "@types/dygraphs": "^1.1.4",
     "@types/react": "^16.0.5",
     "@types/react-dom": "^15.5.4",
+    "@types/react-modal": "^2.2.1",
     "awesome-typescript-loader": "^3.2.3",
     "cross-env": "^4.0.0",
     "live-server": "^1.2.0",

@@ -97,7 +97,7 @@ export class Codap {
             .then((iResult:any) => {
                 if (iResult.success) {
                     // look for a case table in the list of components.
-                    if (iResult.values && iResult.values.some(function (component) {
+                    if (iResult.values && iResult.values.some(function (component:any) {
                         return component.type === 'caseTable';
                     })) {
                         resolve(iResult);
@@ -136,7 +136,7 @@ export class Codap {
             var entry = data[i];
             var time = entry[0];
             var value = <number>entry[1];
-            var item = {Run: this.state.runNumber, Time: time};
+            var item:any = {Run: this.state.runNumber, Time: time};
             item[dataType] = value;
             items.push(item);
         }
@@ -180,9 +180,9 @@ export class Codap {
         var sampleCount = Math.max(data1.length, data2.length);
         
         var items:any[] = [];
-        
-        this.dataSetTemplate.collections[1]["attrs"][1] = {name: data1Type, type: 'numeric', precision: 4};
-        this.dataSetTemplate.collections[1]["attrs"][2] = {name: data2Type, type: 'numeric', precision: 4};
+        var collection:any = this.dataSetTemplate.collections[1];
+        collection.attrs[1] = {name: data1Type, type: 'numeric', precision: 4};
+        collection.attrs[2] = {name: data2Type, type: 'numeric', precision: 4};
         
         for(var i=0; i < sampleCount; i++) {
             var entry1 = data1[i];
@@ -190,7 +190,7 @@ export class Codap {
             var time = entry1[0];
             var value1 = <number>entry1[1];
             var value2 = <number>entry2[1];
-            var item = {Run: this.state.runNumber, Time: time};
+            var item:any = {Run: this.state.runNumber, Time: time};
             item[data1Type] = value1;
             item[data2Type] = value2;
             items.push(item);

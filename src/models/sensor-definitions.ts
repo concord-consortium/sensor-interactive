@@ -2,7 +2,15 @@
 
 /* tslint:disable:max-line-length */
 
-export const SensorStrings = {
+export interface IStringMap {
+  [key:string]: string;
+}
+
+export interface ISensorStrings {
+  [key:string]: string|IStringMap;
+}
+
+export const SensorStrings:ISensorStrings = {
     "select_sensor": "Select Sensor",
     "select_sensor_type": "Select type of sensor...",
     "reading": "Reading:",
@@ -148,11 +156,24 @@ export class i18n { // tslint:disable-line:class-name
     static t(id:string): string {
         var category = id.substring(id.indexOf(".")+1, id.lastIndexOf("."));
         var prop = id.substring(id.lastIndexOf(".")+1);
-        return SensorStrings[category][prop];
+        return (SensorStrings[category] as IStringMap)[prop];
     }
 }
 
-export const SensorDefinitions = {
+export interface ISensorDefinition {
+  sensorName:string|null;
+  measurementName:string;
+  measurementType:string;
+  tareable:boolean;
+  minReading:number;
+  maxReading:number;
+}
+
+export interface ISensorDefinitions {
+  [key:string]: ISensorDefinition;
+}
+
+export const SensorDefinitions:ISensorDefinitions = {
   "lux": {
     "sensorName": i18n.t("sensor.names.light"),
     "measurementName": i18n.t("sensor.measurements.light_level"),
