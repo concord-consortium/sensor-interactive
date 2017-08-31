@@ -21,6 +21,7 @@ input, textarea, select, button {
 
 .two-sensors-checkbox {
     margin-right: 62px;
+    user-select: none;
 }
 
 .dygraph-label {
@@ -40,6 +41,7 @@ input, textarea, select, button {
 
 .sensor-graph {
     flex: 1 1;
+    user-select: none;
 }
 
 .graph-rescale-button {
@@ -56,6 +58,7 @@ input, textarea, select, button {
 .graph-side-panel {
     display: flex;
     flex-direction: column;
+    user-select: none;
 }
 
 .side-panel-item {
@@ -89,6 +92,7 @@ input, textarea, select, button {
     background-color: white;
     display: flex;
     align-items: center;
+    user-select: none;
 }
 
 .control-panel .duration-label {
