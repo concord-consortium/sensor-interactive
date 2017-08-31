@@ -9,6 +9,10 @@ input, textarea, select, button {
     font-size: 12px;
 }
 
+.disable-focus-highlight {
+    outline: none;
+}
+
 .app-top-bar {
     display: flex;
     flex-direction: row-reverse;

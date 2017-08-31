@@ -119,7 +119,8 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
         }
         
         var timeColumn = dataset.columns[0].data;
-        var valueColumn = this.getDataColumn(this.props.sensor.valueUnit, dataset).data;
+        var dataColumn = this.getDataColumn(this.props.sensor.valueUnit, dataset);
+        var valueColumn = dataColumn && dataColumn.data;
         
         // columns aren't always updated together
         var newLength = Math.min(timeColumn.length, valueColumn.length);

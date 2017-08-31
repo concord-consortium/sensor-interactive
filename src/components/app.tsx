@@ -6,6 +6,7 @@ import { ControlPanel } from "./control-panel";
 import { Codap } from "../models/codap";
 import { IStringMap, SensorStrings, SensorDefinitions } from "../models/sensor-definitions";
 import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
+import SmartFocusHighlight from "../utils/smart-focus-highlight";
 
 const SENSOR_IP = "http://127.0.0.1:11180";
 
@@ -90,6 +91,10 @@ export class App extends React.Component<AppProps, AppState> {
         this.toggleWarning = this.toggleWarning.bind(this);
         this.toggleGraph = this.toggleGraph.bind(this);
         this.reload = this.reload.bind(this);
+    }
+
+    componentDidMount() {
+        SmartFocusHighlight.enableFocusHighlightOnKeyDown();
     }
     
     connectCodap() {
