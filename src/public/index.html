@@ -6,27 +6,17 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" href="favicon.ico" type="image/vnd.microsoft.icon" />
+    <!-- TODO: bundle with WebPack -->
+    <link rel="stylesheet" href="assets/fonts/font-awesome-4.7.0/css/font-awesome.css">
     <link rel="stylesheet" href="assets/css/dygraph.css">
     <link rel="stylesheet" href="assets/css/app.css">
   </head>
   <body>
     <div id="app"></div>
-    <a id="codapLink">Embed in CODAP</a>
         
     <script src="./assets/js/globals.js"></script>
     <script src="./assets/js/iframe-phone.js"></script>
     <script src="./assets/js/CodapInterface.js"></script>
     <script src="./assets/js/app.js"></script>
-      
-    <script>
-        var codapURL = "http://codap.concord.org/releases/latest?di=";
-        var codapLink = document.getElementById("codapLink");
-        
-        if(window.self != window.top) {
-            codapLink.parentNode.removeChild(codapLink);
-        } else {
-            codapLink.href = codapURL + window.location.href;
-        }
-    </script>
   </body>
 </html>

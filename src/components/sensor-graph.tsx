@@ -1,12 +1,20 @@
 import * as React from "react";
 import { Sensor } from "../models/sensor";
 import { Graph } from "./graph";
-import { SensorStrings, SensorDefinitions } from "../models/sensor-definitions";
-import { Format } from "../utils/format";
+import { GraphSidePanel } from "./graph-side-panel";
+import { SensorDefinitions } from "../models/sensor-definitions";
 import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
+import sizeMe from "react-sizeme";
 
-
+const kSidePanelWidth = 160,
+      kPairedGraphHeight = 190,
+      kGraphLabelHeight = 18,
+      kGraphWithLabelHeight = kPairedGraphHeight + kGraphLabelHeight,
+      kBetweenGraphMargin = 10,
+      kSingletonGraphHeight = kGraphWithLabelHeight + kBetweenGraphMargin + kPairedGraphHeight;
+      
 export interface SensorGraphProps {
+    size:any;
     sensorConnector:SensorConnectorInterface;
     sensor:Sensor;
     title:string;
@@ -17,6 +25,8 @@ export interface SensorGraphProps {
     dataReset:boolean;
     xStart:number;
     xEnd:number;
+    isSingletonGraph:boolean;
+    isLastGraph:boolean;
 }
 
 export interface SensorGraphState {
@@ -29,7 +39,7 @@ export interface SensorGraphState {
     valueUnit:string;
 }
 
-export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphState> {
+export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGraphState> {
     
     sensor:Sensor;
     lastDataIndex:number = 0;
@@ -47,11 +57,6 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
             valueUnit: this.props.sensor.valueUnit
         };
         
-        this.onUnitSelect = this.onUnitSelect.bind(this);
-        this.zeroSensor = this.zeroSensor.bind(this);
-        this.onSensorStatus = this.onSensorStatus.bind(this);
-        this.onSensorData = this.onSensorData.bind(this);
-        
         this.props.sensorConnector.on("statusReceived", this.onSensorStatus);
         this.props.sensorConnector.on("data", this.onSensorData);
     }
@@ -61,8 +66,8 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
         this.props.sensorConnector.off("data", this.onSensorData);
     }
     
-    onUnitSelect(event:React.FormEvent<HTMLSelectElement>) {
-        this.setUnit(event.currentTarget.value);
+    onUnitSelect = (unit:string) => {
+        this.setUnit(unit);
     }
     
     setUnit(valueUnit:string) {
@@ -79,25 +84,26 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
         });
     }
     
-    zeroSensor() {
+    zeroSensor = () => {
         this.setState({
             tareValue: this.state.sensorValue || 0
         });
     }
     
-    onSensorStatus(e) {
+    onSensorStatus = (e) => {
         if(!this.state.valueUnit) {
             this.setUnit(this.props.valueUnits[0]);
         }
         
         // find the value for the currently selected sensor/unit type
-        var dataColumn = this.getDataColumn(this.props.sensor.valueUnit);
+        var sensorValueUnit = this.props.sensor.valueUnit,
+            dataColumn = sensorValueUnit && this.getDataColumn(sensorValueUnit);
         if(dataColumn) {
             this.setState({sensorValue: dataColumn.liveValue});
         }
     }
     
-    onSensorData(setId:string) {
+    onSensorData = (setId:string) => {
         if(!this.props.collecting) {
             return;
         }
@@ -174,55 +180,65 @@ export class SensorGraph extends React.Component<SensorGraphProps, SensorGraphSt
         if(nextProps.valueUnits) return true;
         return false;
     }
-    
-    renderReading() {
-        var reading = "";
-        if(this.state.sensorValue) {
-            reading = Format.formatFixedValue(
-                this.state.sensorValue - this.state.tareValue,
-                Format.getFixValue(this.props.sensor.definition.maxReading - this.props.sensor.definition.minReading));
-        }
-        
-        var valueOption = function(valueUnit:string) {
-            var sensorDef = SensorDefinitions[valueUnit];
-            if(!sensorDef) {
-                return null;
-            }
-            var measurementName = sensorDef.measurementName;
-            var jsx = <option key={valueUnit} value={valueUnit}>
-                    {measurementName + " ("+valueUnit+")"}</option>;
-            return jsx;
-        };
-        
-        return <div className="sensor-reading">
-                    <label>Reading:</label>
-                    {this.props.sensor.definition ? 
-                    <span>{reading + " " + this.state.valueUnit}</span> : null}
-                    <button id="zeroBtn" onClick={this.zeroSensor}>Zero</button>
-                    <span>Sensor:</span>
-                    <select onChange={ this.onUnitSelect } defaultValue={this.state.valueUnit}>
-                        {this.props.valueUnits.map(valueOption, this)}
-                    </select>
-                </div>;
+
+    renderGraph(graphWidth:number) {
+        const height = this.props.isSingletonGraph
+                        ? kSingletonGraphHeight
+                        : (this.props.isLastGraph ? kGraphWithLabelHeight : kPairedGraphHeight),
+              sensorDefinition = this.props.sensor && this.props.sensor.definition,
+              minReading = sensorDefinition && sensorDefinition.minReading,
+              maxReading = sensorDefinition && sensorDefinition.maxReading,
+              measurementName = (sensorDefinition && sensorDefinition.measurementName) || "",
+              stateValueUnit = this.state.valueUnit || "",
+              yLabel = measurementName
+                        ? `${measurementName} (${stateValueUnit})`
+                        : "Sensor Reading (-)";
+        return (
+            <div className="sensor-graph">
+              <Graph 
+                title={this.props.title}
+                width={graphWidth}
+                height={height}
+                data={this.state.sensorData} 
+                onZoom={this.props.onGraphZoom}
+                xMin={this.props.xStart}
+                xMax={this.props.xEnd}
+                yMin={minReading != null ? minReading : 0}
+                yMax={maxReading != null ? maxReading : 10}
+                xLabel={this.props.isLastGraph ? `Time (${this.state.timeUnit})` : ""}
+                yLabel={yLabel} />
+            </div>
+        );
+    }
+
+    renderSidePanel() {
+        return (
+          <GraphSidePanel
+            width={kSidePanelWidth}
+            sensorDefinition={this.props.sensor.definition}
+            sensorValue={this.state.sensorValue}
+            sensorTareValue={this.state.tareValue}
+            sensorUnit={this.state.valueUnit}
+            sensorUnits={this.props.valueUnits}
+            onZeroSensor={this.zeroSensor}
+            onSensorChange={this.onUnitSelect} />
+        );
     }
     
     render() {
-        
+        const { width } = this.props.size,
+              graphWidth = width - kSidePanelWidth;
         return (
-            <div className="sensor-graph">
-                {this.renderReading()}
-                <Graph 
-                   title={this.props.title}
-                   data={this.state.sensorData} 
-                   onZoom={this.props.onGraphZoom}
-                   xMin={this.props.xStart}
-                   xMax={this.props.xEnd}
-                   yMin={this.props.sensor.definition.minReading}
-                   yMax={this.props.sensor.definition.maxReading}
-                   xLabel={"Time (" + this.state.timeUnit + ")"} 
-                   yLabel={this.props.sensor.definition.measurementName + " (" + this.state.valueUnit + ")"}/>
+            <div className="sensor-graph-panel">
+                {this.renderGraph(graphWidth)}
+                {this.renderSidePanel()}
             </div>
         );
-            
     }
 }
+
+const sizeMeConfig = {
+        monitorWidth: true,
+        noPlaceholder: true
+      };
+export const SensorGraph = sizeMe(sizeMeConfig)(SensorGraphImp);

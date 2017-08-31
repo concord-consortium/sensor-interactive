@@ -4,6 +4,8 @@ import { Format } from "../utils/format";
 
 export interface GraphProps {
     title:string|undefined;
+    width:number;
+    height:number;
     data:number[][];
     onZoom:(xStart:number, xEnd:number) => void;
     xMin:number;
@@ -15,6 +17,8 @@ export interface GraphProps {
 }
 
 export interface GraphState {
+    width:number;
+    height:number;
     data:number[][];
     xMin:number;
     xMax:number;
@@ -31,25 +35,28 @@ export interface GraphState {
 export class Graph extends React.Component<GraphProps, GraphState> {
     
     private dygraph:Dygraph;
-    private lastLabel:number = 0;
+    private dyUpdateProps:string[];
     
     constructor(props: GraphProps) {
         super(props);
         
         this.state = {
+            width: this.props.width,
+            height: this.props.height,
             data: this.props.data,
             xMin: this.props.xMin,
             xMax: this.props.xMax,
             yMin: this.props.yMin,
             yMax: this.props.yMax,
-            xLabel: "",
-            yLabel: "",
+            xLabel: this.props.xLabel,
+            yLabel: this.props.yLabel,
             xFix: Format.getFixValue(this.props.xMax - this.props.xMin),
             yFix: Format.getFixValue(this.props.yMax - this.props.yMin),
             xAxisFix: Format.getAxisFix(this.props.xMax - this.props.xMin),
             yAxisFix: Format.getAxisFix(this.props.yMax - this.props.yMin),
         };
         
+        this.dyUpdateProps = ["width", "height", "xMin", "xMax", "yMin", "yMax", "xLabel", "yLabel"];
         this.autoScale = this.autoScale.bind(this);
         this.onZoom = this.onZoom.bind(this);
     }
@@ -74,10 +81,12 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             xlabel: this.state.xLabel,
             ylabel: this.state.yLabel
         });
+        this.dygraph.resize();
     }
 
     autoScale() {
-        this.dygraph.resetZoom();
+        if (this.state.data && (this.state.data.length > 1))
+            this.dygraph.resetZoom();
     }
     
     onZoom(xStart:number, xEnd:number) {
@@ -130,15 +139,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         var data = this.checkData(nextProps.data);
         
         var newState:any = {};
-        var updateProps = ["xMin", "xMax", "yMin", "yMax", "xLabel", "yLabel"];
-        updateProps.forEach((prop)=> {
+        this.dyUpdateProps.forEach((prop)=> {
             if(nextProps[prop] !== this.props[prop]) {
                 newState[prop] = nextProps[prop];
             }
         });
         
-        if(nextProps.data.length !== this.state.data.length) {
-            newState.data = nextProps.data;
+        if(data.length !== this.state.data.length) {
+            newState.data = data;
         }
         
         if(newState.yMax) {
@@ -154,13 +162,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
     
     shouldComponentUpdate(nextProps, nextState):boolean {
-        if(nextState.data.length !== this.state.data.length ||
-          nextState.xMax !== this.state.xMax ||
-          nextState.xLabel !== this.state.xLabel ||
-          nextState.yLabel !== this.state.yLabel) {
-            return true;
-        }
-        return false;
+        return (nextState.data.length !== this.state.data.length) ||
+                this.dyUpdateProps.some((prop) => nextState[prop] !== this.state[prop]);
     }
     
     componentDidUpdate(prevProps, prevState) {
@@ -168,12 +171,27 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     render() {
+        let graphStyle:{width?:number; height?:number} = {};
+        if (this.props.width && isFinite(this.props.width))
+            graphStyle.width = this.props.width;
+        if (this.props.height && isFinite(this.props.height))
+            graphStyle.height = this.props.height;
+
+        // don't show the rescale button if there's no data to scale
+        let buttonStyle:{display?:string} = {},
+            hasData = this.state.data && (this.state.data.length > 1);
+        if (!hasData)
+            buttonStyle.display = "none";
+
         return (
-            <div>
+            <div style={{position: "relative"}}>
+                <div id={"sensor-graph-" + this.props.title} className="graph-box" style={graphStyle}></div>
                 <a onClick={this.autoScale}
-                    className="graph-button"
-                    title="Show all data (autoscale)"><i className="fa fa-arrows"></i></a>
-                <div id={"sensor-graph-" + this.props.title} className="graph-box"></div>
+                    className="graph-rescale-button"
+                    style={buttonStyle}
+                    title="Show all data (autoscale)">
+                    <i className="fa fa-arrows fa-lg"></i>
+                </a>
             </div>
         );
     }

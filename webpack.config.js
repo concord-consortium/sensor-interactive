@@ -1,9 +1,10 @@
 var webpack = require("webpack");
+const pkg = require("./package.json");
 
 module.exports = {
     entry: {
         app: "./src/app.tsx",
-        globals: ["react", "react-dom"]
+        globals: Object.keys(pkg.dependencies)
     },
     output: {
         filename: "[name].js",
