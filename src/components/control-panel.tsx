@@ -58,13 +58,13 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
               onClick={props.onStopCollecting} disabled={disableStopCollecting}>
         Stop
       </Button>
-      <Button className="newData control-panel-button"
-              onClick={props.onNewRun} disabled={disableNewData}>
-        New Run
-      </Button>
       <Button className="sendData control-panel-button"
               onClick={props.onSaveData} disabled={disableSendData}>
         Save Data
+      </Button>
+      <Button className="newData control-panel-button"
+              onClick={props.onNewRun} disabled={disableNewData}>
+        New Run
       </Button>
       <div className="right-controls">
         <div>
