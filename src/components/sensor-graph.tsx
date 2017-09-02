@@ -3,7 +3,6 @@ import { Sensor } from "../models/sensor";
 import { Graph } from "./graph";
 import { GraphSidePanel } from "./graph-side-panel";
 import { SensorDefinitions } from "../models/sensor-definitions";
-import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
 import sizeMe from "react-sizeme";
 
 const kSidePanelWidth = 160,
@@ -15,7 +14,7 @@ const kSidePanelWidth = 160,
       
 export interface SensorGraphProps {
     size:any;
-    sensorConnector:SensorConnectorInterface;
+    sensorConnector:any;
     sensor:Sensor;
     title:string;
     onGraphZoom:(xStart:number, xEnd:number) => void;
@@ -90,7 +89,7 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
         });
     }
     
-    onSensorStatus = (e) => {
+    onSensorStatus = (e:any) => {
         if(!this.state.valueUnit) {
             this.setUnit(this.props.valueUnits[0]);
         }
@@ -167,7 +166,7 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
         return null;
     }
     
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps(nextProps:SensorGraphProps) {
         if(!this.props.dataReset && nextProps.dataReset) {
             this.lastDataIndex = 0;
             this.setState({
@@ -176,7 +175,7 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
         }
     }
     
-    shouldComponentUpdate(nextProps, nextState):boolean {
+    shouldComponentUpdate(nextProps:SensorGraphProps, nextState:SensorGraphState):boolean {
         if(nextProps.valueUnits) return true;
         return false;
     }

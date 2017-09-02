@@ -33,7 +33,7 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
       props.onDurationChange(Number(evt.currentTarget.value));
   }
 
-  function renderEmbedInCodapUrl(url) {
+  function renderEmbedInCodapUrl(url:string|null) {
     if (!url) return null;
     return (
       <a className="embed-codap-link" href={url}>Embed in CODAP</a>

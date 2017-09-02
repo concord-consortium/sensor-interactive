@@ -12,7 +12,7 @@ export class Sensor {
     constructor() {        
         this.sensorInterface = new SensorConnectorInterface();
         this.sensorInterface.startPolling(SENSOR_IP);
-        this.sensorInterface.on("*", (e) => {
+        this.sensorInterface.on("*", (e:any) => {
             console.log("sensor data: " + e);
             console.log(" - connected: " + this.isConnected());
             console.log(" - val: " + this.getLiveValue());

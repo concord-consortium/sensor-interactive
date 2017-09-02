@@ -39,8 +39,8 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
     return (sensorUnitStr) ? `${reading} ${sensorUnitStr}` : reading;
   };
 
-  const sensorUnitOptions = (sensorUnits) => {
-    return (sensorUnits || []).map((unit) => {
+  const sensorUnitOptions = (sensorUnits:string[]) => {
+    return (sensorUnits || []).map((unit:string) => {
       const sensorDef = unit && SensorDefinitions[unit],
             measurementName = sensorDef && sensorDef.measurementName;
       if (!measurementName) return null;
