@@ -1,6 +1,8 @@
 import * as React from "react";
 import { Format } from "../utils/format";
 import { SensorDefinitions } from "../models/sensor-definitions";
+import Button from "./smart-highlight-button";
+import Select from "./smart-highlight-select";
 
 interface IGraphSidePanelProps {
   width?:number;
@@ -60,12 +62,14 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
       <label className="reading-label side-panel-item">Reading:</label>
       <label className="sensor-reading side-panel-item">{sensorReading()}</label>
       <label className="sensor-label side-panel-item">Sensor:</label>
-      <select className="sensor-select side-panel-item" onChange={handleSensorChange} defaultValue={sensorUnitStr}>
+      <Select className="sensor-select side-panel-item"
+              onChange={handleSensorChange} defaultValue={sensorUnitStr}>
         {sensorUnitOptions(sensorUnits)}
-      </select>
-      <button className="zero-button side-panel-item" onClick={handleZeroSensor} disabled={disableZeroSensor}>
+      </Select>
+      <Button className="zero-button side-panel-item"
+              onClick={handleZeroSensor} disabled={disableZeroSensor}>
         Zero Sensor
-      </button>
+      </Button>
     </div>
   );
 };

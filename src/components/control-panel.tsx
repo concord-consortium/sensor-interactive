@@ -1,4 +1,6 @@
 import * as React from "react";
+import Button from "./smart-highlight-button";
+import Select from "./smart-highlight-select";
 
 interface IControlPanelProps {
   sensorType:string;
@@ -44,22 +46,26 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
     <div className="control-panel">
       <div className="cc-logo" />
       <span className="duration-label">Duration:</span>
-      <select className="duration-select control-panel-select"
+      <Select className="duration-select control-panel-select"
               onChange={handleDurationChange} defaultValue={String(props.duration)}>
         {[durationOptions]}
-      </select>
-      <button className="startSensor control-panel-button" 
-        onClick={props.onStartCollecting}
-        disabled={disableStartCollecting}>Start</button>
-      <button className="stopSensor control-panel-button" 
-        onClick={props.onStopCollecting}
-        disabled={disableStopCollecting}>Stop</button>
-      <button className="newData control-panel-button" 
-        onClick={props.onNewRun} 
-        disabled={disableNewData}>New Run</button>
-      <button className="sendData control-panel-button" 
-        onClick={props.onSaveData} 
-        disabled={disableSendData}>Save Data</button>
+      </Select>
+      <Button className="startSensor control-panel-button"
+              onClick={props.onStartCollecting} disabled={disableStartCollecting}>
+        Start
+      </Button>
+      <Button className="stopSensor control-panel-button"
+              onClick={props.onStopCollecting} disabled={disableStopCollecting}>
+        Stop
+      </Button>
+      <Button className="sendData control-panel-button"
+              onClick={props.onSaveData} disabled={disableSendData}>
+        Save Data
+      </Button>
+      <Button className="newData control-panel-button"
+              onClick={props.onNewRun} disabled={disableNewData}>
+        New Run
+      </Button>
       <div className="right-controls">
         <div>
           <a onClick={props.onReloadPage}
