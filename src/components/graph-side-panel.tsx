@@ -1,37 +1,40 @@
 import * as React from "react";
 import { Format } from "../utils/format";
+import { Sensor } from "../models/sensor";
 import { SensorDefinitions } from "../models/sensor-definitions";
+import { ISensorConfigColumnInfo } from "../models/sensor-connector-interface";
 import Button from "./smart-highlight-button";
 import Select from "./smart-highlight-select";
 
 interface IGraphSidePanelProps {
   width?:number;
-  sensorDefinition:any;
-  sensorValue?:number;
-  sensorTareValue?:number;
-  sensorUnit:string;
-  sensorUnits:string[];
+  sensor:Sensor;
+  sensorColumns:ISensorConfigColumnInfo[];
   onZeroSensor:() => void;
-  onSensorChange:(sensorType:string) => void;
+  onSensorSelect:(sensorIndex:number, columnID:string) => void;
 }
 
 export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
-  const { sensorDefinition, sensorValue, sensorTareValue, sensorUnit, sensorUnits,
-          onZeroSensor, onSensorChange } = props,
-        tareValue = sensorTareValue || 0,
-        sensorUnitStr = sensorUnit || "";
+  const { sensor, onZeroSensor, onSensorSelect } = props,
+        tareValue = sensor.tareValue || 0,
+        sensorUnitStr = sensor.valueUnit || "";
   
   const handleZeroSensor = () => {
     if (onZeroSensor)
       onZeroSensor();
   };
 
-  const handleSensorChange = (evt:React.FormEvent<HTMLSelectElement>) => {
-    if (onSensorChange)
-      onSensorChange(evt.currentTarget.value);
+  const handleSensorSelect = (evt:React.FormEvent<HTMLSelectElement>) => {
+    if (onSensorSelect && (props.sensor.index != null)) {
+      const selectedColID = evt.currentTarget.value;
+      onSensorSelect(props.sensor.index, selectedColID);
+    }
   };
 
   const sensorReading = () => {
+    const { sensor } = props,
+          sensorDefinition = sensor && sensor.definition,
+          sensorValue = sensor && sensor.sensorValue;
     if (!sensorDefinition || (sensorValue == null) || isNaN(sensorValue))
       return "";
 
@@ -41,21 +44,27 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
     return (sensorUnitStr) ? `${reading} ${sensorUnitStr}` : reading;
   };
 
-  const sensorUnitOptions = (sensorUnits:string[]) => {
-    return (sensorUnits || []).map((unit:string) => {
-      const sensorDef = unit && SensorDefinitions[unit],
+  const sensorSelectOptions = (sensorColumns:ISensorConfigColumnInfo[]) => {
+    if (sensor.index == null) return null;
+    return (sensorColumns || []).map((column:ISensorConfigColumnInfo, index:number) => {
+      const units = column && column.units,
+            columnID = column && column.id,
+            sensorDef = units && SensorDefinitions[units],
             measurementName = sensorDef && sensorDef.measurementName;
       if (!measurementName) return null;
 
-      const measurementNameWithUnits = unit
-                                        ? `${measurementName} (${unit})`
+      const measurementNameWithUnits = units
+                                        ? `${measurementName} (${units}) [${index+1}]`
                                         : measurementName;
-      return (<option key={unit} value={unit}>{measurementNameWithUnits}</option>);
+      return (<option key={units+String(index)} value={columnID}>{measurementNameWithUnits}</option>);
     });
   };
 
   const width = props.width && isFinite(props.width) ? props.width : null,
         style = width ? { flex: `0 0 ${width}px` } : {},
+        sensorOptions = sensorSelectOptions(props.sensorColumns),
+        enableSensorSelect = sensorOptions && (sensorOptions.length > 1),
+        sensorDefinition = props.sensor && props.sensor.definition,
         disableZeroSensor = !sensorDefinition || !sensorDefinition.tareable;
   return (
     <div className="graph-side-panel" style={style}>
@@ -63,8 +72,10 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
       <label className="sensor-reading side-panel-item">{sensorReading()}</label>
       <label className="sensor-label side-panel-item">Sensor:</label>
       <Select className="sensor-select side-panel-item"
-              onChange={handleSensorChange} defaultValue={sensorUnitStr}>
-        {sensorUnitOptions(sensorUnits)}
+              value={sensor.columnID}
+              disabled={!enableSensorSelect}
+              onChange={handleSensorSelect} >
+        {sensorOptions}
       </Select>
       <Button className="zero-button side-panel-item"
               onClick={handleZeroSensor} disabled={disableZeroSensor}>

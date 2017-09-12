@@ -3,7 +3,7 @@ import Button from "./smart-highlight-button";
 import Select from "./smart-highlight-select";
 
 interface IControlPanelProps {
-  sensorType:string;
+  interfaceType:string;
   collecting:boolean;
   hasData:boolean;
   dataChanged:boolean;
@@ -20,7 +20,7 @@ interface IControlPanelProps {
 }
 
 export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
-  const disableStartCollecting = !props.sensorType ||props.collecting || props.hasData,
+  const disableStartCollecting = !props.interfaceType ||props.collecting || props.hasData,
         disableStopCollecting = !props.collecting,
         disableSendData = !(props.hasData && props.dataChanged) || props.collecting,
         disableNewData = !props.hasData || props.collecting,

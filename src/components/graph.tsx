@@ -4,8 +4,8 @@ import { Format } from "../utils/format";
 
 export interface GraphProps {
     title:string|undefined;
-    width:number;
-    height:number;
+    width?:number;
+    height?:number;
     data:number[][];
     onZoom:(xStart:number, xEnd:number) => void;
     xMin:number;
@@ -18,8 +18,8 @@ export interface GraphProps {
 }
 
 export interface GraphState {
-    width:number;
-    height:number;
+    width?:number;
+    height?:number;
     data:number[][];
     xMin:number;
     xMax:number;
