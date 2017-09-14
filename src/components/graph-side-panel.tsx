@@ -69,7 +69,9 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
   return (
     <div className="graph-side-panel" style={style}>
       <label className="reading-label side-panel-item">Reading:</label>
-      <label className="sensor-reading side-panel-item">{sensorReading()}</label>
+      <div className="sensor-reading-surround">
+        <label className="sensor-reading side-panel-item">{sensorReading()}</label>
+      </div>
       <label className="sensor-label side-panel-item">Sensor:</label>
       <Select className="sensor-select side-panel-item"
               value={sensor.columnID}

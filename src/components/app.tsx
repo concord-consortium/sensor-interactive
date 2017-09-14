@@ -186,6 +186,8 @@ export class App extends React.Component<AppProps, AppState> {
         const otherIndex = 1 - sensorIndex;
         if (sensors[otherIndex].columnID === columnID) {
             sensors.reverse();
+            sensors[0].index = 0;
+            sensors[1].index = 1;
         }
         // if a third sensor is selected, configure the new sensor
         else {

@@ -119,7 +119,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                         return Format.formatFixedValue(val, 2);
                     },
                     axisLabelFormatter: (val:number) => {
-                        return Format.formatFixedValue(val, this.state.xAxisFix);
+                        return this.props.xLabel
+                                ? Format.formatFixedValue(val, this.state.xAxisFix)
+                                : "";
                     }
                 },
                 y: {
