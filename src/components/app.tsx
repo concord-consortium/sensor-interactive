@@ -32,13 +32,15 @@ export interface AppState {
     xEnd:number;
 }
 
-function newSensorFromDataColumn(sensorIndex:number, dataColumn:ISensorConfigColumnInfo) {
+function newSensorFromDataColumn(sensorIndex:number, dataColumn:ISensorConfigColumnInfo,
+                                 preservedData?:number[][]) {
     let newSensor = new Sensor();
     newSensor.index = sensorIndex;
     newSensor.columnID = dataColumn.id;
     newSensor.sensorPosition = dataColumn.position;
     newSensor.valueUnit = dataColumn.units;
     newSensor.definition = SensorDefinitions[dataColumn.units];
+    newSensor.sensorData = preservedData || [];
     return newSensor;
 }
 
@@ -52,7 +54,8 @@ function matchSensorsToDataColumns(sensors:Sensor[], dataColumns:ISensorConfigCo
             if (!matched[index]) {
                 found = find(columns, (c) => test(c, sensors[index]));
                 if (found) {
-                    matched[index] = newSensorFromDataColumn(index, found);
+                    const preservedData = sensors[index].sensorData;
+                    matched[index] = newSensorFromDataColumn(index, found, preservedData);
                     // remove matched column so it can't be matched again
                     pull(columns, found);
                 }
@@ -193,8 +196,9 @@ export class App extends React.Component<AppProps, AppState> {
         else {
             const sensorConfig = this.state.sensorConfig,
                   dataColumn = sensorConfig && sensorConfig.getColumnByID(columnID),
+                  preservedData = sensors[sensorIndex].sensorData,
                   newSensor = dataColumn
-                                ? newSensorFromDataColumn(sensorIndex, dataColumn)
+                                ? newSensorFromDataColumn(sensorIndex, dataColumn, preservedData)
                                 : new Sensor();
             sensors[sensorIndex] = newSensor;
         }
@@ -266,7 +270,7 @@ export class App extends React.Component<AppProps, AppState> {
               data = sensors.map((sensor) =>
                         sensor.sensorData.slice(this.selectionRange.start, this.selectionRange.end));
         let names = sensors.map((sensor) => sensor.definition.measurementName);
-        if (!secondGraph) {
+        if (!secondGraph || !sensors[1].isConnected) {
             this.codap.sendData(data[0], names[0]);   
         }
         else {

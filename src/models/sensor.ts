@@ -23,4 +23,8 @@ export class Sensor {
             tareable:false
         };
     }
+
+    get isConnected() {
+        return this.columnID && this.sensorData && this.valueUnit;
+    }
 }
