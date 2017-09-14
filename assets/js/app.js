@@ -1108,7 +1108,7 @@ class App extends React.Component {
     }
     renderGraph(sensor, title, isSingletonGraph, isLastGraph = isSingletonGraph) {
         const sensorColumns = this.state.sensorConfig && this.state.sensorConfig.dataColumns;
-        return React.createElement(sensor_graph_1.SensorGraph, { sensor: sensor, title: title, sensorConnector: this.sensorConnector, onGraphZoom: this.onGraphZoom, onSensorSelect: this.handleSensorSelect, runLength: this.state.runLength, xStart: this.state.xStart, xEnd: this.state.xEnd, isSingletonGraph: isSingletonGraph, isLastGraph: isLastGraph, sensorColumns: sensorColumns, collecting: this.state.collecting, dataReset: this.state.dataReset });
+        return React.createElement(sensor_graph_1.SensorGraph, { sensor: sensor, title: title, sensorConnector: this.sensorConnector, onGraphZoom: this.onGraphZoom, onSensorSelect: this.handleSensorSelect, onStopCollection: this.stopSensor, runLength: this.state.runLength, xStart: this.state.xStart, xEnd: this.state.xEnd, isSingletonGraph: isSingletonGraph, isLastGraph: isLastGraph, sensorColumns: sensorColumns, collecting: this.state.collecting, dataReset: this.state.dataReset });
     }
     render() {
         var { sensorConfig, sensors, secondGraph } = this.state, codapURL = window.self === window.top
@@ -1285,6 +1285,9 @@ class SensorGraphImp extends React.Component {
                     var value = newValueData[i] - this.state.tareValue;
                     if (time <= this.props.runLength) {
                         updatedData.push([time, value]);
+                    }
+                    else if (this.props.onStopCollection) {
+                        this.props.onStopCollection();
                     }
                 }
                 this.props.sensor.sensorData = updatedData;
