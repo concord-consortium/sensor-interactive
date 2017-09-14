@@ -803,13 +803,14 @@ const sensor_connector_interface_1 = __webpack_require__(122);
 const smart_focus_highlight_1 = __webpack_require__(62);
 const lodash_1 = __webpack_require__(56);
 const SENSOR_IP = "http://127.0.0.1:11180";
-function newSensorFromDataColumn(sensorIndex, dataColumn) {
+function newSensorFromDataColumn(sensorIndex, dataColumn, preservedData) {
     let newSensor = new sensor_1.Sensor();
     newSensor.index = sensorIndex;
     newSensor.columnID = dataColumn.id;
     newSensor.sensorPosition = dataColumn.position;
     newSensor.valueUnit = dataColumn.units;
     newSensor.definition = sensor_definitions_1.SensorDefinitions[dataColumn.units];
+    newSensor.sensorData = preservedData || [];
     return newSensor;
 }
 function matchSensorsToDataColumns(sensors, dataColumns) {
@@ -820,7 +821,8 @@ function matchSensorsToDataColumns(sensors, dataColumns) {
             if (!matched[index]) {
                 found = lodash_1.find(columns, (c) => test(c, sensors[index]));
                 if (found) {
-                    matched[index] = newSensorFromDataColumn(index, found);
+                    const preservedData = sensors[index].sensorData;
+                    matched[index] = newSensorFromDataColumn(index, found, preservedData);
                     // remove matched column so it can't be matched again
                     lodash_1.pull(columns, found);
                 }
@@ -866,8 +868,8 @@ class App extends React.Component {
                 sensors[1].index = 1;
             }
             else {
-                const sensorConfig = this.state.sensorConfig, dataColumn = sensorConfig && sensorConfig.getColumnByID(columnID), newSensor = dataColumn
-                    ? newSensorFromDataColumn(sensorIndex, dataColumn)
+                const sensorConfig = this.state.sensorConfig, dataColumn = sensorConfig && sensorConfig.getColumnByID(columnID), preservedData = sensors[sensorIndex].sensorData, newSensor = dataColumn
+                    ? newSensorFromDataColumn(sensorIndex, dataColumn, preservedData)
                     : new sensor_1.Sensor();
                 sensors[sensorIndex] = newSensor;
             }
@@ -1000,7 +1002,7 @@ class App extends React.Component {
     sendData() {
         const { sensors, secondGraph } = this.state, data = sensors.map((sensor) => sensor.sensorData.slice(this.selectionRange.start, this.selectionRange.end));
         let names = sensors.map((sensor) => sensor.definition.measurementName);
-        if (!secondGraph) {
+        if (!secondGraph || !sensors[1].isConnected) {
             this.codap.sendData(data[0], names[0]);
         }
         else {
@@ -1166,6 +1168,9 @@ class Sensor {
             maxReading: 10,
             tareable: false
         };
+    }
+    get isConnected() {
+        return this.columnID && this.sensorData && this.valueUnit;
     }
 }
 exports.Sensor = Sensor;
