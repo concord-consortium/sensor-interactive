@@ -26,6 +26,7 @@ export interface SensorGraphProps {
     title:string;
     onGraphZoom:(xStart:number, xEnd:number) => void;
     onSensorSelect:(sensorIndex:number, columnID:string) => void;
+    onStopCollection:() => void;
     runLength:number;
     collecting:boolean;
     dataReset:boolean;
@@ -131,6 +132,9 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
                 var value = newValueData[i] - this.state.tareValue;
                 if(time <= this.props.runLength) {
                     updatedData.push([time, value]);
+                }
+                else if (this.props.onStopCollection) {
+                    this.props.onStopCollection();
                 }
             }
             

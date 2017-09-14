@@ -393,6 +393,7 @@ export class App extends React.Component<AppProps, AppState> {
                             sensorConnector={this.sensorConnector}
                             onGraphZoom={this.onGraphZoom} 
                             onSensorSelect={this.handleSensorSelect}
+                            onStopCollection={this.stopSensor}
                             runLength={this.state.runLength}
                             xStart={this.state.xStart}
                             xEnd={this.state.xEnd}
