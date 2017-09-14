@@ -15,7 +15,8 @@
     "build": "npm-run-all --parallel copy-public webpack",
     "dev-build": "npm-run-all --parallel copy-public dev-webpack",
     "start": "npm-run-all --parallel copy-public copy-public:watch webpack:watch browse",
-    "dev-start": "npm-run-all --parallel copy-public copy-public:watch dev-webpack:watch browse"
+    "dev-start": "npm-run-all --parallel copy-public copy-public:watch dev-webpack:watch browse",
+    "deploy": "./build_and_deploy.sh"
   },
   "repository": {
     "type": "git",
