@@ -1,34 +1,150 @@
 body {
     background-color: #F9EDC3;
-    font-family: Arial;
+    font-family: Lato, Verdana, Geneva, sans-serif;
     font-size: 12px;
+}
+
+input, textarea, select, button {
+    font-family: Lato, Verdana, Geneva, sans-serif;    
+    font-size: 12px;
+}
+
+.disable-focus-highlight {
+    outline: none;
+}
+
+.app-top-bar {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+}
+
+.two-sensors-checkbox {
+    margin-right: 62px;
+    user-select: none;
 }
 
 .dygraph-label {
     font-size: 12px;
 }
 
-.sensor-reading  * {
-    margin-right: 8px;
+.dygraph-xlabel {
+    margin-top: 8px;
+}
+
+.sensor-graph-panel {
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: flex;
 }
 
 .sensor-graph {
-    margin-top: 10px;
-    margin-bottom: 10px;
+    flex: 1 1;
+    user-select: none;
 }
 
-.graph-box {
-    height: 190px;
-}
-
-.message {
-    margin-left: 12px;
-    margin-right: 12px;
-}
-
-.graph-button {
+.graph-rescale-button {
     position: absolute;
-    right: 14px;
-    z-index: 10;
-    font-size: 20px;
+    top: 10px;
+    right: 15px;
+    opacity: 0.5;
+}
+
+.graph-rescale-button:hover {
+    opacity: 1;
+}
+
+.graph-side-panel {
+    display: flex;
+    flex-direction: column;
+    user-select: none;
+}
+
+.side-panel-item {
+    height: 24px;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+.sensor-reading {
+    text-align: center;
+}
+
+.sensor-select {
+    background-color: #eee;
+}
+
+.zero-button {
+    width: 100px;
+    background-color: #eee;
+    border-radius: 4px;
+    margin-left: 33px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.control-panel {
+    width: 100vw;
+    height: 40px;
+    margin-top: 20px;
+    margin-left: -8px;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    user-select: none;
+}
+
+.control-panel .duration-label {
+    margin-left: 6px;
+    margin-right: 4px;
+}
+
+.control-panel .duration-select {
+    margin-right: 16px;
+}
+
+.control-panel-select {
+    height: 24px;
+    background-color: #eee;
+}
+
+.control-panel-button {
+    width: 80px;
+    height: 26px;
+    background-color: #eee;
+    border-radius: 4px;
+}
+
+.cc-logo {
+    /* 354 x 110 native */
+    width: 122px;
+    height: 38px;
+    min-width: 42px;
+    margin-left: 6px;
+    margin-right: 10px;
+    background-image: url("../images/cc-logo-crop.png");
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.control-panel .right-controls {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row-reverse;
+}
+
+.embed-codap-link {
+    margin-top: 4px;
+    margin-right: 16px;
+}
+
+.reload-page-button {
+    margin-right: 16px;
+    opacity: 0.5;
+}
+
+.reload-page-button:hover {
+    opacity: 1;
 }
