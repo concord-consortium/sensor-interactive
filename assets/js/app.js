@@ -862,6 +862,8 @@ class App extends React.Component {
             const otherIndex = 1 - sensorIndex;
             if (sensors[otherIndex].columnID === columnID) {
                 sensors.reverse();
+                sensors[0].index = 0;
+                sensors[1].index = 1;
             }
             else {
                 const sensorConfig = this.state.sensorConfig, dataColumn = sensorConfig && sensorConfig.getColumnByID(columnID), newSensor = dataColumn
@@ -1433,7 +1435,9 @@ class Graph extends React.Component {
                         return format_1.Format.formatFixedValue(val, 2);
                     },
                     axisLabelFormatter: (val) => {
-                        return format_1.Format.formatFixedValue(val, this.state.xAxisFix);
+                        return this.props.xLabel
+                            ? format_1.Format.formatFixedValue(val, this.state.xAxisFix)
+                            : "";
                     }
                 },
                 y: {
@@ -1549,7 +1553,8 @@ exports.GraphSidePanel = (props) => {
     const width = props.width && isFinite(props.width) ? props.width : null, style = width ? { flex: `0 0 ${width}px` } : {}, sensorOptions = sensorSelectOptions(props.sensorColumns), enableSensorSelect = sensorOptions && (sensorOptions.length > 1), sensorDefinition = props.sensor && props.sensor.definition, disableZeroSensor = !sensorDefinition || !sensorDefinition.tareable;
     return (React.createElement("div", { className: "graph-side-panel", style: style },
         React.createElement("label", { className: "reading-label side-panel-item" }, "Reading:"),
-        React.createElement("label", { className: "sensor-reading side-panel-item" }, sensorReading()),
+        React.createElement("div", { className: "sensor-reading-surround" },
+            React.createElement("label", { className: "sensor-reading side-panel-item" }, sensorReading())),
         React.createElement("label", { className: "sensor-label side-panel-item" }, "Sensor:"),
         React.createElement(smart_highlight_select_1.default, { className: "sensor-select side-panel-item", value: sensor.columnID, disabled: !enableSensorSelect, onChange: handleSensorSelect }, sensorOptions),
         React.createElement(smart_highlight_button_1.default, { className: "zero-button side-panel-item", onClick: handleZeroSensor, disabled: disableZeroSensor }, "Zero Sensor")));
