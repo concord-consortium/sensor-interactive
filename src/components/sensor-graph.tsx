@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Sensor } from "../models/sensor";
+import { SensorSlot } from "../models/sensor-slot";
 import { Graph } from "./graph";
 import { GraphSidePanel } from "./graph-side-panel";
 import { ISensorConfigColumnInfo,
@@ -22,7 +23,7 @@ export interface SensorGraphProps {
     size:ISizeMeSize;
     sensorConnector:any;
     sensorColumns:ISensorConfigColumnInfo[];
-    sensor:Sensor;
+    sensorSlot:SensorSlot;
     title:string;
     onGraphZoom:(xStart:number, xEnd:number) => void;
     onSensorSelect:(sensorIndex:number, columnID:string) => void;
@@ -58,7 +59,7 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
             sensorActive: false,
             sensorColID: undefined,
             sensorValue: undefined,
-            sensorData: this.props.sensor.sensorData,
+            sensorData: this.props.sensorSlot.sensorData,
             dataChanged: false,
             tareValue: 0,
             timeUnit: "s"
@@ -81,11 +82,11 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
     
     onSensorStatus = () => {
         // find the value for the currently selected sensor/unit type
-        var sensorColumnID = this.props.sensor.columnID,
-            dataColumn = sensorColumnID && this.getDataColumn(sensorColumnID),
+        const { sensor } = this.props.sensorSlot,
+            dataColumn = sensor.columnID && this.getDataColumn(sensor.columnID),
             liveValue = dataColumn ? Number(dataColumn.liveValue) : undefined;
         if(liveValue != null) {
-            this.props.sensor.sensorValue = liveValue;
+            sensor.sensorValue = liveValue;
             this.setState({ sensorValue: liveValue });
         }
         else {
@@ -111,7 +112,8 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
         
         const timeData = dataset.columns[0].data || [],
               timeDataLength = timeData.length,
-              dataColumn = this.getDataColumn(this.props.sensor.columnID, dataset),
+              { sensor } = this.props.sensorSlot,
+              dataColumn = this.getDataColumn(sensor.columnID, dataset),
               sensorData = (dataColumn && dataColumn.data) || [],
               sensorDataLength = sensorData.length;
         
@@ -138,7 +140,7 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
                 }
             }
             
-            this.props.sensor.sensorData = updatedData;
+            this.props.sensorSlot.sensorData = updatedData;
             this.setState({
                 sensorData: updatedData,
                 dataChanged: true
@@ -176,11 +178,12 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
         const height = this.props.isSingletonGraph
                         ? kSingletonGraphHeight
                         : (this.props.isLastGraph ? kGraphWithLabelHeight : kPairedGraphHeight),
-              sensorDefinition = this.props.sensor && this.props.sensor.definition,
+              { sensor } = this.props.sensorSlot,
+              sensorDefinition = sensor && sensor.definition,
               minReading = sensorDefinition && sensorDefinition.minReading,
               maxReading = sensorDefinition && sensorDefinition.maxReading,
               measurementName = (sensorDefinition && sensorDefinition.measurementName) || "",
-              valueUnit = this.props.sensor.valueUnit || "",
+              valueUnit = sensor.valueUnit || "",
               xLabel = this.props.isLastGraph ? `Time (${this.state.timeUnit})` : "",
               yLabel = measurementName
                         ? `${measurementName} (${valueUnit})`
@@ -207,7 +210,7 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
         return (
           <GraphSidePanel
             width={kSidePanelWidth}
-            sensor={this.props.sensor}
+            sensorSlot={this.props.sensorSlot}
             sensorColumns={this.props.sensorColumns}
             onZeroSensor={this.zeroSensor}
             onSensorSelect={this.props.onSensorSelect} />

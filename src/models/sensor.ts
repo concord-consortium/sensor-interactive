@@ -1,7 +1,6 @@
 import { ISensorDefinition } from "./sensor-connector-interface";
 
 export class Sensor {
-    index?:number;          // local index: 0 for top graph, 1 for bottom
     columnID?:string;
     sensorPosition?:number; // index in received dataColumns array
     sensorValue?:number;

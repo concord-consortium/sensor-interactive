@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Format } from "../utils/format";
-import { Sensor } from "../models/sensor";
+import { SensorSlot } from "../models/sensor-slot";
 import { SensorDefinitions } from "../models/sensor-definitions";
 import { ISensorConfigColumnInfo } from "../models/sensor-connector-interface";
 import Button from "./smart-highlight-button";
@@ -8,14 +8,15 @@ import Select from "./smart-highlight-select";
 
 interface IGraphSidePanelProps {
   width?:number;
-  sensor:Sensor;
+  sensorSlot:SensorSlot;
   sensorColumns:ISensorConfigColumnInfo[];
   onZeroSensor:() => void;
   onSensorSelect:(sensorIndex:number, columnID:string) => void;
 }
 
 export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
-  const { sensor, onZeroSensor, onSensorSelect } = props,
+  const { sensorSlot, onZeroSensor, onSensorSelect } = props,
+        { sensor } = sensorSlot,
         tareValue = sensor.tareValue || 0,
         sensorUnitStr = sensor.valueUnit || "";
   
@@ -25,15 +26,14 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
   };
 
   const handleSensorSelect = (evt:React.FormEvent<HTMLSelectElement>) => {
-    if (onSensorSelect && (props.sensor.index != null)) {
+    if (onSensorSelect && (props.sensorSlot.slotIndex != null)) {
       const selectedColID = evt.currentTarget.value;
-      onSensorSelect(props.sensor.index, selectedColID);
+      onSensorSelect(props.sensorSlot.slotIndex, selectedColID);
     }
   };
 
   const sensorReading = () => {
-    const { sensor } = props,
-          sensorDefinition = sensor && sensor.definition,
+    const sensorDefinition = sensor && sensor.definition,
           sensorValue = sensor && sensor.sensorValue;
     if (!sensorDefinition || (sensorValue == null) || isNaN(sensorValue))
       return "";
@@ -45,7 +45,7 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
   };
 
   const sensorSelectOptions = (sensorColumns:ISensorConfigColumnInfo[]) => {
-    if (sensor.index == null) return null;
+    if (sensorSlot.slotIndex == null) return null;
     return (sensorColumns || []).map((column:ISensorConfigColumnInfo, index:number) => {
       const units = column && column.units,
             columnID = column && column.id,
@@ -64,7 +64,7 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
         style = width ? { flex: `0 0 ${width}px` } : {},
         sensorOptions = sensorSelectOptions(props.sensorColumns),
         enableSensorSelect = sensorOptions && (sensorOptions.length > 1),
-        sensorDefinition = props.sensor && props.sensor.definition,
+        sensorDefinition = sensor && sensor.definition,
         disableZeroSensor = !sensorDefinition || !sensorDefinition.tareable;
   return (
     <div className="graph-side-panel" style={style}>

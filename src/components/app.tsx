@@ -1,6 +1,7 @@
 import * as React from "react";
 import ReactModal from "react-modal";
 import { Sensor } from "../models/sensor";
+import { SensorSlot } from "../models/sensor-slot";
 import { SensorConfiguration } from "../models/sensor-configuration";
 import { ISensorConfig, ISensorConfigColumnInfo } from "../models/sensor-connector-interface";
 import { SensorGraph } from "./sensor-graph";
@@ -17,7 +18,7 @@ export interface AppProps {}
 
 export interface AppState {
     sensorConfig:SensorConfiguration | null;
-    sensors:Sensor[];
+    sensorSlots:SensorSlot[];
     hasData:boolean;
     dataChanged:boolean;
     dataReset:boolean;
@@ -32,19 +33,16 @@ export interface AppState {
     xEnd:number;
 }
 
-function newSensorFromDataColumn(sensorIndex:number, dataColumn:ISensorConfigColumnInfo,
-                                 preservedData?:number[][]) {
+function newSensorFromDataColumn(dataColumn:ISensorConfigColumnInfo) {
     let newSensor = new Sensor();
-    newSensor.index = sensorIndex;
     newSensor.columnID = dataColumn.id;
     newSensor.sensorPosition = dataColumn.position;
     newSensor.valueUnit = dataColumn.units;
     newSensor.definition = SensorDefinitions[dataColumn.units];
-    newSensor.sensorData = preservedData || [];
     return newSensor;
 }
 
-function matchSensorsToDataColumns(sensors:Sensor[], dataColumns:ISensorConfigColumnInfo[]) {
+function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:ISensorConfigColumnInfo[]) {
     let matched:Array<Sensor|null> = [null, null],
         columns = dataColumns.slice();
     
@@ -52,10 +50,9 @@ function matchSensorsToDataColumns(sensors:Sensor[], dataColumns:ISensorConfigCo
         matched.forEach((sensor:Sensor|null, index) => {
             let found;
             if (!matched[index]) {
-                found = find(columns, (c) => test(c, sensors[index]));
+                found = find(columns, (c) => test(c, slots[index].sensor));
                 if (found) {
-                    const preservedData = sensors[index].sensorData;
-                    matched[index] = newSensorFromDataColumn(index, found, preservedData);
+                    matched[index] = newSensorFromDataColumn(found);
                     // remove matched column so it can't be matched again
                     pull(columns, found);
                 }
@@ -64,20 +61,27 @@ function matchSensorsToDataColumns(sensors:Sensor[], dataColumns:ISensorConfigCo
         return matched[0] && matched[1];
     }
 
-    // match by column ID
-    if (matchSensors((c:ISensorConfigColumnInfo, s:Sensor) => c.id === s.columnID)) return matched;
-    // match by sensor position (as long as units are compatible)
-    if (matchSensors((c:ISensorConfigColumnInfo, s:Sensor) =>
-                    (c.position === s.sensorPosition) && (c.units === s.valueUnit))) return matched;
-    // match by units (independent of position)
-    if (matchSensors((c:ISensorConfigColumnInfo, s:Sensor) => c.units === s.valueUnit)) return matched;
-    // match by position (independent of units)
-    if (matchSensors((c:ISensorConfigColumnInfo, s:Sensor) => c.position === s.sensorPosition)) return matched;
-    // last resort - match whatever's available
-    if (matchSensors((c:ISensorConfigColumnInfo, s:Sensor) => true)) return matched;
-    // clear unmatched sensors
-    matched.forEach((s:Sensor|null, i) => { if (!s) matched[i] = new Sensor(); });
-    return matched;
+    function findBestSensorMatch() {
+        // match by column ID
+        if (matchSensors((c:ISensorConfigColumnInfo, s:Sensor) => c.id === s.columnID)) return;
+        // match by sensor position (as long as units are compatible)
+        if (matchSensors((c:ISensorConfigColumnInfo, s:Sensor) =>
+                        (c.position === s.sensorPosition) && (c.units === s.valueUnit))) return;
+        // match by units (independent of position)
+        if (matchSensors((c:ISensorConfigColumnInfo, s:Sensor) => c.units === s.valueUnit)) return;
+        // match by position (independent of units)
+        if (matchSensors((c:ISensorConfigColumnInfo, s:Sensor) => c.position === s.sensorPosition)) return;
+        // last resort - match whatever's available
+        if (matchSensors((c:ISensorConfigColumnInfo, s:Sensor) => true)) return;
+    }
+
+    findBestSensorMatch();
+
+    // update slots with matched sensors; clear unmatched sensors
+    matched.forEach((s:Sensor|null, i) => {
+        slots[i].setSensor(s || new Sensor());
+    });
+    return slots;
 }
 
 export class App extends React.Component<AppProps, AppState> {
@@ -95,7 +99,7 @@ export class App extends React.Component<AppProps, AppState> {
         
         this.state = {
             sensorConfig:null,
-            sensors:[new Sensor(), new Sensor()],
+            sensorSlots:[new SensorSlot(0, new Sensor()), new SensorSlot(1, new Sensor())],
             hasData:false,
             dataChanged:false,
             dataReset:false,
@@ -169,9 +173,9 @@ export class App extends React.Component<AppProps, AppState> {
             
             const timeUnit = sensorConfig.timeUnit || "",
                   dataColumns = sensorConfig.dataColumns,
-                  sensors:Sensor[] = matchSensorsToDataColumns(this.state.sensors, dataColumns) as Sensor[];
+                  sensorSlots = matchSensorsToDataColumns(this.state.sensorSlots, dataColumns) as SensorSlot[];
             
-            this.setState({ sensorConfig, sensors, timeUnit });
+            this.setState({ sensorConfig, sensorSlots, timeUnit });
 
             this.sensorConnector.on("data", this.onSensorData);
             this.sensorConnector.on("interfaceRemoved", this.onSensorDisconnect);
@@ -182,27 +186,25 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     handleSensorSelect = (sensorIndex:number, columnID:string) => {
-        let { sensors } = this.state;
+        let { sensorSlots } = this.state,
+            sensors = sensorSlots.map((slot) => slot.sensor);
         // if same sensor selected, there's nothing to do
-        if (sensors[sensorIndex].columnID === columnID) return;
+        if (sensorSlots[sensorIndex].sensor.columnID === columnID) return;
         // if the other graphed sensor is selected, just switch them
         const otherIndex = 1 - sensorIndex;
         if (sensors[otherIndex].columnID === columnID) {
-            sensors.reverse();
-            sensors[0].index = 0;
-            sensors[1].index = 1;
+            sensorSlots.forEach((slot, i) => { slot.sensor = sensors[1-i]; });
         }
         // if a third sensor is selected, configure the new sensor
         else {
             const sensorConfig = this.state.sensorConfig,
                   dataColumn = sensorConfig && sensorConfig.getColumnByID(columnID),
-                  preservedData = sensors[sensorIndex].sensorData,
                   newSensor = dataColumn
-                                ? newSensorFromDataColumn(sensorIndex, dataColumn, preservedData)
+                                ? newSensorFromDataColumn(dataColumn)
                                 : new Sensor();
-            sensors[sensorIndex] = newSensor;
+            sensorSlots[sensorIndex].setSensor(newSensor);
         }
-        this.setState({ sensors });
+        this.setState({ sensorSlots });
     }
     
     sensorHasData():boolean {
@@ -266,11 +268,12 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     sendData() {
-        const { sensors, secondGraph } = this.state,
-              data = sensors.map((sensor) =>
-                        sensor.sensorData.slice(this.selectionRange.start, this.selectionRange.end));
-        let names = sensors.map((sensor) => sensor.definition.measurementName);
-        if (!secondGraph || !sensors[1].isConnected) {
+        const { sensorSlots, secondGraph } = this.state,
+              data = sensorSlots.map((slot) =>
+                        slot.sensorData.slice(this.selectionRange.start, this.selectionRange.end)),
+              sendSecondSensorData = secondGraph && sensorSlots[1].isConnected;
+        let names = sensorSlots.map((slot) => slot.sensor.definition.measurementName);
+        if (!sendSecondSensorData) {
             this.codap.sendData(data[0], names[0]);   
         }
         else {
@@ -312,7 +315,7 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     onGraphZoom(xStart:number, xEnd:number) {
-        const sensor1Data = this.state.sensors[0].sensorData;
+        const sensor1Data = this.state.sensorSlots[0].sensorData;
         
         // convert from time value to index
         var i:number, entry:number[], nextEntry:number[];
@@ -386,9 +389,9 @@ export class App extends React.Component<AppProps, AppState> {
         }
     }
     
-    renderGraph(sensor:Sensor, title:string, isSingletonGraph:boolean, isLastGraph:boolean = isSingletonGraph) {
+    renderGraph(sensorSlot:SensorSlot, title:string, isSingletonGraph:boolean, isLastGraph:boolean = isSingletonGraph) {
         const sensorColumns = this.state.sensorConfig && this.state.sensorConfig.dataColumns;
-        return <SensorGraph sensor={sensor}
+        return <SensorGraph sensorSlot={sensorSlot}
                             title={title} 
                             sensorConnector={this.sensorConnector}
                             onGraphZoom={this.onGraphZoom} 
@@ -405,7 +408,7 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     render() {
-        var { sensorConfig, sensors, secondGraph } = this.state,
+        var { sensorConfig, sensorSlots, secondGraph } = this.state,
             codapURL = window.self === window.top
                         ? "http://codap.concord.org/releases/latest?di=" + window.location.href
                         : "",
@@ -450,9 +453,9 @@ export class App extends React.Component<AppProps, AppState> {
                     </label>
                     <div>{this.state.statusMessage || "\xA0"}</div>
                 </div>
-                {this.renderGraph(sensors[0], "graph1", !secondGraph)}
+                {this.renderGraph(sensorSlots[0], "graph1", !secondGraph)}
                 {secondGraph
-                    ? this.renderGraph(sensors[1], "graph2", false, true)
+                    ? this.renderGraph(sensorSlots[1], "graph2", false, true)
                     : null}
                 <ControlPanel   interfaceType={interfaceType}
                                 collecting={this.state.collecting}
