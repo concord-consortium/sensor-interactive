@@ -4,8 +4,8 @@ import { Format } from "../utils/format";
 
 export interface GraphProps {
     title:string|undefined;
-    width:number;
-    height:number;
+    width?:number;
+    height?:number;
     data:number[][];
     onZoom:(xStart:number, xEnd:number) => void;
     xMin:number;
@@ -18,8 +18,8 @@ export interface GraphProps {
 }
 
 export interface GraphState {
-    width:number;
-    height:number;
+    width?:number;
+    height?:number;
     data:number[][];
     xMin:number;
     xMax:number;
@@ -119,7 +119,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                         return Format.formatFixedValue(val, 2);
                     },
                     axisLabelFormatter: (val:number) => {
-                        return Format.formatFixedValue(val, this.state.xAxisFix);
+                        return this.props.xLabel
+                                ? Format.formatFixedValue(val, this.state.xAxisFix)
+                                : "";
                     }
                 },
                 y: {

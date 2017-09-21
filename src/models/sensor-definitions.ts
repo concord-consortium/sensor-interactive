@@ -2,6 +2,8 @@
 
 /* tslint:disable:max-line-length */
 
+import { ISensorDefinition } from "./sensor-connector-interface";
+
 export interface IStringMap {
   [key:string]: string;
 }
@@ -158,15 +160,6 @@ export class i18n { // tslint:disable-line:class-name
         var prop = id.substring(id.lastIndexOf(".")+1);
         return (SensorStrings[category] as IStringMap)[prop];
     }
-}
-
-export interface ISensorDefinition {
-  sensorName:string|null;
-  measurementName:string;
-  measurementType:string;
-  tareable:boolean;
-  minReading:number;
-  maxReading:number;
 }
 
 export interface ISensorDefinitions {

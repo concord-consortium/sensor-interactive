@@ -33,7 +33,7 @@ input, textarea, select, button {
 }
 
 .sensor-graph-panel {
-    width: 100%;
+    width: 98%;
     margin-top: 10px;
     margin-bottom: 10px;
     display: flex;
@@ -67,7 +67,22 @@ input, textarea, select, button {
     margin-right: 10px;
 }
 
+.sensor-reading-surround {
+    width: 100px;
+    height: 24px;
+    margin-left: 32px;
+    margin-bottom: 8px;
+    background-color: white;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center
+}
+
 .sensor-reading {
+    margin-left: 0;
+    margin-top: 6px;
+    margin-bottom: -3px;
     text-align: center;
 }
 
