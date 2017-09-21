@@ -1,0 +1,13 @@
+language: node_js
+node_js: node
+before_install:
+- rvm install 2.2.0
+install:
+- travis_retry gem install s3_website -v 2.12.3
+- travis_retry npm install
+before_script: npm run build
+script: ./s3_deploy.sh
+cache:
+  bundler: true
+  directories:
+    - node_modules
