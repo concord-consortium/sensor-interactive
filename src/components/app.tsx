@@ -361,8 +361,7 @@ export class App extends React.Component<AppProps, AppState> {
         
         this.setState({
             xStart: xStart,
-            xEnd: xEnd,
-            dataChanged: true
+            xEnd: xEnd
         });
     }
 
