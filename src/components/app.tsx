@@ -266,6 +266,11 @@ export class App extends React.Component<AppProps, AppState> {
             sensorConfig: null
         });
     }
+
+    hasData() {
+        const { sensorSlots } = this.state;
+        return sensorSlots.some((slot) => slot.sensorData && (slot.sensorData.length > 0));
+    }
     
     sendData() {
         const { sensorSlots, secondGraph } = this.state,
@@ -297,6 +302,8 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     newData() {
+        const { sensorSlots } = this.state;
+        sensorSlots.forEach((slot) => slot.sensorData = []);
         this.setState({
             hasData:false,
             dataReset:true,
@@ -404,6 +411,7 @@ export class App extends React.Component<AppProps, AppState> {
                             isLastGraph={isLastGraph}
                             sensorColumns={sensorColumns}
                             collecting={this.state.collecting}
+                            hasData={this.hasData()}
                             dataReset={this.state.dataReset}/>;
     }
     

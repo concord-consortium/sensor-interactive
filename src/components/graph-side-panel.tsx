@@ -11,7 +11,7 @@ interface IGraphSidePanelProps {
   sensorSlot:SensorSlot;
   sensorColumns:ISensorConfigColumnInfo[];
   onZeroSensor:() => void;
-  onSensorSelect:(sensorIndex:number, columnID:string) => void;
+  onSensorSelect?:(sensorIndex:number, columnID:string) => void;
 }
 
 export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
@@ -63,7 +63,7 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
   const width = props.width && isFinite(props.width) ? props.width : null,
         style = width ? { flex: `0 0 ${width}px` } : {},
         sensorOptions = sensorSelectOptions(props.sensorColumns),
-        enableSensorSelect = sensorOptions && (sensorOptions.length > 1),
+        enableSensorSelect = sensorOptions && (sensorOptions.length > 1) && props.onSensorSelect,
         sensorDefinition = sensor && sensor.definition,
         disableZeroSensor = !sensorDefinition || !sensorDefinition.tareable;
   return (

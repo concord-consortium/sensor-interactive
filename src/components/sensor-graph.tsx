@@ -30,6 +30,7 @@ export interface SensorGraphProps {
     onStopCollection:() => void;
     runLength:number;
     collecting:boolean;
+    hasData:boolean;
     dataReset:boolean;
     xStart:number;
     xEnd:number;
@@ -207,13 +208,15 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
     }
 
     renderSidePanel() {
+        const { collecting, hasData } = this.props,
+              onSensorSelect = !collecting && !hasData ? this.props.onSensorSelect : undefined;
         return (
           <GraphSidePanel
             width={kSidePanelWidth}
             sensorSlot={this.props.sensorSlot}
             sensorColumns={this.props.sensorColumns}
             onZeroSensor={this.zeroSensor}
-            onSensorSelect={this.props.onSensorSelect} />
+            onSensorSelect={onSensorSelect} />
         );
     }
     
