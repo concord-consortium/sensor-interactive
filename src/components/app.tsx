@@ -278,16 +278,21 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     sendData() {
-        const { sensorSlots, secondGraph } = this.state,
+        const { sensorSlots } = this.state,
               data = sensorSlots.map((slot) =>
                         slot.sensorData.slice(this.selectionRange.start, this.selectionRange.end)),
-              sendSecondSensorData = secondGraph && sensorSlots[1].isConnected;
+              sendSecondSensorData = sensorSlots[1].hasData;
         let names = sensorSlots.map((slot) => slot.sensor.definition.measurementName);
         if (!sendSecondSensorData) {
             this.codap.sendData(data[0], names[0]);   
         }
         else {
-            names = names.map((name, index) => `${name}_${index+1}`);
+            names = names.map((name, i) => {
+                const slot = sensorSlots[i],
+                      sensor = slot && slot.sensor,
+                      position = (sensor && sensor.sensorPosition) || i+1;
+                return `${name}_${position}`;
+            });
             this.codap.sendDualData(data[0], names[0], data[1], names[1]);
         }
         

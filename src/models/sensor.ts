@@ -4,7 +4,6 @@ export class Sensor {
     columnID?:string;
     sensorPosition?:number; // index in received dataColumns array
     sensorValue?:number;
-    sensorData:number[][];
     dataChanged:boolean;
     tareValue:number;
     timeUnit:string;
@@ -12,7 +11,6 @@ export class Sensor {
     definition:ISensorDefinition;
     
     constructor() {
-        this.sensorData = [];
         this.tareValue = 0;
         this.definition = {
             sensorName:"",
@@ -25,6 +23,6 @@ export class Sensor {
     }
 
     get isConnected() {
-        return this.columnID && this.sensorData && this.valueUnit;
+        return !!this.columnID && !!this.valueUnit;
     }
 }

@@ -15,6 +15,10 @@ export class SensorSlot {
     return this.sensor.isConnected;
   }
 
+  get hasData() {
+    return this.sensorData && this.sensorData.length;
+  }
+
   setSensor(sensor:Sensor) {
     this.sensor = sensor;
   }
