@@ -13,6 +13,7 @@ export class Sensor {
     
     constructor() {
         this.sensorData = [];
+        this.tareValue = 0;
         this.definition = {
             sensorName:"",
             measurementName:"",

@@ -10,7 +10,7 @@ export class SensorConfiguration {
   }
 
   get interface() {
-    return this.config.currentInterface;
+    return this.config && this.config.currentInterface;
   }
 
   get hasInterface() {

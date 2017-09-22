@@ -27,11 +27,13 @@ export interface SensorGraphProps {
     title:string;
     onGraphZoom:(xStart:number, xEnd:number) => void;
     onSensorSelect:(sensorIndex:number, columnID:string) => void;
+    onZeroSensor:(sensorSlot:SensorSlot, sensorValue:number) => void;
     onStopCollection:() => void;
     runLength:number;
     collecting:boolean;
     hasData:boolean;
     dataReset:boolean;
+    timeUnit:string;
     xStart:number;
     xEnd:number;
     isSingletonGraph:boolean;
@@ -44,8 +46,6 @@ export interface SensorGraphState {
     sensorValue:number|undefined;
     sensorData:number[][];
     dataChanged:boolean;
-    tareValue:number;
-    timeUnit:string;
 }
 
 export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGraphState> {
@@ -61,9 +61,7 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
             sensorColID: undefined,
             sensorValue: undefined,
             sensorData: this.props.sensorSlot.sensorData,
-            dataChanged: false,
-            tareValue: 0,
-            timeUnit: "s"
+            dataChanged: false
         };
         
         this.props.sensorConnector.on("statusReceived", this.onSensorStatus);
@@ -76,9 +74,9 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
     }
     
     zeroSensor = () => {
-        this.setState({
-            tareValue: this.state.sensorValue || 0
-        });
+        if (this.props.onZeroSensor) {
+            this.props.onZeroSensor(this.props.sensorSlot, this.state.sensorValue || 0);
+        }
     }
     
     onSensorStatus = () => {
@@ -132,7 +130,7 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
             var updatedData = this.state.sensorData.slice();
             for(var i=0; i < newTimeData.length; i++) {
                 var time = Number(newTimeData[i].toFixed(2));
-                var value = newValueData[i] - this.state.tareValue;
+                var value = newValueData[i] - sensor.tareValue;
                 if(time <= this.props.runLength) {
                     updatedData.push([time, value]);
                 }
@@ -185,7 +183,7 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
               maxReading = sensorDefinition && sensorDefinition.maxReading,
               measurementName = (sensorDefinition && sensorDefinition.measurementName) || "",
               valueUnit = sensor.valueUnit || "",
-              xLabel = this.props.isLastGraph ? `Time (${this.state.timeUnit})` : "",
+              xLabel = this.props.isLastGraph ? `Time (${this.props.timeUnit})` : "",
               yLabel = measurementName
                         ? `${measurementName} (${valueUnit})`
                         : "Sensor Reading (-)";
@@ -209,14 +207,15 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
 
     renderSidePanel() {
         const { collecting, hasData } = this.props,
-              onSensorSelect = !collecting && !hasData ? this.props.onSensorSelect : undefined;
+              onSensorSelect = !collecting && !hasData ? this.props.onSensorSelect : undefined,
+              onZeroSensor = !collecting && !hasData ? this.zeroSensor : undefined;
         return (
           <GraphSidePanel
             width={kSidePanelWidth}
             sensorSlot={this.props.sensorSlot}
             sensorColumns={this.props.sensorColumns}
-            onZeroSensor={this.zeroSensor}
-            onSensorSelect={onSensorSelect} />
+            onSensorSelect={onSensorSelect}
+            onZeroSensor={onZeroSensor} />
         );
     }
     

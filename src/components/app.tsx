@@ -206,6 +206,11 @@ export class App extends React.Component<AppProps, AppState> {
         }
         this.setState({ sensorSlots });
     }
+
+    handleZeroSensor = (sensorSlot:SensorSlot, sensorValue:number) => {
+        sensorSlot.sensor.tareValue = sensorValue;
+        this.setState({ sensorSlots: this.state.sensorSlots });
+    }
     
     sensorHasData():boolean {
         return (this.sensorConnector &&
@@ -403,6 +408,7 @@ export class App extends React.Component<AppProps, AppState> {
                             sensorConnector={this.sensorConnector}
                             onGraphZoom={this.onGraphZoom} 
                             onSensorSelect={this.handleSensorSelect}
+                            onZeroSensor={this.handleZeroSensor}
                             onStopCollection={this.stopSensor}
                             runLength={this.state.runLength}
                             xStart={this.state.xStart}
@@ -410,6 +416,7 @@ export class App extends React.Component<AppProps, AppState> {
                             isSingletonGraph={isSingletonGraph}
                             isLastGraph={isLastGraph}
                             sensorColumns={sensorColumns}
+                            timeUnit={this.state.timeUnit}
                             collecting={this.state.collecting}
                             hasData={this.hasData()}
                             dataReset={this.state.dataReset}/>;

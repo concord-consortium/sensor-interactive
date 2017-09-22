@@ -10,8 +10,8 @@ interface IGraphSidePanelProps {
   width?:number;
   sensorSlot:SensorSlot;
   sensorColumns:ISensorConfigColumnInfo[];
-  onZeroSensor:() => void;
   onSensorSelect?:(sensorIndex:number, columnID:string) => void;
+  onZeroSensor?:() => void;
 }
 
 export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
@@ -65,7 +65,7 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
         sensorOptions = sensorSelectOptions(props.sensorColumns),
         enableSensorSelect = sensorOptions && (sensorOptions.length > 1) && props.onSensorSelect,
         sensorDefinition = sensor && sensor.definition,
-        disableZeroSensor = !sensorDefinition || !sensorDefinition.tareable;
+        enableZeroSensor = sensorDefinition && sensorDefinition.tareable && props.onZeroSensor;
   return (
     <div className="graph-side-panel" style={style}>
       <label className="reading-label side-panel-item">Reading:</label>
@@ -80,7 +80,7 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
         {sensorOptions}
       </Select>
       <Button className="zero-button side-panel-item"
-              onClick={handleZeroSensor} disabled={disableZeroSensor}>
+              onClick={handleZeroSensor} disabled={!enableZeroSensor}>
         Zero Sensor
       </Button>
     </div>
