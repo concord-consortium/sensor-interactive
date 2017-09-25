@@ -7,11 +7,11 @@ import { ISensorConfigColumnInfo,
          ISensorConnectorDataset } from "../models/sensor-connector-interface";
 import sizeMe from "react-sizeme";
 
-const kSidePanelWidth = 160,
-      kPairedGraphHeight = 190,
+const kSidePanelWidth = 200,
+      kPairedGraphHeight = 160,
       kGraphLabelHeight = 18,
       kGraphWithLabelHeight = kPairedGraphHeight + kGraphLabelHeight,
-      kBetweenGraphMargin = 10,
+      kBetweenGraphMargin = 22,
       kSingletonGraphHeight = kGraphWithLabelHeight + kBetweenGraphMargin + kPairedGraphHeight;
 
 interface ISizeMeSize {
@@ -211,7 +211,6 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
               onZeroSensor = !collecting && !hasData ? this.zeroSensor : undefined;
         return (
           <GraphSidePanel
-            width={kSidePanelWidth}
             sensorSlot={this.props.sensorSlot}
             sensorColumns={this.props.sensorColumns}
             onSensorSelect={onSensorSelect}

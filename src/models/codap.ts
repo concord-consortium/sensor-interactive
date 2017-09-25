@@ -36,7 +36,7 @@ export class Codap {
         CodapInterface.init({
             name: this.dataSetName,
             title: this.dataSetTitle,
-            dimensions: {width: 460, height: 500},
+            dimensions: {width: 800, height: 490},
             version: '0.1'
         }, this.responseCallback).then((iResult) => {
             // get interactive state so we can save the data set index.

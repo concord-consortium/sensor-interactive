@@ -433,7 +433,7 @@ export class App extends React.Component<AppProps, AppState> {
                         : "",
             interfaceType = (sensorConfig && sensorConfig.interface) || "";
         return (
-            <div>
+            <div className="app-container">
                 <ReactModal contentLabel="Discard data?" 
                     isOpen={this.state.warnNewModal}
                     style={{
@@ -463,19 +463,21 @@ export class App extends React.Component<AppProps, AppState> {
                     <button 
                         onClick={this.tryReconnectModal}>Try again</button>
                 </ReactModal>
-                <div className="app-top-bar">
-                    <label className="two-sensors-checkbox">
-                        <input type="checkbox" 
-                            id="toggleGraphBtn"
-                            onClick={this.toggleGraph} />
-                        Two sensors
-                    </label>
-                    <div>{this.state.statusMessage || "\xA0"}</div>
+                <div className="app-content">
+                    <div className="app-top-bar">
+                        <label className="two-sensors-checkbox">
+                            <input type="checkbox" 
+                                id="toggleGraphBtn"
+                                onClick={this.toggleGraph} />
+                            Two sensors
+                        </label>
+                        <div>{this.state.statusMessage || "\xA0"}</div>
+                    </div>
+                    {this.renderGraph(sensorSlots[0], "graph1", !secondGraph)}
+                    {secondGraph
+                        ? this.renderGraph(sensorSlots[1], "graph2", false, true)
+                        : null}
                 </div>
-                {this.renderGraph(sensorSlots[0], "graph1", !secondGraph)}
-                {secondGraph
-                    ? this.renderGraph(sensorSlots[1], "graph2", false, true)
-                    : null}
                 <ControlPanel   interfaceType={interfaceType}
                                 collecting={this.state.collecting}
                                 hasData={this.state.hasData}
