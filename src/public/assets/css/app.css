@@ -24,10 +24,14 @@ input, textarea, select, button {
 }
 
 .app-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1;
     margin-top: 8px;
 }
 
 .app-top-bar {
+    flex: 0 0 18px;
     display: flex;
     flex-direction: row-reverse;
     justify-content: space-between;
@@ -36,6 +40,11 @@ input, textarea, select, button {
 .two-sensors-checkbox {
     margin-right: 62px;
     user-select: none;
+}
+
+.graphs-panel {
+    min-height: 370px;
+    flex: 1 1;
 }
 
 .dygraph-label {
@@ -122,6 +131,7 @@ input, textarea, select, button {
 }
 
 .control-panel {
+    z-index: 1;
     width: 100vw;
     flex: 0 0 44px;
     margin-top: 20px;

@@ -4,7 +4,7 @@ import { Sensor } from "../models/sensor";
 import { SensorSlot } from "../models/sensor-slot";
 import { SensorConfiguration } from "../models/sensor-configuration";
 import { ISensorConfig, ISensorConfigColumnInfo } from "../models/sensor-connector-interface";
-import { SensorGraph } from "./sensor-graph";
+import GraphsPanel from "./graphs-panel";
 import { ControlPanel } from "./control-panel";
 import { Codap } from "../models/codap";
 import { IStringMap, SensorStrings, SensorDefinitions } from "../models/sensor-definitions";
@@ -405,29 +405,8 @@ export class App extends React.Component<AppProps, AppState> {
         }
     }
     
-    renderGraph(sensorSlot:SensorSlot, title:string, isSingletonGraph:boolean, isLastGraph:boolean = isSingletonGraph) {
-        const sensorColumns = this.state.sensorConfig && this.state.sensorConfig.dataColumns;
-        return <SensorGraph sensorSlot={sensorSlot}
-                            title={title} 
-                            sensorConnector={this.sensorConnector}
-                            onGraphZoom={this.onGraphZoom} 
-                            onSensorSelect={this.handleSensorSelect}
-                            onZeroSensor={this.handleZeroSensor}
-                            onStopCollection={this.stopSensor}
-                            runLength={this.state.runLength}
-                            xStart={this.state.xStart}
-                            xEnd={this.state.xEnd}
-                            isSingletonGraph={isSingletonGraph}
-                            isLastGraph={isLastGraph}
-                            sensorColumns={sensorColumns}
-                            timeUnit={this.state.timeUnit}
-                            collecting={this.state.collecting}
-                            hasData={this.hasData()}
-                            dataReset={this.state.dataReset}/>;
-    }
-    
     render() {
-        var { sensorConfig, sensorSlots, secondGraph } = this.state,
+        var { sensorConfig } = this.state,
             codapURL = window.self === window.top
                         ? "http://codap.concord.org/releases/latest?di=" + window.location.href
                         : "",
@@ -473,24 +452,38 @@ export class App extends React.Component<AppProps, AppState> {
                         </label>
                         <div>{this.state.statusMessage || "\xA0"}</div>
                     </div>
-                    {this.renderGraph(sensorSlots[0], "graph1", !secondGraph)}
-                    {secondGraph
-                        ? this.renderGraph(sensorSlots[1], "graph2", false, true)
-                        : null}
+                    <GraphsPanel
+                        sensorConnector={this.sensorConnector}
+                        sensorConfig={this.state.sensorConfig}
+                        sensorSlots={this.state.sensorSlots}
+                        secondGraph={this.state.secondGraph}
+                        onGraphZoom={this.onGraphZoom} 
+                        onSensorSelect={this.handleSensorSelect}
+                        onZeroSensor={this.handleZeroSensor}
+                        onStopCollection={this.stopSensor}
+                        xStart={this.state.xStart}
+                        xEnd={this.state.xEnd}
+                        timeUnit={this.state.timeUnit}
+                        runLength={this.state.runLength}
+                        collecting={this.state.collecting}
+                        hasData={this.hasData()}
+                        dataReset={this.state.dataReset}
+                    />
                 </div>
-                <ControlPanel   interfaceType={interfaceType}
-                                collecting={this.state.collecting}
-                                hasData={this.state.hasData}
-                                dataChanged={this.state.dataChanged}
-                                duration={10} durationUnit="s"
-                                durationOptions={[1, 5, 10, 15, 20, 30, 45, 60]}
-                                embedInCodapUrl={codapURL}
-                                onDurationChange={this.onTimeSelect}
-                                onStartCollecting={this.startSensor}
-                                onStopCollecting={this.stopSensor}
-                                onNewRun={this.checkNewData}
-                                onSaveData={this.sendData}
-                                onReloadPage={this.reload}
+                <ControlPanel
+                    interfaceType={interfaceType}
+                    collecting={this.state.collecting}
+                    hasData={this.state.hasData}
+                    dataChanged={this.state.dataChanged}
+                    duration={10} durationUnit="s"
+                    durationOptions={[1, 5, 10, 15, 20, 30, 45, 60]}
+                    embedInCodapUrl={codapURL}
+                    onDurationChange={this.onTimeSelect}
+                    onStartCollecting={this.startSensor}
+                    onStopCollecting={this.stopSensor}
+                    onNewRun={this.checkNewData}
+                    onSaveData={this.sendData}
+                    onReloadPage={this.reload}
                 />
             </div>
         );
