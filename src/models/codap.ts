@@ -41,6 +41,34 @@ export class Codap {
         }, this.responseCallback).then((iResult) => {
             // get interactive state so we can save the data set index.
             this.state = CodapInterface.getInteractiveState();
+
+            // if the interactive run state doesn't contain a run number,
+            // then determine the run number of the last case in the collection.
+            if (this.state.runNumber == null) {
+                const runsCollection = `dataContext[${this.dataSetName}].collection[runs]`;
+                // determine the number of cases
+                CodapInterface.sendRequest({
+                    action: 'get',
+                    resource: `${runsCollection}.caseCount`
+                }, this.responseCallback)
+                .then((response) => {
+                    if (response.success) {
+                        // request the last case
+                        const caseCount = response.values;
+                        CodapInterface.sendRequest({
+                            action: 'get',
+                            resource: `${runsCollection}.caseByIndex[${caseCount-1}]`
+                        }, this.responseCallback)
+                        .then((response) => {
+                            // retrieve the run number from the last case
+                            if (response.success) {
+                                const theCase = response.values['case'];
+                                this.state.runNumber = theCase.values.Run;
+                            }
+                        }, this.responseCallback);
+                    }
+                });
+            }
         });
     }
     
@@ -49,7 +77,7 @@ export class Codap {
             //console.log("codap response: success=" + response.success);
         }
     }
-    
+
     requestDataContext():Promise<any> {
         return CodapInterface.sendRequest({
             action: 'get',
