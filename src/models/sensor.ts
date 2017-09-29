@@ -1,11 +1,9 @@
 import { ISensorDefinition } from "./sensor-connector-interface";
 
 export class Sensor {
-    index?:number;          // local index: 0 for top graph, 1 for bottom
     columnID?:string;
     sensorPosition?:number; // index in received dataColumns array
     sensorValue?:number;
-    sensorData:number[][];
     dataChanged:boolean;
     tareValue:number;
     timeUnit:string;
@@ -13,7 +11,7 @@ export class Sensor {
     definition:ISensorDefinition;
     
     constructor() {
-        this.sensorData = [];
+        this.tareValue = 0;
         this.definition = {
             sensorName:"",
             measurementName:"",
@@ -25,6 +23,6 @@ export class Sensor {
     }
 
     get isConnected() {
-        return this.columnID && this.sensorData && this.valueUnit;
+        return !!this.columnID && !!this.valueUnit;
     }
 }

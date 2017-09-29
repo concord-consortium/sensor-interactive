@@ -1,0 +1,29 @@
+import { Sensor } from "./sensor";
+
+export class SensorSlot {
+  slotIndex:number;
+  sensor:Sensor;
+  sensorData:number[][];
+
+  constructor(index:number, sensor:Sensor) {
+    this.slotIndex = index;
+    this.sensor = sensor;
+    this.sensorData = [];
+  }
+
+  get isConnected() {
+    return this.sensor.isConnected;
+  }
+
+  get hasData() {
+    return this.sensorData && this.sensorData.length;
+  }
+
+  setSensor(sensor:Sensor) {
+    this.sensor = sensor;
+  }
+
+  setData(sensorData:number[][]) {
+    this.sensorData = sensorData;
+  }
+}
