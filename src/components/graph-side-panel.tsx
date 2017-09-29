@@ -61,7 +61,7 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
   };
 
   const width = props.width && isFinite(props.width) ? props.width : null,
-        style = width ? { flex: `0 0 ${width}px` } : {},
+        style = width ? { width } : {},
         sensorOptions = sensorSelectOptions(props.sensorColumns),
         enableSensorSelect = sensorOptions && (sensorOptions.length > 1) && props.onSensorSelect,
         sensorDefinition = sensor && sensor.definition,

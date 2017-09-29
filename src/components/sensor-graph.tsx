@@ -5,22 +5,12 @@ import { Graph } from "./graph";
 import { GraphSidePanel } from "./graph-side-panel";
 import { ISensorConfigColumnInfo,
          ISensorConnectorDataset } from "../models/sensor-connector-interface";
-import sizeMe from "react-sizeme";
 
-const kSidePanelWidth = 160,
-      kPairedGraphHeight = 190,
-      kGraphLabelHeight = 18,
-      kGraphWithLabelHeight = kPairedGraphHeight + kGraphLabelHeight,
-      kBetweenGraphMargin = 10,
-      kSingletonGraphHeight = kGraphWithLabelHeight + kBetweenGraphMargin + kPairedGraphHeight;
+const kSidePanelWidth = 200;
 
-interface ISizeMeSize {
-    width?:number;
-    height?:number;
-}
-
-export interface SensorGraphProps {
-    size:ISizeMeSize;
+interface SensorGraphProps {
+    width:number|null;
+    height:number|null;
     sensorConnector:any;
     sensorColumns:ISensorConfigColumnInfo[];
     sensorSlot:SensorSlot;
@@ -40,7 +30,7 @@ export interface SensorGraphProps {
     isLastGraph:boolean;
 }
 
-export interface SensorGraphState {
+interface SensorGraphState {
     sensorActive:boolean;
     sensorColID?:string;
     sensorValue:number|undefined;
@@ -48,7 +38,7 @@ export interface SensorGraphState {
     dataChanged:boolean;
 }
 
-export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGraphState> {
+export default class SensorGraph extends React.Component<SensorGraphProps, SensorGraphState> {
     
     sensor:Sensor;
     lastDataIndex:number = 0;
@@ -173,11 +163,8 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
         }
     }
     
-    renderGraph(graphWidth?:number) {
-        const height = this.props.isSingletonGraph
-                        ? kSingletonGraphHeight
-                        : (this.props.isLastGraph ? kGraphWithLabelHeight : kPairedGraphHeight),
-              { sensor } = this.props.sensorSlot,
+    renderGraph(graphWidth:number|null) {
+        const { sensor } = this.props.sensorSlot,
               sensorDefinition = sensor && sensor.definition,
               minReading = sensorDefinition && sensorDefinition.minReading,
               maxReading = sensorDefinition && sensorDefinition.maxReading,
@@ -192,7 +179,7 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
               <Graph 
                 title={this.props.title}
                 width={graphWidth}
-                height={height}
+                height={this.props.height}
                 data={this.state.sensorData} 
                 onZoom={this.props.onGraphZoom}
                 xMin={this.props.xStart}
@@ -211,7 +198,6 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
               onZeroSensor = !collecting && !hasData ? this.zeroSensor : undefined;
         return (
           <GraphSidePanel
-            width={kSidePanelWidth}
             sensorSlot={this.props.sensorSlot}
             sensorColumns={this.props.sensorColumns}
             onSensorSelect={onSensorSelect}
@@ -220,8 +206,7 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
     }
     
     render() {
-        const { width } = this.props.size,
-              graphWidth = width != null ? width - kSidePanelWidth : undefined;
+        const graphWidth = this.props.width && (this.props.width - kSidePanelWidth);
         return (
             <div className="sensor-graph-panel">
                 {this.renderGraph(graphWidth)}
@@ -230,9 +215,3 @@ export class SensorGraphImp extends React.Component<SensorGraphProps, SensorGrap
         );
     }
 }
-
-const sizeMeConfig = {
-        monitorWidth: true,
-        noPlaceholder: true
-      };
-export const SensorGraph = sizeMe(sizeMeConfig)(SensorGraphImp);

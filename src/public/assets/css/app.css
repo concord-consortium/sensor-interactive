@@ -2,6 +2,8 @@ body {
     background-color: #F9EDC3;
     font-family: Lato, Verdana, Geneva, sans-serif;
     font-size: 12px;
+    margin: 0;
+    overflow: hidden;
 }
 
 input, textarea, select, button {
@@ -13,7 +15,23 @@ input, textarea, select, button {
     outline: none;
 }
 
+.app-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+}
+
+.app-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1;
+    margin-top: 8px;
+}
+
 .app-top-bar {
+    flex: 0 0 18px;
     display: flex;
     flex-direction: row-reverse;
     justify-content: space-between;
@@ -22,6 +40,11 @@ input, textarea, select, button {
 .two-sensors-checkbox {
     margin-right: 62px;
     user-select: none;
+}
+
+.graphs-panel {
+    min-height: 370px;
+    flex: 1 1;
 }
 
 .dygraph-label {
@@ -33,9 +56,7 @@ input, textarea, select, button {
 }
 
 .sensor-graph-panel {
-    width: 98%;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin: 8px;
     display: flex;
 }
 
@@ -56,6 +77,8 @@ input, textarea, select, button {
 }
 
 .graph-side-panel {
+    width: 200px;
+    flex: 0 0;
     display: flex;
     flex-direction: column;
     user-select: none;
@@ -67,10 +90,14 @@ input, textarea, select, button {
     margin-right: 10px;
 }
 
+.reading-label {
+    margin-top: 8px;
+}
+
 .sensor-reading-surround {
     width: 100px;
     height: 24px;
-    margin-left: 32px;
+    margin-left: 42px;
     margin-bottom: 8px;
     background-color: white;
     border-radius: 5px;
@@ -86,6 +113,10 @@ input, textarea, select, button {
     text-align: center;
 }
 
+.sensor-label {
+    margin-top: 8px;
+}
+
 .sensor-select {
     background-color: #eee;
 }
@@ -94,16 +125,16 @@ input, textarea, select, button {
     width: 100px;
     background-color: #eee;
     border-radius: 4px;
-    margin-left: 33px;
+    margin-left: 42px;
     margin-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .control-panel {
+    z-index: 1;
     width: 100vw;
-    height: 40px;
+    flex: 0 0 44px;
     margin-top: 20px;
-    margin-left: -8px;
     background-color: white;
     display: flex;
     align-items: center;
@@ -133,8 +164,8 @@ input, textarea, select, button {
 
 .cc-logo {
     /* 354 x 110 native */
-    width: 122px;
-    height: 38px;
+    width: 116px;
+    height: 36px;
     min-width: 42px;
     margin-left: 6px;
     margin-right: 10px;
@@ -152,11 +183,11 @@ input, textarea, select, button {
 
 .embed-codap-link {
     margin-top: 4px;
-    margin-right: 16px;
+    margin-right: 8px;
 }
 
 .reload-page-button {
-    margin-right: 16px;
+    margin-right: 8px;
     opacity: 0.5;
 }
 
