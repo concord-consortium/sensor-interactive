@@ -104,9 +104,9 @@ export class App extends React.Component<AppProps, AppState> {
             dataChanged:false,
             dataReset:false,
             collecting:false,
-            runLength:10,
+            runLength:5,
             xStart:0,
-            xEnd:10.01, // without the .01, last tick number sometimes fails to display
+            xEnd:5.01, // without the .01, last tick number sometimes fails to display
             timeUnit:"",
             warnNewModal:false,
             reconnectModal:false,
@@ -467,7 +467,7 @@ export class App extends React.Component<AppProps, AppState> {
                     collecting={this.state.collecting}
                     hasData={this.state.hasData}
                     dataChanged={this.state.dataChanged}
-                    duration={10} durationUnit="s"
+                    duration={this.state.runLength} durationUnit="s"
                     durationOptions={[1, 5, 10, 15, 20, 30, 45, 60]}
                     embedInCodapUrl={codapURL}
                     onDurationChange={this.onTimeSelect}
