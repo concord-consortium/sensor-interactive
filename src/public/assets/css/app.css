@@ -43,7 +43,6 @@ input, textarea, select, button {
 }
 
 .graphs-panel {
-    min-height: 370px;
     flex: 1 1;
 }
 
