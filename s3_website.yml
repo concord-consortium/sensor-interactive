@@ -1,5 +1,6 @@
-s3_id: <%= ENV['S3_ACCESS_KEY_ID'] %>
-s3_secret: <%= ENV['S3_SECRET_KEY'] %>
+# use the AWS CLI tool environment variable names
+s3_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+s3_secret: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
 s3_bucket: models-resources
 s3_key_prefix: sensor-interactive
 s3_endpoint: us-east-1
@@ -9,7 +10,7 @@ cloudfront_distribution_id: E3V22UD5MXF4CR
 cloudfront_invalidate_root: true
 cloudfront_wildcard_invalidation: true
 
-<% if ENV['TRAVIS_BRANCH'] == 'master' %>
+<% if ENV['TRAVIS_BRANCH'] == 'production' %>
 # in this case we are going to deploy this branch to the top level of the domain
 # so we need to ignore the version and branch folders
 ignore_on_server: ^sensor-interactive/(version/|branch/)
