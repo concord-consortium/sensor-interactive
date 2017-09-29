@@ -38,7 +38,7 @@ input, textarea, select, button {
 }
 
 .two-sensors-checkbox {
-    margin-right: 62px;
+    margin-right: 66px;
     user-select: none;
 }
 
@@ -78,6 +78,7 @@ input, textarea, select, button {
 
 .graph-side-panel {
     width: 200px;
+    min-width: 200px;
     flex: 0 0;
     display: flex;
     flex-direction: column;
@@ -97,7 +98,7 @@ input, textarea, select, button {
 .sensor-reading-surround {
     width: 100px;
     height: 24px;
-    margin-left: 42px;
+    margin-left: 48px;
     margin-bottom: 8px;
     background-color: white;
     border-radius: 5px;
@@ -125,7 +126,7 @@ input, textarea, select, button {
     width: 100px;
     background-color: #eee;
     border-radius: 4px;
-    margin-left: 42px;
+    margin-left: 48px;
     margin-top: 20px;
     margin-bottom: 10px;
 }
