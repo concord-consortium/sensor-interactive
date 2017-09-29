@@ -16,7 +16,9 @@
     "dev-build": "npm-run-all --parallel copy-public dev-webpack",
     "start": "npm-run-all --parallel copy-public copy-public:watch webpack:watch browse",
     "dev-start": "npm-run-all --parallel copy-public copy-public:watch dev-webpack:watch browse",
-    "deploy": "./build_and_deploy.sh"
+    "deploy": "./build_and_deploy.sh",
+    "cloudfront:invalidations": "s3cmd cfinvalinfo cf://E3V22UD5MXF4CR",
+    "cloudfront:inval-root": "aws cloudfront create-invalidation --distribution-id E3V22UD5MXF4CR --paths /index.html"
   },
   "repository": {
     "type": "git",
