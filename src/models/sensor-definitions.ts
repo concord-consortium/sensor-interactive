@@ -62,7 +62,7 @@ export const SensorStrings:ISensorStrings = {
       "java_applet_error": "It appears that Java applets cannot run in your browser. If you are able to fix this, reload the page to use the sensor",
       "java_applet_not_loading": "The sensor applet appears not to be loading. If you are able to fix this, reload the page to use the sensor",
       "unexpected_error": "There was an unexpected error when connecting to the sensor.",
-      "sensor_not_attached": "The sensor does not appear to be attached. Try re-attaching it, and then click \"Try Again\"",
+      "sensor_not_attached": "No sensors appear to be attached. Try attaching one or more sensors and then click \"Try Again\".",
       "sensor_or_device_unplugged": "The __sensor_or_device_name__ was unplugged. Try plugging it back in, and then click \"$t(sensor.messages.try_again)\".",
       "try_again": "Try Again",
       "cancel": "Cancel",

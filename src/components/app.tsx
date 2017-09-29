@@ -413,34 +413,26 @@ export class App extends React.Component<AppProps, AppState> {
             interfaceType = (sensorConfig && sensorConfig.interface) || "";
         return (
             <div className="app-container">
-                <ReactModal contentLabel="Discard data?" 
-                    isOpen={this.state.warnNewModal}
-                    style={{
-                        content: {
-                            bottom: "auto"
-                        }
-                    }}>
+                <ReactModal className="sensor-dialog-content"
+                            overlayClassName="sensor-dialog-overlay"
+                            contentLabel="Discard data?" 
+                            isOpen={this.state.warnNewModal} >
                     <p>{this.messages["check_save"]}</p>
-                    <input type="checkbox" 
-                        onChange={this.toggleWarning}/><label>Don't show this message again</label>
+                    <label>
+                        <input type="checkbox" onChange={this.toggleWarning}/>
+                        Don't show this message again
+                    </label>
                     <hr/>
-                    <button 
-                        onClick={this.closeWarnNewModal}>Go back</button>
-                    <button
-                        onClick={this.discardData}>Discard the data</button>
+                    <button onClick={this.closeWarnNewModal}>Preserve Data</button>
+                    <button onClick={this.discardData}>Discard Data</button>
                 </ReactModal>
-                <ReactModal contentLabel="Sensor not attached" 
-                    isOpen={this.state.reconnectModal}
-                    style={{
-                        content: {
-                            bottom: "auto"
-                        }
-                    }}>
+                <ReactModal className="sensor-dialog-content"
+                            overlayClassName="sensor-dialog-overlay"
+                            contentLabel="Sensor not attached" 
+                            isOpen={this.state.reconnectModal} >
                     <p>{this.messages["sensor_not_attached"]}</p>
-                    
                     <hr/>
-                    <button 
-                        onClick={this.tryReconnectModal}>Try again</button>
+                    <button onClick={this.tryReconnectModal}>Try again</button>
                 </ReactModal>
                 <div className="app-content">
                     <div className="app-top-bar">

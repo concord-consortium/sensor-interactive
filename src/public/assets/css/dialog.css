@@ -1,0 +1,46 @@
+.sensor-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.sensor-dialog-content {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  max-width: 90%;
+  bottom: auto;
+  border: 1px solid #ccc;
+  background: white;
+  overflow: auto;
+  border-radius: 4px;
+  outline: none;
+  padding: 20px;
+  font-size: 15px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sensor-dialog-content label {
+  user-select: none;
+}
+
+.sensor-dialog-content label input {
+  margin-right: 6px;
+}
+
+.sensor-dialog-content hr {
+  margin-top: 1.5em;
+  margin-bottom: 1.5em;
+}
+
+.sensor-dialog-content button {
+  float: right;
+  margin-left: 12px;
+  font-size: 15px;
+  user-select: none;
+}
