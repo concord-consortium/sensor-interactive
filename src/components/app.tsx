@@ -238,6 +238,11 @@ export class App extends React.Component<AppProps, AppState> {
         
         this.sensorConnector.off("collectionStopped", this.onSensorCollectionStopped);
     }
+
+    onAppendData = (sensorSlot:SensorSlot, sensorData:number[][]) => {
+        sensorSlot.appendData(sensorData);
+        this.setState({ hasData: true, dataChanged: true });
+    }
     
     onSensorData(setId:string) {
         if(!this.state.collecting) {
@@ -282,14 +287,14 @@ export class App extends React.Component<AppProps, AppState> {
               data = sensorSlots.map((slot) =>
                         slot.sensorData.slice(this.selectionRange.start, this.selectionRange.end)),
               sendSecondSensorData = sensorSlots[1].hasData;
-        let names = sensorSlots.map((slot) => slot.sensor.definition.measurementName);
+        let names = sensorSlots.map((slot) => slot.sensorForData.definition.measurementName);
         if (!sendSecondSensorData) {
             this.codap.sendData(data[0], names[0]);   
         }
         else {
             names = names.map((name, i) => {
                 const slot = sensorSlots[i],
-                      sensor = slot && slot.sensor,
+                      sensor = slot && slot.sensorForData,
                       position = (sensor && sensor.sensorPosition) || i+1;
                 return `${name}_${position}`;
             });
@@ -313,7 +318,7 @@ export class App extends React.Component<AppProps, AppState> {
     
     newData() {
         const { sensorSlots } = this.state;
-        sensorSlots.forEach((slot) => slot.sensorData = []);
+        sensorSlots.forEach((slot) => slot.clearData());
         this.setState({
             hasData:false,
             dataReset:true,
@@ -449,6 +454,7 @@ export class App extends React.Component<AppProps, AppState> {
                         sensorConfig={this.state.sensorConfig}
                         sensorSlots={this.state.sensorSlots}
                         secondGraph={this.state.secondGraph}
+                        onAppendData={this.onAppendData}
                         onGraphZoom={this.onGraphZoom} 
                         onSensorSelect={this.handleSensorSelect}
                         onZeroSensor={this.handleZeroSensor}

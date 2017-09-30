@@ -21,6 +21,7 @@ export interface GraphState {
     width:number|null;
     height:number|null;
     data:number[][];
+    dataLength:number;
     xMin:number;
     xMax:number;
     yMin:number;
@@ -34,6 +35,11 @@ export interface GraphState {
     [key:string]: any;
 }
 
+// dygraph doesn't handle empty data
+function dyGraphData(data:number[][]) {
+    return data && data.length ? data : [[0,0]];
+}
+
 export class Graph extends React.Component<GraphProps, GraphState> {
     
     private dygraph:Dygraph;
@@ -45,7 +51,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         this.state = {
             width: this.props.width,
             height: this.props.height,
-            data: this.props.data,
+            data: this.props.data || [],
+            dataLength: this.props.data ? this.props.data.length : 0,
             xMin: this.props.xMin,
             xMax: this.props.xMax,
             yMin: this.props.yMin,
@@ -63,25 +70,17 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         this.onZoom = this.onZoom.bind(this);
     }
     
-    // TODO: remove redundant calls
-    checkData(data:number[][]):number[][] {
-        if(!data.length) {
-            data = [[0,0]];
-        }
-        return data;
-    }
-    
     update():void {
         if(!this.dygraph) {
             return;
         }
-        var data = this.checkData(this.state.data);
+        const { data, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
         this.dygraph.updateOptions({
-            file: data,
-            dateWindow: [this.state.xMin, this.state.xMax],
-            valueRange: [this.state.yMin, this.state.yMax],
-            xlabel: this.state.xLabel,
-            ylabel: this.state.yLabel
+            file: dyGraphData(data),
+            dateWindow: [xMin, xMax],
+            valueRange: [yMin, yMax],
+            xlabel: xLabel,
+            ylabel: yLabel
         });
 
         // override @types/dygraphs definition to allow no arguments
@@ -108,9 +107,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
     
     componentDidMount() {
-        var data = this.checkData(this.state.data);
-        
-        this.dygraph = new Dygraph("sensor-graph-" + this.props.title, data, {
+        this.dygraph = new Dygraph("sensor-graph-" + this.props.title,
+            dyGraphData(this.state.data), {
             dateWindow: [0, this.state.xMax],
             zoomCallback: this.onZoom,
             axes: {
@@ -144,7 +142,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     componentWillReceiveProps(nextProps:GraphProps) {
-        var data = this.checkData(nextProps.data);
+        var data = nextProps.data || [];
         
         var newState:any = {};
         this.dyUpdateProps.forEach((prop)=> {
@@ -153,8 +151,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             }
         });
         
-        if(data.length !== this.state.data.length) {
+        if(data.length !== this.state.dataLength) {
             newState.data = data;
+            newState.dataLength = data.length;
         }
         
         if(newState.yMax) {
@@ -170,7 +169,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
     
     shouldComponentUpdate(nextProps:GraphProps, nextState:GraphState):boolean {
-        return (nextState.data.length !== this.state.data.length) ||
+        return (nextState.data !== this.state.data) ||
+                (nextState.dataLength !== this.state.dataLength) ||
                 this.dyUpdateProps.some((prop) => nextState[prop] !== this.state[prop]);
     }
     
@@ -179,21 +179,23 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     render() {
+        const { width, height, title } = this.props;
         let graphStyle:{width?:number; height?:number} = {};
-        if (this.props.width && isFinite(this.props.width))
-            graphStyle.width = this.props.width;
-        if (this.props.height && isFinite(this.props.height))
-            graphStyle.height = this.props.height;
+        if (width && isFinite(width))
+            graphStyle.width = width;
+        if (height && isFinite(height))
+            graphStyle.height = height;
 
         // don't show the rescale button if there's no data to scale
+        const { data } = this.state;
         let buttonStyle:{display?:string} = {},
-            hasData = this.state.data && (this.state.data.length > 1);
+            hasData = data && (data.length > 1);
         if (!hasData)
             buttonStyle.display = "none";
 
         return (
             <div style={{position: "relative"}}>
-                <div id={"sensor-graph-" + this.props.title} className="graph-box" style={graphStyle}></div>
+                <div id={"sensor-graph-" + title} className="graph-box" style={graphStyle}></div>
                 <a onClick={this.autoScale}
                     className="graph-rescale-button"
                     style={buttonStyle}

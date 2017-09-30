@@ -15,6 +15,7 @@ interface SensorGraphProps {
     sensorColumns:ISensorConfigColumnInfo[];
     sensorSlot:SensorSlot;
     title:string;
+    onAppendData:(sensorSlot:SensorSlot, sensorData:number[][]) => void;
     onGraphZoom:(xStart:number, xEnd:number) => void;
     onSensorSelect:(sensorIndex:number, columnID:string) => void;
     onZeroSensor:(sensorSlot:SensorSlot, sensorValue:number) => void;
@@ -34,7 +35,6 @@ interface SensorGraphState {
     sensorActive:boolean;
     sensorColID?:string;
     sensorValue:number|undefined;
-    sensorData:number[][];
     dataChanged:boolean;
 }
 
@@ -50,7 +50,6 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
             sensorActive: false,
             sensorColID: undefined,
             sensorValue: undefined,
-            sensorData: this.props.sensorSlot.sensorData,
             dataChanged: false
         };
         
@@ -117,21 +116,20 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         if (newLength > this.lastDataIndex) {
             var newTimeData = timeData.slice(this.lastDataIndex, newLength);
             var newValueData = sensorData.slice(this.lastDataIndex, newLength);
-            var updatedData = this.state.sensorData.slice();
+            var newSensorData = [];
             for(var i=0; i < newTimeData.length; i++) {
                 var time = Number(newTimeData[i].toFixed(2));
                 var value = newValueData[i] - sensor.tareValue;
                 if(time <= this.props.runLength) {
-                    updatedData.push([time, value]);
+                    newSensorData.push([time, value]);
                 }
                 else if (this.props.onStopCollection) {
                     this.props.onStopCollection();
                 }
             }
             
-            this.props.sensorSlot.sensorData = updatedData;
+            this.props.onAppendData(this.props.sensorSlot, newSensorData);
             this.setState({
-                sensorData: updatedData,
                 dataChanged: true
             });
             
@@ -157,9 +155,6 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     componentWillReceiveProps(nextProps:SensorGraphProps) {
         if(!this.props.dataReset && nextProps.dataReset) {
             this.lastDataIndex = 0;
-            this.setState({
-                sensorData:[]
-            });
         }
     }
     
@@ -180,7 +175,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 title={this.props.title}
                 width={graphWidth}
                 height={this.props.height}
-                data={this.state.sensorData} 
+                data={this.props.sensorSlot.sensorData}
                 onZoom={this.props.onGraphZoom}
                 xMin={this.props.xStart}
                 xMax={this.props.xEnd}
