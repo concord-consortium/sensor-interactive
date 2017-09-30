@@ -78,7 +78,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         var data = this.checkData(this.state.data);
         this.dygraph.updateOptions({
             file: data,
-            dateWindow: [0, this.state.xMax],
+            dateWindow: [this.state.xMin, this.state.xMax],
             valueRange: [this.state.yMin, this.state.yMax],
             xlabel: this.state.xLabel,
             ylabel: this.state.yLabel
