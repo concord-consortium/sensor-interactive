@@ -271,9 +271,16 @@ export class App extends React.Component<AppProps, AppState> {
     }
         
     onSensorDisconnect() {
+        // On disconnect, we clear the sensor values, but leave the Sensor
+        // objects in place so we can match slots if interface is reconnected.
+        const { sensorSlots } = this.state;
+        sensorSlots.forEach((slot) => {
+            slot.sensor.sensorValue = undefined;
+        });
         this.setState({
             reconnectModal: true,
-            sensorConfig: null
+            sensorConfig: null,
+            sensorSlots
         });
     }
 
