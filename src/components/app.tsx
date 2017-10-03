@@ -77,6 +77,12 @@ function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:ISensorConfig
 
     findBestSensorMatch();
 
+    // if only one sensor, put it in the first slot
+    if (!matched[0] && matched[1]) {
+        matched[0] = matched[1];
+        matched[1] = null;
+    }
+
     // update slots with matched sensors; clear unmatched sensors
     matched.forEach((s:Sensor|null, i) => {
         slots[i].setSensor(s || new Sensor());
