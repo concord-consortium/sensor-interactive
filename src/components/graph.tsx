@@ -110,6 +110,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         this.dygraph = new Dygraph("sensor-graph-" + this.props.title,
             dyGraphData(this.state.data), {
             dateWindow: [0, this.state.xMax],
+            valueRange: [this.state.yMin, this.state.yMax],
             zoomCallback: this.onZoom,
             axes: {
                 x: {
