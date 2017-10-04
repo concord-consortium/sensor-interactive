@@ -3,7 +3,7 @@ import ReactModal from "react-modal";
 import { Sensor } from "../models/sensor";
 import { SensorSlot } from "../models/sensor-slot";
 import { SensorConfiguration } from "../models/sensor-configuration";
-import { ISensorConfig, ISensorConfigColumnInfo } from "../models/sensor-connector-interface";
+import { ISensorConfigColumnInfo, IStatusReceivedTuple, IColumnDataTuple } from "../models/sensor-connector-interface";
 import GraphsPanel from "./graphs-panel";
 import { ControlPanel } from "./control-panel";
 import { Codap } from "../models/codap";
@@ -159,7 +159,8 @@ export class App extends React.Component<AppProps, AppState> {
     }
     
     onSensorConnect() {
-        const config:ISensorConfig = this.sensorConnector.stateMachine.currentActionArgs[1],
+        const statusReceived:IStatusReceivedTuple = this.sensorConnector.stateMachine.currentActionArgs,
+              config = statusReceived[1],
               sensorConfig = new SensorConfiguration(config),
               interfaceType = sensorConfig.interface;
         
@@ -250,7 +251,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({ hasData: true, dataChanged: true });
     }
     
-    onSensorData(setId:string) {
+    onSensorData(columnID:string) {
         if(!this.state.collecting) {
             this.setState({
                 hasData: true,
@@ -262,11 +263,10 @@ export class App extends React.Component<AppProps, AppState> {
             this.sensorConnector.on("collectionStopped", this.onSensorCollectionStopped);
         }
         
-        var sensorInfo = this.sensorConnector.stateMachine.currentActionArgs;
-        var setID = sensorInfo[1];
-        // set IDs ending in 0 contain time data
-        if(setID.slice(setID.length-1) === 0) {
-            var timeData = sensorInfo[2];
+        var columnData:IColumnDataTuple = this.sensorConnector.stateMachine.currentActionArgs;
+        // column IDs ending in 0 contain time data
+        if(columnID.slice(columnID.length-1) === '0') {
+            var timeData = columnData[2];
             // make sure the sensor graph has received the update for the final value
             if(this.lastTime && this.lastTime > this.state.runLength) {
                 this.stopSensor();

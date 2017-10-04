@@ -7,9 +7,9 @@ export interface ISensorDefinition {
   maxReading:number;
 }
 
-interface ISensorConfigCollection {
-  canControl:boolean;
-  isCollecting:boolean;
+export interface ISensorConnectorDataset {
+  id:string;
+  columns:ISensorConfigColumnInfo[];
 }
 
 export interface ISensorConfigColumnInfo {
@@ -25,45 +25,36 @@ export interface ISensorConfigColumnInfo {
   data?:number[];
 }
 
-export interface ISensorConnectorDataset {
-  id:string;
-  columns:ISensorConfigColumnInfo[];
-}
-
-interface ISensorConfigColumns {
-  [key:string]: ISensorConfigColumnInfo;
-}
-
-interface ISensorConfigOS {
-  name:string;
-  version:string;
-}
-
-interface ISensorConfigServer {
-  arch:string;
-  version:string;
-}
-
 interface ISensorConfigSet {
   name:string;
   colIDs:number[];
 }
 
-interface ISensorConfigSets {
-  [key:string]: ISensorConfigSet;
-}
-
 export interface ISensorConfig {
-  collection:ISensorConfigCollection;
+  collection:{ canControl:boolean; isCollecting:boolean; };
   columnListTimeStamp:Date;
-  columns:ISensorConfigColumns;
+  columns:{ [key:string]: ISensorConfigColumnInfo; };
   currentInterface:string;
   currentState:string;
-  os:ISensorConfigOS;
+  os:{ name:string; version:string; };
   requestTimeStamp:Date;
-  server:ISensorConfigServer;
+  server:{ arch:string; version:string; };
   sessionDesc:string;
   sessionID:string;
-  sets:ISensorConfigSets;
+  sets:{ [key:string]: ISensorConfigSet; };
   setID?:string;
 }
+
+export interface IMachinaAction {
+  inputType:string;
+  delegated:boolean;
+  ticket:any;
+}
+
+export interface IStatusReceivedTuple
+        extends Array<IMachinaAction|ISensorConfig>
+                  {0:IMachinaAction, 1:ISensorConfig}
+
+export interface IColumnDataTuple
+        extends Array<IMachinaAction|string|number[]|Date>
+                  {0:IMachinaAction, 1:string, 2:number[], 3:Date}
