@@ -42,9 +42,9 @@ function newSensorFromDataColumn(dataColumn:ISensorConfigColumnInfo) {
     return newSensor;
 }
 
-function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:ISensorConfigColumnInfo[]) {
+function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:ISensorConfigColumnInfo[]|null) {
     let matched:Array<Sensor|null> = [null, null],
-        columns = dataColumns.slice();
+        columns = dataColumns && dataColumns.slice() || [];
     
     function matchSensors(test: (c:ISensorConfigColumnInfo, s:Sensor) => boolean) {
         matched.forEach((sensor:Sensor|null, index) => {
@@ -129,11 +129,13 @@ export class App extends React.Component<AppProps, AppState> {
         
         setTimeout(this.connectCodap, 1000);
         this.sensorConnector = new SensorConnectorInterface();
-        this.sensorConnector.on("datasetAdded", this.onSensorConnect);
         this.sensorConnector.on("interfaceConnected", this.onSensorConnect);
+        this.sensorConnector.on("interfaceRemoved", this.onSensorConnect);
         this.sensorConnector.on("columnAdded", this.onSensorConnect);
         this.sensorConnector.on("columnMoved", this.onSensorConnect);
         this.sensorConnector.on("columnRemoved", this.onSensorConnect);
+        this.sensorConnector.on("datasetAdded", this.onSensorConnect);
+        this.sensorConnector.on("data", this.onSensorData);
         this.sensorConnector.startPolling(SENSOR_IP);
         
         this.onTimeSelect = this.onTimeSelect.bind(this);
@@ -163,15 +165,17 @@ export class App extends React.Component<AppProps, AppState> {
               config = statusReceived[1],
               sensorConfig = new SensorConfiguration(config),
               interfaceType = sensorConfig.interface;
+        let sensorSlots = this.state.sensorSlots;
         
         if(!sensorConfig.hasInterface) {
+            sensorSlots = matchSensorsToDataColumns(sensorSlots, null);
             this.setState({
                 sensorConfig: null,
+                sensorSlots,
                 statusMessage: this.messages["no_sensors"]
             });
         }
         else {
-            this.sensorConnector.off("*", this.onSensorConnect);
             console.log("interface connected: " + interfaceType);
             
             this.setState({
@@ -179,16 +183,11 @@ export class App extends React.Component<AppProps, AppState> {
             });
             
             const timeUnit = sensorConfig.timeUnit || "",
-                  dataColumns = sensorConfig.dataColumns,
-                  sensorSlots = matchSensorsToDataColumns(this.state.sensorSlots, dataColumns) as SensorSlot[];
+                  dataColumns = sensorConfig.dataColumns;
+
+            sensorSlots = matchSensorsToDataColumns(sensorSlots, dataColumns);
             
             this.setState({ sensorConfig, sensorSlots, timeUnit });
-
-            this.sensorConnector.on("data", this.onSensorData);
-            this.sensorConnector.on("interfaceRemoved", this.onSensorDisconnect);
-            this.sensorConnector.on("columnAdded", this.onSensorConnect);
-            this.sensorConnector.on("columnMoved", this.onSensorConnect);
-            this.sensorConnector.on("columnRemoved", this.onSensorConnect);
         }
     }
     
@@ -460,7 +459,9 @@ export class App extends React.Component<AppProps, AppState> {
                                 onClick={this.toggleGraph} />
                             Two sensors
                         </label>
-                        <div>{this.state.statusMessage || "\xA0"}</div>
+                        <div className="status-message">
+                            {this.state.statusMessage || "\xA0"}
+                        </div>
                     </div>
                     <GraphsPanel
                         sensorConnector={this.sensorConnector}
