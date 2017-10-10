@@ -45,8 +45,10 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
   };
 
   const sensorSelectOptions = (sensorColumns:ISensorConfigColumnInfo[]) => {
-    if (sensorSlot.slotIndex == null) return null;
-    return (sensorColumns || []).map((column:ISensorConfigColumnInfo, index:number) => {
+    const columns = sensorColumns || [];
+    // if no sensor slot or not enough sensors, there are no options
+    if ((sensorSlot.slotIndex == null) || (sensorSlot.slotIndex >= columns.length)) return null;
+    return columns.map((column:ISensorConfigColumnInfo, index:number) => {
       const units = column && column.units,
             columnID = column && column.id,
             sensorDef = units && SensorDefinitions[units],
