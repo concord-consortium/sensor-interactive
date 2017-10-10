@@ -15,6 +15,7 @@ interface IGraphsPanelProps {
   sensorConfig:SensorConfiguration|null;
   sensorSlots:SensorSlot[];
   secondGraph:boolean;
+  onAppendData:(sensorSlot:SensorSlot, sensorData:number[][]) => void;
   onGraphZoom:(xStart:number, xEnd:number) => void;
   onSensorSelect:(sensorIndex:number, columnID:string) => void;
   onZeroSensor:(sensorSlot:SensorSlot, sensorValue:number) => void;
@@ -53,6 +54,7 @@ const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
                         title={title}
                         isSingletonGraph={isSingletonGraph}
                         isLastGraph={isLastGraph}
+                        onAppendData={props.onAppendData}
                         onGraphZoom={props.onGraphZoom} 
                         onSensorSelect={props.onSensorSelect}
                         onZeroSensor={props.onZeroSensor}
@@ -66,10 +68,12 @@ const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
                         dataReset={props.dataReset}/>;
   }
 
-  var { sensorSlots, secondGraph } = props;
+  const { sensorSlots, secondGraph } = props,
+        classes = `graphs-panel ${secondGraph ? 'two-graphs' : ''}`,
+        style = { minHeight: secondGraph ? 320 : 170 };
   
   return (
-      <div className={`graphs-panel ${secondGraph ? 'two-graphs' : ''}`}>
+      <div className={classes} style={style}>
         {renderGraph(sensorSlots && sensorSlots[0], "graph1", !secondGraph)}
         {secondGraph
             ? renderGraph(sensorSlots && sensorSlots[1], "graph2", false, true)
