@@ -5,7 +5,8 @@ import { Graph } from "./graph";
 import { GraphSidePanel } from "./graph-side-panel";
 import { ISensorConfigColumnInfo,
          ISensorConnectorDataset } from "../models/sensor-connector-interface";
-
+import { Format } from "../utils/format";
+         
 const kSidePanelWidth = 200;
 
 interface SensorGraphProps {
@@ -60,6 +61,18 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     componentWillUnmount() {
         this.props.sensorConnector.off("statusReceived", this.onSensorStatus);
         this.props.sensorConnector.off("data", this.onSensorData);
+    }
+
+    sensorPrecision() {
+        const { sensorSlot } = this.props,
+              sensor = sensorSlot && sensorSlot.sensor,
+              sensorDefinition = sensor && sensor.definition;
+        if (!sensorDefinition)
+            return 2;
+
+        const sensorRange = sensorDefinition.maxReading - sensorDefinition.minReading,
+              sensorPrecision = Format.getFixValue(sensorRange);
+        return sensorPrecision;
     }
     
     zeroSensor = () => {
@@ -181,6 +194,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 xMax={this.props.xEnd}
                 yMin={minReading != null ? minReading : 0}
                 yMax={maxReading != null ? maxReading : 10}
+                valuePrecision={this.sensorPrecision()}
                 xLabel={xLabel}
                 yLabel={yLabel} />
             </div>
@@ -195,6 +209,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
           <GraphSidePanel
             sensorSlot={this.props.sensorSlot}
             sensorColumns={this.props.sensorColumns}
+            sensorPrecision={this.sensorPrecision()}
             onSensorSelect={onSensorSelect}
             onZeroSensor={onZeroSensor} />
         );
