@@ -5,6 +5,7 @@ module.exports = {
     entry: {
         app: "./src/app.tsx",
         "examples/graph-test": "./src/examples/graph-test.tsx",
+        "examples/sensor-graph-test": "./src/examples/sensor-graph-test.tsx",
         globals: Object.keys(pkg.dependencies)
     },
     output: {

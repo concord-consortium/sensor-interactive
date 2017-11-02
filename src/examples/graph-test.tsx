@@ -6,7 +6,9 @@ var data = [[1,2],
         [2,3],
         [3,4]];
 
-function onZoom() {}
+function onZoom() {
+  // something
+}
 
 ReactDOM.render(
     <Graph
