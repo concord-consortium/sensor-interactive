@@ -4,7 +4,7 @@ const pkg = require("./package.json");
 module.exports = {
     entry: {
         app: "./src/app.tsx",
-        "graph-test": "./src/graph-test.tsx",
+        "examples/graph-test": "./src/examples/graph-test.tsx",
         globals: Object.keys(pkg.dependencies)
     },
     output: {

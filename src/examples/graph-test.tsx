@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { Graph } from "./components/graph";
+import { Graph } from "../components/graph";
 
 var data = [[1,2],
         [2,3],
