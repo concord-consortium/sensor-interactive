@@ -1,8 +1,27 @@
 import * as CodapInterface from "../public/assets/js/CodapInterface";
 
-export interface IDataSetTemplate {
+interface IAttribute {
+    name:string;
+    type:string;
+    precision?:number;
+}
+
+interface ICollection {
+    name:string;
+    parent?:string;
+    labels?:{ pluralCase:string, setOfCasesWithArticle:string };
+    attrs:IAttribute[];
+}
+
+interface IDataSetTemplate {
     name: string;
-    collections: object[];
+    collections: ICollection[];
+}
+
+interface IDataItem {
+    Run:number;
+    Time:number;
+    [key:string]:number;
 }
 
 export class Codap {
@@ -11,7 +30,7 @@ export class Codap {
     
     private dataSetName:string = "sensor_interactive";
     private dataSetTitle:string = "Sensor Interactive";
-    private dataSetAttrs:any[] = [{name: "Time", type: 'numeric', precision: 3}];
+    private dataSetAttrs:IAttribute[] = [{name: "Time", type: 'numeric', precision: 3}];
     
     private dataSetTemplate:IDataSetTemplate = {
         name: "{name}",
@@ -155,13 +174,13 @@ export class Codap {
 
         var sampleCount = data.length;
         
-        var items:any[] = [];
+        var items:IDataItem[] = [];
         
         for(var i=0; i < sampleCount; i++) {
             var entry = data[i];
             var time = entry[0];
             var value = <number>entry[1];
-            var item:any = {Run: this.state.runNumber, Time: time};
+            var item:IDataItem = {Run: this.state.runNumber, Time: time};
             item[dataType] = value;
             items.push(item);
         }
@@ -204,20 +223,24 @@ export class Codap {
 
         var sampleCount = Math.max(data1.length, data2.length);
         
-        var items:any[] = [];
-        var collection:any = this.dataSetTemplate.collections[1];
+        var items:IDataItem[] = [];
+        var collection:ICollection = this.dataSetTemplate.collections[1];
         collection.attrs[1] = {name: data1Type, type: 'numeric', precision: 4};
         collection.attrs[2] = {name: data2Type, type: 'numeric', precision: 4};
         
         for(var i=0; i < sampleCount; i++) {
-            var entry1 = data1[i];
-            var entry2 = data2[i];
-            var time = entry1[0];
-            var value1 = <number>entry1[1];
-            var value2 = <number>entry2[1];
-            var item:any = {Run: this.state.runNumber, Time: time};
-            item[data1Type] = value1;
-            item[data2Type] = value2;
+            var entry1 = data1 && data1[i];
+            var entry2 = data2 && data2[i];
+            if (!entry1 && !entry2) break;
+
+            var time = entry1 ? entry1[0] : entry2[0];
+            var value1 = entry1 && entry1[1] as number;
+            var value2 = entry2 && entry2[1] as number;
+            var item:IDataItem = {Run: this.state.runNumber, Time: time};
+            if (value1 != null)
+                item[data1Type] = value1;
+            if (value2 != null)
+                item[data2Type] = value2;
             items.push(item);
         }
         
