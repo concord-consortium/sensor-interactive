@@ -67,7 +67,8 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
             this.props.onZeroSensor(this.props.sensorSlot, this.state.sensorValue || 0);
         }
     }
-    
+
+    // This is called even while the data is being collected
     onSensorStatus = () => {
         // find the value for the currently selected sensor/unit type
         const { sensor } = this.props.sensorSlot,
