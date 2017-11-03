@@ -247,7 +247,7 @@ export class Codap {
                     sample = spec.data[i];
                 if (item.Time == null)
                     item.Time = sample[0];
-                if (sample[1])
+                if (sample[1] != null)
                     item[spec.name] = sample[1];
             }
             items.push(item);
