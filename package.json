@@ -32,6 +32,7 @@
   "homepage": "https://github.com/concord-consortium/sensor-interactive#readme",
   "dependencies": {
     "@concord-consortium/sensor-connector-interface": "^0.1.0",
+    "d3-format": "^1.2.0",
     "dygraphs": "^2.0.0",
     "iframe-phone": "^1.2.0",
     "lodash": "^4.17.4",
@@ -41,6 +42,7 @@
     "react-sizeme": "^2.3.4"
   },
   "devDependencies": {
+    "@types/d3-format": "^1.2.1",
     "@types/dygraphs": "^1.1.4",
     "@types/lodash": "^4.14.74",
     "@types/react": "^16.0.5",
