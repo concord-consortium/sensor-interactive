@@ -19,7 +19,6 @@ interface SensorGraphProps {
     onAppendData:(sensorSlot:SensorSlot, sensorData:number[][]) => void;
     onGraphZoom:(xStart:number, xEnd:number) => void;
     onSensorSelect:(sensorIndex:number, columnID:string) => void;
-    onZeroSensor:(sensorSlot:SensorSlot, sensorValue:number) => void;
     onStopCollection:() => void;
     runLength:number;
     collecting:boolean;
@@ -35,7 +34,6 @@ interface SensorGraphProps {
 interface SensorGraphState {
     sensorActive:boolean;
     sensorColID?:string;
-    sensorValue:number|undefined;
     sensorUnit?:string;
     dataChanged:boolean;
     yMin?:number|null;
@@ -53,7 +51,6 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         this.state = {
             sensorActive: false,
             sensorColID: undefined,
-            sensorValue: undefined,
             dataChanged: false
         };
         
@@ -90,11 +87,10 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
             this.props.onGraphZoom(xRange[0], xRange[1]);
         }
     }
-    
-    zeroSensor = () => {
-        if (this.props.onZeroSensor) {
-            this.props.onZeroSensor(this.props.sensorSlot, this.state.sensorValue || 0);
-        }
+
+    handleZeroSensor = () => {
+        this.props.sensorSlot.sensor.zeroSensor();
+        this.setState({ dataChanged: true});
     }
     
     onSensorStatus = () => {
@@ -104,10 +100,10 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
             liveValue = dataColumn ? Number(dataColumn.liveValue) : undefined;
         if(liveValue != null) {
             sensor.sensorValue = liveValue;
-            this.setState({ sensorValue: liveValue });
+            this.setState({ sensorActive: true, dataChanged: true });
         }
         else {
-            this.setState({ sensorActive: false, sensorValue: undefined, dataChanged: true });
+            this.setState({ sensorActive: false, dataChanged: true });
         }
     }
     
@@ -243,7 +239,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     renderSidePanel() {
         const { collecting, hasData } = this.props,
               onSensorSelect = !collecting && !hasData ? this.props.onSensorSelect : undefined,
-              onZeroSensor = !collecting && !hasData ? this.zeroSensor : undefined;
+              onZeroSensor = !collecting && !hasData ? this.handleZeroSensor : undefined;
         return (
           <GraphSidePanel
             sensorSlot={this.props.sensorSlot}

@@ -25,4 +25,9 @@ export class Sensor {
     get isConnected() {
         return !!this.columnID && !!this.valueUnit;
     }
+
+    zeroSensor() {
+        if (this.sensorValue !== undefined && this.sensorValue !== null)
+            this.tareValue = this.sensorValue;
+    }
 }
