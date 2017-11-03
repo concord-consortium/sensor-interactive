@@ -21,8 +21,8 @@ interface IDataSetTemplate {
 
 interface IDataItem {
     Run:number;
-    Time:number;
-    [key:string]:number;
+    Time?:number;
+    [key:string]:number|undefined;
 }
 
 export interface IDataSpec {
