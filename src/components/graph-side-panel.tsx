@@ -10,6 +10,7 @@ interface IGraphSidePanelProps {
   width?:number;
   sensorSlot:SensorSlot;
   sensorColumns:ISensorConfigColumnInfo[];
+  sensorPrecision:number;
   onSensorSelect?:(sensorIndex:number, columnID:string) => void;
   onZeroSensor?:() => void;
 }
@@ -33,13 +34,11 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
   };
 
   const sensorReading = () => {
-    const sensorDefinition = sensor && sensor.definition,
-          sensorValue = sensor && sensor.sensorValue;
-    if (!sensorDefinition || (sensorValue == null) || isNaN(sensorValue))
+    const sensorValue = sensor && sensor.sensorValue;
+    if ((sensorValue == null) || isNaN(sensorValue))
       return "";
 
-    const sensorRange = sensorDefinition.maxReading - sensorDefinition.minReading,
-          sensorPrecision = Format.getFixValue(sensorRange),
+    const { sensorPrecision } = props,
           reading = Format.formatFixedValue(sensorValue - tareValue, sensorPrecision);
     return (sensorUnitStr) ? `${reading} ${sensorUnitStr}` : reading;
   };
