@@ -3,6 +3,7 @@ import * as CodapInterface from "../public/assets/js/CodapInterface";
 interface IAttribute {
     name:string;
     type:string;
+    unit?:string;
     precision?:number;
 }
 
