@@ -5,7 +5,8 @@ import { Graph } from "./graph";
 import { GraphSidePanel } from "./graph-side-panel";
 import { ISensorConfigColumnInfo,
          ISensorConnectorDataset } from "../models/sensor-connector-interface";
-
+import { Format } from "../utils/format";
+         
 const kSidePanelWidth = 200;
 
 interface SensorGraphProps {
@@ -35,7 +36,10 @@ interface SensorGraphState {
     sensorActive:boolean;
     sensorColID?:string;
     sensorValue:number|undefined;
+    sensorUnit?:string;
     dataChanged:boolean;
+    yMin?:number|null;
+    yMax?:number|null;
 }
 
 export default class SensorGraph extends React.Component<SensorGraphProps, SensorGraphState> {
@@ -60,6 +64,31 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     componentWillUnmount() {
         this.props.sensorConnector.off("statusReceived", this.onSensorStatus);
         this.props.sensorConnector.off("data", this.onSensorData);
+    }
+
+    sensorPrecision() {
+        const { sensorSlot } = this.props,
+              sensor = sensorSlot && sensorSlot.sensor,
+              sensorDefinition = sensor && sensor.definition;
+        if (!sensorDefinition)
+            return 2;
+
+        const sensorRange = sensorDefinition.maxReading - sensorDefinition.minReading,
+              sensorPrecision = Format.getFixValue(sensorRange);
+        return sensorPrecision;
+    }
+
+    handleRescale = (xRange:number[], yRange:number[]) => {
+        const { sensorSlot } = this.props,
+              { yMin, yMax } = this.state,
+              sensor = sensorSlot && sensorSlot.sensor,
+              sensorUnit = sensor && sensor.valueUnit;
+        if (yMin !== yRange[0] || yMax !== yRange[1]) {
+            this.setState({ sensorUnit, yMin: yRange[0], yMax: yRange[1] });
+        }
+        if (this.props.onGraphZoom) {
+            this.props.onGraphZoom(xRange[0], xRange[1]);
+        }
     }
     
     zeroSensor = () => {
@@ -153,22 +182,45 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
     
     componentWillReceiveProps(nextProps:SensorGraphProps) {
-        if(!this.props.dataReset && nextProps.dataReset) {
+        const { dataReset } = this.props;
+        if(!dataReset && nextProps.dataReset) {
             this.lastDataIndex = 0;
+
+            // if sensor type changes, revert to default axis range for sensor
+            const { sensorUnit } = this.state,
+                  nextSensor = nextProps.sensorSlot && nextProps.sensorSlot.sensor,
+                  nextSensorUnit = nextSensor && nextSensor.valueUnit;
+            if (sensorUnit !== nextSensorUnit) {
+                this.setState({ yMin: null, yMax: null });
+            }
         }
+    }
+
+    xLabel() {
+        const { isLastGraph, timeUnit } = this.props;
+        return isLastGraph ? `Time (${timeUnit})` : "";
+    }
+
+    yLabel() {
+        const { sensorSlot } = this.props,
+        // label the data (if any) or the current sensor (if no data)
+        sensor = sensorSlot.dataSensor || sensorSlot.sensor,
+        sensorDefinition = sensor && sensor.definition,
+        measurementName = (sensorDefinition && sensorDefinition.measurementName) || "",
+        valueUnit = sensor.valueUnit || "";
+        return measurementName
+                ? `${measurementName} (${valueUnit})`
+                : "Sensor Reading (-)";
     }
     
     renderGraph(graphWidth:number|null) {
         const { sensor } = this.props.sensorSlot,
+              { yMin, yMax } = this.state,
               sensorDefinition = sensor && sensor.definition,
               minReading = sensorDefinition && sensorDefinition.minReading,
               maxReading = sensorDefinition && sensorDefinition.maxReading,
-              measurementName = (sensorDefinition && sensorDefinition.measurementName) || "",
-              valueUnit = sensor.valueUnit || "",
-              xLabel = this.props.isLastGraph ? `Time (${this.props.timeUnit})` : "",
-              yLabel = measurementName
-                        ? `${measurementName} (${valueUnit})`
-                        : "Sensor Reading (-)";
+              plotYMin = yMin != null ? yMin : (minReading != null ? minReading : 0),
+              plotYMax = yMax != null ? yMax : (maxReading != null ? maxReading : 10);
         return (
             <div className="sensor-graph">
               <Graph 
@@ -176,13 +228,14 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 width={graphWidth}
                 height={this.props.height}
                 data={this.props.sensorSlot.sensorData}
-                onZoom={this.props.onGraphZoom}
+                onRescale={this.handleRescale}
                 xMin={this.props.xStart}
                 xMax={this.props.xEnd}
-                yMin={minReading != null ? minReading : 0}
-                yMax={maxReading != null ? maxReading : 10}
-                xLabel={xLabel}
-                yLabel={yLabel} />
+                yMin={plotYMin}
+                yMax={plotYMax}
+                valuePrecision={this.sensorPrecision()}
+                xLabel={this.xLabel()}
+                yLabel={this.yLabel()} />
             </div>
         );
     }
@@ -195,6 +248,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
           <GraphSidePanel
             sensorSlot={this.props.sensorSlot}
             sensorColumns={this.props.sensorColumns}
+            sensorPrecision={this.sensorPrecision()}
             onSensorSelect={onSensorSelect}
             onZeroSensor={onZeroSensor} />
         );

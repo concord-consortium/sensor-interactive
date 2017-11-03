@@ -1,43 +1,17 @@
+import { precisionFixed } from "d3-format";
+
 export class Format {
     
-    static getPrecision(range:number):number {
-        var stepSize = range / 4000;
-        var precision;
-        var fixVal = 0;
-        if(stepSize < 1) {
-            fixVal = Math.round(-Math.log10(stepSize))+2;
-        }
-        
-        precision = Math.log10(Math.round(stepSize)) + fixVal;
-        precision = Math.max(1, Math.min(precision, 21));
-        
-        return precision;
-    }
-    
     static getFixValue(range:number):number {
-        var stepSize = range / 4000;
-        var precision;
-        if(stepSize < 1) {
-            precision = Math.round(-Math.log10(stepSize));
-        } else {
-            precision = 0;  //Math.round(Math.log10(Math.round(stepSize))) + 1;
-        }
-        precision = Math.max(0, Math.min(precision, 21));
-        return precision;
+        return precisionFixed(range / 2048);
     }
     
-    static getAxisFix(range:number):number {
-        var stepSize = range / 10;
-        var precision;
-        if(stepSize < 1) {
-            precision = Math.round(-Math.log10(stepSize) + 0.5);
-        } else if(stepSize < 5) {
-            precision = Math.round(-Math.log10(stepSize));
-        } else {
-            precision = 0;
-        }
-        precision = Math.max(0, Math.min(precision, 21));
-        return precision;
+    static getAxisFix(axis:string, range:number, pix:number|null):number {
+        // number of ticks depends on axis and width/height
+        // magic numbers determined empirically from dygraphs behavior
+        var step = axis === 'x' ? (pix && pix > 1460 ? range / 20 : range / 10)
+                                : (pix && pix < 640 ? range / 20 : range / 10);
+        return precisionFixed(step);
     }
     
     static formatFixedValue(value:number, fix:number, unit:string="", shorthand:boolean=false):string {

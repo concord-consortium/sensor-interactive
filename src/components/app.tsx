@@ -368,11 +368,12 @@ export class App extends React.Component<AppProps, AppState> {
         for(i; i < sensor1Data.length-1; i++) {
             entry = sensor1Data[i];
             nextEntry = sensor1Data[i+1];
-            if(entry[0] === xEnd) {
+            if(entry[0] > xEnd) {
                 this.selectionRange.end = i;
                 break;
-            } else if(entry[0] < xEnd && nextEntry[0] >= xEnd) {
-                this.selectionRange.end = i+1;
+            }
+            else if(i === sensor1Data.length-1) {
+                this.selectionRange.end = i + 1;
                 break;
             }
         }

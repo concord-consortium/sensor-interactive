@@ -1,8 +1,27 @@
 import * as CodapInterface from "../public/assets/js/CodapInterface";
 
-export interface IDataSetTemplate {
+interface IAttribute {
+    name:string;
+    type:string;
+    precision?:number;
+}
+
+interface ICollection {
+    name:string;
+    parent?:string;
+    labels?:{ pluralCase:string, setOfCasesWithArticle:string };
+    attrs:IAttribute[];
+}
+
+interface IDataSetTemplate {
     name: string;
-    collections: object[];
+    collections: ICollection[];
+}
+
+interface IDataItem {
+    Run:number;
+    Time:number;
+    [key:string]:number;
 }
 
 export interface IDataSpec {
@@ -12,13 +31,13 @@ export interface IDataSpec {
 }
 
 export class Codap {
-    
+
     private state:any = {};
-    
+
     private dataSetName:string = "sensor_interactive";
     private dataSetTitle:string = "Sensor Interactive";
-    private dataSetAttrs:any[] = [{name: "Time", type: 'numeric', unit: "s", precision: 3}];
-    
+    private dataSetAttrs:IAttribute[] = [{name: "Time", type: 'numeric', unit: "s", precision: 3}];
+
     private dataSetTemplate:IDataSetTemplate = {
         name: "{name}",
         collections: [
@@ -37,7 +56,7 @@ export class Codap {
           }
         ]
     };
-    
+
     constructor() {
         CodapInterface.init({
             name: this.dataSetName,
@@ -74,7 +93,7 @@ export class Codap {
             });
         });
     }
-    
+
     responseCallback(response:any) {
         if(response) {
             //console.log("codap response: success=" + response.success);
@@ -87,7 +106,7 @@ export class Codap {
             resource: 'dataContext[' + this.dataSetName + ']'
         }, this.responseCallback);
     }
-    
+
     updateDataContext(dataSpecs:IDataSpec[]):Promise<any> {
         console.log("updateDataContext");
         dataSpecs.forEach((spec)=>{
@@ -99,16 +118,16 @@ export class Codap {
             });
             if(!exists) {
                 this.dataSetAttrs.push({name: spec.name, type: 'numeric', unit: spec.unit, precision: 4});
-            }   
+            }
         });
-        
+
         return CodapInterface.sendRequest({
             action: 'create',
             resource: 'dataContext[' + this.dataSetName + '].collection[measurements].attribute',
             values: this.dataSetAttrs
         }, this.responseCallback);
     }
-    
+
     requestCreateDataSet():Promise<any> {
         var dataSetDef = Object.assign({}, this.dataSetTemplate);
         dataSetDef.name = this.dataSetName;
@@ -118,7 +137,7 @@ export class Codap {
             values: dataSetDef
         }, this.responseCallback);
     }
-    
+
     guaranteeCaseTable():Promise<any> {
         return new Promise((resolve, reject) => {
             CodapInterface.sendRequest({
@@ -134,8 +153,8 @@ export class Codap {
                         resolve(iResult);
                     } else {
                         CodapInterface.sendRequest({
-                            action: 'create', 
-                            resource: 'component', 
+                            action: 'create',
+                            resource: 'component',
                             values: {
                                 type: 'caseTable',
                                 dataContext: this.dataSetName
@@ -150,7 +169,7 @@ export class Codap {
             });
         });
     }
-        
+
     sendData(dataSpec:IDataSpec) {
         const name = dataSpec.name,
               data = dataSpec.data;
@@ -158,25 +177,25 @@ export class Codap {
         if (this.state.runNumber == null) {
             this.state.runNumber = 0;
         }
-        
+
         ++this.state.runNumber;
 
         var sampleCount = data.length;
-        
-        var items:any[] = [];
-        
+
+        var items:IDataItem[] = [];
+
         for(var i=0; i < sampleCount; i++) {
             var entry = data[i];
             var time = entry[0];
             var value = <number>entry[1];
-            var item:any = {Run: this.state.runNumber, Time: time};
+            var item:IDataItem = {Run: this.state.runNumber, Time: time};
             item[name] = value;
             items.push(item);
         }
-        
+
         this.prepAndSend(items, [dataSpec]);
     }
-    
+
     private prepAndSend(items:any[], dataSpecs:IDataSpec[]) {
         // Determine if CODAP already has the Data Context we need.
         this.requestDataContext().then((iResult:any) => {
@@ -201,38 +220,39 @@ export class Codap {
             });
         });
     }
-    
+
     sendDualData(dataSpecs:IDataSpec[]) {
         // if a run number has not yet been initialized, do so now.
         if (this.state.runNumber == null) {
             this.state.runNumber = 0;
         }
-        
+
         ++this.state.runNumber;
 
         var sampleCount = Math.max(dataSpecs[0].data.length, dataSpecs[1].data.length);
-        
-        var items:any[] = [];
-        var collection:any = this.dataSetTemplate.collections[1];
+
+        var items:IDataItem[] = [];
+        var collection:ICollection = this.dataSetTemplate.collections[1];
 
         let j, spec;
         for(j=0; j < 2; j++) {
             spec = dataSpecs[j];
             collection.attrs[j+1] = {name: spec.name, type: 'numeric', unit: spec.unit, precision: 4};
         }
-        
+
         for(var i=0; i < sampleCount; i++) {
-            let item:any = {Run: this.state.runNumber };
+            let item:IDataItem = {Run: this.state.runNumber };
             for(j=0; j < 2; j++) {
                 let spec = dataSpecs[j],
                     sample = spec.data[i];
                 if (item.Time == null)
                     item.Time = sample[0];
-                item[spec.name] = sample[1];
+                if (sample[1])
+                    item[spec.name] = sample[1];
             }
             items.push(item);
         }
-        
+
         this.prepAndSend(items, dataSpecs);
     }
 }

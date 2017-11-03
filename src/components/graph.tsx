@@ -7,11 +7,12 @@ export interface GraphProps {
     width:number|null;
     height:number|null;
     data:number[][];
-    onZoom:(xStart:number, xEnd:number) => void;
+    onRescale:(xRange:number[], yRange:number[]) => void;
     xMin:number;
     xMax:number;
     yMin:number;
     yMax:number;
+    valuePrecision:number;
     xLabel:string|undefined;
     yLabel:string|undefined;
     [key:string]: any;
@@ -26,10 +27,9 @@ export interface GraphState {
     xMax:number;
     yMin:number;
     yMax:number;
+    valuePrecision:number;
     xLabel:string|undefined;
     yLabel:string|undefined;
-    xFix:number;
-    yFix:number;
     xAxisFix:number;
     yAxisFix:number;
     [key:string]: any;
@@ -57,17 +57,15 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             xMax: this.props.xMax,
             yMin: this.props.yMin,
             yMax: this.props.yMax,
+            valuePrecision: this.props.valuePrecision,
             xLabel: this.props.xLabel,
             yLabel: this.props.yLabel,
-            xFix: Format.getFixValue(this.props.xMax - this.props.xMin),
-            yFix: Format.getFixValue(this.props.yMax - this.props.yMin),
-            xAxisFix: Format.getAxisFix(this.props.xMax - this.props.xMin),
-            yAxisFix: Format.getAxisFix(this.props.yMax - this.props.yMin),
+            xAxisFix: Format.getAxisFix('x', this.props.xMax - this.props.xMin, this.props.width),
+            yAxisFix: Format.getAxisFix('y', this.props.yMax - this.props.yMin, this.props.height)
         };
         
-        this.dyUpdateProps = ["width", "height", "xMin", "xMax", "yMin", "yMax", "xLabel", "yLabel"];
-        this.autoScale = this.autoScale.bind(this);
-        this.onZoom = this.onZoom.bind(this);
+        this.dyUpdateProps = ["width", "height", "xMin", "xMax", "yMin", "yMax",
+                                "valuePrecision", "xLabel", "yLabel"];
     }
     
     update():void {
@@ -89,21 +87,19 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         (this.dygraph.resize as FResize)();
     }
 
-    autoScale() {
+    autoScale = () => {
         if (this.state.data && (this.state.data.length > 1))
             this.dygraph.resetZoom();
     }
     
-    onZoom(xStart:number, xEnd:number) {
+    onRescale = (xStart:number, xEnd:number, yRanges:number[][]) => {
         var yRange = this.dygraph.yAxisRange();
         var xRange = this.dygraph.xAxisRange();
         this.setState({
-            xFix: Format.getFixValue(xRange[1] - xRange[0]),
-            yFix: Format.getFixValue(yRange[1] - yRange[0]),
-            xAxisFix: Format.getAxisFix(xRange[1] - xRange[0]),
-            yAxisFix: Format.getAxisFix(yRange[1] - yRange[0])
+            xAxisFix: Format.getAxisFix('x', xRange[1] - xRange[0], this.props.width),
+            yAxisFix: Format.getAxisFix('y', yRange[1] - yRange[0], this.props.height)
         });
-        this.props.onZoom(xStart, xEnd);
+        this.props.onRescale(xRange, yRange);
     }
     
     componentDidMount() {
@@ -111,11 +107,11 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             dyGraphData(this.state.data), {
             dateWindow: [0, this.state.xMax],
             valueRange: [this.state.yMin, this.state.yMax],
-            zoomCallback: this.onZoom,
+            zoomCallback: this.onRescale,
             axes: {
                 x: {
                     valueFormatter: (val:number) => {
-                        return Format.formatFixedValue(val, 2);
+                        return Format.formatFixedValue(val, this.state.xAxisFix);
                     },
                     axisLabelFormatter: (val:number) => {
                         return this.props.xLabel
@@ -125,11 +121,12 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                 },
                 y: {
                     valueFormatter: (val:number) => {
-                        return Format.formatFixedValue(val, this.state.yFix);
+                        return Format.formatFixedValue(val, this.state.valuePrecision);
                     },
                     axisLabelFormatter: (val:number) => {
                         return Format.formatFixedValue(val, this.state.yAxisFix, "", true);
-                    }
+                    },
+                    axisLabelWidth: 75
                 }
             },
             xlabel: this.state.xLabel,
@@ -157,13 +154,15 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             newState.dataLength = data.length;
         }
         
-        if(newState.yMax) {
-            newState.yFix = Format.getFixValue(newState.yMax);
-            newState.yAxisFix = Format.getAxisFix(newState.yMax);
+        if((newState.yMin != null) || (newState.yMax != null)) {
+            const yMin = newState.yMin != null ? newState.yMin : this.state.yMin,
+                  yMax = newState.yMax != null ? newState.yMax : this.state.yMax;
+            newState.yAxisFix = Format.getAxisFix('y', yMax - yMin, nextProps.height);
         }
         if(newState.xMax) {
-            newState.xFix = Format.getFixValue(newState.xMax);
-            newState.xAxisFix = Format.getAxisFix(newState.xMax);
+            const xMin = newState.xMin != null ? newState.xMin : this.state.xMin,
+                  xMax = newState.xMax != null ? newState.xMax : this.state.xMax;
+            newState.xAxisFix = Format.getAxisFix('x', xMax - xMin, nextProps.width);
         }
         
         this.setState(newState);
