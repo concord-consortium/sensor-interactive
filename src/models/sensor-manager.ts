@@ -38,7 +38,7 @@ export class SensorConnectorManager implements ISensorManager {
     constructor() {
       this.sensorConnector = new SensorConnectorInterface();
 
-      // Stop it from collecting incase it was left in a collecting state
+      // Try stop it from collecting incase it was left in a collecting state
       this.sensorConnector.requestStop();
 
       this.sensorConnector.on("interfaceConnected", this.handleSensorConnect);
@@ -50,8 +50,6 @@ export class SensorConnectorManager implements ISensorManager {
 
       this.sensorConnector.on("data", this.handleSensorData);
 
-      // CHECKME: the old added and removed this listener each time it is needed
-      // perhaps the sensorConnector code assumes this and won't handle this right
       this.sensorConnector.on("collectionStopped", this.handleSensorCollectionStopped);
 
       this.sensorConnector.on("statusReceived", this.handleSensorStatus);
@@ -102,52 +100,6 @@ export class SensorConnectorManager implements ISensorManager {
 
     // this is the id of the column that has new data
     handleSensorData = (columnId:string) => {
-      // The main app, uses this for:
-      // 1. to determine that the sensor has started collecting. This
-      //    looks for the any call to onSensorData.
-      // 2. To stop the sensor or record the lastTime.
-      //    It records the lastTime in one event, and then on the next
-      //    event if the lastTime is greater than the runLength then
-      //    the sensor is stopped.
-
-      // The SensorGraph
-      // 1. Looks up the dataset that matches the setId with:
-      //    this.props.sensorConnector.datasets[i].id === setId
-      // 2. Gets the timeData out of the dataset, gets the column data
-      //    out based on the SensorGraph's stored columnID sensorSlot.sensor.columnID
-      // 3. Checks if there is newData by comparing the min lenght of the two columns
-      // 4. Extracts just the newData out of the two columns
-      // 5. Creates a new [][] with [time, value],[time, value]...
-      // 6. calls onAppendData which sets the data on the Sensor object
-      // 7. tiggers a rerender
-
-      // We could possibly do this data conversion in the SensorManager so that it
-      // sends data in the nicely formated style which would make it easier for others
-      // to implement new views from the SensorManager
-      // This means we need to use the column id and look up if we have the time data
-      // for this column yet.  If we do then we send all of the new data with its time.
-      // The problem is that if the value data comes in first, then we'd need to send it
-      // later when the time data comes in.  Also this means we'll be sending data for
-      // all of the columns which means creating a lot of extra stuff.  It would be better
-      // If the SensorManager knew which valueColumns we cared about and just send ISensorConfigColumnInfo
-      // about those.
-
-      //However this means we need more than just the SensorManager, we'd need to add
-      // a listener on the Sensor itself, and let it then notify the stuff listening
-      // to it. Here is something weird.  In the App the argument is columnID, but
-      // in the SensorGraph it is setId.
-
-      // 1. Check if this a time column
-      // 2. If it is a time column then see if there are and data columns
-      //    which haven't been sent down to the onSensorData listener
-      // 3. If it is a data column then see if the time column has enough data
-      //    so we can send down all of the data to the onSensorData
-      // We can use the data in the sensorConfig to find the active dataset
-      // and then lookup the data for the active sensors.
-      // We will need a way to indicate which sensor/column this data is for
-      // Perhaps the easiest approach is to just go through all of the columns
-      // all of the time.  Then send a object that has is:
-      // { columnID1: [[time, value][time, value]], columnID2: ...}
       let _dataset:ISensorConnectorDataset|undefined;
       const setID = this.sensorConfig.setID;
 
