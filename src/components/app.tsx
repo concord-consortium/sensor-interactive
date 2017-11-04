@@ -45,7 +45,7 @@ function newSensorFromDataColumn(dataColumn:ISensorConfigColumnInfo) {
 function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:ISensorConfigColumnInfo[]|null) {
     let matched:Array<Sensor|null> = [null, null],
         columns = dataColumns && dataColumns.slice() || [];
-    
+
     function matchSensors(test: (c:ISensorConfigColumnInfo, s:Sensor) => boolean) {
         matched.forEach((sensor:Sensor|null, index) => {
             let found;
@@ -91,17 +91,17 @@ function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:ISensorConfig
 }
 
 export class App extends React.Component<AppProps, AppState> {
-    
+
     private messages:IStringMap;
     private lastDataIndex:number;
     private lastTime:number;
     private codap:Codap;
     private selectionRange:{start:number,end:number|undefined} = {start:0,end:undefined};
     private disableWarning:boolean = false;
-    
+
     constructor(props: AppProps) {
         super(props);
-        
+
         this.state = {
             sensorConfig:null,
             sensorSlots:[new SensorSlot(0, new Sensor()), new SensorSlot(1, new Sensor())],
@@ -152,7 +152,7 @@ export class App extends React.Component<AppProps, AppState> {
     componentDidMount() {
         SmartFocusHighlight.enableFocusHighlightOnKeyDown();
     }
-    
+
     connectCodap() {
         this.codap = new Codap();
     }
@@ -160,7 +160,7 @@ export class App extends React.Component<AppProps, AppState> {
     onSensorConnect(sensorConfig:SensorConfiguration) {
         const interfaceType = sensorConfig.interface;
         let sensorSlots = this.state.sensorSlots;
-        
+
         if(!sensorConfig.hasInterface) {
             sensorSlots = matchSensorsToDataColumns(sensorSlots, null);
             this.setState({
@@ -171,20 +171,20 @@ export class App extends React.Component<AppProps, AppState> {
         }
         else {
             console.log("interface connected: " + interfaceType);
-            
+
             this.setState({
                 statusMessage: ""
             });
-            
+
             const timeUnit = sensorConfig.timeUnit || "",
                   dataColumns = sensorConfig.dataColumns;
 
             sensorSlots = matchSensorsToDataColumns(sensorSlots, dataColumns);
-            
+
             this.setState({ sensorConfig, sensorSlots, timeUnit });
         }
     }
-    
+
     handleSensorSelect = (sensorIndex:number, columnID:string) => {
         let { sensorSlots } = this.state,
             sensors = sensorSlots.map((slot) => slot.sensor);
@@ -210,19 +210,19 @@ export class App extends React.Component<AppProps, AppState> {
     sensorHasData():boolean {
         return this.props.sensorManager.sensorHasData();
     }
-    
+
     startSensor() {
         this.props.sensorManager.requestStart();
         this.setState({
             statusMessage: this.messages["starting_data_collection"]
         });
     }
-    
+
     stopSensor() {
         this.props.sensorManager.requestStop();
         this.lastTime = 0;
     }
-    
+
     onSensorCollectionStopped() {
         this.setState({
             collecting: false,
@@ -311,7 +311,7 @@ export class App extends React.Component<AppProps, AppState> {
         const { sensorSlots } = this.state;
         return sensorSlots.some((slot) => slot.sensorData && (slot.sensorData.length > 0));
     }
-    
+
     sendData() {
         const { sensorSlots } = this.state,
               data = sensorSlots.map((slot) =>
@@ -330,12 +330,12 @@ export class App extends React.Component<AppProps, AppState> {
             });
             this.codap.sendDualData(data[0], names[0], data[1], names[1]);
         }
-        
+
         this.setState({
             dataChanged: false
         });
     }
-    
+
     checkNewData() {
         if(this.state.dataChanged && !this.disableWarning) {
             this.setState({
@@ -345,7 +345,7 @@ export class App extends React.Component<AppProps, AppState> {
             this.newData();
         }
     }
-    
+
     newData() {
         const { sensorSlots } = this.state;
         sensorSlots.forEach((slot) => slot.clearData());
@@ -355,8 +355,8 @@ export class App extends React.Component<AppProps, AppState> {
             dataChanged:false
         });
         this.lastDataIndex = 0;
-    }    
-    
+    }
+
     onTimeSelect(newTime:number) {
         this.setState({
             runLength: newTime,
@@ -365,10 +365,10 @@ export class App extends React.Component<AppProps, AppState> {
             xEnd: newTime + 0.01
         });
     }
-    
+
     onGraphZoom(xStart:number, xEnd:number) {
         const sensor1Data = this.state.sensorSlots[0].sensorData;
-        
+
         // convert from time value to index
         var i:number, entry:number[], nextEntry:number[];
         for(i=0; i < sensor1Data.length-1; i++) {
@@ -394,7 +394,7 @@ export class App extends React.Component<AppProps, AppState> {
                 break;
             }
         }
-        
+
         this.setState({
             xStart: xStart,
             xEnd: xEnd
@@ -406,12 +406,12 @@ export class App extends React.Component<AppProps, AppState> {
             warnNewModal: false
         });
     }
-        
+
     discardData() {
         this.closeWarnNewModal();
         this.newData();
     }
-    
+
     tryReconnectModal() {
         this.setState({
             reconnectModal: false
@@ -421,21 +421,21 @@ export class App extends React.Component<AppProps, AppState> {
             this.onSensorConnect(this.state.sensorConfig);
         }
     }
-    
+
     toggleWarning() {
         this.disableWarning = true;
     }
-    
+
     toggleGraph() {
         this.setState({
             secondGraph: !this.state.secondGraph
         });
     }
-    
+
     reload() {
         location.reload();
     }
-    
+
     componentDidUpdate(prevProps:AppProps, prevState:AppState) {
         if(!prevState.dataReset && this.state.dataReset) {
             this.setState({
@@ -443,7 +443,7 @@ export class App extends React.Component<AppProps, AppState> {
             });
         }
     }
-    
+
     render() {
         var { sensorConfig } = this.state,
             codapURL = window.self === window.top
@@ -454,7 +454,7 @@ export class App extends React.Component<AppProps, AppState> {
             <div className="app-container">
                 <ReactModal className="sensor-dialog-content"
                             overlayClassName="sensor-dialog-overlay"
-                            contentLabel="Discard data?" 
+                            contentLabel="Discard data?"
                             isOpen={this.state.warnNewModal} >
                     <p>{this.messages["check_save"]}</p>
                     <label>
@@ -467,7 +467,7 @@ export class App extends React.Component<AppProps, AppState> {
                 </ReactModal>
                 <ReactModal className="sensor-dialog-content"
                             overlayClassName="sensor-dialog-overlay"
-                            contentLabel="Sensor not attached" 
+                            contentLabel="Sensor not attached"
                             isOpen={this.state.reconnectModal} >
                     <p>{this.messages["sensor_not_attached"]}</p>
                     <hr/>
@@ -476,7 +476,7 @@ export class App extends React.Component<AppProps, AppState> {
                 <div className="app-content">
                     <div className="app-top-bar">
                         <label className="two-sensors-checkbox">
-                            <input type="checkbox" 
+                            <input type="checkbox"
                                 id="toggleGraphBtn"
                                 onClick={this.toggleGraph} />
                             Two sensors
@@ -519,5 +519,5 @@ export class App extends React.Component<AppProps, AppState> {
             </div>
         );
     }
-    
+
 }
