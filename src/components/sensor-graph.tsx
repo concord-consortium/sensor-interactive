@@ -14,7 +14,6 @@ interface SensorGraphProps {
     sensorColumns:ISensorConfigColumnInfo[];
     sensorSlot:SensorSlot;
     title:string;
-    onAppendData:(sensorSlot:SensorSlot, sensorData:number[][]) => void;
     onGraphZoom:(xStart:number, xEnd:number) => void;
     onSensorSelect:(sensorIndex:number, columnID:string) => void;
     onZeroSensor:(sensorSlot:SensorSlot, sensorValue:number) => void;

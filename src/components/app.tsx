@@ -237,11 +237,6 @@ export class App extends React.Component<AppProps, AppState> {
         delete this.props.sensorManager.listeners.onSensorCollectionStopped;
     }
 
-    onAppendData = (sensorSlot:SensorSlot, sensorData:number[][]) => {
-        sensorSlot.appendData(sensorData);
-        this.setState({ hasData: true, dataChanged: true });
-    }
-
     // This shoud only be called while we are collecting
     onSensorData(newSensorData: NewSensorData) {
         if(!this.state.collecting) {
@@ -314,7 +309,7 @@ export class App extends React.Component<AppProps, AppState> {
           }
         });
 
-        this.setState({ sensorConfig, dataChanged: true, sensorSlots: this.state.sensorSlots });
+        this.setState({ sensorConfig, sensorSlots: this.state.sensorSlots });
     }
 
     hasData() {
@@ -499,8 +494,7 @@ export class App extends React.Component<AppProps, AppState> {
                         sensorConfig={this.state.sensorConfig}
                         sensorSlots={this.state.sensorSlots}
                         secondGraph={this.state.secondGraph}
-                        onAppendData={this.onAppendData}
-                        onGraphZoom={this.onGraphZoom} 
+                        onGraphZoom={this.onGraphZoom}
                         onSensorSelect={this.handleSensorSelect}
                         onZeroSensor={this.handleZeroSensor}
                         onStopCollection={this.stopSensor}

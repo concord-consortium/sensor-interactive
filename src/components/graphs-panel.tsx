@@ -14,7 +14,6 @@ interface IGraphsPanelProps {
   sensorConfig:SensorConfiguration|null;
   sensorSlots:SensorSlot[];
   secondGraph:boolean;
-  onAppendData:(sensorSlot:SensorSlot, sensorData:number[][]) => void;
   onGraphZoom:(xStart:number, xEnd:number) => void;
   onSensorSelect:(sensorIndex:number, columnID:string) => void;
   onZeroSensor:(sensorSlot:SensorSlot, sensorValue:number) => void;
@@ -52,8 +51,7 @@ const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
                         title={title}
                         isSingletonGraph={isSingletonGraph}
                         isLastGraph={isLastGraph}
-                        onAppendData={props.onAppendData}
-                        onGraphZoom={props.onGraphZoom} 
+                        onGraphZoom={props.onGraphZoom}
                         onSensorSelect={props.onSensorSelect}
                         onZeroSensor={props.onZeroSensor}
                         onStopCollection={props.onStopCollection}
