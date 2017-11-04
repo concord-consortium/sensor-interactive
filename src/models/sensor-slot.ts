@@ -25,6 +25,15 @@ export class SensorSlot {
     return this.dataSensor || this.sensor;
   }
 
+  get timeOfLastData() {
+    const sensorData = this.sensorData;
+    if(sensorData.length > 0) {
+      return sensorData[sensorData.length - 1][0];
+    }
+
+    return 0;
+  }
+
   setSensor(sensor:Sensor) {
     this.sensor = sensor;
   }

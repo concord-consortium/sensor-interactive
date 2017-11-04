@@ -11,7 +11,6 @@ interface ISizeMeSize {
 
 interface IGraphsPanelProps {
   size:ISizeMeSize;
-  sensorConnector:any;
   sensorConfig:SensorConfiguration|null;
   sensorSlots:SensorSlot[];
   secondGraph:boolean;
@@ -48,7 +47,6 @@ const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
                           : isLastGraph ? secondGraphHeight : firstGraphHeight;
     return <SensorGraph width={graphWidth}
                         height={graphHeight}
-                        sensorConnector={props.sensorConnector}
                         sensorColumns={sensorColumns}
                         sensorSlot={sensorSlot}
                         title={title}
