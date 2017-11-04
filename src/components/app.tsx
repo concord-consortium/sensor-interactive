@@ -207,11 +207,6 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({ sensorSlots });
     }
 
-    handleZeroSensor = (sensorSlot:SensorSlot, sensorValue:number) => {
-        sensorSlot.sensor.tareValue = sensorValue;
-        this.setState({ sensorSlots: this.state.sensorSlots });
-    }
-    
     sensorHasData():boolean {
         return this.props.sensorManager.sensorHasData();
     }

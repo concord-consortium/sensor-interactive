@@ -16,7 +16,6 @@ interface SensorGraphProps {
     title:string;
     onGraphZoom:(xStart:number, xEnd:number) => void;
     onSensorSelect:(sensorIndex:number, columnID:string) => void;
-    onZeroSensor:(sensorSlot:SensorSlot, sensorValue:number) => void;
     onStopCollection:() => void;
     runLength:number;
     collecting:boolean;
@@ -31,7 +30,6 @@ interface SensorGraphProps {
 
 interface SensorGraphState {
     sensorColID?:string;
-    sensorValue:number|undefined;
     sensorUnit?:string;
     yMin?:number|null;
     yMax?:number|null;
@@ -46,8 +44,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         super(props);
         
         this.state = {
-            sensorColID: undefined,
-            sensorValue: undefined
+            sensorColID: undefined
         };
     }
 
@@ -77,8 +74,9 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
     
     zeroSensor = () => {
-        if (this.props.onZeroSensor) {
-            this.props.onZeroSensor(this.props.sensorSlot, this.state.sensorValue || 0);
+        if(this.props.sensorSlot.sensor) {
+          this.props.sensorSlot.sensor.zeroSensor();
+          this.setState(this.state);
         }
     }
 
