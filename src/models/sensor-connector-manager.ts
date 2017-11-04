@@ -19,9 +19,6 @@ export class SensorConnectorManager implements ISensorManager {
     constructor() {
       this.sensorConnector = new SensorConnectorInterface();
 
-      // Try stop it from collecting incase it was left in a collecting state
-      this.sensorConnector.requestStop();
-
       this.sensorConnector.on("interfaceConnected", this.handleSensorConnect);
       this.sensorConnector.on("interfaceRemoved", this.handleSensorConnect);
       this.sensorConnector.on("columnAdded", this.handleSensorConnect);
@@ -38,6 +35,10 @@ export class SensorConnectorManager implements ISensorManager {
 
     startPolling() {
       this.sensorConnector.startPolling(SENSOR_IP);
+
+      // Try stop it from collecting incase it was left in a collecting state
+      this.sensorConnector.requestStop();
+
     }
 
     sensorHasData() {
