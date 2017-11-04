@@ -491,7 +491,6 @@ export class App extends React.Component<AppProps, AppState> {
                         secondGraph={this.state.secondGraph}
                         onGraphZoom={this.onGraphZoom}
                         onSensorSelect={this.handleSensorSelect}
-                        onZeroSensor={this.handleZeroSensor}
                         onStopCollection={this.stopSensor}
                         xStart={this.state.xStart}
                         xEnd={this.state.xEnd}
