@@ -33,7 +33,6 @@ interface SensorGraphState {
     sensorColID?:string;
     sensorValue:number|undefined;
     sensorUnit?:string;
-    dataChanged:boolean;
     yMin?:number|null;
     yMax?:number|null;
 }
@@ -48,8 +47,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         
         this.state = {
             sensorColID: undefined,
-            sensorValue: undefined,
-            dataChanged: false
+            sensorValue: undefined
         };
     }
 
