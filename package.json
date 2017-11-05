@@ -42,6 +42,7 @@
     "react-sizeme": "^2.3.4"
   },
   "devDependencies": {
+    "@types/web-bluetooth": "0.0.3",
     "@types/d3-format": "^1.2.1",
     "@types/dygraphs": "^1.1.4",
     "@types/lodash": "^4.14.74",
