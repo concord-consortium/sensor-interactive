@@ -3,7 +3,10 @@ import { find } from "lodash";
 import { ISensorConfig } from "./sensor-connector-interface";
 
 export class SensorConfiguration {
-  config:ISensorConfig;
+  // We'd like to abstract the SensorConfiguration from the SensorConnector
+  // so instead of accessing the ISensorConfig directly, please add accessor methods
+  // to make it easier to do this abstraction in the future
+  private config:ISensorConfig;
 
   constructor(config:ISensorConfig) {
     this.config = config;
