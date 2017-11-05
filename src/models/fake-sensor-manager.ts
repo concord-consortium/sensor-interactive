@@ -4,6 +4,7 @@ import { ISensorConfig } from "./sensor-connector-interface";
 
 export class FakeSensorManager implements ISensorManager {
     listeners:SensorManagerListeners = {};
+    supportsDualCollection = true;
 
     private sensorConfig: SensorConfiguration;
     private internalConfig: ISensorConfig;

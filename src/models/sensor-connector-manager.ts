@@ -11,6 +11,7 @@ interface ColumnInfo {
 
 export class SensorConnectorManager implements ISensorManager {
     listeners:SensorManagerListeners = {};
+    supportsDualCollection = true;
 
     private sensorConnector:any;
     private columnInfoById:{ [key:string]: ColumnInfo } = {};

@@ -474,7 +474,20 @@ export class App extends React.Component<AppProps, AppState> {
         }
 
       } else {
-        null;
+        return null;
+      }
+    }
+
+    renderDualCollectionCheckBox(){
+      if(this.props.sensorManager.supportsDualCollection) {
+        return <label className="two-sensors-checkbox">
+            <input type="checkbox"
+                id="toggleGraphBtn"
+                onClick={this.toggleGraph} />
+            Two sensors
+        </label>;
+      } else {
+        return null;
       }
     }
 
@@ -509,12 +522,7 @@ export class App extends React.Component<AppProps, AppState> {
                 </ReactModal>
                 <div className="app-content">
                     <div className="app-top-bar">
-                        <label className="two-sensors-checkbox">
-                            <input type="checkbox"
-                                id="toggleGraphBtn"
-                                onClick={this.toggleGraph} />
-                            Two sensors
-                        </label>
+                        {this.renderDualCollectionCheckBox()}
                         <div className="status-message">
                             {this.state.statusMessage || "\xA0"}
                         </div>

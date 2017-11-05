@@ -18,6 +18,7 @@ const tagAddrs = {
 
 export class SensorTagManager implements ISensorManager {
     listeners:SensorManagerListeners = {};
+    supportsDualCollection = false; 
 
     private sensorConfig: SensorConfiguration;
     private internalConfig: ISensorConfig;

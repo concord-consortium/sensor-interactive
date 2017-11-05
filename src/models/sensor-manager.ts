@@ -13,6 +13,7 @@ export interface SensorManagerListeners {
 
 export interface ISensorManager {
   listeners:SensorManagerListeners;
+  supportsDualCollection: boolean;
   startPolling() : void;
   sensorHasData() : boolean;
   requestStart() : void;
