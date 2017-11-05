@@ -3,9 +3,18 @@ import { ISensorManager, SensorManagerListeners } from "./sensor-manager";
 import { ISensorConfig } from "./sensor-connector-interface";
 
 const tagIdentifier = 0xaa80;
-const serviceAddr  = 'f000aa70-0451-4000-b000-000000000000';
-const valueAddr    = 'f000aa71-0451-4000-b000-000000000000';
-const enableAddr   = 'f000aa72-0451-4000-b000-000000000000';
+const tagAddrs = {
+  luxometer: {
+    service: 'f000aa70-0451-4000-b000-000000000000',
+    value: 'f000aa71-0451-4000-b000-000000000000',
+    enable: 'f000aa72-0451-4000-b000-000000000000'
+  },
+  IO: {
+    service: 'f000aa64-0451-4000-b000-000000000000',
+    data: 'f000aa65-0451-4000-b000-000000000000',
+    config: 'f000aa66-0451-4000-b000-000000000000'
+  }
+};
 
 export class SensorTagManager implements ISensorManager {
     listeners:SensorManagerListeners = {};
@@ -66,9 +75,9 @@ export class SensorTagManager implements ISensorManager {
       this.sensorConfig = new SensorConfiguration(this.internalConfig);
     }
 
-    sendSensorConfig() {
+    sendSensorConfig(includeOnConnect:boolean) {
       let sensorConfig = new SensorConfiguration(this.internalConfig);
-      if(this.listeners.onSensorConnect) {
+      if(includeOnConnect && this.listeners.onSensorConnect) {
           this.listeners.onSensorConnect(sensorConfig);
       }
       if(this.listeners.onSensorStatus) {
@@ -78,8 +87,14 @@ export class SensorTagManager implements ISensorManager {
 
     startPolling() {
       setTimeout(() => {
-        this.sendSensorConfig();
-      }, 100);
+        this.sendSensorConfig(true);
+      }, 10);
+      setInterval(() => {
+        // resend the sensorConfig so we will know if the device is disconnected
+        // This could be smarter if it keeps track of which sensors have been
+        // enabled on the device
+        this.sendSensorConfig(false);
+      }, 1000);
     }
 
     sensorHasData() {
@@ -116,13 +131,41 @@ export class SensorTagManager implements ISensorManager {
       // Step 1: ask for a device
       this.device = await navigator.bluetooth.requestDevice({
           filters: [{ services: [tagIdentifier] }],
-          optionalServices: [serviceAddr]
+          optionalServices: [tagAddrs.luxometer.service,
+                             tagAddrs.IO.service]
         });
       // Step 2: Connect to device
       this.server = await this.device.gatt.connect();
 
       // Resend the sensorconfig so the UI udpates after the connection
-      this.sendSensorConfig();
+      this.sendSensorConfig(true);
+
+      // Make the green led go solid so we know we are connected
+      this.turnOnGreenLED();
+    }
+
+    async turnOnGreenLED() {
+      if(!this.server) {
+        return;
+      }
+
+      // Get the IO service
+      const service =
+        await this.server.getPrimaryService(tagAddrs.IO.service);
+
+      // The order is important, by default the data value is 0x7F which
+      // is enables flashing lights and beep. Not fun!
+      // So we set the data first before turning on remote control
+
+      // Set data so the green led will turn on when remote control is set
+      const dataChar =
+        await service.getCharacteristic(tagAddrs.IO.data);
+      await dataChar.writeValue(new Uint8Array([0x02]));
+
+      // Enable Remote IO control
+      const configChar =
+        await service.getCharacteristic(tagAddrs.IO.config);
+      await configChar.writeValue(new Uint8Array([0x01]));
     }
 
     get deviceConnected() {
@@ -140,19 +183,21 @@ export class SensorTagManager implements ISensorManager {
       await this.device.gatt.disconnect();
 
       // Resend the sensorconfig so the UI udpates after the disconnection
-      this.sendSensorConfig();
+      this.sendSensorConfig(true);
     }
 
     async startLight() {
       // Step 3: Get the Service
-      const service =  await this.server.getPrimaryService(serviceAddr);
+      const service =
+        await this.server.getPrimaryService(tagAddrs.luxometer.service);
 
       // Step 4: Enable Light Sensor
-      const enableChar = await service.getCharacteristic(enableAddr);
+      const enableChar =
+        await service.getCharacteristic(tagAddrs.luxometer.enable);
       await enableChar.writeValue(new Uint8Array([0x01]));
 
       // Step 5: Get light characteristic
-      const valueChar = await service.getCharacteristic(valueAddr);
+      const valueChar = await service.getCharacteristic(tagAddrs.luxometer.value);
 
       // Step 6: Loop every 500ms
       let startCollectionTime = Date.now();
