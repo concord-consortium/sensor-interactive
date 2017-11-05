@@ -11,6 +11,8 @@ import { IStringMap, SensorStrings, SensorDefinitions } from "../models/sensor-d
 import { ISensorManager, NewSensorData } from "../models/sensor-manager";
 import SmartFocusHighlight from "../utils/smart-focus-highlight";
 import { find, pull } from "lodash";
+import Button from "./smart-highlight-button";
+
 
 export interface AppProps {
     sensorManager: ISensorManager;
@@ -444,6 +446,38 @@ export class App extends React.Component<AppProps, AppState> {
         }
     }
 
+    connectToDevice = () => {
+      if(this.props.sensorManager &&
+         this.props.sensorManager.connectToDevice){
+        this.props.sensorManager.connectToDevice();
+      }
+    }
+    disconnectFromDevice = () => {
+      if(this.props.sensorManager &&
+         this.props.sensorManager.disconnectFromDevice){
+        this.props.sensorManager.disconnectFromDevice();
+      }
+    }
+
+    renderConnectToDeviceButton(){
+      const { sensorManager } = this.props;
+      // Check if this sensorManger supports device connection
+      if(sensorManager.connectToDevice) {
+        if(sensorManager.deviceConnected){
+          return  <Button className="connect-to-device-button" onClick={this.disconnectFromDevice} >
+                    Disconnect from Device
+                  </Button>;
+        } else {
+          return  <Button className="connect-to-device-button" onClick={this.connectToDevice} >
+                    Connect to Device
+                  </Button>;
+        }
+
+      } else {
+        null;
+      }
+    }
+
     render() {
         var { sensorConfig } = this.state,
             codapURL = window.self === window.top
@@ -484,6 +518,7 @@ export class App extends React.Component<AppProps, AppState> {
                         <div className="status-message">
                             {this.state.statusMessage || "\xA0"}
                         </div>
+                        {this.renderConnectToDeviceButton()}
                     </div>
                     <GraphsPanel
                         sensorConfig={this.state.sensorConfig}

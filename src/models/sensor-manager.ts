@@ -17,4 +17,7 @@ export interface ISensorManager {
   sensorHasData() : boolean;
   requestStart() : void;
   requestStop() : void;
+  connectToDevice?: () => void;
+  disconnectFromDevice?: () => void;
+  deviceConnected?: boolean;
 }

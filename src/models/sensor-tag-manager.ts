@@ -66,15 +66,19 @@ export class SensorTagManager implements ISensorManager {
       this.sensorConfig = new SensorConfiguration(this.internalConfig);
     }
 
+    sendSensorConfig() {
+      let sensorConfig = new SensorConfiguration(this.internalConfig);
+      if(this.listeners.onSensorConnect) {
+          this.listeners.onSensorConnect(sensorConfig);
+      }
+      if(this.listeners.onSensorStatus) {
+          this.listeners.onSensorStatus(sensorConfig);
+      }
+    }
+
     startPolling() {
       setTimeout(() => {
-        let sensorConfig = new SensorConfiguration(this.internalConfig);
-        if(this.listeners.onSensorConnect) {
-            this.listeners.onSensorConnect(sensorConfig);
-        }
-        if(this.listeners.onSensorStatus) {
-            this.listeners.onSensorStatus(sensorConfig);
-        }
+        this.sendSensorConfig();
       }, 100);
     }
 
@@ -108,7 +112,7 @@ export class SensorTagManager implements ISensorManager {
       this.stopRequested = true;
     }
 
-    async connectToSensor() {
+    async connectToDevice() {
       // Step 1: ask for a device
       this.device = await navigator.bluetooth.requestDevice({
           filters: [{ services: [tagIdentifier] }],
@@ -116,7 +120,27 @@ export class SensorTagManager implements ISensorManager {
         });
       // Step 2: Connect to device
       this.server = await this.device.gatt.connect();
-      // deviceConnected(this.server);
+
+      // Resend the sensorconfig so the UI udpates after the connection
+      this.sendSensorConfig();
+    }
+
+    get deviceConnected() {
+      if(!this.device) {
+        return false
+      }
+      return this.device.gatt.connected;
+    }
+
+    async disconnectFromDevice() {
+      if(!this.deviceConnected){
+        return;
+      }
+
+      await this.device.gatt.disconnect();
+
+      // Resend the sensorconfig so the UI udpates after the disconnection
+      this.sendSensorConfig();
     }
 
     async startLight() {
