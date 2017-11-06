@@ -49,6 +49,7 @@ const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
     return <SensorGraph width={graphWidth}
                         height={graphHeight}
                         sensorConnector={props.sensorConnector}
+                        sensorConfig={props.sensorConfig}
                         sensorColumns={sensorColumns}
                         sensorSlot={sensorSlot}
                         title={title}

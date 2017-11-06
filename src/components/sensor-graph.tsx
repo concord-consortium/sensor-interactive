@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Sensor } from "../models/sensor";
+import { SensorConfiguration } from "../models/sensor-configuration";
 import { SensorSlot } from "../models/sensor-slot";
 import { Graph } from "./graph";
 import { GraphSidePanel } from "./graph-side-panel";
@@ -13,6 +14,7 @@ interface SensorGraphProps {
     width:number|null;
     height:number|null;
     sensorConnector:any;
+    sensorConfig:SensorConfiguration | null;
     sensorColumns:ISensorConfigColumnInfo[];
     sensorSlot:SensorSlot;
     title:string;
@@ -111,14 +113,14 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         }
     }
     
-    onSensorData = (setId:string) => {
-        if(!this.props.collecting) {
-            return;
-        }
+    onSensorData = (columnID:string) => {
+        const { collecting, sensorConfig } = this.props,
+              setID = collecting && sensorConfig && sensorConfig.getSetIDForColumnID(columnID);
+        if (!sensorConfig || !setID) return;
         
         var dataset:ISensorConnectorDataset|null = null;
         for(var i=0; i < this.props.sensorConnector.datasets.length; i++) {
-            if(this.props.sensorConnector.datasets[i].id === setId) {
+            if(this.props.sensorConnector.datasets[i].id === setID) {
                 dataset = this.props.sensorConnector.datasets[i];
                 break;
             }
