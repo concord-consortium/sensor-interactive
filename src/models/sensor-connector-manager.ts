@@ -83,21 +83,20 @@ export class SensorConnectorManager implements ISensorManager {
 
     // this is the id of the column that has new data
     handleSensorData = (columnId:string) => {
-      let foundDataset:ISensorConnectorDataset|undefined;
+      let dataset:ISensorConnectorDataset|undefined;
       const setID = this.sensorConfig.setID;
 
       for(let i=0; i < this.sensorConnector.datasets.length; i++) {
           // setID is a number, but the dataset id is a string
           if(this.sensorConnector.datasets[i].id === setID) {
-              foundDataset = this.sensorConnector.datasets[i];
+              dataset = this.sensorConnector.datasets[i];
               break;
           }
       }
 
-      if(foundDataset === undefined) {
+      if(dataset === undefined) {
           return;
       }
-      let dataset:ISensorConnectorDataset = foundDataset as ISensorConnectorDataset;
 
       const timeColumn = this.sensorConfig.timeColumn,
           timeColumnData = timeColumn && this.getDataColumn(timeColumn.id, dataset),
@@ -111,7 +110,9 @@ export class SensorConnectorManager implements ISensorManager {
           timeData = timeColumnData.data || [];
 
       sensorColumns.forEach((sensorColumn) => {
-        const newSensorData = this.processSensorColumn(sensorColumn, timeData, dataset);
+        // The `dataset &&` is to make the TS compiler happy, I believe a newer version
+        // of TS makes this unecessary
+        const newSensorData = dataset && this.processSensorColumn(sensorColumn, timeData, dataset);
         if(newSensorData != null) {
           newData[sensorColumn.id] = newSensorData;
         }
