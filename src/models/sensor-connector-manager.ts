@@ -6,11 +6,12 @@ import { ISensorManager, NewSensorData, SensorManagerListeners } from "./sensor-
 const SENSOR_IP = "http://127.0.0.1:11180";
 
 interface ColumnInfo {
-  lastDataIndex: number
+  lastDataIndex: number;
 }
 
 export class SensorConnectorManager implements ISensorManager {
     listeners:SensorManagerListeners = {};
+    supportsDualCollection = true;
 
     private sensorConnector:any;
     private columnInfoById:{ [key:string]: ColumnInfo } = {};
@@ -82,21 +83,21 @@ export class SensorConnectorManager implements ISensorManager {
 
     // this is the id of the column that has new data
     handleSensorData = (columnId:string) => {
-      let _dataset:ISensorConnectorDataset|undefined;
+      let foundDataset:ISensorConnectorDataset|undefined;
       const setID = this.sensorConfig.setID;
 
       for(let i=0; i < this.sensorConnector.datasets.length; i++) {
           // setID is a number, but the dataset id is a string
-          if(this.sensorConnector.datasets[i].id == setID) {
-              _dataset = this.sensorConnector.datasets[i];
+          if(this.sensorConnector.datasets[i].id === setID) {
+              foundDataset = this.sensorConnector.datasets[i];
               break;
           }
       }
 
-      if(_dataset === undefined) {
+      if(foundDataset === undefined) {
           return;
       }
-      let dataset:ISensorConnectorDataset = _dataset as ISensorConnectorDataset;
+      let dataset:ISensorConnectorDataset = foundDataset as ISensorConnectorDataset;
 
       const timeColumn = this.sensorConfig.timeColumn,
           timeColumnData = timeColumn && this.getDataColumn(timeColumn.id, dataset),
@@ -136,7 +137,7 @@ export class SensorConnectorManager implements ISensorManager {
     }
 
     processSensorColumn(sensorColumn: ISensorConfigColumnInfo, timeData: number[],
-        dataset:ISensorConnectorDataset) {
+                        dataset:ISensorConnectorDataset) {
       // check the length in the dataset of both it and the time column
       const timeDataLength = timeData.length,
           sensorColumnData = this.getDataColumn(sensorColumn.id, dataset),
