@@ -1,13 +1,30 @@
 import { SensorConfiguration } from "./sensor-configuration";
-import { ISensorManager, SensorManagerListeners } from "./sensor-manager";
+import { ISensorManager, SensorManagerListeners, NewSensorData } from "./sensor-manager";
 import { ISensorConfig } from "./sensor-connector-interface";
+import { cloneDeep } from "lodash";
 
 const tagIdentifier = 0xaa80;
-const tagAddrs = {
+interface ISensorAddrs {
+  service: string;
+  data: string;
+  config: string;
+}
+
+const tagAddrs: { [index:string] : ISensorAddrs } = {
   luxometer: {
     service: 'f000aa70-0451-4000-b000-000000000000',
-    value: 'f000aa71-0451-4000-b000-000000000000',
-    enable: 'f000aa72-0451-4000-b000-000000000000'
+    data: 'f000aa71-0451-4000-b000-000000000000',
+    config: 'f000aa72-0451-4000-b000-000000000000'
+  },
+  humidity: {
+    service: 'f000aa20-0451-4000-b000-000000000000',
+    data: 'f000aa21-0451-4000-b000-000000000000', // TempLSB:TempMSB:HumidityLSB:HumidityMSB
+    config: 'f000aa22-0451-4000-b000-000000000000'
+  },
+  IRTemperature: {
+    service: 'f000aa00-0451-4000-b000-000000000000',
+    data: 'f000aa01-0451-4000-b000-000000000000', // ObjectLSB:ObjectMSB:AmbientLSB:AmbientMSB
+    config: 'f000aa02-0451-4000-b000-000000000000'
   },
   IO: {
     service: 'f000aa64-0451-4000-b000-000000000000',
@@ -16,9 +33,78 @@ const tagAddrs = {
   }
 };
 
+// http://processors.wiki.ti.com/index.php/CC2650_SensorTag_User%27s_Guide
+const IR_SCALE_LSB = 0.03125;
+
+const sensorDescriptions = {
+  luxometer: {
+    sensorName: "luxometer",
+    values: [
+      {
+        columnID: "101",
+        convertFunct: (byteArray:DataView) => {
+          const rawData = byteArray.getUint16(0, true),
+            m = rawData & 0x0FFF;
+          let e = (rawData & 0xF000) >> 12;
+
+          /** e on 4 bits stored in a 16 bit unsigned => it can store 2 << (e - 1) with e < 16 */
+          e = (e == 0) ? 1 : 2 << (e - 1);
+
+          return m * (0.01 * e);
+        }
+      }
+    ]
+  },
+  IRTemperature: {
+    sensorName: "IRTemperature",
+    values: [
+      {
+        columnID: "102", // ambient
+        convertFunct: (byteArray: DataView) => {
+          const rawTemp = byteArray.getUint16(2, true);
+          return (rawTemp >> 2) * IR_SCALE_LSB;
+        }
+      },
+      {
+        columnID: "103", // object temperature
+        convertFunct: (byteArray: DataView) => {
+          const rawTemp = byteArray.getUint16(0, true);
+          return (rawTemp >> 2) * IR_SCALE_LSB;
+        }
+      }
+    ]
+  },
+  humidity: {
+    sensorName: "humidity",
+    values: [
+      {
+        columnID: "104",
+        convertFunct: (byteArray: DataView) => {
+          let rawHum = byteArray.getUint16(2, true);
+          rawHum &= ~0x0003; // remove status bits
+          return (rawHum / 65536)*100;
+        }
+      },
+      {
+        columnID: "105",
+        convertFunct: (byteArray: DataView) => {
+          const rawTemp = byteArray.getInt16(0, true);
+          return (rawTemp / 65536)*165 - 40;
+        }
+      }
+    ]
+  }
+}
+
+// Helper function for debugging
+function toPaddedHexString(num:number) : string {
+    let str = num.toString(16);
+    return "0".repeat(2 - str.length) + str;
+}
+
 export class SensorTagManager implements ISensorManager {
     listeners:SensorManagerListeners = {};
-    supportsDualCollection = false; 
+    supportsDualCollection = false;
 
     private sensorConfig: SensorConfiguration;
     private internalConfig: ISensorConfig;
@@ -57,9 +143,53 @@ export class SensorTagManager implements ISensorManager {
             liveValueTimeStamp: new Date(),
             valueCount: 0,
             valuesTimeStamp: new Date()
+          },
+          "102": {
+            id: "102",
+            setID: "100",
+            position: 1,
+            name: "Temperature",
+            units: "degC",
+            liveValue: "NaN",
+            liveValueTimeStamp: new Date(),
+            valueCount: 0,
+            valuesTimeStamp: new Date()
+          },
+          "103": {
+            id: "103",
+            setID: "100",
+            position: 1,
+            name: "IR Temperature",
+            units: "degC",
+            liveValue: "NaN",
+            liveValueTimeStamp: new Date(),
+            valueCount: 0,
+            valuesTimeStamp: new Date()
+          },
+          "104": {
+            id: "104",
+            setID: "100",
+            position: 1,
+            name: "Humidity",
+            units: "%RH",
+            liveValue: "NaN",
+            liveValueTimeStamp: new Date(),
+            valueCount: 0,
+            valuesTimeStamp: new Date()
+          },
+          "105": {
+            id: "105",
+            setID: "100",
+            position: 1,
+            name: "Temperature",
+            units: "degC",
+            liveValue: "NaN",
+            liveValueTimeStamp: new Date(),
+            valueCount: 0,
+            valuesTimeStamp: new Date()
           }
         },
-        currentInterface: "Fake Sensor",
+        currentInterface: "SensorTag",
         currentState: "unknown",
         os: { name: "Fake", version: "1.0.0"},
         requestTimeStamp: new Date(),
@@ -69,7 +199,9 @@ export class SensorTagManager implements ISensorManager {
         sets:{
           "100": {
             name: "Run 1",
-            colIDs: [100, 101]
+            // colIDs: [100, 102, 103]
+            // colIDs: [100, 101]
+            colIDs: [100, 104, 105]
           }
         }
       };
@@ -103,25 +235,70 @@ export class SensorTagManager implements ISensorManager {
     }
 
     requestStart() {
-      this.startLight();
-      // let time = 0.0;
-      // this.interval = setInterval(() => {
-      //   const temperatureValue = Math.sin((Math.PI/3)*time)*3 + 20,
-      //       positionValue = Math.sin((Math.PI/3)*time);
-      //
-      //   this.internalConfig.columns["101"].liveValue = temperatureValue.toString();
-      //   this.internalConfig.columns["102"].liveValue = positionValue.toString();
-      //   this.hasData = true;
-      //
-      //   if(this.listeners.onSensorStatus) {
-      //       this.listeners.onSensorStatus(new SensorConfiguration(this.internalConfig));
-      //   }
-      //   if(this.listeners.onSensorData) {
-      //       this.listeners.onSensorData({ "101": [[time, temperatureValue]]});
-      //       this.listeners.onSensorData({ "102": [[time, positionValue]]});
-      //   }
-      //   time += 0.1;
-      // }, 100);
+      // cloneDeep is used because we are saving the dataCharacteristic on this object
+      // and that will change after the device is disconnected and reconnected
+
+      // const activeSensors = [  cloneDeep(sensorDescriptions.IRTemperature) ];
+      // const activeSensors = [ cloneDeep(sensorDescriptions.luxometer) ];
+      const activeSensors = [ cloneDeep(sensorDescriptions.humidity) ];
+
+      // For each one get its valueCharacteristic
+      activeSensors.forEach((sensor) => {
+        this.setupSensor(sensor);
+      });
+
+      let startCollectionTime = Date.now();
+
+      const readData = async () => {
+        // collect all of the promises
+        const readSensorPromises = activeSensors.map((sensor) => {
+          return this.readSensor(startCollectionTime, sensor);
+        });
+
+        // wait for all active sensors to be read
+        await Promise.all(readSensorPromises);
+
+        if(!this.stopRequested) {
+          // Repeat
+          setTimeout(readData, 10);
+        } else {
+          if(this.listeners.onSensorCollectionStopped) {
+              this.listeners.onSensorCollectionStopped();
+          }
+          this.stopRequested = false;
+        }
+      }
+
+      readData();
+    }
+
+    printByteArray(byteArray:DataView) {
+      let hex:string = "";
+      for(let i=0; i < byteArray.byteLength; i++) {
+        hex += toPaddedHexString(byteArray.getUint8(i));
+      }
+      console.log(`read bytes: ${hex}`);
+    }
+
+    async readSensor(startCollectionTime:number, sensor:any) {
+      if(!sensor.dataCharacteristic) {
+        // The dataCharacteristic hasn't been setup yet
+        return;
+      }
+
+      // Step 7: Read bytes
+      const byteArray = await sensor.dataCharacteristic.readValue();
+      this.printByteArray(byteArray);
+
+      const time = Date.now() - startCollectionTime;
+
+      sensor.values.forEach((valueDesc:any) => {
+        // Step 8: convert value and notify listeners
+        // This would be better if the SensorManager interface supported
+        // the ability to send multiple values for a single time value
+        this.updateSensorValue(valueDesc.columnID, time / 1000,
+          valueDesc.convertFunct(byteArray));
+      });
     }
 
     requestStop() {
@@ -133,6 +310,8 @@ export class SensorTagManager implements ISensorManager {
       this.device = await navigator.bluetooth.requestDevice({
           filters: [{ services: [tagIdentifier] }],
           optionalServices: [tagAddrs.luxometer.service,
+                             tagAddrs.humidity.service,
+                             tagAddrs.IRTemperature.service,
                              tagAddrs.IO.service]
         });
       // Step 2: Connect to device
@@ -187,52 +366,32 @@ export class SensorTagManager implements ISensorManager {
       this.sendSensorConfig(true);
     }
 
-    async startLight() {
-      // Step 3: Get the Service
-      const service =
-        await this.server.getPrimaryService(tagAddrs.luxometer.service);
-
-      // Step 4: Enable Light Sensor
-      const enableChar =
-        await service.getCharacteristic(tagAddrs.luxometer.enable);
-      await enableChar.writeValue(new Uint8Array([0x01]));
-
-      // Step 5: Get light characteristic
-      const valueChar = await service.getCharacteristic(tagAddrs.luxometer.value);
-
-      // Step 6: Loop every 500ms
-      let startCollectionTime = Date.now();
-      const readLight = async () => {
-        // Step 7: Read bytes
-        const byteArray = await valueChar.readValue();
-
-        const time = Date.now() - startCollectionTime;
-
-        // Step 8: display light
-        this.updateLight(time / 1000, byteArray.getUint16(0, true));
-
-        if(!this.stopRequested) {
-          setTimeout(readLight, 10);
-        } else {
-          if(this.listeners.onSensorCollectionStopped) {
-              this.listeners.onSensorCollectionStopped();
-          }
-          this.stopRequested = false;
-        }
-      }
-
-      readLight();
-    }
-
-    updateLight(time: number, lightValue: number) {
-      this.internalConfig.columns["101"].liveValue = lightValue.toString();
+    updateSensorValue(ID:string, time:number, value:number) {
+      this.internalConfig.columns[ID].liveValue = value.toString();
       this.hasData = true;
 
       if(this.listeners.onSensorStatus) {
-          this.listeners.onSensorStatus(new SensorConfiguration(this.internalConfig));
+        this.listeners.onSensorStatus(new SensorConfiguration(this.internalConfig));
       }
       if(this.listeners.onSensorData) {
-          this.listeners.onSensorData({ "101": [[time, lightValue]]});
+        const data:NewSensorData = {};
+        data[ID] = [[time, value]];
+        this.listeners.onSensorData(data);
       }
+    }
+
+    async setupSensor(sensorDescription:any) {
+      const sensorAddrs = tagAddrs[sensorDescription.sensorName];
+
+      // Step 3: Get the Service
+      const service = await this.server.getPrimaryService(sensorAddrs.service);
+
+      // Step 4: Enable Sensor
+      const configChar = await service.getCharacteristic(sensorAddrs.config);
+      await configChar.writeValue(new Uint8Array([0x01]));
+
+      // Step 5: Get and save data characteristic
+      sensorDescription.dataCharacteristic =
+        await service.getCharacteristic(sensorAddrs.data);
     }
 }
