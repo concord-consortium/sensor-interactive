@@ -163,8 +163,8 @@ export class SensorConnectorManager implements ISensorManager {
           let newSensorData = [];
           for(let i=0; i < newTimeData.length; i++) {
               let time = Number(newTimeData[i].toFixed(2));
-              // TODO the consumer needs to hande taring as well was
-              // stoping the collection when it passes the runLength
+              // TODO the consumer needs to hande taring as well as
+              // stopping the collection when it passes the runLength
               newSensorData.push([time, newValueData[i]]);
           }
 

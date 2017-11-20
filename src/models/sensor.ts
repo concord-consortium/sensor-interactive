@@ -9,7 +9,7 @@ export class Sensor {
     timeUnit:string;
     valueUnit:string;
     definition:ISensorDefinition;
-    
+
     constructor() {
         this.tareValue = 0;
         this.definition = {
@@ -27,7 +27,7 @@ export class Sensor {
     }
 
     zeroSensor() {
-        if (this.sensorValue !== undefined && this.sensorValue !== null) {
+        if (this.sensorValue != null) {
             this.tareValue = this.sensorValue;
         }
     }
