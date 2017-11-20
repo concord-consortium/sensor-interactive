@@ -3,6 +3,7 @@ import * as CodapInterface from "../public/assets/js/CodapInterface";
 interface IAttribute {
     name:string;
     type:string;
+    unit?:string;
     precision?:number;
 }
 
@@ -20,18 +21,24 @@ interface IDataSetTemplate {
 
 interface IDataItem {
     Run:number;
-    Time:number;
-    [key:string]:number;
+    Time?:number;
+    [key:string]:number|undefined;
+}
+
+export interface IDataSpec {
+    name: string;
+    unit: string;
+    data: number[][];
 }
 
 export class Codap {
-    
+
     private state:any = {};
-    
+
     private dataSetName:string = "sensor_interactive";
     private dataSetTitle:string = "Sensor Interactive";
-    private dataSetAttrs:IAttribute[] = [{name: "Time", type: 'numeric', precision: 3}];
-    
+    private dataSetAttrs:IAttribute[] = [{name: "Time", type: 'numeric', unit: "s", precision: 3}];
+
     private dataSetTemplate:IDataSetTemplate = {
         name: "{name}",
         collections: [
@@ -50,7 +57,7 @@ export class Codap {
           }
         ]
     };
-    
+
     constructor() {
         CodapInterface.init({
             name: this.dataSetName,
@@ -87,7 +94,7 @@ export class Codap {
             });
         });
     }
-    
+
     responseCallback(response:any) {
         if(response) {
             //console.log("codap response: success=" + response.success);
@@ -100,28 +107,28 @@ export class Codap {
             resource: 'dataContext[' + this.dataSetName + ']'
         }, this.responseCallback);
     }
-    
-    updateDataContext(attrs:string[]):Promise<any> {
+
+    updateDataContext(dataSpecs:IDataSpec[]):Promise<any> {
         console.log("updateDataContext");
-        attrs.forEach((attr)=>{
+        dataSpecs.forEach((spec)=>{
             var exists:boolean = false;
             this.dataSetAttrs.forEach((dataSetAttr) => {
-                if(dataSetAttr.name === attr) {
+                if(dataSetAttr.name === spec.name) {
                     exists = true;
                 }
             });
             if(!exists) {
-                this.dataSetAttrs.push({name: attr, type: 'numeric', precision: 4});
-            }   
+                this.dataSetAttrs.push({name: spec.name, type: 'numeric', unit: spec.unit, precision: 4});
+            }
         });
-        
+
         return CodapInterface.sendRequest({
             action: 'create',
             resource: 'dataContext[' + this.dataSetName + '].collection[measurements].attribute',
             values: this.dataSetAttrs
         }, this.responseCallback);
     }
-    
+
     requestCreateDataSet():Promise<any> {
         var dataSetDef = Object.assign({}, this.dataSetTemplate);
         dataSetDef.name = this.dataSetName;
@@ -131,7 +138,7 @@ export class Codap {
             values: dataSetDef
         }, this.responseCallback);
     }
-    
+
     guaranteeCaseTable():Promise<any> {
         return new Promise((resolve, reject) => {
             CodapInterface.sendRequest({
@@ -147,8 +154,8 @@ export class Codap {
                         resolve(iResult);
                     } else {
                         CodapInterface.sendRequest({
-                            action: 'create', 
-                            resource: 'component', 
+                            action: 'create',
+                            resource: 'component',
                             values: {
                                 type: 'caseTable',
                                 dataContext: this.dataSetName
@@ -163,32 +170,34 @@ export class Codap {
             });
         });
     }
-        
-    sendData(data:number[][], dataType:string) {
+
+    sendData(dataSpec:IDataSpec) {
+        const name = dataSpec.name,
+              data = dataSpec.data;
         // if a run number has not yet been initialized, do so now.
         if (this.state.runNumber == null) {
             this.state.runNumber = 0;
         }
-        
+
         ++this.state.runNumber;
 
         var sampleCount = data.length;
-        
+
         var items:IDataItem[] = [];
-        
+
         for(var i=0; i < sampleCount; i++) {
             var entry = data[i];
             var time = entry[0];
             var value = <number>entry[1];
             var item:IDataItem = {Run: this.state.runNumber, Time: time};
-            item[dataType] = value;
+            item[name] = value;
             items.push(item);
         }
-        
-        this.prepAndSend(items, [dataType]);
+
+        this.prepAndSend(items, [dataSpec]);
     }
-    
-    private prepAndSend(items:any[], dataTypes:string[]) {
+
+    private prepAndSend(items:any[], dataSpecs:IDataSpec[]) {
         // Determine if CODAP already has the Data Context we need.
         this.requestDataContext().then((iResult:any) => {
             // if we did not find a data set, make one
@@ -201,7 +210,7 @@ export class Codap {
             }
         }).then((iResult:any)=> {
             // make sure the Data Context has the current data type
-            return this.updateDataContext(dataTypes);
+            return this.updateDataContext(dataSpecs);
         }).then((iResult:any)=> {
             this.guaranteeCaseTable().then((iResult:any) => {
                 CodapInterface.sendRequest({
@@ -212,38 +221,39 @@ export class Codap {
             });
         });
     }
-    
-    sendDualData(data1:number[][], data1Type:string, data2:number[][], data2Type:string) {
+
+    sendDualData(dataSpecs:IDataSpec[]) {
         // if a run number has not yet been initialized, do so now.
         if (this.state.runNumber == null) {
             this.state.runNumber = 0;
         }
-        
+
         ++this.state.runNumber;
 
-        var sampleCount = Math.max(data1.length, data2.length);
-        
+        var sampleCount = Math.max(dataSpecs[0].data.length, dataSpecs[1].data.length);
+
         var items:IDataItem[] = [];
         var collection:ICollection = this.dataSetTemplate.collections[1];
-        collection.attrs[1] = {name: data1Type, type: 'numeric', precision: 4};
-        collection.attrs[2] = {name: data2Type, type: 'numeric', precision: 4};
-        
-        for(var i=0; i < sampleCount; i++) {
-            var entry1 = data1 && data1[i];
-            var entry2 = data2 && data2[i];
-            if (!entry1 && !entry2) break;
 
-            var time = entry1 ? entry1[0] : entry2[0];
-            var value1 = entry1 && entry1[1] as number;
-            var value2 = entry2 && entry2[1] as number;
-            var item:IDataItem = {Run: this.state.runNumber, Time: time};
-            if (value1 != null)
-                item[data1Type] = value1;
-            if (value2 != null)
-                item[data2Type] = value2;
+        let j, spec;
+        for(j=0; j < 2; j++) {
+            spec = dataSpecs[j];
+            collection.attrs[j+1] = {name: spec.name, type: 'numeric', unit: spec.unit, precision: 4};
+        }
+
+        for(var i=0; i < sampleCount; i++) {
+            let item:IDataItem = {Run: this.state.runNumber };
+            for(j=0; j < 2; j++) {
+                let spec = dataSpecs[j],
+                    sample = spec.data[i];
+                if (item.Time == null)
+                    item.Time = sample[0];
+                if (sample[1] != null)
+                    item[spec.name] = sample[1];
+            }
             items.push(item);
         }
-        
-        this.prepAndSend(items, [data1Type, data2Type]);
+
+        this.prepAndSend(items, dataSpecs);
     }
 }
