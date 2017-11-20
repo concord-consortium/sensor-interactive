@@ -42,7 +42,7 @@ export class SensorConnectorManager implements ISensorManager {
 
     }
 
-    sensorHasData() {
+    hasSensorData() {
       return this.sensorConnector.datasets[0] &&
           this.sensorConnector.datasets[0].columns[1];
     }

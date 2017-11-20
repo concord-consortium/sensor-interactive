@@ -207,10 +207,6 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({ sensorSlots });
     }
 
-    sensorHasData():boolean {
-        return this.props.sensorManager.sensorHasData();
-    }
-
     startSensor() {
         this.props.sensorManager.requestStart();
         this.setState({

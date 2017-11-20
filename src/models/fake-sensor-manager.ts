@@ -82,7 +82,7 @@ export class FakeSensorManager implements ISensorManager {
       }, 100);
     }
 
-    sensorHasData() {
+    hasSensorData() {
       return this.hasData;
     }
 

@@ -14,7 +14,7 @@ export interface SensorManagerListeners {
 export interface ISensorManager {
   listeners:SensorManagerListeners;
   startPolling() : void;
-  sensorHasData() : boolean;
+  hasSensorData() : boolean;
   requestStart() : void;
   requestStop() : void;
 }
