@@ -52,13 +52,15 @@ export class SensorSlot {
   // Tare the data before appending it
   appendData(newData:number[][]) {
     const { sensor } = this;
-    if(sensor.tareValue) {
-      newData.forEach( (item) => {
-        item[1] = item[1] - sensor.tareValue;
-      });
-    }
 
-    Array.prototype.push.apply(this.sensorData, newData);
+    newData.forEach( (item) => {
+      let value = item[1];
+      if(sensor.tareValue) {
+        value = value - sensor.tareValue;
+      }
+      this.sensorData.push([item[0], value]);
+    });
+
     if (!this.dataSensor)
       this.dataSensor = cloneDeep(this.sensor);
   }
