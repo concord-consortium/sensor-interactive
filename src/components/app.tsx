@@ -294,7 +294,7 @@ export class App extends React.Component<AppProps, AppState> {
 
           sensor.sensorValue = liveValue;
 
-          if(liveValue === null || liveValue === undefined) {
+          if(liveValue == null) {
             // This sensor isn't active anymore onSensorConnect should have been or
             // will be called. That functions slot matcher will disable the sensor
           }
