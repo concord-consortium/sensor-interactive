@@ -87,8 +87,7 @@ export class SensorConnectorManager implements ISensorManager {
       const setID = this.sensorConfig.setID;
 
       for(let i=0; i < this.sensorConnector.datasets.length; i++) {
-          // setID is a number, but the dataset id is a string
-          if(this.sensorConnector.datasets[i].id === setID) {
+          if(this.sensorConnector.datasets[i].id === setID.toString()) {
               dataset = this.sensorConnector.datasets[i];
               break;
           }
