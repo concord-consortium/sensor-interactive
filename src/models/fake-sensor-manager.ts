@@ -1,16 +1,15 @@
 import { SensorConfiguration } from "./sensor-configuration";
-import { ISensorManager, SensorManagerListeners } from "./sensor-manager";
+import { SensorManager } from "./sensor-manager";
 import { ISensorConfig } from "./sensor-connector-interface";
 
-export class FakeSensorManager implements ISensorManager {
-    listeners:SensorManagerListeners = {};
-
+export class FakeSensorManager extends SensorManager {
     private sensorConfig: SensorConfiguration;
     private internalConfig: ISensorConfig;
     private hasData: boolean = false;
     private interval: any;
 
     constructor() {
+      super();
       // create fake SensorConfiguration
       // This should be improved, we don't need all of these properties when making
       // a new sensor manager. The SensorConfiguration class could be have an
@@ -73,12 +72,8 @@ export class FakeSensorManager implements ISensorManager {
     startPolling() {
       setTimeout(() => {
         let sensorConfig = new SensorConfiguration(this.internalConfig);
-        if(this.listeners.onSensorConnect) {
-            this.listeners.onSensorConnect(sensorConfig);
-        }
-        if(this.listeners.onSensorStatus) {
-            this.listeners.onSensorStatus(sensorConfig);
-        }
+        this.onSensorConnect(sensorConfig);
+        this.onSensorStatus(sensorConfig);
       }, 100);
     }
 
@@ -96,13 +91,10 @@ export class FakeSensorManager implements ISensorManager {
         this.internalConfig.columns["102"].liveValue = positionValue.toString();
         this.hasData = true;
 
-        if(this.listeners.onSensorStatus) {
-            this.listeners.onSensorStatus(new SensorConfiguration(this.internalConfig));
-        }
-        if(this.listeners.onSensorData) {
-            this.listeners.onSensorData({ "101": [[time, temperatureValue]]});
-            this.listeners.onSensorData({ "102": [[time, positionValue]]});
-        }
+        this.onSensorStatus(new SensorConfiguration(this.internalConfig));
+        this.onSensorData({ "101": [[time, temperatureValue]]});
+        this.onSensorData({ "102": [[time, positionValue]]});
+
         time += 0.1;
       }, 100);
     }
@@ -110,9 +102,7 @@ export class FakeSensorManager implements ISensorManager {
     requestStop() {
       clearTimeout(this.interval);
       setTimeout(() => {
-        if(this.listeners.onSensorCollectionStopped) {
-            this.listeners.onSensorCollectionStopped();
-        }
+        this.onSensorCollectionStopped();
       });
     }
 }

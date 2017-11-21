@@ -8,12 +8,12 @@ import GraphsPanel from "./graphs-panel";
 import { ControlPanel } from "./control-panel";
 import { Codap } from "../models/codap";
 import { IStringMap, SensorStrings, SensorDefinitions } from "../models/sensor-definitions";
-import { ISensorManager, NewSensorData } from "../models/sensor-manager";
+import { SensorManager, NewSensorData } from "../models/sensor-manager";
 import SmartFocusHighlight from "../utils/smart-focus-highlight";
 import { find, pull } from "lodash";
 
 export interface AppProps {
-    sensorManager: ISensorManager;
+    sensorManager: SensorManager;
 }
 
 export interface AppState {
@@ -129,10 +129,10 @@ export class App extends React.Component<AppProps, AppState> {
 
         setTimeout(this.connectCodap, 1000);
 
-        let listeners = this.props.sensorManager.listeners;
-        listeners.onSensorConnect = this.onSensorConnect;
-        listeners.onSensorData = this.onSensorData;
-        listeners.onSensorStatus = this.onSensorStatus;
+        let sensorManager = this.props.sensorManager;
+        sensorManager.addListener('onSensorConnect', this.onSensorConnect);
+        sensorManager.addListener('onSensorData', this.onSensorData);
+        sensorManager.addListener('onSensorStatus', this.onSensorStatus);
         this.props.sensorManager.startPolling();
 
         this.onTimeSelect = this.onTimeSelect.bind(this);
@@ -225,7 +225,8 @@ export class App extends React.Component<AppProps, AppState> {
             statusMessage: this.messages["data_collection_stopped"]
         });
 
-        delete this.props.sensorManager.listeners.onSensorCollectionStopped;
+        this.props.sensorManager.removeListener('onSensorCollectionStopped',
+          this.onSensorCollectionStopped);
     }
 
     // This shoud only be called while we are collecting
@@ -238,8 +239,8 @@ export class App extends React.Component<AppProps, AppState> {
                 statusMessage: this.messages["collecting_data"]
             });
 
-            this.props.sensorManager.listeners.onSensorCollectionStopped =
-                this.onSensorCollectionStopped;
+            this.props.sensorManager.addListener('onSensorCollectionStopped',
+              this.onSensorCollectionStopped);
         }
 
         const { sensorSlots } = this.state;
