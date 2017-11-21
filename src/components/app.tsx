@@ -8,14 +8,14 @@ import GraphsPanel from "./graphs-panel";
 import { ControlPanel } from "./control-panel";
 import { Codap } from "../models/codap";
 import { IStringMap, SensorStrings, SensorDefinitions } from "../models/sensor-definitions";
-import { ISensorManager, NewSensorData } from "../models/sensor-manager";
+import { SensorManager, NewSensorData, ConnectableSensorManager } from "../models/sensor-manager";
 import SmartFocusHighlight from "../utils/smart-focus-highlight";
 import { find, pull } from "lodash";
 import Button from "./smart-highlight-button";
 
 
 export interface AppProps {
-    sensorManager: ISensorManager;
+    sensorManager: SensorManager;
 }
 
 export interface AppState {
@@ -92,6 +92,12 @@ function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:ISensorConfig
     return slots;
 }
 
+// Typescript type guard
+function isConnectableSensorManager(manager: ConnectableSensorManager | any) :
+    manager is ConnectableSensorManager {
+  return manager && (manager as ConnectableSensorManager).connectToDevice !== undefined;
+}
+
 export class App extends React.Component<AppProps, AppState> {
 
     private messages:IStringMap;
@@ -131,10 +137,10 @@ export class App extends React.Component<AppProps, AppState> {
 
         setTimeout(this.connectCodap, 1000);
 
-        let listeners = this.props.sensorManager.listeners;
-        listeners.onSensorConnect = this.onSensorConnect;
-        listeners.onSensorData = this.onSensorData;
-        listeners.onSensorStatus = this.onSensorStatus;
+        let sensorManager = this.props.sensorManager;
+        sensorManager.addListener('onSensorConnect', this.onSensorConnect);
+        sensorManager.addListener('onSensorData', this.onSensorData);
+        sensorManager.addListener('onSensorStatus', this.onSensorStatus);
         this.props.sensorManager.startPolling();
 
         this.onTimeSelect = this.onTimeSelect.bind(this);
@@ -209,10 +215,6 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({ sensorSlots });
     }
 
-    sensorHasData():boolean {
-        return this.props.sensorManager.sensorHasData();
-    }
-
     startSensor() {
         this.props.sensorManager.requestStart();
         this.setState({
@@ -231,7 +233,8 @@ export class App extends React.Component<AppProps, AppState> {
             statusMessage: this.messages["data_collection_stopped"]
         });
 
-        delete this.props.sensorManager.listeners.onSensorCollectionStopped;
+        this.props.sensorManager.removeListener('onSensorCollectionStopped',
+          this.onSensorCollectionStopped);
     }
 
     // This shoud only be called while we are collecting
@@ -244,8 +247,8 @@ export class App extends React.Component<AppProps, AppState> {
                 statusMessage: this.messages["collecting_data"]
             });
 
-            this.props.sensorManager.listeners.onSensorCollectionStopped =
-                this.onSensorCollectionStopped;
+            this.props.sensorManager.addListener('onSensorCollectionStopped',
+              this.onSensorCollectionStopped);
         }
 
         const { sensorSlots } = this.state;
@@ -300,7 +303,7 @@ export class App extends React.Component<AppProps, AppState> {
 
           sensor.sensorValue = liveValue;
 
-          if(liveValue === null || liveValue === undefined) {
+          if(liveValue == null) {
             // This sensor isn't active anymore onSensorConnect should have been or
             // will be called. That functions slot matcher will disable the sensor
           }
@@ -316,21 +319,22 @@ export class App extends React.Component<AppProps, AppState> {
 
     sendData() {
         const { sensorSlots } = this.state,
-              data = sensorSlots.map((slot) =>
-                        slot.sensorData.slice(this.selectionRange.start, this.selectionRange.end)),
               sendSecondSensorData = sensorSlots[1].hasData;
-        let names = sensorSlots.map((slot) => slot.sensorForData.definition.measurementName);
+        const dataSpecs = sensorSlots.map((slot, i) => {
+            const sensor = slot.sensorForData,
+                  name = sensor && sensor.definition.measurementName,
+                  position = (sensor && sensor.sensorPosition) || i+1;
+            return {
+                name: sendSecondSensorData ? `${name}_${position}` : name,
+                unit: sensor ? sensor.valueUnit : '',
+                data: slot.sensorData.slice(this.selectionRange.start, this.selectionRange.end)
+            };
+        });
         if (!sendSecondSensorData) {
-            this.codap.sendData(data[0], names[0]);
+            this.codap.sendData(dataSpecs[0]);
         }
         else {
-            names = names.map((name, i) => {
-                const slot = sensorSlots[i],
-                      sensor = slot && slot.sensorForData,
-                      position = (sensor && sensor.sensorPosition) || i+1;
-                return `${name}_${position}`;
-            });
-            this.codap.sendDualData(data[0], names[0], data[1], names[1]);
+            this.codap.sendDualData(dataSpecs);
         }
 
         this.setState({
@@ -447,22 +451,23 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     connectToDevice = () => {
-      if(this.props.sensorManager &&
-         this.props.sensorManager.connectToDevice){
-        this.props.sensorManager.connectToDevice();
+      const { sensorManager } = this.props;
+      if(isConnectableSensorManager(sensorManager)){
+        sensorManager.connectToDevice();
       }
     }
+
     disconnectFromDevice = () => {
-      if(this.props.sensorManager &&
-         this.props.sensorManager.disconnectFromDevice){
-        this.props.sensorManager.disconnectFromDevice();
+      const { sensorManager } = this.props;
+      if(isConnectableSensorManager(sensorManager)){
+        sensorManager.disconnectFromDevice();
       }
     }
 
     renderConnectToDeviceButton(){
       const { sensorManager } = this.props;
       // Check if this sensorManger supports device connection
-      if(sensorManager.connectToDevice) {
+      if(isConnectableSensorManager(sensorManager)) {
         if(sensorManager.deviceConnected){
           return  <Button className="connect-to-device-button" onClick={this.disconnectFromDevice} >
                     Disconnect from Device
@@ -538,7 +543,6 @@ export class App extends React.Component<AppProps, AppState> {
                         xStart={this.state.xStart}
                         xEnd={this.state.xEnd}
                         timeUnit={this.state.timeUnit}
-                        runLength={this.state.runLength}
                         collecting={this.state.collecting}
                         hasData={this.hasData()}
                         dataReset={this.state.dataReset}

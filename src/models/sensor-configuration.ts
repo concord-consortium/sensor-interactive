@@ -20,6 +20,7 @@ export class SensorConfiguration {
     return this.interface && (this.interface !== "None Found");
   }
 
+  // retrieve ID of the current dataset
   get setID() {
     // current setID is the largest numeric setID
     const keys = Object.keys(this.config.sets),
@@ -27,6 +28,7 @@ export class SensorConfiguration {
     return Math.max.apply(Math, numKeys);
   }
 
+  // retrieve columns for current dataset
   get columns() {
     const setID = this.setID,
           colIDs = this.config.sets[setID].colIDs;
@@ -38,10 +40,12 @@ export class SensorConfiguration {
     return columnID != null ? this.config.columns[columnID] : null;
   }
 
+  // retrieve "Time" column for current dataset
   get timeColumn() {
     return find(this.columns, (col) => col.name === "Time");
   }
 
+  // retrieve non-"Time" columns for current dataset
   get dataColumns() {
     return this.columns.filter((col) => col.name !== "Time");
   }

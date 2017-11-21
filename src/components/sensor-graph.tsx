@@ -5,7 +5,7 @@ import { Graph } from "./graph";
 import { GraphSidePanel } from "./graph-side-panel";
 import { ISensorConfigColumnInfo } from "../models/sensor-connector-interface";
 import { Format } from "../utils/format";
-         
+
 const kSidePanelWidth = 200;
 
 interface SensorGraphProps {
@@ -17,7 +17,6 @@ interface SensorGraphProps {
     onGraphZoom:(xStart:number, xEnd:number) => void;
     onSensorSelect:(sensorIndex:number, columnID:string) => void;
     onStopCollection:() => void;
-    runLength:number;
     collecting:boolean;
     hasData:boolean;
     dataReset:boolean;
@@ -36,13 +35,13 @@ interface SensorGraphState {
 }
 
 export default class SensorGraph extends React.Component<SensorGraphProps, SensorGraphState> {
-    
+
     sensor:Sensor;
     lastDataIndex:number = 0;
-    
+
     constructor(props:SensorGraphProps) {
         super(props);
-        
+
         this.state = {
             sensorColID: undefined
         };
@@ -72,7 +71,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
             this.props.onGraphZoom(xRange[0], xRange[1]);
         }
     }
-    
+
     zeroSensor = () => {
         if(this.props.sensorSlot.sensor) {
           this.props.sensorSlot.sensor.zeroSensor();
@@ -111,7 +110,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 ? `${measurementName} (${valueUnit})`
                 : "Sensor Reading (-)";
     }
-    
+
     renderGraph(graphWidth:number|null) {
         const { sensor } = this.props.sensorSlot,
               { yMin, yMax } = this.state,
@@ -122,7 +121,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
               plotYMax = yMax != null ? yMax : (maxReading != null ? maxReading : 10);
         return (
             <div className="sensor-graph">
-              <Graph 
+              <Graph
                 title={this.props.title}
                 width={graphWidth}
                 height={this.props.height}
@@ -152,7 +151,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
             onZeroSensor={onZeroSensor} />
         );
     }
-    
+
     render() {
         const graphWidth = this.props.width && (this.props.width - kSidePanelWidth);
         return (

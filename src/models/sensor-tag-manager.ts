@@ -1,5 +1,6 @@
 import { SensorConfiguration } from "./sensor-configuration";
-import { ISensorManager, SensorManagerListeners, NewSensorData } from "./sensor-manager";
+import { SensorManager,
+         NewSensorData, ConnectableSensorManager } from "./sensor-manager";
 import { ISensorConfig } from "./sensor-connector-interface";
 import { cloneDeep } from "lodash";
 
@@ -102,8 +103,7 @@ function toPaddedHexString(num:number) : string {
     return "0".repeat(2 - str.length) + str;
 }
 
-export class SensorTagManager implements ISensorManager {
-    listeners:SensorManagerListeners = {};
+export class SensorTagManager extends SensorManager implements ConnectableSensorManager {
     supportsDualCollection = false;
 
     private sensorConfig: SensorConfiguration;
@@ -114,6 +114,8 @@ export class SensorTagManager implements ISensorManager {
     private server: any;
 
     constructor() {
+      super();
+
       // create fake SensorConfiguration
       // This should be improved, we don't need all of these properties when making
       // a new sensor manager. The SensorConfiguration class could be have an
@@ -210,12 +212,10 @@ export class SensorTagManager implements ISensorManager {
 
     sendSensorConfig(includeOnConnect:boolean) {
       let sensorConfig = new SensorConfiguration(this.internalConfig);
-      if(includeOnConnect && this.listeners.onSensorConnect) {
-          this.listeners.onSensorConnect(sensorConfig);
+      if(includeOnConnect) {
+        this.onSensorConnect(sensorConfig);
       }
-      if(this.listeners.onSensorStatus) {
-          this.listeners.onSensorStatus(sensorConfig);
-      }
+      this.onSensorStatus(sensorConfig);
     }
 
     startPolling() {
@@ -230,7 +230,7 @@ export class SensorTagManager implements ISensorManager {
       }, 1000);
     }
 
-    sensorHasData() {
+    hasSensorData() {
       return this.hasData;
     }
 
@@ -262,9 +262,7 @@ export class SensorTagManager implements ISensorManager {
           // Repeat
           setTimeout(readData, 10);
         } else {
-          if(this.listeners.onSensorCollectionStopped) {
-              this.listeners.onSensorCollectionStopped();
-          }
+          this.onSensorCollectionStopped();
           this.stopRequested = false;
         }
       }
@@ -370,14 +368,10 @@ export class SensorTagManager implements ISensorManager {
       this.internalConfig.columns[ID].liveValue = value.toString();
       this.hasData = true;
 
-      if(this.listeners.onSensorStatus) {
-        this.listeners.onSensorStatus(new SensorConfiguration(this.internalConfig));
-      }
-      if(this.listeners.onSensorData) {
-        const data:NewSensorData = {};
-        data[ID] = [[time, value]];
-        this.listeners.onSensorData(data);
-      }
+      this.onSensorStatus(new SensorConfiguration(this.internalConfig));
+      const data:NewSensorData = {};
+      data[ID] = [[time, value]];
+      this.onSensorData(data);
     }
 
     async setupSensor(sensorDescription:any) {

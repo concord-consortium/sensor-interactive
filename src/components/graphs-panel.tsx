@@ -20,18 +20,17 @@ interface IGraphsPanelProps {
   xStart:number;
   xEnd:number;
   timeUnit:string;
-  runLength:number;
   collecting:boolean;
   hasData:boolean;
   dataReset:boolean;
 }
 
 const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
-  
+
   function renderGraph( sensorSlot:SensorSlot,
                         title:string,
                         isSingletonGraph:boolean,
-                        isLastGraph:boolean = isSingletonGraph) { 
+                        isLastGraph:boolean = isSingletonGraph) {
 
     const sensorColumns = (props.sensorConfig && props.sensorConfig.dataColumns) || [],
           availableHeight = props.size.height && (props.size.height - 20),
@@ -56,7 +55,6 @@ const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
                         xStart={props.xStart}
                         xEnd={props.xEnd}
                         timeUnit={props.timeUnit}
-                        runLength={props.runLength}
                         collecting={props.collecting}
                         hasData={props.hasData}
                         dataReset={props.dataReset}/>;
@@ -65,7 +63,7 @@ const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
   const { sensorSlots, secondGraph } = props,
         classes = `graphs-panel ${secondGraph ? 'two-graphs' : ''}`,
         style = { minHeight: secondGraph ? 320 : 170 };
-  
+
   return (
       <div className={classes} style={style}>
         {renderGraph(sensorSlots && sensorSlots[0], "graph1", !secondGraph)}

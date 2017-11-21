@@ -1,16 +1,15 @@
 import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
 import { SensorConfiguration } from "./sensor-configuration";
 import { IStatusReceivedTuple, ISensorConfigColumnInfo, ISensorConnectorDataset } from "./sensor-connector-interface";
-import { ISensorManager, NewSensorData, SensorManagerListeners } from "./sensor-manager";
+import { SensorManager, NewSensorData } from "./sensor-manager";
 
 const SENSOR_IP = "http://127.0.0.1:11180";
 
 interface ColumnInfo {
-  lastDataIndex: number
+  lastDataIndex: number;
 }
 
-export class SensorConnectorManager implements ISensorManager {
-    listeners:SensorManagerListeners = {};
+export class SensorConnectorManager extends SensorManager {
     supportsDualCollection = true;
 
     private sensorConnector:any;
@@ -18,6 +17,7 @@ export class SensorConnectorManager implements ISensorManager {
     private sensorConfig: SensorConfiguration;
 
     constructor() {
+      super();
       this.sensorConnector = new SensorConnectorInterface();
 
       this.sensorConnector.on("interfaceConnected", this.handleSensorConnect);
@@ -42,7 +42,7 @@ export class SensorConnectorManager implements ISensorManager {
 
     }
 
-    sensorHasData() {
+    hasSensorData() {
       return this.sensorConnector.datasets[0] &&
           this.sensorConnector.datasets[0].columns[1];
     }
@@ -61,43 +61,35 @@ export class SensorConnectorManager implements ISensorManager {
 
         this.sensorConfig = new SensorConfiguration(config);
 
-        if(this.listeners.onSensorConnect) {
-            this.listeners.onSensorConnect(this.sensorConfig);
-        }
+        this.onSensorConnect(this.sensorConfig);
     }
 
     handleSensorCollectionStopped = () => {
-        if(this.listeners.onSensorCollectionStopped) {
-            this.listeners.onSensorCollectionStopped();
-        }
+        this.onSensorCollectionStopped();
     }
 
     handleSensorStatus = () => {
         const statusReceived:IStatusReceivedTuple = this.sensorConnector.stateMachine.currentActionArgs,
             config = statusReceived[1];
         this.sensorConfig = new SensorConfiguration(config);
-        if(this.listeners.onSensorStatus) {
-            this.listeners.onSensorStatus(this.sensorConfig);
-        }
+        this.onSensorStatus(this.sensorConfig);
     }
 
     // this is the id of the column that has new data
     handleSensorData = (columnId:string) => {
-      let _dataset:ISensorConnectorDataset|undefined;
+      let dataset:ISensorConnectorDataset|undefined;
       const setID = this.sensorConfig.setID;
 
       for(let i=0; i < this.sensorConnector.datasets.length; i++) {
-          // setID is a number, but the dataset id is a string
-          if(this.sensorConnector.datasets[i].id == setID) {
-              _dataset = this.sensorConnector.datasets[i];
+          if(this.sensorConnector.datasets[i].id === setID.toString()) {
+              dataset = this.sensorConnector.datasets[i];
               break;
           }
       }
 
-      if(_dataset === undefined) {
+      if(dataset === undefined) {
           return;
       }
-      let dataset:ISensorConnectorDataset = _dataset as ISensorConnectorDataset;
 
       const timeColumn = this.sensorConfig.timeColumn,
           timeColumnData = timeColumn && this.getDataColumn(timeColumn.id, dataset),
@@ -111,7 +103,9 @@ export class SensorConnectorManager implements ISensorManager {
           timeData = timeColumnData.data || [];
 
       sensorColumns.forEach((sensorColumn) => {
-        const newSensorData = this.processSensorColumn(sensorColumn, timeData, dataset);
+        // The `dataset &&` is to make the TS compiler happy, I believe a newer version
+        // of TS makes this unecessary
+        const newSensorData = dataset && this.processSensorColumn(sensorColumn, timeData, dataset);
         if(newSensorData != null) {
           newData[sensorColumn.id] = newSensorData;
         }
@@ -119,9 +113,7 @@ export class SensorConnectorManager implements ISensorManager {
 
       // now we need to send this newData off to the listener
       // Probably we should check if it has any keys
-      if (this.listeners.onSensorData) {
-          this.listeners.onSensorData(newData);
-      }
+      this.onSensorData(newData);
     }
 
     getDataColumn(columnID:string, dataset:ISensorConnectorDataset) {
@@ -137,7 +129,7 @@ export class SensorConnectorManager implements ISensorManager {
     }
 
     processSensorColumn(sensorColumn: ISensorConfigColumnInfo, timeData: number[],
-        dataset:ISensorConnectorDataset) {
+                        dataset:ISensorConnectorDataset) {
       // check the length in the dataset of both it and the time column
       const timeDataLength = timeData.length,
           sensorColumnData = this.getDataColumn(sensorColumn.id, dataset),
@@ -162,8 +154,8 @@ export class SensorConnectorManager implements ISensorManager {
           let newSensorData = [];
           for(let i=0; i < newTimeData.length; i++) {
               let time = Number(newTimeData[i].toFixed(2));
-              // TODO the consumer needs to hande taring as well was
-              // stoping the collection when it passes the runLength
+              // TODO the consumer needs to hande taring as well as
+              // stopping the collection when it passes the runLength
               newSensorData.push([time, newValueData[i]]);
           }
 
