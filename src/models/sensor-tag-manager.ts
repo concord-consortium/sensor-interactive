@@ -79,7 +79,7 @@ const sensorDescriptions = {
     sensorName: "humidity",
     values: [
       {
-        columnID: "104",
+        columnID: "104", // humidity
         convertFunct: (byteArray: DataView) => {
           let rawHum = byteArray.getUint16(2, true);
           rawHum &= ~0x0003; // remove status bits
@@ -87,7 +87,7 @@ const sensorDescriptions = {
         }
       },
       {
-        columnID: "105",
+        columnID: "105", // ambient temperature
         convertFunct: (byteArray: DataView) => {
           const rawTemp = byteArray.getInt16(0, true);
           return (rawTemp / 65536)*165 - 40;
