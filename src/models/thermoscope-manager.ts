@@ -99,7 +99,7 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
           "102": {
             id: "102",
             setID: "100",
-            position: 1,
+            position: 2,
             name: "Temperature B",
             units: "degC",
             liveValue: "NaN",
@@ -170,9 +170,13 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
       let startCollectionTime = Date.now();
 
       const readData = async () => {
+        // use one time for all readings so when doing a multi sensor export
+        // the readings match up
+        const time = Date.now() - startCollectionTime;
+
         // collect all of the promises
         const readSensorPromises = activeSensors.map((sensor) => {
-          return this.readSensor(startCollectionTime, sensor);
+          return this.readSensor(time, sensor);
         });
 
         // wait for all active sensors to be read
@@ -198,7 +202,7 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
       console.log(`read bytes: ${hex}`);
     }
 
-    async readSensor(startCollectionTime:number, sensor:any) {
+    async readSensor(time:number, sensor:any) {
       if(!sensor.dataCharacteristic) {
         // The dataCharacteristic hasn't been setup yet
         return;
@@ -207,8 +211,6 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
       // Read bytes
       const byteArray = await sensor.dataCharacteristic.readValue();
       this.printByteArray(byteArray);
-
-      const time = Date.now() - startCollectionTime;
 
       sensor.values.forEach((valueDesc:any) => {
         // Step 8: convert value and notify listeners
