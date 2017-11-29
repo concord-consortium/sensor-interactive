@@ -27,7 +27,7 @@ const sensorDescriptions = {
       {
         columnID: "101",
         convertFunct: (byteArray:DataView) => {
-          const temp100 = byteArray.getUint32(0, true);
+          const temp100 = byteArray.getInt32(0, true);
           return temp100/ 100.0;
         }
       }
@@ -39,7 +39,7 @@ const sensorDescriptions = {
       {
         columnID: "102",
         convertFunct: (byteArray:DataView) => {
-          const temp100 = byteArray.getUint32(0, true);
+          const temp100 = byteArray.getInt32(0, true);
           return temp100/ 100.0;
         }
       }
