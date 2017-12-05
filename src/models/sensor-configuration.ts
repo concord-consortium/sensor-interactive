@@ -3,7 +3,10 @@ import { find } from "lodash";
 import { ISensorConfig } from "./sensor-connector-interface";
 
 export class SensorConfiguration {
-  config:ISensorConfig;
+  // We'd like to abstract the SensorConfiguration from the SensorConnector
+  // so instead of accessing the ISensorConfig directly, please add accessor methods
+  // to make it easier to do this abstraction in the future
+  private config:ISensorConfig;
 
   constructor(config:ISensorConfig) {
     this.config = config;
@@ -23,12 +26,6 @@ export class SensorConfiguration {
     const keys = Object.keys(this.config.sets),
           numKeys = keys.map((id) => Number(id));
     return Math.max.apply(Math, numKeys);
-  }
-
-  // retrieve the ID of the dataset that contains the specified column ID
-  getSetIDForColumnID(columnID:string) {
-    const column = this.getColumnByID(columnID);
-    return column && column.setID;
   }
 
   // retrieve columns for current dataset

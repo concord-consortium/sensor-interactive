@@ -9,7 +9,7 @@ export class Sensor {
     timeUnit:string;
     valueUnit:string;
     definition:ISensorDefinition;
-    
+
     constructor() {
         this.tareValue = 0;
         this.definition = {
@@ -25,4 +25,11 @@ export class Sensor {
     get isConnected() {
         return !!this.columnID && !!this.valueUnit;
     }
+
+    zeroSensor() {
+        if (this.sensorValue != null) {
+            this.tareValue = this.sensorValue;
+        }
+    }
+
 }

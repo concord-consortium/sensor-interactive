@@ -1,27 +1,21 @@
 import * as React from "react";
 import { Sensor } from "../models/sensor";
-import { SensorConfiguration } from "../models/sensor-configuration";
 import { SensorSlot } from "../models/sensor-slot";
 import { Graph } from "./graph";
 import { GraphSidePanel } from "./graph-side-panel";
-import { ISensorConfigColumnInfo,
-         ISensorConnectorDataset } from "../models/sensor-connector-interface";
+import { ISensorConfigColumnInfo } from "../models/sensor-connector-interface";
 import { Format } from "../utils/format";
-         
+
 const kSidePanelWidth = 200;
 
 interface SensorGraphProps {
     width:number|null;
     height:number|null;
-    sensorConnector:any;
-    sensorConfig:SensorConfiguration | null;
     sensorColumns:ISensorConfigColumnInfo[];
     sensorSlot:SensorSlot;
     title:string;
-    onAppendData:(sensorSlot:SensorSlot, sensorData:number[][]) => void;
     onGraphZoom:(xStart:number, xEnd:number) => void;
     onSensorSelect:(sensorIndex:number, columnID:string) => void;
-    onZeroSensor:(sensorSlot:SensorSlot, sensorValue:number) => void;
     onStopCollection:() => void;
     runLength:number;
     collecting:boolean;
@@ -35,37 +29,23 @@ interface SensorGraphProps {
 }
 
 interface SensorGraphState {
-    sensorActive:boolean;
     sensorColID?:string;
-    sensorValue:number|undefined;
     sensorUnit?:string;
-    dataChanged:boolean;
     yMin?:number|null;
     yMax?:number|null;
 }
 
 export default class SensorGraph extends React.Component<SensorGraphProps, SensorGraphState> {
-    
+
     sensor:Sensor;
     lastDataIndex:number = 0;
-    
+
     constructor(props:SensorGraphProps) {
         super(props);
-        
+
         this.state = {
-            sensorActive: false,
-            sensorColID: undefined,
-            sensorValue: undefined,
-            dataChanged: false
+            sensorColID: undefined
         };
-        
-        this.props.sensorConnector.on("statusReceived", this.onSensorStatus);
-        this.props.sensorConnector.on("data", this.onSensorData);
-    }
-    
-    componentWillUnmount() {
-        this.props.sensorConnector.off("statusReceived", this.onSensorStatus);
-        this.props.sensorConnector.off("data", this.onSensorData);
     }
 
     sensorPrecision() {
@@ -92,97 +72,14 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
             this.props.onGraphZoom(xRange[0], xRange[1]);
         }
     }
-    
-    zeroSensor = () => {
-        if (this.props.onZeroSensor) {
-            this.props.onZeroSensor(this.props.sensorSlot, this.state.sensorValue || 0);
-        }
-    }
-    
-    onSensorStatus = () => {
-        // find the value for the currently selected sensor/unit type
-        const { sensor } = this.props.sensorSlot,
-            dataColumn = sensor.columnID && this.getDataColumn(sensor.columnID),
-            liveValue = dataColumn ? Number(dataColumn.liveValue) : undefined;
-        if(liveValue != null) {
-            sensor.sensorValue = liveValue;
-            this.setState({ sensorValue: liveValue });
-        }
-        else {
-            this.setState({ sensorActive: false, sensorValue: undefined, dataChanged: true });
-        }
-    }
-    
-    onSensorData = (columnID:string) => {
-        const { collecting, sensorConfig } = this.props,
-              setID = collecting && sensorConfig && sensorConfig.getSetIDForColumnID(columnID);
-        if (!sensorConfig || !setID) return;
-        
-        var dataset:ISensorConnectorDataset|null = null;
-        for(var i=0; i < this.props.sensorConnector.datasets.length; i++) {
-            if(this.props.sensorConnector.datasets[i].id === setID) {
-                dataset = this.props.sensorConnector.datasets[i];
-                break;
-            }
-        }
-        if(dataset == null) {
-            return;
-        }
-        
-        const timeData = dataset.columns[0].data || [],
-              timeDataLength = timeData.length,
-              { sensor } = this.props.sensorSlot,
-              dataColumn = this.getDataColumn(sensor.columnID, dataset),
-              sensorData = (dataColumn && dataColumn.data) || [],
-              sensorDataLength = sensorData.length;
-        
-        // columns aren't always updated together
-        var newLength = Math.min(timeDataLength, sensorDataLength);
-        
-        if (this.lastDataIndex == null) {
-            this.lastDataIndex = 0;
-        }                    
 
-        // check there's new data for this column
-        if (newLength > this.lastDataIndex) {
-            var newTimeData = timeData.slice(this.lastDataIndex, newLength);
-            var newValueData = sensorData.slice(this.lastDataIndex, newLength);
-            var newSensorData = [];
-            for(var i=0; i < newTimeData.length; i++) {
-                var time = Number(newTimeData[i].toFixed(2));
-                var value = newValueData[i] - sensor.tareValue;
-                if(time <= this.props.runLength) {
-                    newSensorData.push([time, value]);
-                }
-                else if (this.props.onStopCollection) {
-                    this.props.onStopCollection();
-                }
-            }
-            
-            this.props.onAppendData(this.props.sensorSlot, newSensorData);
-            this.setState({
-                dataChanged: true
-            });
-            
-            this.lastDataIndex = newLength;
+    zeroSensor = () => {
+        if(this.props.sensorSlot.sensor) {
+          this.props.sensorSlot.sensor.zeroSensor();
+          this.setState(this.state);
         }
     }
-    
-    getDataColumn(columnID?:string, dataset?:ISensorConnectorDataset) {
-        if(dataset == null) {
-            dataset = this.props.sensorConnector.stateMachine.datasets[0];
-        }
-        var dataColumns = (dataset && dataset.columns) || [];
-        for(var i=0; i < dataColumns.length; i++) {
-            var dataColumn = dataColumns[i];
-            if((columnID != null) && (dataColumn.id === columnID)) {
-                return dataColumn;
-            }
-        }
-        console.log("data column not found (" + columnID + ")");
-        return null;
-    }
-    
+
     componentWillReceiveProps(nextProps:SensorGraphProps) {
         const { dataReset } = this.props;
         if(!dataReset && nextProps.dataReset) {
@@ -214,7 +111,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 ? `${measurementName} (${valueUnit})`
                 : "Sensor Reading (-)";
     }
-    
+
     renderGraph(graphWidth:number|null) {
         const { sensor } = this.props.sensorSlot,
               { yMin, yMax } = this.state,
@@ -225,7 +122,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
               plotYMax = yMax != null ? yMax : (maxReading != null ? maxReading : 10);
         return (
             <div className="sensor-graph">
-              <Graph 
+              <Graph
                 title={this.props.title}
                 width={graphWidth}
                 height={this.props.height}
@@ -255,7 +152,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
             onZeroSensor={onZeroSensor} />
         );
     }
-    
+
     render() {
         const graphWidth = this.props.width && (this.props.width - kSidePanelWidth);
         return (

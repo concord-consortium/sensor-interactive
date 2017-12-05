@@ -53,8 +53,8 @@ export interface IMachinaAction {
 
 export interface IStatusReceivedTuple
         extends Array<IMachinaAction|ISensorConfig>
-                  {0:IMachinaAction, 1:ISensorConfig}
+                  {0:IMachinaAction; 1:ISensorConfig;}
 
 export interface IColumnDataTuple
         extends Array<IMachinaAction|string|number[]|Date>
-                  {0:IMachinaAction, 1:string, 2:number[], 3:Date}
+                  {0:IMachinaAction; 1:string; 2:number[]; 3:Date;}

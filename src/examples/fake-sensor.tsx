@@ -1,9 +1,9 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { App } from "./components/app";
-import { SensorConnectorManager } from "./models/sensor-connector-manager";
+import { App } from "../components/app";
+import { FakeSensorManager } from "../models/fake-sensor-manager";
 
-let sensorManager = new SensorConnectorManager();
+let sensorManager = new FakeSensorManager();
 
 ReactDOM.render(
     <App

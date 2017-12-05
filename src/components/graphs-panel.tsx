@@ -11,14 +11,11 @@ interface ISizeMeSize {
 
 interface IGraphsPanelProps {
   size:ISizeMeSize;
-  sensorConnector:any;
   sensorConfig:SensorConfiguration|null;
   sensorSlots:SensorSlot[];
   secondGraph:boolean;
-  onAppendData:(sensorSlot:SensorSlot, sensorData:number[][]) => void;
   onGraphZoom:(xStart:number, xEnd:number) => void;
   onSensorSelect:(sensorIndex:number, columnID:string) => void;
-  onZeroSensor:(sensorSlot:SensorSlot, sensorValue:number) => void;
   onStopCollection:() => void;
   xStart:number;
   xEnd:number;
@@ -48,17 +45,13 @@ const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
                           : isLastGraph ? secondGraphHeight : firstGraphHeight;
     return <SensorGraph width={graphWidth}
                         height={graphHeight}
-                        sensorConnector={props.sensorConnector}
-                        sensorConfig={props.sensorConfig}
                         sensorColumns={sensorColumns}
                         sensorSlot={sensorSlot}
                         title={title}
                         isSingletonGraph={isSingletonGraph}
                         isLastGraph={isLastGraph}
-                        onAppendData={props.onAppendData}
-                        onGraphZoom={props.onGraphZoom} 
+                        onGraphZoom={props.onGraphZoom}
                         onSensorSelect={props.onSensorSelect}
-                        onZeroSensor={props.onZeroSensor}
                         onStopCollection={props.onStopCollection}
                         xStart={props.xStart}
                         xEnd={props.xEnd}
