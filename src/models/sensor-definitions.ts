@@ -92,6 +92,7 @@ export const SensorStrings:ISensorStrings = {
       "position": "Position",
       "potential": "Potential",
       "pressure": "Pressure",
+      "relative_humidity": "Relative Humidity",
       "signal": "Signal",
       "sound_level": "Sound Level",
       "speed": "Speed",
@@ -127,6 +128,7 @@ export const SensorStrings:ISensorStrings = {
       "heart_rate": "Heart Rate",
       "magnetic_field": "Magnetic Field",
       "rotary_motion": "Rotary Motion",
+      "relative_humidity": "Relative Humidity",
       "linear_position_sensor": "Linear Position Sensor",
       "sound_level": "Sound Level",
       "spectrophotometer": "Spectrophotometer",
@@ -237,7 +239,7 @@ export const SensorDefinitions:ISensorDefinitions = {
     "measurementType": "pressure",
     "tareable": true,
     "minReading": 0.0,
-    "maxReading": 220000.0 
+    "maxReading": 220000.0
   },
   "mm Hg": {
     "sensorName": i18n.t("sensor.names.pressure"),
@@ -334,6 +336,14 @@ export const SensorDefinitions:ISensorDefinitions = {
     "tareable": false,
     "minReading": 0.0,
     "maxReading": 0.5
+  },
+  "%RH": {
+    "sensorName": i18n.t("sensor.names.relative_humidity"),
+    "measurementName": i18n.t("sensor.measurements.relative_humidity"),
+    "measurementType": "relative humidity",
+    "tareable": false,
+    "minReading": 0.0,
+    "maxReading": 100.0
   },
   "%T": {
     "sensorName": i18n.t("sensor.names.colorimeter"),
@@ -632,5 +642,3 @@ export const SensorDefinitions:ISensorDefinitions = {
     "maxReading": 50.0
   }
 };
-
-

@@ -3,6 +3,8 @@ import { SensorManager } from "./sensor-manager";
 import { ISensorConfig } from "./sensor-connector-interface";
 
 export class FakeSensorManager extends SensorManager {
+    supportsDualCollection = true;
+    
     private sensorConfig: SensorConfiguration;
     private internalConfig: ISensorConfig;
     private hasData: boolean = false;
