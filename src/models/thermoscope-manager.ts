@@ -17,6 +17,14 @@ const tagAddrs: { [index:string] : ISensorAddrs } = {
   temperatureB: {
     service: 'f000bb00-0451-4000-b000-000000000000',
     data: 0x0001
+  },
+  countsA: {
+    service: 'f000aa00-0451-4000-b000-000000000000',
+    data: 0x0002
+  },
+  countsB: {
+    service: 'f000bb00-0451-4000-b000-000000000000',
+    data: 0x0002
   }
 };
 
@@ -44,7 +52,32 @@ const sensorDescriptions = {
         }
       }
     ]
+  },
+  countsA: {
+    sensorName: "countsA",
+    values: [
+      {
+        columnID: "103",
+        convertFunct: (byteArray:DataView) => {
+          const counts100 = byteArray.getInt32(0, true);
+          return counts100/ 100.0;
+        }
+      }
+    ]
+  },
+  countsB: {
+    sensorName: "countsB",
+    values: [
+      {
+        columnID: "104",
+        convertFunct: (byteArray:DataView) => {
+          const counts100 = byteArray.getInt32(0, true);
+          return counts100/ 100.0;
+        }
+      }
+    ]
   }
+
 }
 
 // Helper function for debugging
@@ -106,7 +139,30 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
             liveValueTimeStamp: new Date(),
             valueCount: 0,
             valuesTimeStamp: new Date()
+          },
+          "103": {
+            id: "103",
+            setID: "100",
+            position: 3,
+            name: "ADC Counts A",
+            units: "counts/10bit",
+            liveValue: "NaN",
+            liveValueTimeStamp: new Date(),
+            valueCount: 0,
+            valuesTimeStamp: new Date()
+          },
+          "104": {
+            id: "104",
+            setID: "100",
+            position: 4,
+            name: "ADC Counts B",
+            units: "counts/10bit",
+            liveValue: "NaN",
+            liveValueTimeStamp: new Date(),
+            valueCount: 0,
+            valuesTimeStamp: new Date()
           }
+
         },
         currentInterface: "Thermoscope",
         currentState: "unknown",
@@ -120,7 +176,10 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
             name: "Run 1",
             // colIDs: [100, 102, 103]
             // colIDs: [100, 101]
-            colIDs: [100, 101, 102]
+            // To support 12bit Thermoscopes we should dynamically add additional 12bit outputs
+            // Or possibly the hardware should just reutrn (counts / max * 100,000)
+            // colIDs: [100, 101, 102, 103, 104]
+            colIDs: [100, 101, 102, 103, 104]
           }
         }
       };
@@ -159,7 +218,9 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
       // const activeSensors = [ cloneDeep(sensorDescriptions.luxometer) ];
       const activeSensors = [
         cloneDeep(sensorDescriptions.temperatureA),
+        cloneDeep(sensorDescriptions.countsA)
         cloneDeep(sensorDescriptions.temperatureB)
+        cloneDeep(sensorDescriptions.countsB)
       ];
 
       // For each one get its valueCharacteristic

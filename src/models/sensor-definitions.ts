@@ -104,7 +104,8 @@ export const SensorStrings:ISensorStrings = {
       "volume": "Volume",
       "pH": "pH",
       "acidity": "Acidity",
-      "O2_concentration": "O₂ Concentration"
+      "O2_concentration": "O₂ Concentration",
+      "counts": "counts"
     },
     "names": {
       "sensor": "sensor",
@@ -151,7 +152,8 @@ export const SensorStrings:ISensorStrings = {
       "labQuestForce": "LabQuest Force Sensor",
       "labQuestPH": "LabQuest pH Sensor",
       "labQuestCO2": "LabQuest CO₂ sensor",
-      "labQuestO2": "LabQuest O₂ sensor"
+      "labQuestO2": "LabQuest O₂ sensor",
+      "raw_counts": "Raw ADC Counts"
     }
 };
 
@@ -640,5 +642,23 @@ export const SensorDefinitions:ISensorDefinitions = {
     "tareable": true,
     "minReading": 0.0,
     "maxReading": 50.0
+  },
+  "counts/10bit": {
+    "sensorName": i18n.t("sensor.names.raw_counts"),
+    "measurementName": i18n.t("sensor.measurements.counts"),
+    "measurementType": "counts",
+    "tareable": false,
+    "minReading": 0.0,
+    "maxReading": 1024.0
+  },
+  "counts/12bit": {
+    "sensorName": i18n.t("sensor.names.raw_counts"),
+    "measurementName": i18n.t("sensor.measurements.counts"),
+    "measurementType": "counts",
+    "tareable": false,
+    "minReading": 0.0,
+    "maxReading": 4096.0
   }
+
+
 };
