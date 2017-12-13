@@ -218,8 +218,8 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
       // const activeSensors = [ cloneDeep(sensorDescriptions.luxometer) ];
       const activeSensors = [
         cloneDeep(sensorDescriptions.temperatureA),
-        cloneDeep(sensorDescriptions.countsA)
-        cloneDeep(sensorDescriptions.temperatureB)
+        cloneDeep(sensorDescriptions.countsA),
+        cloneDeep(sensorDescriptions.temperatureB),
         cloneDeep(sensorDescriptions.countsB)
       ];
 
