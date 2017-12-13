@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "lint": "tslint --project . --exclude src/public/**/*.*",
+    "lint": "tslint src/**/*.ts",
     "copy-public": "ncp src/public/ dist/",
     "copy-public:watch": "onchange \"src/public/**/*.*\" -v -- npm run copy-public",
     "webpack": "cross-env NODE_ENV=production webpack",
