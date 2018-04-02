@@ -229,7 +229,7 @@ export class App extends React.Component<AppProps, AppState> {
           this.onSensorCollectionStopped);
     }
 
-    // This shoud only be called while we are collecting
+    // This should only be called while we are collecting
     onSensorData(newSensorData: NewSensorData) {
         if(!this.state.collecting) {
             this.setState({
@@ -245,8 +245,8 @@ export class App extends React.Component<AppProps, AppState> {
 
         const { sensorSlots } = this.state;
 
-        // keep track of the smallest last time value we want to keep collecting
-        // until all of the sensors have reach the runLength
+        // Keep track of the smallest last time value. We want to keep collecting
+        // until all of the sensors have reached the runLength.
         let lastTime = Number.MAX_SAFE_INTEGER,
             newSensorDataArrived = false;
 
@@ -265,10 +265,7 @@ export class App extends React.Component<AppProps, AppState> {
               return;
           }
 
-          // FIXME we should check if the sensorData is longer than the runLength
-          // if it is then only append the part less than the runLength
-          // and mark the sensor somehow so we know it has completed
-          sensorSlot.appendData(sensorData);
+          sensorSlot.appendData(sensorData, this.state.runLength);
           newSensorDataArrived = true;
 
           lastTime = Math.min(lastTime, sensorSlot.timeOfLastData);
@@ -279,7 +276,7 @@ export class App extends React.Component<AppProps, AppState> {
               sensorSlots: this.state.sensorSlots });
         }
 
-        if(lastTime != Number.MAX_SAFE_INTEGER && lastTime > this.state.runLength) {
+        if(lastTime !== Number.MAX_SAFE_INTEGER && lastTime >= this.state.runLength) {
             this.stopSensor();
         }
     }
