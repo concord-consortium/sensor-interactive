@@ -58,7 +58,7 @@ export class Codap {
         ]
     };
 
-    constructor() {
+    constructor(onInitialState: (initialState:any) => void) {
         CodapInterface.init({
             name: this.dataSetName,
             title: this.dataSetTitle,
@@ -67,6 +67,8 @@ export class Codap {
         }, this.responseCallback).then((iResult) => {
             // get interactive state so we can save the data set index.
             this.state = CodapInterface.getInteractiveState();
+            if (onInitialState)
+                onInitialState(this.state);
 
             // determine the run number of the last case in the collection.
             const runsCollection = `dataContext[${this.dataSetName}].collection[runs]`;
@@ -99,6 +101,10 @@ export class Codap {
         if(response) {
             //console.log("codap response: success=" + response.success);
         }
+    }
+
+    updateInteractiveState(state:any) {
+        CodapInterface.updateInteractiveState(state);
     }
 
     requestDataContext():Promise<any> {
