@@ -124,7 +124,6 @@ export class Codap {
     }
 
     updateDataContext(dataSpecs:IDataSpec[]):Promise<any> {
-        console.log("updateDataContext");
         dataSpecs.forEach((spec)=>{
             var exists:boolean = false;
             this.dataSetAttrs.forEach((dataSetAttr) => {

@@ -185,9 +185,9 @@ export class App extends React.Component<AppProps, AppState> {
         else {
             console.log("interface connected: " + interfaceType);
 
-            this.setState({
-                statusMessage: ""
-            });
+            const message = this.messages["interface_connected"]
+                                .replace('__interface__', interfaceType || "");
+            this.setState({ statusMessage: message });
 
             const timeUnit = sensorConfig.timeUnit || "",
                   dataColumns = sensorConfig.dataColumns;
@@ -275,10 +275,10 @@ export class App extends React.Component<AppProps, AppState> {
           }
 
           if(!sensorData) {
-              // The sensorSlot is not empty. Just newData doesn't contain any data
-              // for this sensor
-              lastTime = Math.min(lastTime, sensorSlot.timeOfLastData);
-              return;
+            // The sensorSlot is not empty. Just newData doesn't contain any data
+            // for this sensor
+            lastTime = Math.min(lastTime, sensorSlot.timeOfLastData);
+            return;
           }
 
           sensorSlot.appendData(sensorData, this.state.runLength);
@@ -309,8 +309,8 @@ export class App extends React.Component<AppProps, AppState> {
           sensor.sensorValue = liveValue;
 
           if(liveValue == null) {
-            // This sensor isn't active anymore onSensorConnect should have been or
-            // will be called. That functions slot matcher will disable the sensor
+            // This sensor isn't active any more - onSensorConnect should have been or
+            // will be called. That function's slot matcher will disable the sensor.
           }
         });
 
@@ -435,7 +435,7 @@ export class App extends React.Component<AppProps, AppState> {
             reconnectModal: false
         });
 
-        if(this.state.sensorConfig !== null) {
+        if(this.state.sensorConfig != null) {
             this.onSensorConnect(this.state.sensorConfig);
         }
     }

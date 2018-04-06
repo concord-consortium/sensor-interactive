@@ -49,8 +49,8 @@ export class SensorConnectorManager extends SensorManager {
     }
 
     hasSensorData() {
-      return !!(this.sensorConnector.datasets[0] &&
-                this.sensorConnector.datasets[0].columns[1]);
+      const dataSet = this.sensorConnector.datasets[0];
+      return !!(dataSet && dataSet.columns[1]);
     }
 
     requestStart() {
@@ -181,7 +181,7 @@ export class SensorConnectorManager extends SensorManager {
           let newSensorData = [];
           for(let i=0; i < newTimeData.length; i++) {
               let time = Number(newTimeData[i].toFixed(2));
-              // TODO the consumer needs to hande taring as well as
+              // TODO the consumer needs to handle taring as well as
               // stopping the collection when it passes the runLength
               newSensorData.push([time, newValueData[i]]);
           }
