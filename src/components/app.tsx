@@ -477,6 +477,7 @@ export class App extends React.Component<AppProps, AppState> {
                         <label className="two-sensors-checkbox">
                             <input type="checkbox"
                                 id="toggleGraphBtn"
+                                checked={this.state.secondGraph}
                                 onClick={this.toggleGraph} />
                             Two sensors
                         </label>
