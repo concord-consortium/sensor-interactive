@@ -212,9 +212,10 @@
      */
     init: function (iConfig, iCallback) {
       return new Promise(function (resolve, reject) {
-        function getFrameRespHandler(resp) {
-          var success = resp && resp[1] && resp[1].success;
-          var receivedFrame = success && resp[1].values;
+
+        function handleFrameResponse(response) {
+          var success = response && response.success;
+          var receivedFrame = success && response.values;
           var savedState = receivedFrame && receivedFrame.savedState;
           this_.updateInteractiveState(savedState);
           if (success) {
@@ -228,13 +229,14 @@
               reject('Connection request to CODAP timed out.');
             } else {
               reject(
-                  (resp[1] && resp[1].values && resp[1].values.error) ||
+                  (response && response.values && response.values.error) ||
                   'unknown failure');
             }
           }
           if (iCallback) {
             iCallback(savedState);
           }
+          return success;
         }
 
         var getFrameReq = {action: 'get', resource: 'interactiveFrame'};
@@ -242,7 +244,6 @@
           name: iConfig.name,
           title: iConfig.title,
           version: iConfig.version,
-          dimensions: iConfig.dimensions,
           preventBringToFront: iConfig.preventBringToFront
         };
         var updateFrameReq = {
@@ -264,8 +265,20 @@
 
         console.log('sending interactiveState: ' + JSON.stringify(this.getInteractiveState));
         // update, then get the interactiveFrame.
-        return this.sendRequest([updateFrameReq, getFrameReq])
-          .then(getFrameRespHandler, reject);
+        return this.sendRequest(getFrameReq)
+          .then((response) => {
+            if (handleFrameResponse(response)) {
+              const receivedFrame = response.values,
+                    hasSavedState = receivedFrame && receivedFrame.savedState;
+              // If we have saved state, then we must have been restored from document,
+              // which means that our dimensions were restored as well, so we only set
+              // the dimensions if we don't have saved state.
+              if (!hasSavedState) {
+                newFrame.dimensions = iConfig.dimensions;
+              }
+              this.sendRequest(updateFrameReq);
+            }
+          }, reject);
       }.bind(this));
     },
 
