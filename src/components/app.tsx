@@ -154,7 +154,10 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     connectCodap() {
-        this.codap = new Codap();
+        this.codap = new Codap((initialState:any) => {
+            // merge saved initial state into current state
+            this.setState(initialState);
+        });
     }
 
     onSensorConnect(sensorConfig:SensorConfiguration) {
@@ -359,6 +362,7 @@ export class App extends React.Component<AppProps, AppState> {
             // without the .01, last tick number sometimes fails to display
             xEnd: newTime + 0.01
         });
+        this.codap.updateInteractiveState({ runLength: newTime });
     }
 
     onGraphZoom(xStart:number, xEnd:number) {
@@ -422,9 +426,9 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     toggleGraph() {
-        this.setState({
-            secondGraph: !this.state.secondGraph
-        });
+        const secondGraph = !this.state.secondGraph;
+        this.setState({ secondGraph });
+        this.codap.updateInteractiveState({ secondGraph });
     }
 
     reload() {
@@ -473,6 +477,7 @@ export class App extends React.Component<AppProps, AppState> {
                         <label className="two-sensors-checkbox">
                             <input type="checkbox"
                                 id="toggleGraphBtn"
+                                checked={this.state.secondGraph}
                                 onClick={this.toggleGraph} />
                             Two sensors
                         </label>
