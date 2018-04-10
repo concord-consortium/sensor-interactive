@@ -105,6 +105,15 @@ export class Codap {
 
     updateInteractiveState(state:any) {
         CodapInterface.updateInteractiveState(state);
+        // log the state change, which dirties the document
+        CodapInterface.sendRequest({
+            action: 'notify',
+            resource: 'logMessage',
+            values: {
+                formatStr: "updateInteractiveState: %@",
+                replaceArgs: JSON.stringify(state)
+            }
+        }, this.responseCallback);
     }
 
     requestDataContext():Promise<any> {
