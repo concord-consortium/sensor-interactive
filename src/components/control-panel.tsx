@@ -47,7 +47,7 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
       <div className="cc-logo" />
       <span className="duration-label">Duration:</span>
       <Select className="duration-select control-panel-select"
-              onChange={handleDurationChange} defaultValue={String(props.duration)}>
+              onChange={handleDurationChange} value={String(props.duration)}>
         {[durationOptions]}
       </Select>
       <Button className="startSensor control-panel-button"
