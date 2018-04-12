@@ -37,6 +37,8 @@ const tagAddrs: { [index:string] : ISensorAddrs } = {
 // http://processors.wiki.ti.com/index.php/CC2650_SensorTag_User%27s_Guide
 const IR_SCALE_LSB = 0.03125;
 
+// tslint:disable:no-bitwise
+
 const sensorDescriptions = {
   luxometer: {
     sensorName: "luxometer",
@@ -49,7 +51,7 @@ const sensorDescriptions = {
           let e = (rawData & 0xF000) >> 12;
 
           /** e on 4 bits stored in a 16 bit unsigned => it can store 2 << (e - 1) with e < 16 */
-          e = (e == 0) ? 1 : 2 << (e - 1);
+          e = (e === 0) ? 1 : 2 << (e - 1);
 
           return m * (0.01 * e);
         }
@@ -95,7 +97,7 @@ const sensorDescriptions = {
       }
     ]
   }
-}
+};
 
 // Helper function for debugging
 function toPaddedHexString(num:number) : string {
@@ -265,7 +267,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
           this.onSensorCollectionStopped();
           this.stopRequested = false;
         }
-      }
+      };
 
       readData();
     }
@@ -348,7 +350,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
 
     get deviceConnected() {
       if(!this.device) {
-        return false
+        return false;
       }
       return this.device.gatt.connected;
     }

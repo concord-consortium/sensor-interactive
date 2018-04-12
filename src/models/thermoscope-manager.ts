@@ -45,7 +45,7 @@ const sensorDescriptions = {
       }
     ]
   }
-}
+};
 
 // Helper function for debugging
 function toPaddedHexString(num:number) : string {
@@ -189,7 +189,7 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
           this.onSensorCollectionStopped();
           this.stopRequested = false;
         }
-      }
+      };
 
       readData();
     }
@@ -241,7 +241,7 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
 
     get deviceConnected() {
       if(!this.device) {
-        return false
+        return false;
       }
       return this.device.gatt.connected;
     }
