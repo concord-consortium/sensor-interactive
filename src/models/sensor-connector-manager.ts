@@ -6,6 +6,7 @@ import { IStatusReceivedTuple, ISensorConfigColumnInfo, ISensorConnectorDataset 
 import { SensorManager, NewSensorData } from "./sensor-manager";
 
 const SENSOR_IP = "http://127.0.0.1:11180";
+const DELAY_AFTER_WAKE = 1000;
 
 interface ColumnInfo {
   lastDataIndex: number;
@@ -50,7 +51,12 @@ export class SensorConnectorManager extends SensorManager {
     }
 
     requestStart() {
-      this.sensorConnector.requestStart();
+      if (this.sensorConnector.wake()) {
+        this.sensorConnector.requestStart();
+      }
+      else {
+        setTimeout(() => this.sensorConnector.requestStart(), DELAY_AFTER_WAKE);
+      }
     }
 
     requestStop() {
