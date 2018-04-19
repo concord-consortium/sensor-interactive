@@ -101,8 +101,6 @@ function isConnectableSensorManager(manager: ConnectableSensorManager | any) :
 export class App extends React.Component<AppProps, AppState> {
 
     private messages:IStringMap;
-    private lastDataIndex:number;
-    private lastTime:number;
     private codap:Codap;
     private selectionRange:{start:number,end:number|undefined} = {start:0,end:undefined};
     private disableWarning:boolean = false;
@@ -230,7 +228,6 @@ export class App extends React.Component<AppProps, AppState> {
 
     stopSensor() {
         this.props.sensorManager.requestStop();
-        this.lastTime = 0;
     }
 
     onSensorCollectionStopped() {
@@ -363,7 +360,6 @@ export class App extends React.Component<AppProps, AppState> {
             dataReset:true,
             dataChanged:false
         });
-        this.lastDataIndex = 0;
     }
 
     onTimeSelect(newTime:number) {
