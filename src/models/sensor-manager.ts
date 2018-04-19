@@ -80,4 +80,8 @@ export abstract class SensorManager {
   protected onSensorStatus(sensorConfig:SensorConfiguration) {
     this.notifyListeners('onSensorStatus', sensorConfig);
   }
+
+  protected onCommunicationError() {
+    this.notifyListeners('onCommunicationError');
+  }
 }

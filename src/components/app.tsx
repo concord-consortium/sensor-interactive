@@ -2,7 +2,7 @@ import * as React from "react";
 import ReactModal from "react-modal";
 import { Sensor } from "../models/sensor";
 import { SensorSlot } from "../models/sensor-slot";
-import { SensorConfiguration } from "../models/sensor-configuration";
+import { SensorConfiguration, gNullSensorConfig } from "../models/sensor-configuration";
 import { ISensorConfigColumnInfo } from "../models/sensor-connector-interface";
 import GraphsPanel from "./graphs-panel";
 import { ControlPanel } from "./control-panel";
@@ -140,6 +140,7 @@ export class App extends React.Component<AppProps, AppState> {
         sensorManager.addListener('onSensorConnect', this.onSensorConnect);
         sensorManager.addListener('onSensorData', this.onSensorData);
         sensorManager.addListener('onSensorStatus', this.onSensorStatus);
+        sensorManager.addListener('onCommunicationError', this.onCommunicationError);
         this.props.sensorManager.startPolling();
 
         this.onTimeSelect = this.onTimeSelect.bind(this);
@@ -191,7 +192,7 @@ export class App extends React.Component<AppProps, AppState> {
             const timeUnit = sensorConfig.timeUnit || "",
                   dataColumns = sensorConfig.dataColumns;
 
-            sensorSlots = matchSensorsToDataColumns(sensorSlots, dataColumns);
+            sensorSlots = matchSensorsToDataColumns(sensorSlots, dataColumns || null);
 
             this.setState({ sensorConfig, sensorSlots, timeUnit });
         }
@@ -310,6 +311,11 @@ export class App extends React.Component<AppProps, AppState> {
         });
 
         this.setState({ sensorConfig, sensorSlots: this.state.sensorSlots });
+    }
+
+    onCommunicationError = () => {
+        this.onSensorConnect(gNullSensorConfig);
+        this.setState({ statusMessage: "SensorConnector not responding" });
     }
 
     hasData() {

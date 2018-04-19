@@ -35,6 +35,9 @@ export class SensorConnectorManager extends SensorManager {
       this.sensorConnector.on("collectionStopped", this.handleSensorCollectionStopped);
 
       this.sensorConnector.on("statusReceived", this.handleSensorStatus);
+
+      this.sensorConnector.on("statusErrored", this.handleCommunicationError);
+      this.sensorConnector.on("launchTimedOut", this.handleCommunicationError);
     }
 
     startPolling() {
@@ -65,6 +68,10 @@ export class SensorConnectorManager extends SensorManager {
 
     requestExit() {
       this.sensorConnector.requestExit();
+    }
+    
+    handleCommunicationError = () => {
+        this.onCommunicationError();
     }
     
     handleSensorConnect = () => {

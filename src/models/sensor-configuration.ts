@@ -6,9 +6,9 @@ export class SensorConfiguration {
   // We'd like to abstract the SensorConfiguration from the SensorConnector
   // so instead of accessing the ISensorConfig directly, please add accessor methods
   // to make it easier to do this abstraction in the future
-  private config:ISensorConfig;
+  private config:ISensorConfig | null;
 
-  constructor(config:ISensorConfig) {
+  constructor(config:ISensorConfig | null) {
     this.config = config;
   }
 
@@ -23,6 +23,7 @@ export class SensorConfiguration {
   // retrieve ID of the current dataset
   get setID() {
     // current setID is the largest numeric setID
+    if (!this.config) { return; }
     const keys = Object.keys(this.config.sets),
           numKeys = keys.map((id) => Number(id));
     return Math.max.apply(Math, numKeys);
@@ -30,24 +31,25 @@ export class SensorConfiguration {
 
   // retrieve columns for current dataset
   get columns() {
+    if (!this.config) { return; }
     const setID = this.setID,
           colIDs = this.config.sets[setID].colIDs;
     // setID -> set -> colIDs -> columns
-    return colIDs.map((colID) => this.config.columns[colID]);
+    return colIDs.map((colID) => (this.config as ISensorConfig).columns[colID]);
   }
 
   getColumnByID(columnID?:string) {
-    return columnID != null ? this.config.columns[columnID] : null;
+    return this.config && (columnID != null) ? this.config.columns[columnID] : undefined;
   }
 
   // retrieve "Time" column for current dataset
   get timeColumn() {
-    return find(this.columns, (col) => col.name === "Time");
+    return find(this.columns, (col) => (col != null) && (col.name === "Time"));
   }
 
   // retrieve non-"Time" columns for current dataset
   get dataColumns() {
-    return this.columns.filter((col) => col.name !== "Time");
+    return this.columns && this.columns.filter((col) => (col != null) && (col.name !== "Time"));
   }
 
   get timeUnit() {
@@ -55,3 +57,5 @@ export class SensorConfiguration {
     return timeColumn && timeColumn.units;
   }
 }
+
+export const gNullSensorConfig = new SensorConfiguration(null);
