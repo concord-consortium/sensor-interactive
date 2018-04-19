@@ -11,11 +11,25 @@ type OnSensorStatusFunction = (sensorConfig:SensorConfiguration) => void;
 type ListenerFunction = OnSensorConnectFunction | OnSensorDataFunction |
   OnSensorCollectionStoppedFunction | OnSensorStatusFunction;
 
+// This is an optional interface for sensor devices that require
+// connecting to them.
+export interface ConnectableSensorManager {
+  // The sensor-interactive code will use connectToDevice to determine
+  // if the sensorManager instance implements ConnectableSensorManager
+  // typescript doesn't have runtime type checking
+  connectToDevice: () => void;
+  disconnectFromDevice: () => void;
+  deviceConnected: boolean;
+}
+
 export abstract class SensorManager {
+  supportsDualCollection: boolean;
+  
   abstract startPolling() : void;
   abstract hasSensorData() : boolean;
   abstract requestStart() : void;
   abstract requestStop() : void;
+
 
   private readonly listeners : Map<string, Set<any>> = new Map();
 

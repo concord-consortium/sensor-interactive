@@ -134,6 +134,16 @@ input, textarea, select, button {
     margin-bottom: 10px;
 }
 
+/* FIXME: This messes up the ording of the other items in the app-top-bar */
+.connect-to-device-button {
+    width: 200px;
+    background-color: #eee;
+    border-radius: 4px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
+}
+
 .control-panel {
     z-index: 1;
     width: 100vw;

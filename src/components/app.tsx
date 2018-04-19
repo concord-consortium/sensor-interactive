@@ -8,9 +8,11 @@ import GraphsPanel from "./graphs-panel";
 import { ControlPanel } from "./control-panel";
 import { Codap } from "../models/codap";
 import { IStringMap, SensorStrings, SensorDefinitions } from "../models/sensor-definitions";
-import { SensorManager, NewSensorData } from "../models/sensor-manager";
+import { SensorManager, NewSensorData, ConnectableSensorManager } from "../models/sensor-manager";
 import SmartFocusHighlight from "../utils/smart-focus-highlight";
 import { find, pull } from "lodash";
+import Button from "./smart-highlight-button";
+
 
 export interface AppProps {
     sensorManager: SensorManager;
@@ -88,6 +90,12 @@ function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:ISensorConfig
         slots[i].setSensor(s || new Sensor());
     });
     return slots;
+}
+
+// Typescript type guard
+function isConnectableSensorManager(manager: ConnectableSensorManager | any) :
+    manager is ConnectableSensorManager {
+  return manager && (manager as ConnectableSensorManager).connectToDevice !== undefined;
 }
 
 export class App extends React.Component<AppProps, AppState> {
@@ -443,6 +451,53 @@ export class App extends React.Component<AppProps, AppState> {
         }
     }
 
+    connectToDevice = () => {
+      const { sensorManager } = this.props;
+      if(isConnectableSensorManager(sensorManager)){
+        sensorManager.connectToDevice();
+      }
+    }
+
+    disconnectFromDevice = () => {
+      const { sensorManager } = this.props;
+      if(isConnectableSensorManager(sensorManager)){
+        sensorManager.disconnectFromDevice();
+      }
+    }
+
+    renderConnectToDeviceButton(){
+      const { sensorManager } = this.props;
+      // Check if this sensorManger supports device connection
+      if(isConnectableSensorManager(sensorManager)) {
+        if(sensorManager.deviceConnected){
+          return  <Button className="connect-to-device-button" onClick={this.disconnectFromDevice} >
+                    Disconnect from Device
+                  </Button>;
+        } else {
+          return  <Button className="connect-to-device-button" onClick={this.connectToDevice} >
+                    Connect to Device
+                  </Button>;
+        }
+
+      } else {
+        return null;
+      }
+    }
+
+    renderDualCollectionCheckBox(){
+      if(this.props.sensorManager.supportsDualCollection) {
+        return <label className="two-sensors-checkbox">
+            <input type="checkbox"
+                id="toggleGraphBtn"
+                checked={this.state.secondGraph}
+                onClick={this.toggleGraph} />
+            Two sensors
+        </label>;
+      } else {
+        return null;
+      }
+    }
+
     render() {
         var { sensorConfig } = this.state,
             codapURL = window.self === window.top
@@ -474,16 +529,11 @@ export class App extends React.Component<AppProps, AppState> {
                 </ReactModal>
                 <div className="app-content">
                     <div className="app-top-bar">
-                        <label className="two-sensors-checkbox">
-                            <input type="checkbox"
-                                id="toggleGraphBtn"
-                                checked={this.state.secondGraph}
-                                onClick={this.toggleGraph} />
-                            Two sensors
-                        </label>
+                        {this.renderDualCollectionCheckBox()}
                         <div className="status-message">
                             {this.state.statusMessage || "\xA0"}
                         </div>
+                        {this.renderConnectToDeviceButton()}
                     </div>
                     <GraphsPanel
                         sensorConfig={this.state.sensorConfig}
@@ -495,7 +545,6 @@ export class App extends React.Component<AppProps, AppState> {
                         xStart={this.state.xStart}
                         xEnd={this.state.xEnd}
                         timeUnit={this.state.timeUnit}
-                        runLength={this.state.runLength}
                         collecting={this.state.collecting}
                         hasData={this.hasData()}
                         dataReset={this.state.dataReset}
