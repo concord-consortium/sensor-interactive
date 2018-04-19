@@ -1,4 +1,6 @@
 import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
+// must use the following form when using npm link to develop/debug locally
+//import * as SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
 import { SensorConfiguration } from "./sensor-configuration";
 import { IStatusReceivedTuple, ISensorConfigColumnInfo, ISensorConnectorDataset } from "./sensor-connector-interface";
 import { SensorManager, NewSensorData } from "./sensor-manager";
@@ -55,6 +57,10 @@ export class SensorConnectorManager extends SensorManager {
       this.sensorConnector.requestStop();
     }
 
+    requestExit() {
+      this.sensorConnector.requestExit();
+    }
+    
     handleSensorConnect = () => {
         const statusReceived:IStatusReceivedTuple = this.sensorConnector.stateMachine.currentActionArgs,
             config = statusReceived[1];

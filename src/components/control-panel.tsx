@@ -70,7 +70,7 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
         <div>
           <a onClick={props.onReloadPage}
               className="reload-page-button"
-              title="Reload page">
+              title="Reload All">
               <i className="fa fa-repeat fa-2x"></i>
           </a>
         </div>

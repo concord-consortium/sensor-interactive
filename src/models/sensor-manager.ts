@@ -30,6 +30,10 @@ export abstract class SensorManager {
   abstract requestStart() : void;
   abstract requestStop() : void;
 
+  requestExit() : void {
+    // no base class implementation - derived classes should override if appropriate
+    return;
+  }
 
   private readonly listeners : Map<string, Set<any>> = new Map();
 

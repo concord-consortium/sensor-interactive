@@ -106,6 +106,7 @@ export class App extends React.Component<AppProps, AppState> {
     private codap:Codap;
     private selectionRange:{start:number,end:number|undefined} = {start:0,end:undefined};
     private disableWarning:boolean = false;
+    private isReloading:boolean = false;
 
     constructor(props: AppProps) {
         super(props);
@@ -171,6 +172,8 @@ export class App extends React.Component<AppProps, AppState> {
     onSensorConnect(sensorConfig:SensorConfiguration) {
         const interfaceType = sensorConfig.interface;
         let sensorSlots = this.state.sensorSlots;
+
+        if (this.isReloading) { return; }
 
         if(!sensorConfig.hasInterface) {
             sensorSlots = matchSensorsToDataColumns(sensorSlots, null);
@@ -440,7 +443,12 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     reload() {
-        location.reload();
+        this.isReloading = true;
+        this.setState({ statusMessage: "Reloading SensorConnector..."});
+        this.props.sensorManager.requestExit();
+        // pause before attempting to reload page
+        const RELOAD_PAGE_DELAY_SEC = 3;
+        setTimeout(() => location.reload(), RELOAD_PAGE_DELAY_SEC * 1000);
     }
 
     componentDidUpdate(prevProps:AppProps, prevState:AppState) {
