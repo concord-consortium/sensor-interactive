@@ -1,14 +1,14 @@
 import { find } from "lodash";
 
-import { ISensorConfig } from "./sensor-connector-interface";
+import { SensorConfig } from "@concord-consortium/sensor-connector-interface";
 
 export class SensorConfiguration {
   // We'd like to abstract the SensorConfiguration from the SensorConnector
   // so instead of accessing the ISensorConfig directly, please add accessor methods
   // to make it easier to do this abstraction in the future
-  private config:ISensorConfig | null;
+  private config:SensorConfig | null;
 
-  constructor(config:ISensorConfig | null) {
+  constructor(config:SensorConfig | null) {
     this.config = config;
   }
 
@@ -35,7 +35,7 @@ export class SensorConfiguration {
     const setID = this.setID,
           colIDs = this.config.sets[setID].colIDs;
     // setID -> set -> colIDs -> columns
-    return colIDs.map((colID) => (this.config as ISensorConfig).columns[colID]);
+    return colIDs.map((colID) => (this.config as SensorConfig).columns[colID]);
   }
 
   getColumnByID(columnID?:string) {

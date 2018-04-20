@@ -1,8 +1,6 @@
 // from concord-consortium/lab
 
-/* tslint:disable:max-line-length */
-
-import { ISensorDefinition } from "./sensor-connector-interface";
+import { SensorDefinition } from "@concord-consortium/sensor-connector-interface";
 
 export interface IStringMap {
   [key:string]: string;
@@ -11,6 +9,8 @@ export interface IStringMap {
 export interface ISensorStrings {
   [key:string]: string|IStringMap;
 }
+
+/* tslint:disable:max-line-length */
 
 export const SensorStrings:ISensorStrings = {
     "select_sensor": "Select Sensor",
@@ -165,7 +165,7 @@ export class i18n { // tslint:disable-line:class-name
 }
 
 export interface ISensorDefinitions {
-  [key:string]: ISensorDefinition;
+  [key:string]: SensorDefinition;
 }
 
 export const SensorDefinitions:ISensorDefinitions = {

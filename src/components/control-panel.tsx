@@ -3,6 +3,7 @@ import Button from "./smart-highlight-button";
 import Select from "./smart-highlight-select";
 
 interface IControlPanelProps {
+  isConnectorAwake:boolean;
   interfaceType:string;
   collecting:boolean;
   hasData:boolean;
@@ -12,6 +13,7 @@ interface IControlPanelProps {
   durationOptions:number[];
   embedInCodapUrl:string|null;
   onDurationChange:(duration:number) => void;
+  onStartConnecting: () => void;
   onStartCollecting: () => void;
   onStopCollecting: () => void;
   onNewRun: () => void;
@@ -20,7 +22,9 @@ interface IControlPanelProps {
 }
 
 export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
-  const disableStartCollecting = !props.interfaceType ||props.collecting || props.hasData,
+  const disableStartConnecting = props.isConnectorAwake,
+        disableStartCollecting = (props.isConnectorAwake && !props.interfaceType) ||
+                                    props.collecting || props.hasData,
         disableStopCollecting = !props.collecting,
         disableSendData = !(props.hasData && props.dataChanged) || props.collecting,
         disableNewData = !props.hasData || props.collecting,
@@ -28,7 +32,19 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
                             const dStr = String(d),
                                   dFormatted = d.toFixed(1) + props.durationUnit;
                             return <option key={dStr} value={dStr}>{dFormatted}</option>;
-                          });
+                          }),
+        startConnectingButton = (
+          <Button className="startConnection control-panel-button"
+                  onClick={props.onStartConnecting} disabled={disableStartConnecting}>
+            Connect
+          </Button>
+        ),
+        startCollectingButton = (
+          <Button className="startSensor control-panel-button"
+                  onClick={props.onStartCollecting} disabled={disableStartCollecting}>
+            Start
+          </Button>
+        );
   
   function handleDurationChange(evt:React.FormEvent<HTMLSelectElement>) {
     if (props.onDurationChange)
@@ -50,10 +66,7 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
               onChange={handleDurationChange} value={String(props.duration)}>
         {[durationOptions]}
       </Select>
-      <Button className="startSensor control-panel-button"
-              onClick={props.onStartCollecting} disabled={disableStartCollecting}>
-        Start
-      </Button>
+      {props.isConnectorAwake ? startCollectingButton : startConnectingButton}
       <Button className="stopSensor control-panel-button"
               onClick={props.onStopCollecting} disabled={disableStopCollecting}>
         Stop

@@ -1,12 +1,12 @@
 import { SensorConfiguration } from "./sensor-configuration";
 import { SensorManager } from "./sensor-manager";
-import { ISensorConfig } from "./sensor-connector-interface";
+import { SensorConfig } from "@concord-consortium/sensor-connector-interface";
 
 export class FakeSensorManager extends SensorManager {
     supportsDualCollection = true;
     
     private sensorConfig: SensorConfiguration;
-    private internalConfig: ISensorConfig;
+    private internalConfig: SensorConfig;
     private hasData: boolean = false;
     private interval: any;
 

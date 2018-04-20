@@ -1,8 +1,8 @@
-import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
+//import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
 // must use the following form when using npm link to develop/debug locally
-//import * as SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
+import SensorConnectorInterface = require("@concord-consortium/sensor-connector-interface");
 import { SensorConfiguration } from "./sensor-configuration";
-import { IStatusReceivedTuple, ISensorConfigColumnInfo, ISensorConnectorDataset } from "./sensor-connector-interface";
+import { SensorConfigColumnInfo, SensorConnectorDataset } from "@concord-consortium/sensor-connector-interface";
 import { SensorManager, NewSensorData } from "./sensor-manager";
 
 const SENSOR_IP = "http://127.0.0.1:11180";
@@ -15,7 +15,7 @@ interface ColumnInfo {
 export class SensorConnectorManager extends SensorManager {
     supportsDualCollection = true;
 
-    private sensorConnector:any;
+    private sensorConnector:SensorConnectorInterface;
     private columnInfoById:{ [key:string]: ColumnInfo } = {};
     private sensorConfig: SensorConfiguration;
 
@@ -41,20 +41,20 @@ export class SensorConnectorManager extends SensorManager {
     }
 
     startPolling() {
+      // triggers initial connection to SensorConnector application
       this.sensorConnector.startPolling(SENSOR_IP);
 
-      // Try stop it from collecting incase it was left in a collecting state
+      // Try to stop it from collecting in case it was left in a collecting state
       this.sensorConnector.requestStop();
-
     }
 
     hasSensorData() {
-      return this.sensorConnector.datasets[0] &&
-          this.sensorConnector.datasets[0].columns[1];
+      return !!(this.sensorConnector.datasets[0] &&
+                this.sensorConnector.datasets[0].columns[1]);
     }
 
     requestStart() {
-      if (this.sensorConnector.wake()) {
+      if (this.requestWake()) {
         this.sensorConnector.requestStart();
       }
       else {
@@ -66,16 +66,24 @@ export class SensorConnectorManager extends SensorManager {
       this.sensorConnector.requestStop();
     }
 
-    requestExit() {
+    isAwake() {
+      return this.sensorConnector.isConnected;
+    }
+
+    requestSleep() {
       this.sensorConnector.requestExit();
     }
-    
+  
+    requestWake(): boolean {
+      return this.sensorConnector.requestLaunch();
+    }
+
     handleCommunicationError = () => {
-        this.onCommunicationError();
+      this.onCommunicationError();
     }
     
     handleSensorConnect = () => {
-        const statusReceived:IStatusReceivedTuple = this.sensorConnector.stateMachine.currentActionArgs,
+        const statusReceived = this.sensorConnector.currentActionArgs,
             config = statusReceived[1];
 
         this.sensorConfig = new SensorConfiguration(config);
@@ -88,7 +96,7 @@ export class SensorConnectorManager extends SensorManager {
     }
 
     handleSensorStatus = () => {
-        const statusReceived:IStatusReceivedTuple = this.sensorConnector.stateMachine.currentActionArgs,
+        const statusReceived = this.sensorConnector.currentActionArgs,
             config = statusReceived[1];
         this.sensorConfig = new SensorConfiguration(config);
         this.onSensorStatus(this.sensorConfig);
@@ -96,7 +104,7 @@ export class SensorConnectorManager extends SensorManager {
 
     // this is the id of the column that has new data
     handleSensorData = (columnId:string) => {
-      let dataset:ISensorConnectorDataset|undefined;
+      let dataset:SensorConnectorDataset|undefined;
       const setID = this.sensorConfig.setID;
 
       for(let i=0; i < this.sensorConnector.datasets.length; i++) {
@@ -135,7 +143,7 @@ export class SensorConnectorManager extends SensorManager {
       this.onSensorData(newData);
     }
 
-    getDataColumn(columnID:string, dataset:ISensorConnectorDataset) {
+    getDataColumn(columnID:string, dataset:SensorConnectorDataset) {
         let dataColumns = (dataset && dataset.columns) || [];
         for(var i=0; i < dataColumns.length; i++) {
             var dataColumn = dataColumns[i];
@@ -147,8 +155,8 @@ export class SensorConnectorManager extends SensorManager {
         return null;
     }
 
-    processSensorColumn(sensorColumn: ISensorConfigColumnInfo, timeData: number[],
-                        dataset:ISensorConnectorDataset) {
+    processSensorColumn(sensorColumn: SensorConfigColumnInfo, timeData: number[],
+                        dataset:SensorConnectorDataset) {
       // check the length in the dataset of both it and the time column
       const timeDataLength = timeData.length,
           sensorColumnData = this.getDataColumn(sensorColumn.id, dataset),
