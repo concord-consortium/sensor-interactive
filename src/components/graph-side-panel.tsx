@@ -2,14 +2,14 @@ import * as React from "react";
 import { Format } from "../utils/format";
 import { SensorSlot } from "../models/sensor-slot";
 import { SensorDefinitions } from "../models/sensor-definitions";
-import { ISensorConfigColumnInfo } from "../models/sensor-connector-interface";
+import { SensorConfigColumnInfo } from "@concord-consortium/sensor-connector-interface";
 import Button from "./smart-highlight-button";
 import Select from "./smart-highlight-select";
 
 interface IGraphSidePanelProps {
   width?:number;
   sensorSlot:SensorSlot;
-  sensorColumns:ISensorConfigColumnInfo[];
+  sensorColumns:SensorConfigColumnInfo[];
   sensorPrecision:number;
   onSensorSelect?:(sensorIndex:number, columnID:string) => void;
   onZeroSensor?:() => void;
@@ -43,11 +43,11 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
     return (sensorUnitStr) ? `${reading} ${sensorUnitStr}` : reading;
   };
 
-  const sensorSelectOptions = (sensorColumns:ISensorConfigColumnInfo[]) => {
+  const sensorSelectOptions = (sensorColumns:SensorConfigColumnInfo[]) => {
     const columns = sensorColumns || [];
     // if no sensor slot or not enough sensors, there are no options
     if ((sensorSlot.slotIndex == null) || (sensorSlot.slotIndex >= columns.length)) return null;
-    return columns.map((column:ISensorConfigColumnInfo, index:number) => {
+    return columns.map((column:SensorConfigColumnInfo, index:number) => {
       const units = column && column.units,
             columnID = column && column.id,
             sensorDef = units && SensorDefinitions[units],

@@ -2,8 +2,8 @@ import * as React from "react";
 import ReactModal from "react-modal";
 import { Sensor } from "../models/sensor";
 import { SensorSlot } from "../models/sensor-slot";
-import { SensorConfiguration } from "../models/sensor-configuration";
-import { ISensorConfigColumnInfo } from "../models/sensor-connector-interface";
+import { SensorConfiguration, gNullSensorConfig } from "../models/sensor-configuration";
+import { SensorConfigColumnInfo } from "@concord-consortium/sensor-connector-interface";
 import GraphsPanel from "./graphs-panel";
 import { ControlPanel } from "./control-panel";
 import { Codap } from "../models/codap";
@@ -35,7 +35,7 @@ export interface AppState {
     xEnd:number;
 }
 
-function newSensorFromDataColumn(dataColumn:ISensorConfigColumnInfo) {
+function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo) {
     let newSensor = new Sensor();
     newSensor.columnID = dataColumn.id;
     newSensor.sensorPosition = dataColumn.position;
@@ -44,11 +44,11 @@ function newSensorFromDataColumn(dataColumn:ISensorConfigColumnInfo) {
     return newSensor;
 }
 
-function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:ISensorConfigColumnInfo[]|null) {
+function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:SensorConfigColumnInfo[]|null) {
     let matched:Array<Sensor|null> = [null, null],
         columns = dataColumns && dataColumns.slice() || [];
 
-    function matchSensors(test: (c:ISensorConfigColumnInfo, s:Sensor) => boolean) {
+    function matchSensors(test: (c:SensorConfigColumnInfo, s:Sensor) => boolean) {
         matched.forEach((sensor:Sensor|null, index) => {
             let found;
             if (!matched[index]) {
@@ -65,16 +65,16 @@ function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:ISensorConfig
 
     function findBestSensorMatch() {
         // match by column ID
-        if (matchSensors((c:ISensorConfigColumnInfo, s:Sensor) => c.id === s.columnID)) return;
+        if (matchSensors((c:SensorConfigColumnInfo, s:Sensor) => c.id === s.columnID)) return;
         // match by sensor position (as long as units are compatible)
-        if (matchSensors((c:ISensorConfigColumnInfo, s:Sensor) =>
+        if (matchSensors((c:SensorConfigColumnInfo, s:Sensor) =>
                         (c.position === s.sensorPosition) && (c.units === s.valueUnit))) return;
         // match by units (independent of position)
-        if (matchSensors((c:ISensorConfigColumnInfo, s:Sensor) => c.units === s.valueUnit)) return;
+        if (matchSensors((c:SensorConfigColumnInfo, s:Sensor) => c.units === s.valueUnit)) return;
         // match by position (independent of units)
-        if (matchSensors((c:ISensorConfigColumnInfo, s:Sensor) => c.position === s.sensorPosition)) return;
+        if (matchSensors((c:SensorConfigColumnInfo, s:Sensor) => c.position === s.sensorPosition)) return;
         // last resort - match whatever's available
-        if (matchSensors((c:ISensorConfigColumnInfo, s:Sensor) => true)) return;
+        if (matchSensors((c:SensorConfigColumnInfo, s:Sensor) => true)) return;
     }
 
     findBestSensorMatch();
@@ -101,11 +101,10 @@ function isConnectableSensorManager(manager: ConnectableSensorManager | any) :
 export class App extends React.Component<AppProps, AppState> {
 
     private messages:IStringMap;
-    private lastDataIndex:number;
-    private lastTime:number;
     private codap:Codap;
     private selectionRange:{start:number,end:number|undefined} = {start:0,end:undefined};
     private disableWarning:boolean = false;
+    private isReloading:boolean = false;
 
     constructor(props: AppProps) {
         super(props);
@@ -141,6 +140,7 @@ export class App extends React.Component<AppProps, AppState> {
         sensorManager.addListener('onSensorConnect', this.onSensorConnect);
         sensorManager.addListener('onSensorData', this.onSensorData);
         sensorManager.addListener('onSensorStatus', this.onSensorStatus);
+        sensorManager.addListener('onCommunicationError', this.onCommunicationError);
         this.props.sensorManager.startPolling();
 
         this.onTimeSelect = this.onTimeSelect.bind(this);
@@ -172,6 +172,8 @@ export class App extends React.Component<AppProps, AppState> {
         const interfaceType = sensorConfig.interface;
         let sensorSlots = this.state.sensorSlots;
 
+        if (this.isReloading) { return; }
+
         if(!sensorConfig.hasInterface) {
             sensorSlots = matchSensorsToDataColumns(sensorSlots, null);
             this.setState({
@@ -190,7 +192,7 @@ export class App extends React.Component<AppProps, AppState> {
             const timeUnit = sensorConfig.timeUnit || "",
                   dataColumns = sensorConfig.dataColumns;
 
-            sensorSlots = matchSensorsToDataColumns(sensorSlots, dataColumns);
+            sensorSlots = matchSensorsToDataColumns(sensorSlots, dataColumns || null);
 
             this.setState({ sensorConfig, sensorSlots, timeUnit });
         }
@@ -218,6 +220,10 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({ sensorSlots });
     }
 
+    startConnecting = () => {
+        this.props.sensorManager.requestWake();
+    }
+
     startSensor() {
         this.props.sensorManager.requestStart();
         this.setState({
@@ -227,7 +233,6 @@ export class App extends React.Component<AppProps, AppState> {
 
     stopSensor() {
         this.props.sensorManager.requestStop();
-        this.lastTime = 0;
     }
 
     onSensorCollectionStopped() {
@@ -312,6 +317,13 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({ sensorConfig, sensorSlots: this.state.sensorSlots });
     }
 
+    onCommunicationError = () => {
+        this.onSensorConnect(gNullSensorConfig);
+        if (!this.isReloading) {
+            this.setState({ statusMessage: "SensorConnector not responding" });
+        }
+    }
+
     hasData() {
         const { sensorSlots } = this.state;
         return sensorSlots.some((slot) => slot.sensorData && (slot.sensorData.length > 0));
@@ -360,7 +372,6 @@ export class App extends React.Component<AppProps, AppState> {
             dataReset:true,
             dataChanged:false
         });
-        this.lastDataIndex = 0;
     }
 
     onTimeSelect(newTime:number) {
@@ -440,7 +451,12 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     reload() {
-        location.reload();
+        this.isReloading = true;
+        this.setState({ statusMessage: "Reloading SensorConnector..."});
+        this.props.sensorManager.requestSleep();
+        // pause before attempting to reload page
+        const RELOAD_PAGE_DELAY_SEC = 3;
+        setTimeout(() => location.reload(), RELOAD_PAGE_DELAY_SEC * 1000);
     }
 
     componentDidUpdate(prevProps:AppProps, prevState:AppState) {
@@ -551,6 +567,7 @@ export class App extends React.Component<AppProps, AppState> {
                     />
                 </div>
                 <ControlPanel
+                    isConnectorAwake={this.props.sensorManager.isAwake()}
                     interfaceType={interfaceType}
                     collecting={this.state.collecting}
                     hasData={this.state.hasData}
@@ -559,6 +576,7 @@ export class App extends React.Component<AppProps, AppState> {
                     durationOptions={[1, 5, 10, 15, 20, 30, 45, 60]}
                     embedInCodapUrl={codapURL}
                     onDurationChange={this.onTimeSelect}
+                    onStartConnecting={this.startConnecting}
                     onStartCollecting={this.startSensor}
                     onStopCollecting={this.stopSensor}
                     onNewRun={this.checkNewData}

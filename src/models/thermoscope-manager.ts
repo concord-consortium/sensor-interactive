@@ -1,7 +1,7 @@
 import { SensorConfiguration } from "./sensor-configuration";
 import { SensorManager,
          NewSensorData, ConnectableSensorManager } from "./sensor-manager";
-import { ISensorConfig } from "./sensor-connector-interface";
+import { SensorConfig } from "@concord-consortium/sensor-connector-interface";
 import { cloneDeep } from "lodash";
 
 interface ISensorAddrs {
@@ -57,7 +57,7 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
     supportsDualCollection = true;
 
     private sensorConfig: SensorConfiguration;
-    private internalConfig: ISensorConfig;
+    private internalConfig: SensorConfig;
     private hasData: boolean = false;
     private stopRequested: boolean = false;
     private device: any;

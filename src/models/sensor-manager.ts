@@ -30,6 +30,24 @@ export abstract class SensorManager {
   abstract requestStart() : void;
   abstract requestStop() : void;
 
+  isAwake() : boolean {
+    return true;
+  }
+
+  // derived classes should override if they have an appropriate implementation,
+  // e.g. quit SensorConnector application, enter a low-power mode, etc.
+  requestSleep() : void {
+    // no base class implementation
+    return;
+  }
+
+  // derived classes should override if they have an appropriate implementation,
+  // e.g. open SensorConnector application, exit a low-power mode, etc.
+  // returns true if already awake, false if launch/wake required.
+  requestWake() : boolean {
+    // true indicates already awake
+    return true;
+  }
 
   private readonly listeners : Map<string, Set<any>> = new Map();
 
@@ -75,5 +93,9 @@ export abstract class SensorManager {
 
   protected onSensorStatus(sensorConfig:SensorConfiguration) {
     this.notifyListeners('onSensorStatus', sensorConfig);
+  }
+
+  protected onCommunicationError() {
+    this.notifyListeners('onCommunicationError');
   }
 }

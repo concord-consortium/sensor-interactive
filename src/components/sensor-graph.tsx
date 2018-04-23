@@ -3,7 +3,7 @@ import { Sensor } from "../models/sensor";
 import { SensorSlot } from "../models/sensor-slot";
 import { Graph } from "./graph";
 import { GraphSidePanel } from "./graph-side-panel";
-import { ISensorConfigColumnInfo } from "../models/sensor-connector-interface";
+import { SensorConfigColumnInfo } from "@concord-consortium/sensor-connector-interface";
 import { Format } from "../utils/format";
 
 const kSidePanelWidth = 200;
@@ -11,7 +11,7 @@ const kSidePanelWidth = 200;
 interface SensorGraphProps {
     width:number|null;
     height:number|null;
-    sensorColumns:ISensorConfigColumnInfo[];
+    sensorColumns:SensorConfigColumnInfo[];
     sensorSlot:SensorSlot;
     title:string;
     onGraphZoom:(xStart:number, xEnd:number) => void;
