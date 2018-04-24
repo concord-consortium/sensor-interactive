@@ -263,7 +263,7 @@
           return ({success: true, values: this.getInteractiveState()});
         }.bind(this));
 
-        console.log('sending interactiveState: ' + JSON.stringify(this.getInteractiveState));
+        // console.log('sending interactiveState: ' + JSON.stringify(this.getInteractiveState));
         // update, then get the interactiveFrame.
         return this.sendRequest(getFrameReq)
           .then((response) => {

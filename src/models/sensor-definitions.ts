@@ -37,6 +37,7 @@ export const SensorStrings:ISensorStrings = {
       "connection_failed_labquest2_alert": "Could not connect to the LabQuest2. Please make sure the address is correct and that the LabQuest2 can be reached from this computer",
       "tare_labquest2_alert": "The LabQuest2 needs to be collecting live data in order to zero. Either set up a new run on the LabQuest2, or click the meter icon in the upper left.",
       "click_here": "click here",
+      "interface_connected": "__interface__ connected",
       "connected": "Connected.",
       "connected_start_labquest2": "Connected. Press start on your LabQuest2 to begin.",
       "connected_start_sensorconnector": "Please stop the __controlling_client__ data collector to collect data here.",
