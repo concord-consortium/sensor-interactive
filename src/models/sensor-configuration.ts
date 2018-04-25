@@ -20,6 +20,10 @@ export class SensorConfiguration {
     return this.interface && (this.interface !== "None Found");
   }
 
+  get requestTimeStamp() {
+    return this.config && this.config.requestTimeStamp;
+  }
+
   // retrieve ID of the current dataset
   get setID() {
     // current setID is the largest numeric setID

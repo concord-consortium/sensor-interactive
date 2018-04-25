@@ -105,6 +105,7 @@ export class App extends React.Component<AppProps, AppState> {
     private selectionRange:{start:number,end:number|undefined} = {start:0,end:undefined};
     private disableWarning:boolean = false;
     private isReloading:boolean = false;
+    private columnInfoCache: { [columnID: string]: SensorConfigColumnInfo[]; } = {};
 
     constructor(props: AppProps) {
         super(props);
@@ -168,6 +169,12 @@ export class App extends React.Component<AppProps, AppState> {
         });
     }
 
+    setStatusInterfaceConnected(interfaceType: string) {
+        const message = this.messages["interface_connected"]
+                            .replace('__interface__', interfaceType || "");
+        this.setState({ statusMessage: message });
+    }
+
     onSensorConnect(sensorConfig:SensorConfiguration) {
         const interfaceType = sensorConfig.interface;
         let sensorSlots = this.state.sensorSlots;
@@ -183,11 +190,7 @@ export class App extends React.Component<AppProps, AppState> {
             });
         }
         else {
-            console.log("interface connected: " + interfaceType);
-
-            const message = this.messages["interface_connected"]
-                                .replace('__interface__', interfaceType || "");
-            this.setState({ statusMessage: message });
+            this.setStatusInterfaceConnected(interfaceType || "");
 
             const timeUnit = sensorConfig.timeUnit || "",
                   dataColumns = sensorConfig.dataColumns;
@@ -308,6 +311,36 @@ export class App extends React.Component<AppProps, AppState> {
 
           sensor.sensorValue = liveValue;
 
+          // Under some circumstances, SensorConnector application gets stuck
+          // such that it stops talking to the sensor (e.g. motion sensors
+          // stop clicking) and just responds with the last collected value.
+          // If we see five responses with the same value and time stamp, we
+          // assume that the SensorConnector has gotten stuck.
+          if (columnID && dataColumn) {
+            let cache = this.columnInfoCache[columnID];
+            if (!cache) {
+                cache = this.columnInfoCache[columnID] = [];
+            }
+            cache.push(dataColumn);
+            let stuck = false;
+            if (cache.length > 4) {
+                stuck = true;
+                for (let i = 1; i < cache.length; ++i) {
+                    if ((cache[i].liveValue !== cache[0].liveValue) ||
+                        (cache[i].liveValueTimeStamp !== cache[0].liveValueTimeStamp)) {
+                        stuck = false;
+                        break;
+                    }
+                }
+                cache.splice(0, 1);
+            }
+            if (stuck) {
+                this.setState({ statusMessage: this.messages["appears_stuck"] });
+            }
+            else {
+                this.setStatusInterfaceConnected(sensorConfig.interface || "");
+            }
+          }
           if(liveValue == null) {
             // This sensor isn't active any more - onSensorConnect should have been or
             // will be called. That function's slot matcher will disable the sensor.
@@ -320,7 +353,7 @@ export class App extends React.Component<AppProps, AppState> {
     onCommunicationError = () => {
         this.onSensorConnect(gNullSensorConfig);
         if (!this.isReloading) {
-            this.setState({ statusMessage: "SensorConnector not responding" });
+            this.setState({ statusMessage: this.messages["not_responding"] });
         }
     }
 
