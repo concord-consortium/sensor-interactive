@@ -26,6 +26,8 @@ export const SensorStrings:ISensorStrings = {
       "ready": "Ready to collect.",
       "ready_nocontrol": "Please stop the __controlling_client__ data collector to collect data here.",
       "ready_nocontrol_noname": "Please stop the other active data collector to collect data here.",
+      "not_responding": "SensorConnector not responding",
+      "appears_stuck": "SensorConnector appears to be stuck",
       "no_sensors": "No sensors found.",
       "no_devices": "No devices plugged in.",
       "not_connected": "Not connected.",
