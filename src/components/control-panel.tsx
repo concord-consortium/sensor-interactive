@@ -35,8 +35,9 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
                           }),
         startConnectingButton = (
           <Button className="startConnection control-panel-button"
+                  style={{ width: 180 }}
                   onClick={props.onStartConnecting} disabled={disableStartConnecting}>
-            Connect
+            Launch SensorConnector
           </Button>
         ),
         startCollectingButton = (

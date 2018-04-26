@@ -27,6 +27,8 @@ export interface AppState {
     collecting:boolean;
     runLength:number;
     timeUnit:string;
+    notRespondingModal:boolean;
+    suppressNotRespondingModal:boolean;
     warnNewModal:boolean;
     reconnectModal:boolean;
     statusMessage:string|undefined;
@@ -98,6 +100,8 @@ function isConnectableSensorManager(manager: ConnectableSensorManager | any) :
   return manager && (manager as ConnectableSensorManager).connectToDevice !== undefined;
 }
 
+const SLEEP_WAKE_DELAY_SEC = 3;
+
 export class App extends React.Component<AppProps, AppState> {
 
     private messages:IStringMap;
@@ -121,6 +125,8 @@ export class App extends React.Component<AppProps, AppState> {
             xStart:0,
             xEnd:5.01, // without the .01, last tick number sometimes fails to display
             timeUnit:"",
+            notRespondingModal:false,
+            suppressNotRespondingModal:false,
             warnNewModal:false,
             reconnectModal:false,
             statusMessage:undefined,
@@ -339,6 +345,7 @@ export class App extends React.Component<AppProps, AppState> {
             }
             else {
                 this.setStatusInterfaceConnected(sensorConfig.interface || "");
+                this.setState({ suppressNotRespondingModal: false });
             }
           }
           if(liveValue == null) {
@@ -354,6 +361,9 @@ export class App extends React.Component<AppProps, AppState> {
         this.onSensorConnect(gNullSensorConfig);
         if (!this.isReloading) {
             this.setState({ statusMessage: this.messages["not_responding"] });
+        }
+        if (!this.state.suppressNotRespondingModal) {
+            this.setState({ notRespondingModal: true, suppressNotRespondingModal: true });
         }
     }
 
@@ -452,6 +462,17 @@ export class App extends React.Component<AppProps, AppState> {
         });
     }
 
+    dismissNotRespondingModal = () => {
+        this.setState({ notRespondingModal: false });
+    }
+
+    launchSensorConnector = () => {
+        this.setState({ statusMessage: "Launching SensorConnector...", notRespondingModal: false });
+        this.props.sensorManager.requestSleep();
+        // pause before attempting to reload SensorConnector
+        setTimeout(() => this.props.sensorManager.requestWake(), SLEEP_WAKE_DELAY_SEC * 1000);
+    }
+
     closeWarnNewModal() {
         this.setState({
             warnNewModal: false
@@ -488,8 +509,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({ statusMessage: "Reloading SensorConnector..."});
         this.props.sensorManager.requestSleep();
         // pause before attempting to reload page
-        const RELOAD_PAGE_DELAY_SEC = 3;
-        setTimeout(() => location.reload(), RELOAD_PAGE_DELAY_SEC * 1000);
+        setTimeout(() => location.reload(), SLEEP_WAKE_DELAY_SEC * 1000);
     }
 
     componentDidUpdate(prevProps:AppProps, prevState:AppState) {
@@ -555,6 +575,15 @@ export class App extends React.Component<AppProps, AppState> {
             interfaceType = (sensorConfig && sensorConfig.interface) || "";
         return (
             <div className="app-container">
+                <ReactModal className="sensor-dialog-content"
+                            overlayClassName="sensor-dialog-overlay"
+                            contentLabel="SensorConnector not responding"
+                            isOpen={this.state.notRespondingModal} >
+                    <p>{this.messages["sensor_connector_not_responding"]}</p>
+                    <hr/>
+                    <button onClick={this.launchSensorConnector}>Launch SensorConnector</button>
+                    <button onClick={this.dismissNotRespondingModal}>Dismiss</button>
+                </ReactModal>
                 <ReactModal className="sensor-dialog-content"
                             overlayClassName="sensor-dialog-overlay"
                             contentLabel="Discard data?"
