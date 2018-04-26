@@ -1,5 +1,5 @@
 import * as React from "react";
-import ReactModal from "react-modal";
+import * as ReactModal from "react-modal";
 import { Sensor } from "../models/sensor";
 import { SensorSlot } from "../models/sensor-slot";
 import { SensorConfiguration, gNullSensorConfig } from "../models/sensor-configuration";

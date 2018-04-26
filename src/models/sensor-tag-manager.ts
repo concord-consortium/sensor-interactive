@@ -108,7 +108,7 @@ function toPaddedHexString(num:number) : string {
 export class SensorTagManager extends SensorManager implements ConnectableSensorManager {
     supportsDualCollection = false;
 
-    private sensorConfig: SensorConfiguration;
+    // private sensorConfig: SensorConfiguration;
     private internalConfig: SensorConfig;
     private hasData: boolean = false;
     private stopRequested: boolean = false;
@@ -209,7 +209,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
           }
         }
       };
-      this.sensorConfig = new SensorConfiguration(this.internalConfig);
+      // this.sensorConfig = new SensorConfiguration(this.internalConfig);
     }
 
     sendSensorConfig(includeOnConnect:boolean) {

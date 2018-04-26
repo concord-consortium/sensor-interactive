@@ -56,7 +56,7 @@ function toPaddedHexString(num:number) : string {
 export class ThermoscopeManager extends SensorManager implements ConnectableSensorManager {
     supportsDualCollection = true;
 
-    private sensorConfig: SensorConfiguration;
+    // private sensorConfig: SensorConfiguration;
     private internalConfig: SensorConfig;
     private hasData: boolean = false;
     private stopRequested: boolean = false;
@@ -124,7 +124,7 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
           }
         }
       };
-      this.sensorConfig = new SensorConfiguration(this.internalConfig);
+      // this.sensorConfig = new SensorConfiguration(this.internalConfig);
     }
 
     sendSensorConfig(includeOnConnect:boolean) {
