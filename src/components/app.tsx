@@ -102,6 +102,13 @@ function isConnectableSensorManager(manager: ConnectableSensorManager | any) :
 
 const SLEEP_WAKE_DELAY_SEC = 3;
 
+// We don't have the ability to control the sampling rate. To avoid sending down
+// overly large chunks of data, we down-sample long-duration experiments.
+// The following values represent the thresholds above which down-sampling occurs.
+// At 10 samples/sec, a 60-sec collection generates 601 points.
+const DOWN_SAMPLE_THRESHOLD_SECS = 60;
+const DOWN_SAMPLE_THRESHOLD_COUNT = 601;
+
 export class App extends React.Component<AppProps, AppState> {
 
     private messages:IStringMap;
@@ -176,8 +183,10 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     setStatusInterfaceConnected(interfaceType: string) {
-        const message = this.messages["interface_connected"]
-                            .replace('__interface__', interfaceType || "");
+        const connectMessage = this.messages["interface_connected"]
+                                   .replace('__interface__', interfaceType || ""),
+              collectMessage = this.state.collecting ? ` -- ${this.messages['collecting_data']}` : "",
+              message = connectMessage + collectMessage;
         this.setState({ statusMessage: message });
     }
 
@@ -372,17 +381,34 @@ export class App extends React.Component<AppProps, AppState> {
         return sensorSlots.some((slot) => slot.sensorData && (slot.sensorData.length > 0));
     }
 
+    downSample(data: number[][]) {
+        const shouldDownSample = (this.state.runLength > DOWN_SAMPLE_THRESHOLD_SECS) &&
+                                    (data.length > DOWN_SAMPLE_THRESHOLD_COUNT);
+
+        if (!shouldDownSample) { return data; }
+
+        let downSampleRate = 1;
+        while ((data.length - 1) / downSampleRate > (DOWN_SAMPLE_THRESHOLD_COUNT - 1)) {
+            ++ downSampleRate;
+        }
+        return data.filter((d: number[], i: number) => {
+                        // interval sampling plus always include the last sample
+                        return (i % downSampleRate === 0) || (i === data.length - 1);
+                    });
+    }
+
     sendData() {
         const { sensorSlots } = this.state,
               sendSecondSensorData = sensorSlots[1].hasData;
         const dataSpecs = sensorSlots.map((slot, i) => {
             const sensor = slot.sensorForData,
                   name = sensor && sensor.definition.measurementName,
-                  position = (sensor && sensor.sensorPosition) || i+1;
+                  position = (sensor && sensor.sensorPosition) || i+1,
+                  data = slot.sensorData.slice(this.selectionRange.start, this.selectionRange.end);
             return {
                 name: sendSecondSensorData ? `${name}_${position}` : name,
                 unit: sensor ? sensor.valueUnit : '',
-                data: slot.sensorData.slice(this.selectionRange.start, this.selectionRange.end)
+                data: this.downSample(data)
             };
         });
         if (!sendSecondSensorData) {
@@ -635,7 +661,7 @@ export class App extends React.Component<AppProps, AppState> {
                     hasData={this.state.hasData}
                     dataChanged={this.state.dataChanged}
                     duration={this.state.runLength} durationUnit="s"
-                    durationOptions={[1, 5, 10, 15, 20, 30, 45, 60]}
+                    durationOptions={[1, 5, 10, 15, 20, 30, 45, 60, 300, 600, 900, 1200, 1800]}
                     embedInCodapUrl={codapURL}
                     onDurationChange={this.onTimeSelect}
                     onStartConnecting={this.startConnecting}
