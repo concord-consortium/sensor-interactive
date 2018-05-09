@@ -5,6 +5,7 @@ import Select from "./smart-highlight-select";
 interface IControlPanelProps {
   isConnectorAwake:boolean;
   interfaceType:string;
+  sensorCount:number;
   collecting:boolean;
   hasData:boolean;
   dataChanged:boolean;
@@ -24,7 +25,7 @@ interface IControlPanelProps {
 export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
   const disableStartConnecting = props.isConnectorAwake,
         disableStartCollecting = (props.isConnectorAwake && !props.interfaceType) ||
-                                    props.collecting || props.hasData,
+                                  (props.sensorCount === 0) || props.collecting || props.hasData,
         disableStopCollecting = !props.collecting,
         disableSendData = !(props.hasData && props.dataChanged) || props.collecting,
         disableNewData = !props.hasData || props.collecting,

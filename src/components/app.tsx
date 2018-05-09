@@ -10,7 +10,7 @@ import { Codap } from "../models/codap";
 import { IStringMap, SensorStrings, SensorDefinitions } from "../models/sensor-definitions";
 import { SensorManager, NewSensorData, ConnectableSensorManager } from "../models/sensor-manager";
 import SmartFocusHighlight from "../utils/smart-focus-highlight";
-import { find, pull } from "lodash";
+import { find, pull, sumBy } from "lodash";
 import Button from "./smart-highlight-button";
 
 
@@ -185,8 +185,10 @@ export class App extends React.Component<AppProps, AppState> {
     setStatusInterfaceConnected(interfaceType: string) {
         const connectMessage = this.messages["interface_connected"]
                                    .replace('__interface__', interfaceType || ""),
+              noSensorsMessage = this.connectedSensorCount() === 0
+                                    ? ` -- ${this.messages['no_sensors']}` : "",
               collectMessage = this.state.collecting ? ` -- ${this.messages['collecting_data']}` : "",
-              message = connectMessage + collectMessage;
+              message = connectMessage + (noSensorsMessage || collectMessage);
         this.setState({ statusMessage: message });
     }
 
@@ -374,6 +376,10 @@ export class App extends React.Component<AppProps, AppState> {
         if (!this.state.suppressNotRespondingModal) {
             this.setState({ notRespondingModal: true, suppressNotRespondingModal: true });
         }
+    }
+
+    connectedSensorCount() {
+        return sumBy(this.state.sensorSlots, (slot) => slot.isConnected ? 1 : 0);
     }
 
     hasData() {
@@ -657,6 +663,7 @@ export class App extends React.Component<AppProps, AppState> {
                 <ControlPanel
                     isConnectorAwake={this.props.sensorManager.isAwake()}
                     interfaceType={interfaceType}
+                    sensorCount={this.connectedSensorCount()}
                     collecting={this.state.collecting}
                     hasData={this.state.hasData}
                     dataChanged={this.state.dataChanged}
