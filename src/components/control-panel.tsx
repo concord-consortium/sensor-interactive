@@ -29,9 +29,10 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
         disableSendData = !(props.hasData && props.dataChanged) || props.collecting,
         disableNewData = !props.hasData || props.collecting,
         durationOptions = (props.durationOptions || []).map((d) => {
-                            const dStr = String(d),
-                                  dFormatted = d.toFixed(1) + props.durationUnit;
-                            return <option key={dStr} value={dStr}>{dFormatted}</option>;
+                            const dNum = d < 60 ? d : d / 60,
+                                  dUnit = d < 60 ? 's' : 'm',
+                                  dFormatted = `${dNum.toFixed(0)} ${dUnit}`;
+                            return <option key={d} value={d}>{dFormatted}</option>;
                           }),
         startConnectingButton = (
           <Button className="startConnection control-panel-button"
