@@ -2,7 +2,7 @@ import * as React from "react";
 import { SensorConfiguration } from "../models/sensor-configuration";
 import SensorGraph from "./sensor-graph";
 import { SensorSlot } from "../models/sensor-slot";
-import sizeMe from "react-sizeme";
+import sizeMe = require("react-sizeme");
 
 interface ISizeMeSize {
   width:number|null;

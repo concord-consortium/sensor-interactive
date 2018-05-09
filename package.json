@@ -35,19 +35,19 @@
     "d3-format": "^1.2.0",
     "dygraphs": "^2.0.0",
     "iframe-phone": "^1.2.0",
-    "lodash": "^4.17.4",
-    "react": "^15.6.1",
-    "react-dom": "^15.6.1",
-    "react-modal": "^2.2.4",
-    "react-sizeme": "^2.3.4"
+    "lodash": "^4.17.10",
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2",
+    "react-modal": "^3.4.4",
+    "react-sizeme": "^2.4.2"
   },
   "devDependencies": {
     "@types/d3-format": "^1.2.1",
     "@types/dygraphs": "^1.1.4",
-    "@types/lodash": "^4.14.74",
-    "@types/react": "^16.0.5",
-    "@types/react-dom": "^15.5.4",
-    "@types/react-modal": "^2.2.1",
+    "@types/lodash": "^4.14.108",
+    "@types/react": "^16.3.12",
+    "@types/react-dom": "^16.0.5",
+    "@types/react-modal": "^3.1.2",
     "@types/web-bluetooth": "0.0.3",
     "awesome-typescript-loader": "^3.2.3",
     "cross-env": "^4.0.0",
@@ -57,7 +57,7 @@
     "onchange": "^3.2.1",
     "source-map-loader": "^0.2.0",
     "tslint": "^5.9.1",
-    "typescript": "^2.4.2",
-    "webpack": "^3.5.5"
+    "typescript": "^2.8.3",
+    "webpack": "^3.11.0"
   }
 }
