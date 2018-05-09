@@ -398,8 +398,8 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     sendData() {
-        const { sensorSlots } = this.state,
-              sendSecondSensorData = sensorSlots[1].hasData;
+        const { sensorSlots, secondGraph } = this.state,
+              sendSecondSensorData = secondGraph && sensorSlots[1].hasData;
         const dataSpecs = sensorSlots.map((slot, i) => {
             const sensor = slot.sensorForData,
                   name = sensor && sensor.definition.measurementName,
