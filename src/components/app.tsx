@@ -352,7 +352,9 @@ export class App extends React.Component<AppProps, AppState> {
                 cache.splice(0, 1);
             }
             if (stuck) {
-                this.setState({ statusMessage: this.messages["appears_stuck"] });
+                // disable for the time being as it generates false positives
+                // this.setState({ statusMessage: this.messages["appears_stuck"] });
+                console.log(`SensorConnector appears stuck!`);
             }
             else {
                 this.setStatusInterfaceConnected(sensorConfig.interface || "");
