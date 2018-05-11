@@ -1,4 +1,4 @@
-import { ISensorDefinition } from "./sensor-connector-interface";
+import { SensorDefinition } from "@concord-consortium/sensor-connector-interface";
 
 export class Sensor {
     columnID?:string;
@@ -8,8 +8,8 @@ export class Sensor {
     tareValue:number;
     timeUnit:string;
     valueUnit:string;
-    definition:ISensorDefinition;
-    
+    definition:SensorDefinition;
+
     constructor() {
         this.tareValue = 0;
         this.definition = {
@@ -25,4 +25,11 @@ export class Sensor {
     get isConnected() {
         return !!this.columnID && !!this.valueUnit;
     }
+
+    zeroSensor() {
+        if (this.sensorValue != null) {
+            this.tareValue = this.sensorValue;
+        }
+    }
+
 }

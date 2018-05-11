@@ -25,6 +25,15 @@ export class SensorSlot {
     return this.dataSensor || this.sensor;
   }
 
+  get timeOfLastData() {
+    const sensorData = this.sensorData;
+    if(sensorData.length > 0) {
+      return sensorData[sensorData.length - 1][0];
+    }
+
+    return 0;
+  }
+
   setSensor(sensor:Sensor) {
     this.sensor = sensor;
   }
@@ -40,8 +49,22 @@ export class SensorSlot {
     this.dataSensor = cloneDeep(this.sensor);
   }
 
-  appendData(newData:number[][]) {
-    Array.prototype.push.apply(this.sensorData, newData);
+  appendData(newData:number[][], runLength:number) {
+    const { tareValue } = this.sensor;
+
+    newData.forEach( (item) => {
+      const time = item[0];
+      // don't include data past the end of the experiment
+      if (time <= runLength) {
+        let value = item[1];
+        if (tareValue) {
+          // Tare the data before appending it
+          value -= tareValue;
+        }
+        this.sensorData.push([time, value]);
+      }
+    });
+
     if (!this.dataSensor)
       this.dataSensor = cloneDeep(this.sensor);
   }

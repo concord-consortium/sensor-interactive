@@ -8,9 +8,13 @@
         "target": "es6",
         "strictNullChecks": true,
         "jsx": "react",
-        "allowJs": true
+        "allowJs": true,
+        "allowSyntheticDefaultImports": true
     },
     "include": [
         "./src/**/*"
+    ],
+    "exclude": [
+        "./src/public/**/*"
     ]
 }

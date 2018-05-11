@@ -1,8 +1,6 @@
 // from concord-consortium/lab
 
-/* tslint:disable:max-line-length */
-
-import { ISensorDefinition } from "./sensor-connector-interface";
+import { SensorDefinition } from "@concord-consortium/sensor-connector-interface";
 
 export interface IStringMap {
   [key:string]: string;
@@ -11,6 +9,8 @@ export interface IStringMap {
 export interface ISensorStrings {
   [key:string]: string|IStringMap;
 }
+
+/* tslint:disable:max-line-length */
 
 export const SensorStrings:ISensorStrings = {
     "select_sensor": "Select Sensor",
@@ -26,6 +26,8 @@ export const SensorStrings:ISensorStrings = {
       "ready": "Ready to collect.",
       "ready_nocontrol": "Please stop the __controlling_client__ data collector to collect data here.",
       "ready_nocontrol_noname": "Please stop the other active data collector to collect data here.",
+      "not_responding": "SensorConnector not responding",
+      "appears_stuck": "SensorConnector appears to be stuck",
       "no_sensors": "No sensors found.",
       "no_devices": "No devices plugged in.",
       "not_connected": "Not connected.",
@@ -37,6 +39,7 @@ export const SensorStrings:ISensorStrings = {
       "connection_failed_labquest2_alert": "Could not connect to the LabQuest2. Please make sure the address is correct and that the LabQuest2 can be reached from this computer",
       "tare_labquest2_alert": "The LabQuest2 needs to be collecting live data in order to zero. Either set up a new run on the LabQuest2, or click the meter icon in the upper left.",
       "click_here": "click here",
+      "interface_connected": "__interface__ connected",
       "connected": "Connected.",
       "connected_start_labquest2": "Connected. Press start on your LabQuest2 to begin.",
       "connected_start_sensorconnector": "Please stop the __controlling_client__ data collector to collect data here.",
@@ -59,9 +62,8 @@ export const SensorStrings:ISensorStrings = {
       "data_collection_stopped": "Data collection stopped.",
       "data_collection_complete": "Data collection complete.",
       "disconnected": "Disconnected.",
-      "java_applet_error": "It appears that Java applets cannot run in your browser. If you are able to fix this, reload the page to use the sensor",
-      "java_applet_not_loading": "The sensor applet appears not to be loading. If you are able to fix this, reload the page to use the sensor",
       "unexpected_error": "There was an unexpected error when connecting to the sensor.",
+      "sensor_connector_not_responding": "The SensorConnector application is not responding. To continue data collection click the \"Launch SensorConnector\" button at the bottom of the dialog or later click the corresponding button at the bottom of the window.",
       "sensor_not_attached": "No sensors appear to be attached. Try attaching one or more sensors and then click \"Try Again\".",
       "sensor_or_device_unplugged": "The __sensor_or_device_name__ was unplugged. Try plugging it back in, and then click \"$t(sensor.messages.try_again)\".",
       "try_again": "Try Again",
@@ -92,6 +94,7 @@ export const SensorStrings:ISensorStrings = {
       "position": "Position",
       "potential": "Potential",
       "pressure": "Pressure",
+      "relative_humidity": "Relative Humidity",
       "signal": "Signal",
       "sound_level": "Sound Level",
       "speed": "Speed",
@@ -127,6 +130,7 @@ export const SensorStrings:ISensorStrings = {
       "heart_rate": "Heart Rate",
       "magnetic_field": "Magnetic Field",
       "rotary_motion": "Rotary Motion",
+      "relative_humidity": "Relative Humidity",
       "linear_position_sensor": "Linear Position Sensor",
       "sound_level": "Sound Level",
       "spectrophotometer": "Spectrophotometer",
@@ -163,7 +167,7 @@ export class i18n { // tslint:disable-line:class-name
 }
 
 export interface ISensorDefinitions {
-  [key:string]: ISensorDefinition;
+  [key:string]: SensorDefinition;
 }
 
 export const SensorDefinitions:ISensorDefinitions = {
@@ -237,7 +241,7 @@ export const SensorDefinitions:ISensorDefinitions = {
     "measurementType": "pressure",
     "tareable": true,
     "minReading": 0.0,
-    "maxReading": 220000.0 
+    "maxReading": 220000.0
   },
   "mm Hg": {
     "sensorName": i18n.t("sensor.names.pressure"),
@@ -334,6 +338,14 @@ export const SensorDefinitions:ISensorDefinitions = {
     "tareable": false,
     "minReading": 0.0,
     "maxReading": 0.5
+  },
+  "%RH": {
+    "sensorName": i18n.t("sensor.names.relative_humidity"),
+    "measurementName": i18n.t("sensor.measurements.relative_humidity"),
+    "measurementType": "relative humidity",
+    "tareable": false,
+    "minReading": 0.0,
+    "maxReading": 100.0
   },
   "%T": {
     "sensorName": i18n.t("sensor.names.colorimeter"),
@@ -632,5 +644,3 @@ export const SensorDefinitions:ISensorDefinitions = {
     "maxReading": 50.0
   }
 };
-
-
