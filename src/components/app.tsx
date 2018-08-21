@@ -442,22 +442,29 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     newData() {
-        const { sensorSlots } = this.state;
+        const { sensorSlots, runLength } = this.state;
         sensorSlots.forEach((slot) => slot.clearData());
         this.setState({
             hasData:false,
             dataReset:true,
             dataChanged:false
         });
+        this.setXZoomState(runLength);
+    }
+
+    setXZoomState(runLength:number) {
+        this.setState({
+            xStart: 0,
+            // without the .01, last tick number sometimes fails to display
+            xEnd: runLength + 0.01
+        });
     }
 
     onTimeSelect(newTime:number) {
         this.setState({
-            runLength: newTime,
-            xStart: 0,
-            // without the .01, last tick number sometimes fails to display
-            xEnd: newTime + 0.01
+            runLength: newTime
         });
+        this.setXZoomState(newTime);
         this.codap.updateInteractiveState({ runLength: newTime });
     }
 
