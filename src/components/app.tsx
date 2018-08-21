@@ -463,6 +463,10 @@ export class App extends React.Component<AppProps, AppState> {
 
     onGraphZoom(xStart:number, xEnd:number) {
         const sensor1Data = this.state.sensorSlots[0].sensorData;
+        const { xStart: prevXStart, xEnd: prevXEnd } = this.state;
+
+        // bail if no change
+        if ((prevXStart === xStart) && (prevXEnd === xEnd)) return;
 
         // convert from time value to index
         var i:number, entry:number[], nextEntry:number[];
@@ -492,7 +496,8 @@ export class App extends React.Component<AppProps, AppState> {
 
         this.setState({
             xStart: xStart,
-            xEnd: xEnd
+            xEnd: xEnd,
+            dataChanged: true
         });
     }
 
