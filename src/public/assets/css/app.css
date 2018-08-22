@@ -27,7 +27,10 @@ input, textarea, select, button {
     display: flex;
     flex-direction: column;
     flex: 1 1;
-    margin-top: 8px;
+    margin-top: 8px;    /* affects .app-content:max-height */
+    /* 72px = .app-content:margin-top + .control-panel:flex-basis + .control-panel:margin-top */
+    /* Sass, Less, CSS variables, inline styles, etc. could be used to eliminate redundancy */
+    max-height: calc(100% - 72px);
 }
 
 .app-top-bar {
@@ -147,8 +150,8 @@ input, textarea, select, button {
 .control-panel {
     z-index: 1;
     width: 100vw;
-    flex: 0 0 44px;
-    margin-top: 20px;
+    flex: 0 0 44px;     /* affects .app-content:max-height */
+    margin-top: 20px;   /* affects .app-content:max-height */
     background-color: white;
     display: flex;
     align-items: center;
@@ -170,7 +173,7 @@ input, textarea, select, button {
 }
 
 .control-panel-button {
-    width: 80px;
+    width: 100px;
     height: 26px;
     background-color: #eee;
     border-radius: 4px;
