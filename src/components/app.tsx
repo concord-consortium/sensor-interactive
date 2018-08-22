@@ -179,6 +179,8 @@ export class App extends React.Component<AppProps, AppState> {
         this.codap = new Codap((initialState:any) => {
             // merge saved initial state into current state
             this.setState(initialState);
+            if (initialState && (initialState.runLength != null))
+                this.setXZoomState(initialState.runLength);
         });
     }
 
