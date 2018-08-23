@@ -179,6 +179,8 @@ export class App extends React.Component<AppProps, AppState> {
         this.codap = new Codap((initialState:any) => {
             // merge saved initial state into current state
             this.setState(initialState);
+            if (initialState && (initialState.runLength != null))
+                this.setXZoomState(initialState.runLength);
         });
     }
 
@@ -442,27 +444,38 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     newData() {
-        const { sensorSlots } = this.state;
+        const { sensorSlots, runLength } = this.state;
         sensorSlots.forEach((slot) => slot.clearData());
         this.setState({
             hasData:false,
             dataReset:true,
             dataChanged:false
         });
+        this.setXZoomState(runLength);
+    }
+
+    setXZoomState(runLength:number) {
+        this.setState({
+            xStart: 0,
+            // without the .01, last tick number sometimes fails to display
+            xEnd: runLength + 0.01
+        });
     }
 
     onTimeSelect(newTime:number) {
         this.setState({
-            runLength: newTime,
-            xStart: 0,
-            // without the .01, last tick number sometimes fails to display
-            xEnd: newTime + 0.01
+            runLength: newTime
         });
+        this.setXZoomState(newTime);
         this.codap.updateInteractiveState({ runLength: newTime });
     }
 
     onGraphZoom(xStart:number, xEnd:number) {
         const sensor1Data = this.state.sensorSlots[0].sensorData;
+        const { xStart: prevXStart, xEnd: prevXEnd } = this.state;
+
+        // bail if no change
+        if ((prevXStart === xStart) && (prevXEnd === xEnd)) return;
 
         // convert from time value to index
         var i:number, entry:number[], nextEntry:number[];
@@ -492,7 +505,8 @@ export class App extends React.Component<AppProps, AppState> {
 
         this.setState({
             xStart: xStart,
-            xEnd: xEnd
+            xEnd: xEnd,
+            dataChanged: true
         });
     }
 
@@ -653,7 +667,6 @@ export class App extends React.Component<AppProps, AppState> {
                         secondGraph={this.state.secondGraph}
                         onGraphZoom={this.onGraphZoom}
                         onSensorSelect={this.handleSensorSelect}
-                        onStopCollection={this.stopSensor}
                         xStart={this.state.xStart}
                         xEnd={this.state.xEnd}
                         timeUnit={this.state.timeUnit}

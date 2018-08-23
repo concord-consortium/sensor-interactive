@@ -16,7 +16,6 @@ interface SensorGraphProps {
     title:string;
     onGraphZoom:(xStart:number, xEnd:number) => void;
     onSensorSelect:(sensorIndex:number, columnID:string) => void;
-    onStopCollection:() => void;
     collecting:boolean;
     hasData:boolean;
     dataReset:boolean;
