@@ -81,17 +81,22 @@ export class Codap {
                 if (response.success) {
                     // request the last case
                     const caseCount = response.values;
-                    CodapInterface.sendRequest({
-                        action: 'get',
-                        resource: `${runsCollection}.caseByIndex[${caseCount-1}]`
-                    }, this.responseCallback)
-                    .then((response) => {
-                        // retrieve the run number from the last case
-                        if (response.success) {
-                            const theCase = response.values['case'];
-                            this.state.runNumber = theCase.values.Run;
-                        }
-                    }, this.responseCallback);
+                    if (caseCount > 0) {
+                        CodapInterface.sendRequest({
+                            action: 'get',
+                            resource: `${runsCollection}.caseByIndex[${caseCount-1}]`
+                        }, this.responseCallback)
+                        .then((response) => {
+                            // retrieve the run number from the last case
+                            if (response.success) {
+                                const theCase = response.values['case'];
+                                this.state.runNumber = theCase.values.Run;
+                            }
+                        }, this.responseCallback);
+                    }
+                    else {
+                        this.state.runNumber = 0;
+                    }
                 }
             });
         });
