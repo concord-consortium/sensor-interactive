@@ -244,7 +244,8 @@
           name: iConfig.name,
           title: iConfig.title,
           version: iConfig.version,
-          preventBringToFront: iConfig.preventBringToFront
+          preventBringToFront: iConfig.preventBringToFront,
+          preventDataContextReorg: iConfig.preventDataContextReorg
         };
         var updateFrameReq = {
           action: 'update',
