@@ -644,7 +644,7 @@ export const SensorDefinitions:ISensorDefinitions = {
     "tareable": true,
     "minReading": 0.0,
     "maxReading": 50.0
-  }
+  },
   "rad/s": {
     "sensorName": i18n.t("sensor.names.angularvelocity"),
     "measurementName": i18n.t("sensor.measurements.angular_velocity"),
