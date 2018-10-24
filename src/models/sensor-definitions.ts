@@ -650,7 +650,7 @@ export const SensorDefinitions:ISensorDefinitions = {
     "measurementName": i18n.t("sensor.measurements.angular_velocity"),
     "measurementType": "angular velocity",
     "tareable": false,
-    "minReading": -100.0,
-    "maxReading": 100.0
+    "minReading": -35.0,
+    "maxReading": 35.0
   }
 };
