@@ -106,7 +106,8 @@ export const SensorStrings:ISensorStrings = {
       "volume": "Volume",
       "pH": "pH",
       "acidity": "Acidity",
-      "O2_concentration": "O₂ Concentration"
+      "O2_concentration": "O₂ Concentration",
+      "angular_velocity": "Angular Velocity"
     },
     "names": {
       "sensor": "sensor",
@@ -153,7 +154,8 @@ export const SensorStrings:ISensorStrings = {
       "labQuestForce": "LabQuest Force Sensor",
       "labQuestPH": "LabQuest pH Sensor",
       "labQuestCO2": "LabQuest CO₂ sensor",
-      "labQuestO2": "LabQuest O₂ sensor"
+      "labQuestO2": "LabQuest O₂ sensor",
+      "angularvelocity": "Angular Velocity"
     }
 };
 
@@ -642,5 +644,13 @@ export const SensorDefinitions:ISensorDefinitions = {
     "tareable": true,
     "minReading": 0.0,
     "maxReading": 50.0
+  },
+  "rad/s": {
+    "sensorName": i18n.t("sensor.names.angularvelocity"),
+    "measurementName": i18n.t("sensor.measurements.angular_velocity"),
+    "measurementType": "angular velocity",
+    "tareable": false,
+    "minReading": -35.0,
+    "maxReading": 35.0
   }
 };
