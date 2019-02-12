@@ -13,6 +13,9 @@ module.exports = {
         filename: "[name].js",
         path: __dirname + "/dist/assets/js"
     },
+    performance: {
+        hints: false
+    },
 
     // Enable sourcemaps for debugging webpack's output.
     devtool: "source-map",
@@ -30,7 +33,5 @@ module.exports = {
             // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
             { enforce: "pre", test: /\.js$/, loader: "source-map-loader" }
         ]
-    },
-
-    plugins: [new webpack.optimize.CommonsChunkPlugin({ name: "globals", filename: "globals.js" })]
+    }
 };
