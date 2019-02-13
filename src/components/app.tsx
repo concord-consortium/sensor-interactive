@@ -12,10 +12,11 @@ import { SensorManager, NewSensorData, ConnectableSensorManager } from "../model
 import SmartFocusHighlight from "../utils/smart-focus-highlight";
 import { find, pull, sumBy } from "lodash";
 import Button from "./smart-highlight-button";
+import { SensorConnectorManager } from "../models/sensor-connector-manager";
 
 
 export interface AppProps {
-    sensorManager: SensorManager;
+    sensorManager?: SensorManager;
 }
 
 export interface AppState {
@@ -109,6 +110,37 @@ const SLEEP_WAKE_DELAY_SEC = 3;
 const DOWN_SAMPLE_THRESHOLD_SECS = 60;
 const DOWN_SAMPLE_THRESHOLD_COUNT = 601;
 
+const tagIdentifier = 0xaa80; // used to identify sensor tag
+const goDirectPrefix = "GDX"; // used to identify go direct sensors
+interface ISensorAddrs {
+  service: string;
+  data: string;
+  config: string;
+}
+
+const tagAddrs: { [index:string] : ISensorAddrs } = {
+  luxometer: {
+    service: 'f000aa70-0451-4000-b000-000000000000',
+    data: 'f000aa71-0451-4000-b000-000000000000',
+    config: 'f000aa72-0451-4000-b000-000000000000'
+  },
+  humidity: {
+    service: 'f000aa20-0451-4000-b000-000000000000',
+    data: 'f000aa21-0451-4000-b000-000000000000', // TempLSB:TempMSB:HumidityLSB:HumidityMSB
+    config: 'f000aa22-0451-4000-b000-000000000000'
+  },
+  IRTemperature: {
+    service: 'f000aa00-0451-4000-b000-000000000000',
+    data: 'f000aa01-0451-4000-b000-000000000000', // ObjectLSB:ObjectMSB:AmbientLSB:AmbientMSB
+    config: 'f000aa02-0451-4000-b000-000000000000'
+  },
+  IO: {
+    service: 'f000aa64-0451-4000-b000-000000000000',
+    data: 'f000aa65-0451-4000-b000-000000000000',
+    config: 'f000aa66-0451-4000-b000-000000000000'
+  }
+};
+
 export class App extends React.Component<AppProps, AppState> {
 
     private messages:IStringMap;
@@ -117,6 +149,10 @@ export class App extends React.Component<AppProps, AppState> {
     private disableWarning:boolean = false;
     private isReloading:boolean = false;
     private columnInfoCache: { [columnID: string]: SensorConfigColumnInfo[]; } = {};
+    private currentSensorManager: SensorManager;
+    // tslint:disable-next-line
+    private wirelessDevice: any;
+    private wirelessServer: any;
 
     constructor(props: AppProps) {
         super(props);
@@ -149,13 +185,6 @@ export class App extends React.Component<AppProps, AppState> {
         this.onSensorCollectionStopped = this.onSensorCollectionStopped.bind(this);
 
         setTimeout(this.connectCodap, 1000);
-
-        let sensorManager = this.props.sensorManager;
-        sensorManager.addListener('onSensorConnect', this.onSensorConnect);
-        sensorManager.addListener('onSensorData', this.onSensorData);
-        sensorManager.addListener('onSensorStatus', this.onSensorStatus);
-        sensorManager.addListener('onCommunicationError', this.onCommunicationError);
-        this.props.sensorManager.startPolling();
 
         this.onTimeSelect = this.onTimeSelect.bind(this);
         this.onGraphZoom = this.onGraphZoom.bind(this);
@@ -242,19 +271,57 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({ sensorSlots });
     }
 
+    startWiredConnecting = () => {
+        this.currentSensorManager = new SensorConnectorManager();
+        this.currentSensorManager.addListener('onSensorConnect', this.onSensorConnect);
+        this.currentSensorManager.addListener('onSensorData', this.onSensorData);
+        this.currentSensorManager.addListener('onSensorStatus', this.onSensorStatus);
+        this.currentSensorManager.addListener('onCommunicationError', this.onCommunicationError);
+        this.currentSensorManager.startPolling();
+    }
+
+    startWirelessConnecting = () => {
+        this.chooseWirelessDevice();
+    }
+
+    async chooseWirelessDevice() {
+        // Step 1: ask for a device
+        console.log("Displaying matching wireless devices...");
+        this.wirelessDevice = await navigator.bluetooth.requestDevice({
+            filters: [{ services: [tagIdentifier] },
+                      {namePrefix: goDirectPrefix}
+          ],
+            optionalServices: [tagAddrs.luxometer.service,
+                               tagAddrs.humidity.service,
+                               tagAddrs.IRTemperature.service,
+                               tagAddrs.IO.service]
+          });
+
+        // Step 2: Connect to device
+        console.log("Connecting to wireless device...");
+        this.wirelessServer = await this.wirelessDevice.gatt.connect();
+
+        // Get the IO service
+        console.log("Requesting primary service...");
+        const wirelessService =
+            await this.wirelessServer.getPrimaryService(tagAddrs.IO.service);
+
+        console.log(wirelessService);
+    }
+
     startConnecting = () => {
-        this.props.sensorManager.requestWake();
+        this.currentSensorManager.requestWake();
     }
 
     startSensor() {
-        this.props.sensorManager.requestStart();
+        this.currentSensorManager.requestStart();
         this.setState({
             statusMessage: this.messages["starting_data_collection"]
         });
     }
 
     stopSensor() {
-        this.props.sensorManager.requestStop();
+        this.currentSensorManager.requestStop();
     }
 
     onSensorCollectionStopped() {
@@ -262,8 +329,7 @@ export class App extends React.Component<AppProps, AppState> {
             collecting: false,
             statusMessage: this.messages["data_collection_stopped"]
         });
-
-        this.props.sensorManager.removeListener('onSensorCollectionStopped',
+        this.currentSensorManager.removeListener('onSensorCollectionStopped',
           this.onSensorCollectionStopped);
     }
 
@@ -276,8 +342,7 @@ export class App extends React.Component<AppProps, AppState> {
                 collecting: true,
                 statusMessage: this.messages["collecting_data"]
             });
-
-            this.props.sensorManager.addListener('onSensorCollectionStopped',
+            this.currentSensorManager.addListener('onSensorCollectionStopped',
               this.onSensorCollectionStopped);
         }
 
@@ -516,9 +581,9 @@ export class App extends React.Component<AppProps, AppState> {
 
     launchSensorConnector = () => {
         this.setState({ statusMessage: "Launching SensorConnector...", notRespondingModal: false });
-        this.props.sensorManager.requestSleep();
+        this.currentSensorManager.requestSleep();
         // pause before attempting to reload SensorConnector
-        setTimeout(() => this.props.sensorManager.requestWake(), SLEEP_WAKE_DELAY_SEC * 1000);
+        setTimeout(() => this.currentSensorManager.requestWake(), SLEEP_WAKE_DELAY_SEC * 1000);
     }
 
     closeWarnNewModal() {
@@ -555,7 +620,7 @@ export class App extends React.Component<AppProps, AppState> {
     reload() {
         this.isReloading = true;
         this.setState({ statusMessage: "Reloading SensorConnector..."});
-        this.props.sensorManager.requestSleep();
+        this.currentSensorManager.requestSleep();
         // pause before attempting to reload page
         setTimeout(() => location.reload(), SLEEP_WAKE_DELAY_SEC * 1000);
     }
@@ -569,24 +634,21 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     connectToDevice = () => {
-      const { sensorManager } = this.props;
-      if(isConnectableSensorManager(sensorManager)){
-        sensorManager.connectToDevice();
+      if(isConnectableSensorManager(this.currentSensorManager)){
+        this.currentSensorManager.connectToDevice();
       }
     }
 
     disconnectFromDevice = () => {
-      const { sensorManager } = this.props;
-      if(isConnectableSensorManager(sensorManager)){
-        sensorManager.disconnectFromDevice();
+      if(isConnectableSensorManager(this.currentSensorManager)){
+        this.currentSensorManager.disconnectFromDevice();
       }
     }
 
-    renderConnectToDeviceButton(){
-      const { sensorManager } = this.props;
+    renderConnectToDeviceButton() {
       // Check if this sensorManger supports device connection
-      if(isConnectableSensorManager(sensorManager)) {
-        if(sensorManager.deviceConnected){
+      if(isConnectableSensorManager(this.currentSensorManager)) {
+        if(this.currentSensorManager.deviceConnected){
           return  <Button className="connect-to-device-button" onClick={this.disconnectFromDevice} >
                     Disconnect from Device
                   </Button>;
@@ -601,8 +663,8 @@ export class App extends React.Component<AppProps, AppState> {
       }
     }
 
-    renderDualCollectionCheckBox(){
-      if(this.props.sensorManager.supportsDualCollection) {
+    renderDualCollectionCheckBox() {
+      if(this.currentSensorManager && this.currentSensorManager.supportsDualCollection) {
         return <label className="two-sensors-checkbox">
             <input type="checkbox"
                 id="toggleGraphBtn"
@@ -659,6 +721,12 @@ export class App extends React.Component<AppProps, AppState> {
                         <div className="status-message">
                             {this.state.statusMessage || "\xA0"}
                         </div>
+                        <div>
+                            <button className="connect-to-device-button smart-focus-highlight disable-focus-highlight"
+                                    onClick={this.startWiredConnecting}>Connect to Wired</button>
+                            <button className="connect-to-device-button smart-focus-highlight disable-focus-highlight"
+                                    onClick={this.startWirelessConnecting}>Connect to Wireless</button>
+                        </div>
                         {this.renderConnectToDeviceButton()}
                     </div>
                     <GraphsPanel
@@ -676,7 +744,7 @@ export class App extends React.Component<AppProps, AppState> {
                     />
                 </div>
                 <ControlPanel
-                    isConnectorAwake={this.props.sensorManager.isAwake()}
+                    isConnectorAwake={true} //isConnectorAwake={this.props.sensorManager.isAwake()}
                     interfaceType={interfaceType}
                     sensorCount={this.connectedSensorCount()}
                     collecting={this.state.collecting}
