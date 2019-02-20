@@ -305,15 +305,19 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
       this.stopRequested = true;
     }
 
-    async connectToDevice() {
-      // Step 1: ask for a device
-      this.device = await navigator.bluetooth.requestDevice({
+    async connectToDevice(device?: any) {
+      if (device) {
+        this.device = device;
+      } else {
+        // Step 1: ask for a device
+        this.device = await navigator.bluetooth.requestDevice({
           filters: [{ services: [tagIdentifier] }],
           optionalServices: [tagAddrs.luxometer.service,
-                             tagAddrs.humidity.service,
-                             tagAddrs.IRTemperature.service,
-                             tagAddrs.IO.service]
+                            tagAddrs.humidity.service,
+                            tagAddrs.IRTemperature.service,
+                            tagAddrs.IO.service]
         });
+      }
       // Step 2: Connect to device
       this.server = await this.device.gatt.connect();
 
