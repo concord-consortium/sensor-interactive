@@ -17,14 +17,14 @@ export interface ConnectableSensorManager {
   // The sensor-interactive code will use connectToDevice to determine
   // if the sensorManager instance implements ConnectableSensorManager
   // typescript doesn't have runtime type checking
-  connectToDevice: () => void;
+  connectToDevice: (device?: any) => void;
   disconnectFromDevice: () => void;
   deviceConnected: boolean;
 }
 
 export abstract class SensorManager {
   supportsDualCollection: boolean;
-  
+
   abstract startPolling() : void;
   abstract hasSensorData() : boolean;
   abstract requestStart() : void;
