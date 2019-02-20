@@ -13,7 +13,8 @@ import SmartFocusHighlight from "../utils/smart-focus-highlight";
 import { find, pull, sumBy } from "lodash";
 import Button from "./smart-highlight-button";
 import { SensorConnectorManager } from "../models/sensor-connector-manager";
-
+import { SensorTagManager } from "../models/sensor-tag-manager";
+import { SensorGDXManager } from "../models/sensor-gdx-manager";
 
 export interface AppProps {
     sensorManager?: SensorManager;
@@ -152,7 +153,6 @@ export class App extends React.Component<AppProps, AppState> {
     private currentSensorManager: SensorManager;
     // tslint:disable-next-line
     private wirelessDevice: any;
-    private wirelessServer: any;
 
     constructor(props: AppProps) {
         super(props);
@@ -185,6 +185,16 @@ export class App extends React.Component<AppProps, AppState> {
         this.onSensorCollectionStopped = this.onSensorCollectionStopped.bind(this);
 
         setTimeout(this.connectCodap, 1000);
+
+        // support previous versions where we passed a sensor manager into the props
+        if (this.props.sensorManager) {
+            this.currentSensorManager = this.props.sensorManager;
+            this.currentSensorManager.addListener('onSensorConnect', this.onSensorConnect);
+            this.currentSensorManager.addListener('onSensorData', this.onSensorData);
+            this.currentSensorManager.addListener('onSensorStatus', this.onSensorStatus);
+            this.currentSensorManager.addListener('onCommunicationError', this.onCommunicationError);
+            this.currentSensorManager.startPolling();
+        }
 
         this.onTimeSelect = this.onTimeSelect.bind(this);
         this.onGraphZoom = this.onGraphZoom.bind(this);
@@ -296,17 +306,30 @@ export class App extends React.Component<AppProps, AppState> {
                                tagAddrs.IRTemperature.service,
                                tagAddrs.IO.service]
           });
+        console.log(this.wirelessDevice);
+        const isGDX = this.wirelessDevice.name.includes("GDX");
+        if (isGDX) {
+            console.log("create sensorGDXManager")
+            this.currentSensorManager = new SensorGDXManager();
+        } else {
+            console.log("create sensorTagManager")
+            this.currentSensorManager = new SensorTagManager();
+        }
+        //TODO: disconnect old listeners
+        //what about the object that we newed?
 
-        // Step 2: Connect to device
-        console.log("Connecting to wireless device...");
-        this.wirelessServer = await this.wirelessDevice.gatt.connect();
+        //TODO: these should go in a function
+        this.currentSensorManager.addListener('onSensorConnect', this.onSensorConnect);
+        this.currentSensorManager.addListener('onSensorData', this.onSensorData);
+        this.currentSensorManager.addListener('onSensorStatus', this.onSensorStatus);
+        this.currentSensorManager.addListener('onCommunicationError', this.onCommunicationError);
 
-        // Get the IO service
-        console.log("Requesting primary service...");
-        const wirelessService =
-            await this.wirelessServer.getPrimaryService(tagAddrs.IO.service);
+        this.currentSensorManager.startPolling();
 
-        console.log(wirelessService);
+        if(isConnectableSensorManager(this.currentSensorManager)){
+            this.currentSensorManager.connectToDevice(this.wirelessDevice);
+        }
+
     }
 
     startConnecting = () => {
@@ -345,13 +368,13 @@ export class App extends React.Component<AppProps, AppState> {
             this.currentSensorManager.addListener('onSensorCollectionStopped',
               this.onSensorCollectionStopped);
         }
-
         const { sensorSlots } = this.state;
 
         // Keep track of the smallest last time value. We want to keep collecting
         // until all of the sensors have reached the runLength.
         let lastTime = Number.MAX_SAFE_INTEGER,
             newSensorDataArrived = false;
+        let overTime = false;
 
         sensorSlots.forEach((sensorSlot) => {
           const sensor = sensorSlot.sensor,
@@ -367,11 +390,10 @@ export class App extends React.Component<AppProps, AppState> {
             lastTime = Math.min(lastTime, sensorSlot.timeOfLastData);
             return;
           }
-
           sensorSlot.appendData(sensorData, this.state.runLength);
           newSensorDataArrived = true;
-
           lastTime = Math.min(lastTime, sensorSlot.timeOfLastData);
+          overTime = (sensorData[0][0] > this.state.runLength);
         });
 
         if (newSensorDataArrived) {
@@ -379,7 +401,7 @@ export class App extends React.Component<AppProps, AppState> {
               sensorSlots: this.state.sensorSlots });
         }
 
-        if(lastTime !== Number.MAX_SAFE_INTEGER && lastTime >= this.state.runLength) {
+        if(lastTime !== Number.MAX_SAFE_INTEGER && (lastTime >= this.state.runLength || overTime)) {
             this.stopSensor();
         }
     }
@@ -647,7 +669,7 @@ export class App extends React.Component<AppProps, AppState> {
 
     renderConnectToDeviceButton() {
       // Check if this sensorManger supports device connection
-      if(isConnectableSensorManager(this.currentSensorManager)) {
+      if(isConnectableSensorManager(this.currentSensorManager) && this.props.sensorManager) {
         if(this.currentSensorManager.deviceConnected){
           return  <Button className="connect-to-device-button" onClick={this.disconnectFromDevice} >
                     Disconnect from Device
@@ -721,12 +743,14 @@ export class App extends React.Component<AppProps, AppState> {
                         <div className="status-message">
                             {this.state.statusMessage || "\xA0"}
                         </div>
+                        {!this.props.sensorManager ?
                         <div>
                             <button className="connect-to-device-button smart-focus-highlight disable-focus-highlight"
                                     onClick={this.startWiredConnecting}>Connect to Wired</button>
                             <button className="connect-to-device-button smart-focus-highlight disable-focus-highlight"
                                     onClick={this.startWirelessConnecting}>Connect to Wireless</button>
                         </div>
+                        : null}
                         {this.renderConnectToDeviceButton()}
                     </div>
                     <GraphsPanel
