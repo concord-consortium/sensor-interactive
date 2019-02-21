@@ -1,20 +1,7 @@
 import { SensorConfiguration } from "./sensor-configuration";
 import { SensorManager, NewSensorData } from "./sensor-manager";
 import { SensorConfig } from "@concord-consortium/sensor-connector-interface";
-import { cloneDeep } from "lodash";
 import godirect from "@vernier/godirect"
-
-
-const sensorDescriptions = {
-  temperature: {
-    sensorName: "temperature",
-    values: [
-      {
-        columnID: "101"
-      }
-    ]
-  }
-};
 
 export class SensorGDXManager extends SensorManager {
     supportsDualCollection = true;
@@ -39,20 +26,9 @@ export class SensorGDXManager extends SensorManager {
           "100": {
             id: "100",
             setID: "100",
-            position: 0,
-            name: "Time",
-            units: "s",
-            liveValue: "NaN",
-            liveValueTimeStamp: new Date(),
-            valueCount: 0,
-            valuesTimeStamp: new Date()
-          },
-          "101": {
-            id: "101",
-            setID: "100",
             position: 1,
-            name: "Temperature",
-            units: "degC",
+            name: "N/A",
+            units: "N/A",
             liveValue: "NaN",
             liveValueTimeStamp: new Date(),
             valueCount: 0,
@@ -97,27 +73,17 @@ export class SensorGDXManager extends SensorManager {
     }
 
     requestStart() {
-      // cloneDeep is used because we are saving the dataCharacteristic on this object
-      // and that will change after the device is disconnected and reconnected
-
-      const activeSensors = [ cloneDeep(sensorDescriptions.temperature) ];
-      console.log(activeSensors);
-
       console.log("Reading GDX measurements");
-
-      this.gdxDevice.on('device-closed', () => {
-          console.log("Disconnected from GDX device " + this.gdxDevice.name);
-      });
 
       let startCollectionTime = Date.now();
 
       const readData = async () => {
 
         this.enabledSensors.forEach((sensor: any) => {
-            // log the sensor name, new value and units.
             const time = Date.now() - startCollectionTime;
             // console.log("Sensor: " + sensor.name + " /  value: " + sensor.value + " /  units: " + sensor.unit);
-            this.updateSensorValue("101", time / 1000, sensor.value);
+            //TODO: this needs to handle arbitrary sensor type
+            this.updateSensorValue("100", time / 1000, sensor.value);
         });
 
         if(!this.stopRequested) {
@@ -148,33 +114,39 @@ export class SensorGDXManager extends SensorManager {
     }
 
     async connectToDevice(device?: any) {
-      console.log("create gdxDevice")
       this.gdxDevice = await godirect.createDevice(device);
-
-      console.log(this.gdxDevice);
-      console.log("Connected to GDX device " + this.gdxDevice.name);
+      console.log("Created and connected to GDX device " + this.gdxDevice.name);
 
       this.gdxDevice.enableDefaultSensors();
       this.enabledSensors = this.gdxDevice.sensors.filter((s: any) => s.enabled);
-/*
-      console.log("Reading GDX measurement ");
-
-      this.gdxDevice.on('device-closed', () => {
-          console.log("Disconnected from GDX device " + this.gdxDevice.name);
-      });
-
-
-      enabledSensors.forEach((sensor: any) => {
-          sensor.on("value-changed", (sensor: any) => {
-            // Only collect 10 samples and disconnect.
-            if (sensor.values.length > 10){
-              this.gdxDevice.close();
-            }
-            // log the sensor name, new value and units.
-            console.log("Sensor: " + sensor.name + " /  value: " + sensor.value + " /  units: " + sensor.unit);
-          });
-      });
-      */
+      console.log(this.enabledSensors);
+      //read the enabled sensors and construct columns
+      this.internalConfig.columns["100"].name = this.enabledSensors[0].name;
+      let newUnits = this.enabledSensors[0].unit;
+      if (newUnits === "°C") {
+        newUnits = "degC";
+      }
+      this.internalConfig.columns["100"].units = newUnits;
+      this.sendSensorConfig(true);
     }
 
+    get deviceConnected() {
+      if(!this.gdxDevice) {
+        return false;
+      }
+      // TODO: is there a connection check in the godirect library?
+      return true;
+    }
+
+    async disconnectFromDevice() {
+      if(!this.deviceConnected){
+        return;
+      }
+
+      this.gdxDevice.close();
+
+      // Resend the sensorconfig so the UI udpates after the disconnection
+      this.sendSensorConfig(true);
+    }
 }
+
