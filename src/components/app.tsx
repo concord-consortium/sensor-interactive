@@ -309,12 +309,12 @@ export class App extends React.Component<AppProps, AppState> {
             //TODO: disconnect sensor connector manager
             console.log("disconnect wired");
         } else {
-            const currentSensorManager = new SensorConnectorManager();
-            this.setState({
-                sensorManager: currentSensorManager
-            });
-            this.addSensorManagerListeners();
-            this.state.sensorManager!.startPolling();
+            const sensorManager = new SensorConnectorManager();
+            this.setState({ sensorManager }, () => {
+                    this.addSensorManagerListeners();
+                    this.state.sensorManager!.startPolling();
+                }
+            );
         }
     }
 
@@ -353,27 +353,25 @@ export class App extends React.Component<AppProps, AppState> {
 
             console.log(wirelessDevice);
             const isGDX = wirelessDevice.name.includes("GDX");
-            let currentSensorManager;
+            let sensorManager;
             if (isGDX) {
                 console.log("create sensorGDXManager")
-                currentSensorManager = new SensorGDXManager();
+                sensorManager = new SensorGDXManager();
             } else {
                 console.log("create sensorTagManager")
-                currentSensorManager = new SensorTagManager();
+                sensorManager = new SensorTagManager();
             }
 
             this.removeSensorManagerListeners();
 
-            this.setState({
-                sensorManager: currentSensorManager
-            });
-
-            this.addSensorManagerListeners();
-            this.state.sensorManager!.startPolling();
-
-            if(isConnectableSensorManager(this.state.sensorManager)){
-                this.state.sensorManager.connectToDevice(wirelessDevice);
-            }
+            this.setState({ sensorManager }, () => {
+                    this.addSensorManagerListeners();
+                    this.state.sensorManager!.startPolling();
+                    if(isConnectableSensorManager(this.state.sensorManager)) {
+                        this.state.sensorManager.connectToDevice(wirelessDevice);
+                    }
+                }
+            );
         } catch (err) {
             console.log("No wireless device selected");
         }

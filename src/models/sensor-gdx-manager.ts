@@ -121,6 +121,7 @@ export class SensorGDXManager extends SensorManager {
       this.enabledSensors = this.gdxDevice.sensors.filter((s: any) => s.enabled);
       console.log(this.enabledSensors);
       //read the enabled sensors and construct columns
+      //TODO: need to make a column for each enabledsensor
       this.internalConfig.columns["100"].name = this.enabledSensors[0].name;
       let newUnits = this.enabledSensors[0].unit;
       if (newUnits === "°C") {
