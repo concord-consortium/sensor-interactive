@@ -22,19 +22,7 @@ export class SensorGDXManager extends SensorManager {
       this.internalConfig = {
         collection:{ canControl:true, isCollecting:false },
         columnListTimeStamp: new Date(),
-        columns:{
-          "100": {
-            id: "100",
-            setID: "100",
-            position: 1,
-            name: "N/A",
-            units: "N/A",
-            liveValue: "NaN",
-            liveValueTimeStamp: new Date(),
-            valueCount: 0,
-            valuesTimeStamp: new Date()
-          }
-        },
+        columns:{ },
         currentInterface: "GDX Sensor",
         currentState: "unknown",
         os: { name: "Fake", version: "1.0.0"},
@@ -45,7 +33,7 @@ export class SensorGDXManager extends SensorManager {
         sets:{
           "100": {
             name: "Run 1",
-            colIDs: [100, 101, 102]
+            colIDs: [100]
           }
         }
       };
@@ -78,12 +66,12 @@ export class SensorGDXManager extends SensorManager {
       let startCollectionTime = Date.now();
 
       const readData = async () => {
-
-        this.enabledSensors.forEach((sensor: any) => {
+        let colNum = 100;
+        this.enabledSensors.forEach((sensor: any, index: number) => {
+            const cNum = colNum + index;
             const time = Date.now() - startCollectionTime;
             // console.log("Sensor: " + sensor.name + " /  value: " + sensor.value + " /  units: " + sensor.unit);
-            //TODO: this needs to handle arbitrary sensor type
-            this.updateSensorValue("100", time / 1000, sensor.value);
+            this.updateSensorValue(cNum.toString(), time / 1000, sensor.value);
         });
 
         if(!this.stopRequested) {
@@ -113,22 +101,70 @@ export class SensorGDXManager extends SensorManager {
       this.stopRequested = true;
     }
 
+    async getBatteryLevel() {
+      const batteryLevel = await this.gdxDevice.getBatteryLevel();
+      console.log("Battery Level: " + batteryLevel);
+      return batteryLevel;
+    }
+
     async connectToDevice(device?: any) {
       this.gdxDevice = await godirect.createDevice(device);
       console.log("Created and connected to GDX device " + this.gdxDevice.name);
+      console.log(this.gdxDevice);
 
+      // turn on any default sensors
       this.gdxDevice.enableDefaultSensors();
+
+      // turn on all sensors that we find on the device
+      this.gdxDevice.sensors.forEach(function(sensor: any){
+        sensor.setEnabled(true);
+      });
+
+      // get an array of the enabled sensors
       this.enabledSensors = this.gdxDevice.sensors.filter((s: any) => s.enabled);
-      console.log(this.enabledSensors);
+
+      this.enabledSensors.forEach((sensor: any) => {
+        console.log("Sensor: " + sensor.name + " /  value: " + sensor.value + " /  units: " + sensor.unit);
+      });
+
       //read the enabled sensors and construct columns
-      //TODO: need to make a column for each enabledsensor
-      this.internalConfig.columns["100"].name = this.enabledSensors[0].name;
-      let newUnits = this.enabledSensors[0].unit;
+      let colNum = 100;
+      let columns: any = {};
+      let sets: any = {};
+      sets[colNum.toString()] = {
+        name: "Run 1",
+        colIDs: []
+      }
+      this.enabledSensors.forEach((sensor: any, index: number) => {
+        const cNum = colNum + index;
+        //TODO: need to convert their units to our units
+        let newUnits = sensor.unit; //this.convertUnits(sensor.unit);
+        let col = {
+          id: cNum.toString(),
+          setID: cNum.toString(),
+          position: (index + 1),
+          name: sensor.name,
+          units: newUnits,
+          liveValue: "NaN",
+          liveValueTimeStamp: new Date(),
+          valueCount: 0,
+          valuesTimeStamp: new Date()
+        }
+        columns[cNum.toString()] = col;
+        sets[colNum.toString()].colIDs.push(cNum);
+      });
+      this.internalConfig.columns = columns;
+      this.internalConfig.sets = sets;
+
+      this.sendSensorConfig(true);
+    }
+
+    convertUnits(units: string) {
+      let newUnits = units;
       if (newUnits === "°C") {
         newUnits = "degC";
       }
-      this.internalConfig.columns["100"].units = newUnits;
-      this.sendSensorConfig(true);
+      return newUnits;
     }
 
     get deviceConnected() {
