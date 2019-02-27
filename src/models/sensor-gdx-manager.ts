@@ -10,6 +10,7 @@ export class SensorGDXManager extends SensorManager {
     private internalConfig: SensorConfig;
     private hasData: boolean = false;
     private stopRequested: boolean = false;
+    private disconnectRequested: boolean = false;
     private gdxDevice: any;
     private enabledSensors: any;
 
@@ -23,7 +24,7 @@ export class SensorGDXManager extends SensorManager {
         collection:{ canControl:true, isCollecting:false },
         columnListTimeStamp: new Date(),
         columns:{ },
-        currentInterface: "GDX Sensor",
+        currentInterface: "Vernier Go Direct",
         currentState: "unknown",
         os: { name: "Fake", version: "1.0.0"},
         requestTimeStamp: new Date(),
@@ -50,10 +51,27 @@ export class SensorGDXManager extends SensorManager {
 
     startPolling() {
       setTimeout(() => {
-        let sensorConfig = new SensorConfiguration(this.internalConfig);
-        this.onSensorConnect(sensorConfig);
-        this.onSensorStatus(sensorConfig);
-      }, 100);
+        this.sendSensorConfig(true);
+      }, 10);
+      setInterval(() => {
+        //TODO: do we need to cancel while collecting or while disconnected
+        this.pollSensor();
+      }, 1000);
+
+    }
+
+    pollSensor() {
+      const readLiveData = async () => {
+        let colNum = 100;
+        if (!this.disconnectRequested) {
+          this.enabledSensors.forEach((sensor: any, index: number) => {
+              const cNum = colNum + index;
+              this.internalConfig.columns[cNum].liveValue = sensor.value.toString();
+          });
+          this.sendSensorConfig(false);
+        }
+      };
+      readLiveData();
     }
 
     hasSensorData() {
@@ -88,6 +106,9 @@ export class SensorGDXManager extends SensorManager {
     }
 
     updateSensorValue(ID:string, time:number, value:number) {
+      if (!value) {
+        return;
+      }
       this.internalConfig.columns[ID].liveValue = value.toString();
       this.hasData = true;
 
@@ -109,6 +130,12 @@ export class SensorGDXManager extends SensorManager {
 
     async connectToDevice(device?: any) {
       this.gdxDevice = await godirect.createDevice(device);
+
+      if(!this.gdxDevice) {
+        console.log("Could not create GDX device");
+        return false;
+      }
+
       console.log("Created and connected to GDX device " + this.gdxDevice.name);
       console.log(this.gdxDevice);
 
@@ -122,6 +149,11 @@ export class SensorGDXManager extends SensorManager {
 
       // get an array of the enabled sensors
       this.enabledSensors = this.gdxDevice.sensors.filter((s: any) => s.enabled);
+
+      if(this.enabledSensors.length == 0) {
+        console.log("Could not find any enabled sensors on device");
+        return false;
+      }
 
       this.enabledSensors.forEach((sensor: any) => {
         console.log("Sensor: " + sensor.name + " /  value: " + sensor.value + " /  units: " + sensor.unit);
@@ -157,6 +189,8 @@ export class SensorGDXManager extends SensorManager {
       this.internalConfig.sets = sets;
 
       this.sendSensorConfig(true);
+
+      return true;
     }
 
     convertUnits(units: string) {
@@ -179,6 +213,8 @@ export class SensorGDXManager extends SensorManager {
       if(!this.deviceConnected){
         return;
       }
+
+      this.disconnectRequested = true;
 
       this.gdxDevice.close();
 
