@@ -48,6 +48,11 @@ export class SensorConnectorManager extends SensorManager {
       this.sensorConnector.requestStop();
     }
 
+    removeListeners() {
+      console.log("turn off listeners...");
+      this.sensorConnector.off();
+    }
+
     hasSensorData() {
       const dataSet = this.sensorConnector.datasets[0];
       return !!(dataSet && dataSet.columns[1]);
@@ -73,7 +78,7 @@ export class SensorConnectorManager extends SensorManager {
     requestSleep() {
       this.sensorConnector.requestExit();
     }
-  
+
     requestWake(): boolean {
       return this.sensorConnector.requestLaunch();
     }
@@ -81,7 +86,7 @@ export class SensorConnectorManager extends SensorManager {
     handleCommunicationError = () => {
       this.onCommunicationError();
     }
-    
+
     handleSensorConnect = () => {
         const statusReceived = this.sensorConnector.currentActionArgs,
             config = statusReceived[1];

@@ -307,7 +307,15 @@ export class App extends React.Component<AppProps, AppState> {
         const wiredConnected = this.state.sensorManager instanceof SensorConnectorManager;
         if (wiredConnected) {
             //TODO: disconnect sensor connector manager
-            console.log("disconnect wired");
+            if (this.state.sensorManager instanceof SensorConnectorManager) {
+                this.state.sensorManager.removeListeners();
+            }
+            this.removeSensorManagerListeners();
+            this.setState({
+                sensorManager: null,
+                sensorConfig: null,
+                statusMessage: this.messages["no_sensors"]
+            });
         } else {
             const sensorManager = new SensorConnectorManager();
             this.setState({ sensorManager }, () => {
@@ -329,10 +337,13 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     disconnectWirelessDevice = () => {
+        //to do, clear config and then call onSensorStatus to update sensorSlots
         this.disconnectFromDevice();
         this.removeSensorManagerListeners();
         this.setState({
-            sensorManager: null
+            sensorManager: null,
+            sensorConfig: null,
+            statusMessage: this.messages["no_sensors"]
         });
     }
 
