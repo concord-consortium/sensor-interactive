@@ -305,7 +305,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
       this.stopRequested = true;
     }
 
-    async connectToDevice(device?: any) {
+    async connectToDevice(device?: any): Promise<boolean> {
       if (device) {
         this.device = device;
       } else {
@@ -326,6 +326,8 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
 
       // Make the green led go solid so we know we are connected
       this.turnOnGreenLED();
+
+      return true;
     }
 
     async turnOnGreenLED() {

@@ -68,7 +68,8 @@ export const SensorStrings:ISensorStrings = {
       "sensor_or_device_unplugged": "The __sensor_or_device_name__ was unplugged. Try plugging it back in, and then click \"$t(sensor.messages.try_again)\".",
       "try_again": "Try Again",
       "cancel": "Cancel",
-      "check_save": "Pressing New Run without pressing Save Data will discard the current data. Set up a new run without saving the data first?"
+      "check_save": "Pressing New Run without pressing Save Data will discard the current data. Set up a new run without saving the data first?",
+      "bluetooth_connection_failed": "Failed to connect to bluetooth sensor. Try connecting to the sensor again.",
     },
     "measurements": {
       "sensor_reading": "Sensor Reading",

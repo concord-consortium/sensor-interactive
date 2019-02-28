@@ -17,7 +17,7 @@ export interface ConnectableSensorManager {
   // The sensor-interactive code will use connectToDevice to determine
   // if the sensorManager instance implements ConnectableSensorManager
   // typescript doesn't have runtime type checking
-  connectToDevice: (device?: any) => void;
+  connectToDevice: (device?: any) => Promise<boolean>;
   disconnectFromDevice: () => void;
   deviceConnected: boolean;
 }

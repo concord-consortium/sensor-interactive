@@ -128,7 +128,7 @@ export class SensorGDXManager extends SensorManager {
       return batteryLevel;
     }
 
-    async connectToDevice(device?: any) {
+    async connectToDevice(device?: any): Promise<boolean> {
       this.gdxDevice = await godirect.createDevice(device);
 
       if(!this.gdxDevice) {

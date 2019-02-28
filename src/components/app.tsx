@@ -38,6 +38,7 @@ export interface AppState {
     secondGraph:boolean;
     xStart:number;
     xEnd:number;
+    bluetoothErrorModal:boolean;
 }
 
 function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo) {
@@ -173,7 +174,8 @@ export class App extends React.Component<AppProps, AppState> {
             warnNewModal:false,
             reconnectModal:false,
             statusMessage:undefined,
-            secondGraph:false
+            secondGraph:false,
+            bluetoothErrorModal:false
         };
 
         this.messages = SensorStrings.messages as IStringMap;
@@ -204,6 +206,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.toggleWarning = this.toggleWarning.bind(this);
         this.toggleGraph = this.toggleGraph.bind(this);
         this.reload = this.reload.bind(this);
+        this.closeBluetoothErrorModal = this.closeBluetoothErrorModal.bind(this);
     }
 
     passedSensorManager = () => {
@@ -363,26 +366,47 @@ export class App extends React.Component<AppProps, AppState> {
             });
 
             console.log(wirelessDevice);
+            if(!wirelessDevice) {
+                this.setState({
+                    bluetoothErrorModal: true
+                });
+                return;
+            }
+
             const isGDX = wirelessDevice.name.includes("GDX");
             let sensorManager;
             if (isGDX) {
-                console.log("create sensorGDXManager")
                 sensorManager = new SensorGDXManager();
             } else {
-                console.log("create sensorTagManager")
                 sensorManager = new SensorTagManager();
+            }
+            if(!sensorManager) {
+                this.setState({
+                    bluetoothErrorModal: true
+                });
+                return;
             }
 
             this.removeSensorManagerListeners();
 
             this.setState({ sensorManager }, () => {
-                    this.addSensorManagerListeners();
-                    this.state.sensorManager!.startPolling();
-                    if(isConnectableSensorManager(this.state.sensorManager)) {
-                        this.state.sensorManager.connectToDevice(wirelessDevice);
-                    }
+
+                if(isConnectableSensorManager(this.state.sensorManager)) {
+
+                    this.state.sensorManager.connectToDevice(wirelessDevice).then(val => {
+                        if(!val) {
+                            console.log("failed");
+                            this.setState({
+                                bluetoothErrorModal: true
+                            });
+                        } else {
+                            this.addSensorManagerListeners();
+                            this.state.sensorManager!.startPolling();
+                        }
+                    });
                 }
-            );
+
+            });
         } catch (err) {
             console.log("No wireless device selected");
         }
@@ -670,6 +694,12 @@ export class App extends React.Component<AppProps, AppState> {
         });
     }
 
+    closeBluetoothErrorModal() {
+        this.setState({
+            bluetoothErrorModal: false
+        });
+    }
+
     discardData() {
         this.closeWarnNewModal();
         this.newData();
@@ -795,6 +825,14 @@ export class App extends React.Component<AppProps, AppState> {
                     <p>{this.messages["sensor_not_attached"]}</p>
                     <hr/>
                     <button onClick={this.tryReconnectModal}>Try again</button>
+                </ReactModal>
+                <ReactModal className="sensor-dialog-content"
+                            overlayClassName="sensor-dialog-overlay"
+                            contentLabel="Bluetooth connection failed"
+                            isOpen={this.state.bluetoothErrorModal} >
+                    <p>{this.messages["bluetooth_connection_failed"]}</p>
+                    <hr/>
+                    <button onClick={this.closeBluetoothErrorModal}>Ok</button>
                 </ReactModal>
                 <div className="app-content">
                     <div className="app-top-bar">
