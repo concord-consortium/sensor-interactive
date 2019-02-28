@@ -13,6 +13,7 @@ export class SensorGDXManager extends SensorManager {
     private disconnectRequested: boolean = false;
     private gdxDevice: any;
     private enabledSensors: any;
+    private initialColumnNum = 100;
 
     constructor() {
       super();
@@ -62,10 +63,9 @@ export class SensorGDXManager extends SensorManager {
 
     pollSensor() {
       const readLiveData = async () => {
-        let colNum = 100;
         if (!this.disconnectRequested) {
           this.enabledSensors.forEach((sensor: any, index: number) => {
-              const cNum = colNum + index;
+              const cNum = this.initialColumnNum + index;
               this.internalConfig.columns[cNum].liveValue = sensor.value.toString();
           });
           this.sendSensorConfig(false);
@@ -84,9 +84,8 @@ export class SensorGDXManager extends SensorManager {
       let startCollectionTime = Date.now();
 
       const readData = async () => {
-        let colNum = 100;
         this.enabledSensors.forEach((sensor: any, index: number) => {
-            const cNum = colNum + index;
+            const cNum = this.initialColumnNum + index;
             const time = Date.now() - startCollectionTime;
             // console.log("Sensor: " + sensor.name + " /  value: " + sensor.value + " /  units: " + sensor.unit);
             this.updateSensorValue(cNum.toString(), time / 1000, sensor.value);
@@ -160,15 +159,14 @@ export class SensorGDXManager extends SensorManager {
       });
 
       //read the enabled sensors and construct columns
-      let colNum = 100;
       let columns: any = {};
       let sets: any = {};
-      sets[colNum.toString()] = {
+      sets[this.initialColumnNum.toString()] = {
         name: "Run 1",
         colIDs: []
       }
       this.enabledSensors.forEach((sensor: any, index: number) => {
-        const cNum = colNum + index;
+        const cNum = this.initialColumnNum + index;
         //TODO: need to convert their units to our units
         let newUnits = sensor.unit; //this.convertUnits(sensor.unit);
         let col = {
@@ -183,7 +181,7 @@ export class SensorGDXManager extends SensorManager {
           valuesTimeStamp: new Date()
         }
         columns[cNum.toString()] = col;
-        sets[colNum.toString()].colIDs.push(cNum);
+        sets[this.initialColumnNum.toString()].colIDs.push(cNum);
       });
       this.internalConfig.columns = columns;
       this.internalConfig.sets = sets;
@@ -217,6 +215,11 @@ export class SensorGDXManager extends SensorManager {
       this.disconnectRequested = true;
 
       this.gdxDevice.close();
+
+      this.enabledSensors.forEach((sensor: any, index: number) => {
+        const cNum = this.initialColumnNum + index;
+        this.internalConfig.columns[cNum].liveValue = "NaN";
+      });
 
       // Resend the sensorconfig so the UI udpates after the disconnection
       this.sendSensorConfig(true);
