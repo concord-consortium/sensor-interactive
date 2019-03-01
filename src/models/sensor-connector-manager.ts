@@ -49,7 +49,6 @@ export class SensorConnectorManager extends SensorManager {
     }
 
     removeListeners() {
-      console.log("turn off listeners...");
       this.sensorConnector.off();
     }
 
