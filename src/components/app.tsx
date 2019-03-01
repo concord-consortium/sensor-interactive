@@ -11,7 +11,7 @@ import { IStringMap, SensorStrings, SensorDefinitions, sensorTagIdentifier,
          goDirectDevicePrefix, sensorTagAddrs, goDirectServiceUUID } from "../models/sensor-definitions";
 import { SensorManager, NewSensorData, ConnectableSensorManager } from "../models/sensor-manager";
 import SmartFocusHighlight from "../utils/smart-focus-highlight";
-import { find, pull, sumBy } from "lodash";
+import { find, pull, sumBy, cloneDeep } from "lodash";
 import Button from "./smart-highlight-button";
 import { SensorConnectorManager } from "../models/sensor-connector-manager";
 import { SensorTagManager } from "../models/sensor-tag-manager";
@@ -471,7 +471,10 @@ export class App extends React.Component<AppProps, AppState> {
             if (!cache) {
                 cache = this.columnInfoCache[columnID] = [];
             }
-            cache.push(dataColumn);
+            // make a deep copy to ensure that we don't have the
+            // same date object in each cache index
+            const dataColumnClone = cloneDeep(dataColumn);
+            cache.push(dataColumnClone);
             let stuck = false;
             if (cache.length > 4) {
                 stuck = true;
