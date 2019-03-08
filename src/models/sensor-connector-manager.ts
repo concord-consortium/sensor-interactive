@@ -40,6 +40,10 @@ export class SensorConnectorManager extends SensorManager {
       this.sensorConnector.on("launchTimedOut", this.handleCommunicationError);
     }
 
+    isWirelessDevice() {
+      return false;
+    }
+
     startPolling() {
       // triggers initial connection to SensorConnector application
       this.sensorConnector.startPolling(SENSOR_IP);

@@ -2,8 +2,37 @@ import { SensorConfiguration } from "./sensor-configuration";
 import { SensorManager,
          NewSensorData, ConnectableSensorManager } from "./sensor-manager";
 import { SensorConfig } from "@concord-consortium/sensor-connector-interface";
-import { sensorTagIdentifier, sensorTagAddrs } from "./sensor-definitions";
 import { cloneDeep } from "lodash";
+
+const tagIdentifier = 0xaa80;
+interface ISensorAddrs {
+  service: string;
+  data: string;
+  config: string;
+}
+
+const tagAddrs: { [index:string] : ISensorAddrs } = {
+  luxometer: {
+    service: 'f000aa70-0451-4000-b000-000000000000',
+    data: 'f000aa71-0451-4000-b000-000000000000',
+    config: 'f000aa72-0451-4000-b000-000000000000'
+  },
+  humidity: {
+    service: 'f000aa20-0451-4000-b000-000000000000',
+    data: 'f000aa21-0451-4000-b000-000000000000', // TempLSB:TempMSB:HumidityLSB:HumidityMSB
+    config: 'f000aa22-0451-4000-b000-000000000000'
+  },
+  IRTemperature: {
+    service: 'f000aa00-0451-4000-b000-000000000000',
+    data: 'f000aa01-0451-4000-b000-000000000000', // ObjectLSB:ObjectMSB:AmbientLSB:AmbientMSB
+    config: 'f000aa02-0451-4000-b000-000000000000'
+  },
+  IO: {
+    service: 'f000aa64-0451-4000-b000-000000000000',
+    data: 'f000aa65-0451-4000-b000-000000000000',
+    config: 'f000aa66-0451-4000-b000-000000000000'
+  }
+};
 
 // http://processors.wiki.ti.com/index.php/CC2650_SensorTag_User%27s_Guide
 const IR_SCALE_LSB = 0.03125;
@@ -183,12 +212,27 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
       // this.sensorConfig = new SensorConfiguration(this.internalConfig);
     }
 
+    static getOptionalServices() {
+      return [tagAddrs.luxometer.service,
+              tagAddrs.humidity.service,
+              tagAddrs.IRTemperature.service,
+              tagAddrs.IO.service];
+    }
+
+    static getWirelessFilters() {
+      return [{ services: [tagIdentifier] }];
+    }
+
     sendSensorConfig(includeOnConnect:boolean) {
       let sensorConfig = new SensorConfiguration(this.internalConfig);
       if(includeOnConnect) {
         this.onSensorConnect(sensorConfig);
       }
       this.onSensorStatus(sensorConfig);
+    }
+
+    isWirelessDevice() {
+      return true;
     }
 
     startPolling() {
@@ -282,11 +326,11 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
       } else {
         // Step 1: ask for a device
         this.device = await navigator.bluetooth.requestDevice({
-          filters: [{ services: [sensorTagIdentifier] }],
-          optionalServices: [sensorTagAddrs.luxometer.service,
-                             sensorTagAddrs.humidity.service,
-                             sensorTagAddrs.IRTemperature.service,
-                             sensorTagAddrs.IO.service]
+          filters: [{ services: [tagIdentifier] }],
+          optionalServices: [tagAddrs.luxometer.service,
+                             tagAddrs.humidity.service,
+                             tagAddrs.IRTemperature.service,
+                             tagAddrs.IO.service]
         });
       }
       // Step 2: Connect to device
@@ -308,7 +352,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
 
       // Get the IO service
       const service =
-        await this.server.getPrimaryService(sensorTagAddrs.IO.service);
+        await this.server.getPrimaryService(tagAddrs.IO.service);
 
       // The order is important, by default the data value is 0x7F which
       // is enables flashing lights and beep. Not fun!
@@ -316,12 +360,12 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
 
       // Set data so the green led will turn on when remote control is set
       const dataChar =
-        await service.getCharacteristic(sensorTagAddrs.IO.data);
+        await service.getCharacteristic(tagAddrs.IO.data);
       await dataChar.writeValue(new Uint8Array([0x02]));
 
       // Enable Remote IO control
       const configChar =
-        await service.getCharacteristic(sensorTagAddrs.IO.config);
+        await service.getCharacteristic(tagAddrs.IO.config);
       await configChar.writeValue(new Uint8Array([0x01]));
     }
 
@@ -354,7 +398,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
     }
 
     async setupSensor(sensorDescription:any) {
-      const sensorAddrs = sensorTagAddrs[sensorDescription.sensorName];
+      const sensorAddrs = tagAddrs[sensorDescription.sensorName];
 
       // Step 3: Get the Service
       const service = await this.server.getPrimaryService(sensorAddrs.service);

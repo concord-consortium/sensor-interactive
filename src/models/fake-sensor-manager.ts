@@ -4,7 +4,7 @@ import { SensorConfig } from "@concord-consortium/sensor-connector-interface";
 
 export class FakeSensorManager extends SensorManager {
     supportsDualCollection = true;
-    
+
     // private sensorConfig: SensorConfiguration;
     private internalConfig: SensorConfig;
     private hasData: boolean = false;
@@ -69,6 +69,10 @@ export class FakeSensorManager extends SensorManager {
         }
       };
       // this.sensorConfig = new SensorConfiguration(this.internalConfig);
+    }
+
+    isWirelessDevice() {
+      return false;
     }
 
     startPolling() {

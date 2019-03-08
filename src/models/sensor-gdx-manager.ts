@@ -3,6 +3,12 @@ import { SensorManager, NewSensorData } from "./sensor-manager";
 import { SensorConfig } from "@concord-consortium/sensor-connector-interface";
 import godirect from "@vernier/godirect"
 
+const goDirectServiceUUID = "d91714ef-28b9-4f91-ba16-f0d9a604f112";
+const goDirectDevicePrefix = "GDX";
+
+const POLLING_INTERVAL = 1000;
+const READ_DATA_INTERVAL = 10;
+
 export class SensorGDXManager extends SensorManager {
     supportsDualCollection = true;
 
@@ -40,6 +46,14 @@ export class SensorGDXManager extends SensorManager {
       };
     }
 
+    static getOptionalServices() {
+      return [goDirectServiceUUID];
+    }
+
+    static getWirelessFilters() {
+      return [{ namePrefix: [goDirectDevicePrefix] }];
+    }
+
     sendSensorConfig(includeOnConnect:boolean) {
       let sensorConfig = new SensorConfiguration(this.internalConfig);
       if (includeOnConnect) {
@@ -55,8 +69,12 @@ export class SensorGDXManager extends SensorManager {
       setInterval(() => {
         //TODO: do we need to cancel while collecting or while disconnected?
         this.pollSensor();
-      }, 1000);
+      }, POLLING_INTERVAL);
 
+    }
+
+    isWirelessDevice() {
+      return true;
     }
 
     pollSensor() {
@@ -91,7 +109,7 @@ export class SensorGDXManager extends SensorManager {
 
         if (!this.stopRequested) {
           // Repeat
-          setTimeout(readData, 10);
+          setTimeout(readData, READ_DATA_INTERVAL);
         } else {
           this.onSensorCollectionStopped();
           this.stopRequested = false;

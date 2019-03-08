@@ -29,6 +29,7 @@ export abstract class SensorManager {
   abstract hasSensorData() : boolean;
   abstract requestStart() : void;
   abstract requestStop() : void;
+  abstract isWirelessDevice() : boolean;
 
   isAwake() : boolean {
     return true;

@@ -135,6 +135,10 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
       this.onSensorStatus(sensorConfig);
     }
 
+    isWirelessDevice() {
+      return true;
+    }
+
     startPolling() {
       setTimeout(() => {
         this.sendSensorConfig(true);

@@ -655,35 +655,3 @@ export const SensorDefinitions:ISensorDefinitions = {
     "maxReading": 35.0
   }
 };
-
-export const sensorTagIdentifier = 0xaa80; // used to identify sensor tag
-export const goDirectDevicePrefix = "GDX"; // used to identify go direct sensors
-export const goDirectServiceUUID = "d91714ef-28b9-4f91-ba16-f0d9a604f112";
-export interface ISensorAddrs {
-  service: string;
-  data: string;
-  config: string;
-}
-
-export const sensorTagAddrs: { [index:string] : ISensorAddrs } = {
-  luxometer: {
-    service: 'f000aa70-0451-4000-b000-000000000000',
-    data: 'f000aa71-0451-4000-b000-000000000000',
-    config: 'f000aa72-0451-4000-b000-000000000000'
-  },
-  humidity: {
-    service: 'f000aa20-0451-4000-b000-000000000000',
-    data: 'f000aa21-0451-4000-b000-000000000000', // TempLSB:TempMSB:HumidityLSB:HumidityMSB
-    config: 'f000aa22-0451-4000-b000-000000000000'
-  },
-  IRTemperature: {
-    service: 'f000aa00-0451-4000-b000-000000000000',
-    data: 'f000aa01-0451-4000-b000-000000000000', // ObjectLSB:ObjectMSB:AmbientLSB:AmbientMSB
-    config: 'f000aa02-0451-4000-b000-000000000000'
-  },
-  IO: {
-    service: 'f000aa64-0451-4000-b000-000000000000',
-    data: 'f000aa65-0451-4000-b000-000000000000',
-    config: 'f000aa66-0451-4000-b000-000000000000'
-  }
-};
