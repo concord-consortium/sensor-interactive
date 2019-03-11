@@ -315,9 +315,13 @@ export class App extends React.Component<AppProps, AppState> {
 
     async connectWirelessDevice() {
         try {
-            let optionalServices = SensorTagManager.getOptionalServices();
-            optionalServices = optionalServices.concat(SensorGDXManager.getOptionalServices());
-            let wirelessFilters: any[] = SensorTagManager.getWirelessFilters();
+            let optionalServices: any[] = [];
+            let wirelessFilters: any[] = [];
+            [SensorTagManager, SensorGDXManager].forEach(mgrClass => {
+              optionalServices.push(...mgrClass.getOptionalServices());
+              wirelessFilters.push(...mgrClass.getWirelessFilters());
+            });
+
             wirelessFilters = wirelessFilters.concat(SensorGDXManager.getWirelessFilters());
             // Step 1: ask for a device
             console.log("Displaying matching wireless devices...");
@@ -667,7 +671,11 @@ export class App extends React.Component<AppProps, AppState> {
         if (sensorManager) {
             sensorManager.requestSleep();
             // pause before attempting to reload SensorConnector
-            setTimeout(() => sensorManager.requestWake(), SLEEP_WAKE_DELAY_SEC * 1000);
+            setTimeout(() => {
+                if (sensorManager) {
+                    sensorManager.requestWake();
+                }
+            }, SLEEP_WAKE_DELAY_SEC * 1000);
         }
     }
 
