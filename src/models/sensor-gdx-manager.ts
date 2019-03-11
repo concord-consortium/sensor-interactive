@@ -67,7 +67,7 @@ export class SensorGDXManager extends SensorManager {
         this.sendSensorConfig(true);
       }, 10);
       setInterval(() => {
-        //TODO: do we need to cancel while collecting or while disconnected?
+        // TODO: do we need to cancel while collecting or while disconnected?
         this.pollSensor();
       }, POLLING_INTERVAL);
 
@@ -157,6 +157,12 @@ export class SensorGDXManager extends SensorManager {
       // log disconnection
       this.gdxDevice.on("device-closed", () => {
         console.log("Disconnected from GDX device " + this.gdxDevice.name);
+        if (!this.disconnectRequested) {
+          // user did not request disconnect, something went wrong!
+          this.disconnectRequested = true;
+          this.clearConfigLiveValues();
+          this.onSensorDisconnect();
+        }
       });
 
       // turn on any default sensors
@@ -179,7 +185,7 @@ export class SensorGDXManager extends SensorManager {
         console.log("Sensor: " + sensor.name + " /  value: " + sensor.value + " /  units: " + sensor.unit);
       });
 
-      //read the enabled sensors and construct columns
+      // read the enabled sensors and construct columns
       let columns: any = {};
       let sets: any = {};
       sets[this.initialColumnNum.toString()] = {
@@ -217,6 +223,16 @@ export class SensorGDXManager extends SensorManager {
       return true;
     }
 
+    clearConfigLiveValues() {
+      this.enabledSensors.forEach((sensor: any, index: number) => {
+        const cNum = this.initialColumnNum + index;
+        this.internalConfig.columns[cNum].liveValue = "NaN";
+      });
+
+      // Resend the sensorconfig so the UI udpates after the disconnection
+      this.sendSensorConfig(true);
+    }
+
     async disconnectFromDevice() {
       if (!this.deviceConnected) {
         return;
@@ -226,13 +242,8 @@ export class SensorGDXManager extends SensorManager {
 
       this.gdxDevice.close();
 
-      this.enabledSensors.forEach((sensor: any, index: number) => {
-        const cNum = this.initialColumnNum + index;
-        this.internalConfig.columns[cNum].liveValue = "NaN";
-      });
-
-      // Resend the sensorconfig so the UI udpates after the disconnection
-      this.sendSensorConfig(true);
+      this.clearConfigLiveValues();
     }
+
 }
 

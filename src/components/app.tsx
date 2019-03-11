@@ -39,6 +39,7 @@ export interface AppState {
     xStart:number;
     xEnd:number;
     bluetoothErrorModal:boolean;
+    disconnectionWarningModal:boolean;
 }
 
 function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo) {
@@ -143,13 +144,15 @@ export class App extends React.Component<AppProps, AppState> {
             reconnectModal:false,
             statusMessage:undefined,
             secondGraph:false,
-            bluetoothErrorModal:false
+            bluetoothErrorModal:false,
+            disconnectionWarningModal:false
         };
 
         this.messages = SensorStrings.messages as IStringMap;
         this.connectCodap = this.connectCodap.bind(this);
 
         this.onSensorConnect = this.onSensorConnect.bind(this);
+        this.onSensorDisconnect = this.onSensorDisconnect.bind(this);
         this.onSensorData = this.onSensorData.bind(this);
         this.onSensorStatus = this.onSensorStatus.bind(this);
         this.onSensorCollectionStopped = this.onSensorCollectionStopped.bind(this);
@@ -175,6 +178,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.toggleGraph = this.toggleGraph.bind(this);
         this.reload = this.reload.bind(this);
         this.closeBluetoothErrorModal = this.closeBluetoothErrorModal.bind(this);
+        this.closeDisconnectionWarningModal = this.closeDisconnectionWarningModal.bind(this);
     }
 
     passedSensorManager = () => {
@@ -230,6 +234,19 @@ export class App extends React.Component<AppProps, AppState> {
         }
     }
 
+    // only used when a sensor is disconnected through an action external to the
+    // sensor-interactive interface (e.g., device is turned off, device runs out
+    // of battery power, device malfunctions)
+    onSensorDisconnect() {
+        this.removeSensorManagerListeners();
+        this.setState({
+            sensorManager: null,
+            sensorConfig: null,
+            statusMessage: this.messages["no_sensors"],
+            disconnectionWarningModal: true
+        });
+   }
+
     handleSensorSelect = (sensorIndex:number, columnID:string) => {
         let { sensorSlots } = this.state,
             sensors = sensorSlots.map((slot) => slot.sensor);
@@ -256,6 +273,7 @@ export class App extends React.Component<AppProps, AppState> {
         const { sensorManager } = this.state;
         if (sensorManager) {
             sensorManager.addListener("onSensorConnect", this.onSensorConnect);
+            sensorManager.addListener("onSensorDisconnect", this.onSensorDisconnect);
             sensorManager.addListener("onSensorData", this.onSensorData);
             sensorManager.addListener("onSensorStatus", this.onSensorStatus);
             sensorManager.addListener("onCommunicationError", this.onCommunicationError);
@@ -266,6 +284,7 @@ export class App extends React.Component<AppProps, AppState> {
         const { sensorManager } = this.state;
         if (sensorManager) {
             sensorManager.removeListener("onSensorConnect", this.onSensorConnect);
+            sensorManager.removeListener("onSensorDisconnect", this.onSensorDisconnect);
             sensorManager.removeListener("onSensorData", this.onSensorData);
             sensorManager.removeListener("onSensorStatus", this.onSensorStatus);
             sensorManager.removeListener("onCommunicationError", this.onCommunicationError);
@@ -413,7 +432,7 @@ export class App extends React.Component<AppProps, AppState> {
         if (sensorManager) {
             sensorManager!.removeListener('onSensorCollectionStopped',
             this.onSensorCollectionStopped);
-          }
+        }
     }
 
     // This should only be called while we are collecting
@@ -691,6 +710,12 @@ export class App extends React.Component<AppProps, AppState> {
         });
     }
 
+    closeDisconnectionWarningModal() {
+        this.setState({
+            disconnectionWarningModal: false
+        });
+    }
+
     discardData() {
         this.closeWarnNewModal();
         this.newData();
@@ -832,6 +857,14 @@ export class App extends React.Component<AppProps, AppState> {
                     <p>{this.messages["bluetooth_connection_failed"]}</p>
                     <hr/>
                     <button onClick={this.closeBluetoothErrorModal}>Ok</button>
+                </ReactModal>
+                <ReactModal className="sensor-dialog-content"
+                            overlayClassName="sensor-dialog-overlay"
+                            contentLabel="Sensor disconnection warning"
+                            isOpen={this.state.disconnectionWarningModal} >
+                    <p>{this.messages["sensor_disconnection_warning"]}</p>
+                    <hr/>
+                    <button onClick={this.closeDisconnectionWarningModal}>Ok</button>
                 </ReactModal>
                 <div className="app-content">
                     <div className="app-top-bar">

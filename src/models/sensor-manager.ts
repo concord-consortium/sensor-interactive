@@ -84,6 +84,10 @@ export abstract class SensorManager {
     this.notifyListeners('onSensorConnect', sensorConfig);
   }
 
+  protected onSensorDisconnect() {
+    this.notifyListeners('onSensorDisconnect');
+  }
+
   protected onSensorData(newData:NewSensorData) {
     this.notifyListeners('onSensorData', newData);
   }

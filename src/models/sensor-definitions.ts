@@ -70,6 +70,7 @@ export const SensorStrings:ISensorStrings = {
       "cancel": "Cancel",
       "check_save": "Pressing New Run without pressing Save Data will discard the current data. Set up a new run without saving the data first?",
       "bluetooth_connection_failed": "Failed to connect to Bluetooth sensor. Try connecting to the sensor again. If the problem persists, try restarting the sensor, refreshing your browser, unpairing and repairing the sensor, or turning your system's Bluetooth off and then on.",
+      "sensor_disconnection_warning": "Bluetooth sensor disconnection detected. Check Bluetooth sensor power and battery level before attempting reconnection.",
     },
     "measurements": {
       "sensor_reading": "Sensor Reading",
