@@ -135,6 +135,10 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
       this.onSensorStatus(sensorConfig);
     }
 
+    isWirelessDevice() {
+      return true;
+    }
+
     startPolling() {
       setTimeout(() => {
         this.sendSensorConfig(true);
@@ -225,7 +229,7 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
       this.stopRequested = true;
     }
 
-    async connectToDevice() {
+    async connectToDevice(): Promise<boolean> {
       // ask for a device
       this.device = await navigator.bluetooth.requestDevice({
           filters: [{ namePrefix:  "Thermoscope" }],
@@ -237,6 +241,8 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
 
       // Resend the sensorconfig so the UI udpates after the connection
       this.sendSensorConfig(true);
+
+      return true;
     }
 
     get deviceConnected() {

@@ -40,12 +40,20 @@ export class SensorConnectorManager extends SensorManager {
       this.sensorConnector.on("launchTimedOut", this.handleCommunicationError);
     }
 
+    isWirelessDevice() {
+      return false;
+    }
+
     startPolling() {
       // triggers initial connection to SensorConnector application
       this.sensorConnector.startPolling(SENSOR_IP);
 
       // Try to stop it from collecting in case it was left in a collecting state
       this.sensorConnector.requestStop();
+    }
+
+    removeListeners() {
+      this.sensorConnector.off();
     }
 
     hasSensorData() {
@@ -73,7 +81,7 @@ export class SensorConnectorManager extends SensorManager {
     requestSleep() {
       this.sensorConnector.requestExit();
     }
-  
+
     requestWake(): boolean {
       return this.sensorConnector.requestLaunch();
     }
@@ -81,7 +89,7 @@ export class SensorConnectorManager extends SensorManager {
     handleCommunicationError = () => {
       this.onCommunicationError();
     }
-    
+
     handleSensorConnect = () => {
         const statusReceived = this.sensorConnector.currentActionArgs,
             config = statusReceived[1];
