@@ -691,8 +691,8 @@ export class App extends React.Component<AppProps, AppState> {
             sensorManager.requestSleep();
             // pause before attempting to reload SensorConnector
             setTimeout(() => {
-                if (sensorManager) {
-                    sensorManager.requestWake();
+                if (this.state.sensorManager) {
+                    this.state.sensorManager.requestWake();
                 }
             }, SLEEP_WAKE_DELAY_SEC * 1000);
         }
