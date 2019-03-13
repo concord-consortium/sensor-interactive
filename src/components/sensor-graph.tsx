@@ -6,7 +6,7 @@ import { GraphSidePanel } from "./graph-side-panel";
 import { SensorConfigColumnInfo } from "@concord-consortium/sensor-connector-interface";
 import { Format } from "../utils/format";
 
-const kSidePanelWidth = 200;
+const kSidePanelWidth = 20;
 
 interface SensorGraphProps {
     width:number|null;
@@ -72,7 +72,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
 
     zeroSensor = () => {
-        if(this.props.sensorSlot.sensor) {
+        if (this.props.sensorSlot.sensor) {
           this.props.sensorSlot.sensor.zeroSensor();
           this.setState(this.state);
         }
@@ -80,7 +80,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
 
     componentWillReceiveProps(nextProps:SensorGraphProps) {
         const { dataReset } = this.props;
-        if(!dataReset && nextProps.dataReset) {
+        if (!dataReset && nextProps.dataReset) {
             this.lastDataIndex = 0;
 
             // if sensor type changes, revert to default axis range for sensor
@@ -156,7 +156,6 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         return (
             <div className="sensor-graph-panel">
                 {this.renderGraph(graphWidth)}
-                {this.renderSidePanel()}
             </div>
         );
     }

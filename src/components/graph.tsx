@@ -41,13 +41,13 @@ function dyGraphData(data:number[][]) {
 }
 
 export class Graph extends React.Component<GraphProps, GraphState> {
-    
+
     private dygraph:Dygraph;
     private dyUpdateProps:string[];
-    
+
     constructor(props: GraphProps) {
         super(props);
-        
+
         this.state = {
             width: this.props.width,
             height: this.props.height,
@@ -63,11 +63,11 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             xAxisFix: Format.getAxisFix('x', this.props.xMax - this.props.xMin, this.props.width),
             yAxisFix: Format.getAxisFix('y', this.props.yMax - this.props.yMin, this.props.height)
         };
-        
+
         this.dyUpdateProps = ["width", "height", "xMin", "xMax", "yMin", "yMax",
                                 "valuePrecision", "xLabel", "yLabel"];
     }
-    
+
     update():void {
         if(!this.dygraph) {
             return;
@@ -91,7 +91,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         if (this.state.data && (this.state.data.length > 1))
             this.dygraph.resetZoom();
     }
-    
+
     onRescale = (xStart:number, xEnd:number, yRanges:number[][]) => {
         var yRange = this.dygraph.yAxisRange();
         var xRange = this.dygraph.xAxisRange();
@@ -101,7 +101,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         });
         this.props.onRescale(xRange, yRange);
     }
-    
+
     componentDidMount() {
         this.dygraph = new Dygraph("sensor-graph-" + this.props.title,
             dyGraphData(this.state.data), {
@@ -133,7 +133,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             ylabel: this.state.yLabel,
             legend: "follow",
             underlayCallback: function(canvas:any, area:any, g:any) {
-                canvas.fillStyle = "rgba(255, 255, 255, 1.0)";
+                canvas.fillStyle = "rgba(238, 238, 238, 1.0)";
                 canvas.fillRect(area.x, area.y, area.w, area.h);
             }
         });
@@ -141,19 +141,19 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
     componentWillReceiveProps(nextProps:GraphProps) {
         var data = nextProps.data || [];
-        
+
         var newState:any = {};
         this.dyUpdateProps.forEach((prop)=> {
             if(nextProps[prop] !== this.props[prop]) {
                 newState[prop] = nextProps[prop];
             }
         });
-        
+
         if(data.length !== this.state.dataLength) {
             newState.data = data;
             newState.dataLength = data.length;
         }
-        
+
         if((newState.yMin != null) || (newState.yMax != null)) {
             const yMin = newState.yMin != null ? newState.yMin : this.state.yMin,
                   yMax = newState.yMax != null ? newState.yMax : this.state.yMax;
@@ -164,16 +164,16 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                   xMax = newState.xMax != null ? newState.xMax : this.state.xMax;
             newState.xAxisFix = Format.getAxisFix('x', xMax - xMin, nextProps.width);
         }
-        
+
         this.setState(newState);
     }
-    
+
     shouldComponentUpdate(nextProps:GraphProps, nextState:GraphState):boolean {
         return (nextState.data !== this.state.data) ||
                 (nextState.dataLength !== this.state.dataLength) ||
                 this.dyUpdateProps.some((prop) => nextState[prop] !== this.state[prop]);
     }
-    
+
     componentDidUpdate(prevProps:GraphProps, prevState:GraphState) {
         this.update();
     }

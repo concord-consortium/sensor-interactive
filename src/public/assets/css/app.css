@@ -1,13 +1,14 @@
 body {
-    background-color: #F9EDC3;
+    background-color: white;
     font-family: Lato, Verdana, Geneva, sans-serif;
-    font-size: 12px;
+    font-size: 14px;
+    color: blue;
     margin: 0;
     overflow: hidden;
 }
 
 input, textarea, select, button {
-    font-family: Lato, Verdana, Geneva, sans-serif;    
+    font-family: Lato, Verdana, Geneva, sans-serif;
     font-size: 12px;
 }
 
@@ -34,14 +35,20 @@ input, textarea, select, button {
 }
 
 .app-top-bar {
-    flex: 0 0 18px;
     display: flex;
-    flex-direction: row-reverse;
-    justify-content: space-between;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 }
 
+.connect-message {
+    width: 300px;
+    margin-right: 8px;
+    text-align: right;
+}
 .status-message {
-    margin-left: 8px;
+    margin-right: 8px;
+    text-align: right;
 }
 
 .two-sensors-checkbox {
@@ -91,23 +98,51 @@ input, textarea, select, button {
     user-select: none;
 }
 
+.graph-top-panel-holder {
+    display: flex;
+    flex-direction: column;
+}
+
+.graph-top-panel {
+    flex: 0 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    user-select: none;
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
 .side-panel-item {
     height: 24px;
     margin-left: 10px;
     margin-right: 10px;
 }
 
+.reading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 46px;
+    width: 80px;
+    background-color:#eee;
+    margin-right: 5px;
+}
+
 .reading-label {
-    margin-top: 8px;
+    margin-bottom: 5px;
+    font-style: italic;
+    font-size: 10px;
 }
 
 .sensor-reading-surround {
     width: 100px;
     height: 24px;
-    margin-left: 48px;
-    margin-bottom: 8px;
     background-color: white;
     border-radius: 5px;
+    margin-right: 5px;
     display: flex;
     justify-content: space-around;
     align-items: center
@@ -115,45 +150,72 @@ input, textarea, select, button {
 
 .sensor-reading {
     margin-left: 0;
-    margin-top: 6px;
-    margin-bottom: -3px;
     text-align: center;
+    color: black;
 }
 
 .sensor-label {
-    margin-top: 8px;
+    margin-top: 0px;
 }
 
 .sensor-select {
+    width: 200px;
+    height: 46px;
     background-color: #eee;
+    margin-right: 5px;
 }
 
 .zero-button {
-    width: 100px;
+    width: 70px;
+    height: 46px;
     background-color: #eee;
     border-radius: 4px;
-    margin-left: 48px;
-    margin-top: 20px;
-    margin-bottom: 10px;
+}
+
+.sensor-buttons {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+}
+
+.connection-buttons {
+    margin-top: 5px;
 }
 
 /* FIXME: This messes up the ording of the other items in the app-top-bar */
 .connect-to-device-button {
-    width: 200px;
+    width: 180px;
+    height: 46px;
+    margin-right: 5px;
     background-color: #eee;
     border-radius: 4px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: auto;
 }
+
+.add-sensor-button {
+    width: 80px;
+    height: 46px;
+    background-color: #eee;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
+.remove-sensor-button {
+    width: 80px;
+    height: 46px;
+    background-color: #eee;
+    border-radius: 4px;
+    margin-top: 5px;
+}
+
 
 .control-panel {
     z-index: 1;
-    width: 100vw;
-    flex: 0 0 44px;     /* affects .app-content:max-height */
+    width: 100%;
+    height: 44px;
     margin-top: 20px;   /* affects .app-content:max-height */
-    background-color: white;
+    background-color: #eee;
     display: flex;
+    justify-content: center;
     align-items: center;
     user-select: none;
 }
@@ -192,10 +254,16 @@ input, textarea, select, button {
     background-repeat: no-repeat;
 }
 
+.control-panel .left-controls {
+    flex-grow: 1;
+    margin-left: 10px;
+}
+
 .control-panel .right-controls {
     flex-grow: 1;
+    margin-right: 10px;
     display: flex;
-    flex-direction: row-reverse;
+    justify-content: flex-end;
 }
 
 .embed-codap-link {
@@ -206,8 +274,31 @@ input, textarea, select, button {
 .reload-page-button {
     margin-right: 8px;
     opacity: 0.5;
+    color: black;
+    cursor: pointer;
 }
 
 .reload-page-button:hover {
     opacity: 1;
+}
+
+.about-button {
+    cursor: pointer;
+}
+
+.about-icon {
+    opacity: .5;
+}
+.about-icon:hover {
+    opacity: 1;
+}
+
+.about-icon {
+    /* 25 x 25 native */
+    width: 25px;
+    height: 25px;
+    background-image: url("../images/about-icon.png");
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
 }

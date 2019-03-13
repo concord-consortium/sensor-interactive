@@ -20,6 +20,7 @@ interface IControlPanelProps {
   onNewRun: () => void;
   onSaveData: () => void;
   onReloadPage: () => void;
+  onAboutClick: () => void;
 }
 
 export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
@@ -48,22 +49,25 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
             Start
           </Button>
         );
-  
+
   function handleDurationChange(evt:React.FormEvent<HTMLSelectElement>) {
     if (props.onDurationChange)
       props.onDurationChange(Number(evt.currentTarget.value));
   }
 
-  function renderEmbedInCodapUrl(url:string|null) {
-    if (!url) return null;
-    return (
-      <a className="embed-codap-link" href={url}>Embed in CODAP</a>
-    );
-  }
-
   return (
     <div className="control-panel">
-      <div className="cc-logo" />
+
+      <div className="left-controls">
+        <div>
+          <a onClick={props.onReloadPage}
+              className="reload-page-button"
+              title="Reload All">
+              <i className="fa fa-repeat fa-2x"></i>
+          </a>
+        </div>
+      </div>
+
       <span className="duration-label">Duration:</span>
       <Select className="duration-select control-panel-select"
               onChange={handleDurationChange} value={String(props.duration)}>
@@ -84,13 +88,12 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
       </Button>
       <div className="right-controls">
         <div>
-          <a onClick={props.onReloadPage}
-              className="reload-page-button"
-              title="Reload All">
-              <i className="fa fa-repeat fa-2x"></i>
+          <a onClick={props.onAboutClick}
+              className="about-button"
+              title="About">
+              <div className="about-icon" />
           </a>
         </div>
-        {renderEmbedInCodapUrl(props.embedInCodapUrl)}
       </div>
     </div>
   );
