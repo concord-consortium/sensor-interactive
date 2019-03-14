@@ -103,8 +103,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     componentDidMount() {
+        const color = this.props.title === "graph1" ? "#007fcf" : "#da5d1d";
         this.dygraph = new Dygraph("sensor-graph-" + this.props.title,
             dyGraphData(this.state.data), {
+            color: color,
             dateWindow: [0, this.state.xMax],
             valueRange: [this.state.yMin, this.state.yMax],
             zoomCallback: this.onRescale,
@@ -133,7 +135,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             ylabel: this.state.yLabel,
             legend: "follow",
             underlayCallback: function(canvas:any, area:any, g:any) {
-                canvas.fillStyle = "rgba(238, 238, 238, 1.0)";
+                canvas.fillStyle = "rgba(248, 248, 248, 1.0)";
                 canvas.fillRect(area.x, area.y, area.w, area.h);
             }
         });
