@@ -12,10 +12,11 @@ interface IGraphTopPanelProps {
   sensorPrecision:number;
   onSensorSelect?:(sensorIndex:number, columnID:string) => void;
   onZeroSensor?:() => void;
+  onRemoveSensor?:() => void;
 }
 
 export const GraphTopPanel: React.SFC<IGraphTopPanelProps> = (props) => {
-  const { sensorSlot, onZeroSensor, onSensorSelect } = props,
+  const { sensorSlot, onZeroSensor, onRemoveSensor, onSensorSelect } = props,
         { sensor } = sensorSlot,
         tareValue = sensor.tareValue || 0,
         sensorUnitStr = sensor.valueUnit || "";
@@ -23,6 +24,11 @@ export const GraphTopPanel: React.SFC<IGraphTopPanelProps> = (props) => {
   const handleZeroSensor = () => {
     if (onZeroSensor)
       onZeroSensor();
+  };
+
+  const handleRemoveSensor = () => {
+    if (onRemoveSensor)
+      onRemoveSensor();
   };
 
   const handleSensorSelect = (evt:React.FormEvent<HTMLSelectElement>) => {
@@ -79,6 +85,12 @@ export const GraphTopPanel: React.SFC<IGraphTopPanelProps> = (props) => {
       <Button className="zero-button"
               onClick={handleZeroSensor} disabled={!enableZeroSensor}>
         Zero Sensor
+      </Button>
+      <Button className="remove-sensor-button"
+              onClick={handleRemoveSensor}>
+        <svg className="icon remove">
+          <use xlinkHref="#icon-remove"/>
+        </svg>
       </Button>
     </div>
   );

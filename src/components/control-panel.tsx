@@ -4,6 +4,7 @@ import Select from "./smart-highlight-select";
 
 interface IControlPanelProps {
   isConnectorAwake:boolean;
+  isDisabled:boolean,
   interfaceType:string;
   sensorCount:number;
   collecting:boolean;
@@ -30,21 +31,24 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
         disableStopCollecting = !props.collecting,
         disableSendData = !(props.hasData && props.dataChanged) || props.collecting,
         disableNewData = !props.hasData || props.collecting,
+        disableDuration= props.isDisabled || props.collecting,
         durationOptions = (props.durationOptions || []).map((d) => {
                             const dNum = d < 60 ? d : d / 60,
                                   dUnit = d < 60 ? 's' : 'm',
                                   dFormatted = `${dNum.toFixed(0)} ${dUnit}`;
                             return <option key={d} value={d}>{dFormatted}</option>;
                           }),
+        controlPanelClass = props.isDisabled ? "control-panel disabled" : "control-panel",
+        durationLabelClass = props.isDisabled || props.collecting ? "duration-label disabled" : "duration-label",
         startConnectingButton = (
-          <Button className="startConnection control-panel-button"
+          <Button className="start-connection control-panel-button"
                   style={{ width: 180 }}
                   onClick={props.onStartConnecting} disabled={disableStartConnecting}>
             Launch SensorConnector
           </Button>
         ),
         startCollectingButton = (
-          <Button className="startSensor control-panel-button"
+          <Button className="start-sensor control-panel-button"
                   onClick={props.onStartCollecting} disabled={disableStartCollecting}>
             Start
           </Button>
@@ -55,44 +59,45 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
       props.onDurationChange(Number(evt.currentTarget.value));
   }
 
+
   return (
-    <div className="control-panel">
+    <div className={controlPanelClass}>
 
       <div className="left-controls">
-        <div>
-          <a onClick={props.onReloadPage}
-              className="reload-page-button"
-              title="Reload All">
-              <i className="fa fa-repeat fa-2x"></i>
-          </a>
+        <div className="reload-container">
+          <svg className="icon reload" onClick={props.onReloadPage}>
+            <use xlinkHref="#icon-reload"/>
+          </svg>
+          <div className="reload-page-label">Reload</div>
         </div>
       </div>
 
-      <span className="duration-label">Duration:</span>
+      <span className={durationLabelClass}>Duration:</span>
       <Select className="duration-select control-panel-select"
-              onChange={handleDurationChange} value={String(props.duration)}>
+              onChange={handleDurationChange}
+              value={String(props.duration)}
+              disabled={disableDuration}>
         {[durationOptions]}
       </Select>
       {props.isConnectorAwake ? startCollectingButton : startConnectingButton}
-      <Button className="stopSensor control-panel-button"
+      <Button className="stop-sensor control-panel-button"
               onClick={props.onStopCollecting} disabled={disableStopCollecting}>
         Stop
       </Button>
-      <Button className="sendData control-panel-button"
+      <Button className="send-data control-panel-button"
               onClick={props.onSaveData} disabled={disableSendData}>
         Save Data
       </Button>
-      <Button className="newData control-panel-button"
+      <Button className="new-data control-panel-button"
               onClick={props.onNewRun} disabled={disableNewData}>
         New Run
       </Button>
       <div className="right-controls">
-        <div>
-          <a onClick={props.onAboutClick}
-              className="about-button"
-              title="About">
-              <div className="about-icon" />
-          </a>
+        <div className="about-container">
+          <svg className="icon about" onClick={props.onAboutClick}>
+            <use xlinkHref="#icon-about"/>
+          </svg>
+          <div className="about-label">About</div>
         </div>
       </div>
     </div>

@@ -129,6 +129,8 @@ export class App extends React.Component<AppProps, AppState> {
     constructor(props: AppProps) {
         super(props);
 
+        this.messages = SensorStrings.messages as IStringMap;
+
         this.state = {
             sensorManager:this.passedSensorManager(),
             sensorConfig:null,
@@ -145,14 +147,13 @@ export class App extends React.Component<AppProps, AppState> {
             suppressNotRespondingModal:false,
             warnNewModal:false,
             reconnectModal:false,
-            statusMessage:undefined,
+            statusMessage:this.messages["no_sensors"],
             secondGraph:false,
             bluetoothErrorModal:false,
             disconnectionWarningModal:false,
             aboutModal:false
         };
 
-        this.messages = SensorStrings.messages as IStringMap;
         this.connectCodap = this.connectCodap.bind(this);
 
         this.onSensorConnect = this.onSensorConnect.bind(this);
@@ -302,14 +303,7 @@ export class App extends React.Component<AppProps, AppState> {
     handleWiredClick = () => {
         const { sensorManager } = this.state;
         if (sensorManager instanceof SensorConnectorManager) {
-            sensorManager.removeListeners();
-            this.removeSensorManagerListeners();
-            this.setState({
-                sensorManager: null,
-                sensorConfig: null,
-                secondGraph: false,
-                statusMessage: this.messages["no_sensors"]
-            });
+            this.disconnectSensorConnector();
         } else {
             const sensorManager = new SensorConnectorManager();
             this.setState({ sensorManager }, () => {
@@ -319,6 +313,20 @@ export class App extends React.Component<AppProps, AppState> {
                     }
                 }
             );
+        }
+    }
+
+    disconnectSensorConnector = () => {
+        const { sensorManager } = this.state;
+        if (sensorManager instanceof SensorConnectorManager) {
+            sensorManager.removeListeners();
+            this.removeSensorManagerListeners();
+            this.setState({
+                sensorManager: null,
+                sensorConfig: null,
+                secondGraph: false,
+                statusMessage: this.messages["no_sensors"]
+            });
         }
     }
 
@@ -758,9 +766,20 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     removeGraph() {
-        const secondGraph = false;
-        this.setState({ secondGraph });
-        this.codap.updateInteractiveState({ secondGraph });
+        let { secondGraph, sensorManager } = this.state;
+        if (secondGraph) {
+            // remove the second graph
+            secondGraph = false;
+            this.setState({ secondGraph });
+            this.codap.updateInteractiveState({ secondGraph });
+        } else {
+            // disconnect entirely
+            if (sensorManager && sensorManager.isWirelessDevice()) {
+                this.disconnectWirelessDevice();
+            } else if (sensorManager instanceof SensorConnectorManager) {
+                this.disconnectSensorConnector();
+            }
+        }
     }
 
     reload() {
@@ -808,18 +827,18 @@ export class App extends React.Component<AppProps, AppState> {
         const wiredConnected = sensorManager && !sensorManager.isWirelessDevice();
         if (!this.props.sensorManager) {
             return <div className="connection-buttons">
-                { !wirelessConnected ?
-                <button className="connect-to-device-button smart-focus-highlight disable-focus-highlight"
-                        onClick={this.handleWiredClick}
-                        disabled={wirelessConnected || this.state.collecting}>
-                    {wiredConnected ? "Disconnect Device" : "Wired Sensor"}
-                </button>
-                : null }
-                { !wiredConnected ?
+                { !wiredConnected && !wirelessConnected ?
                 <button className="connect-to-device-button smart-focus-highlight disable-focus-highlight"
                         onClick={this.handleWirelessClick}
                         disabled={wiredConnected || this.state.collecting}>
-                    {wirelessConnected ? "Disconnect Device" : "Wireless Sensor"}
+                    Wireless Sensor
+                </button>
+                : null }
+                { !wiredConnected && !wirelessConnected ?
+                <button className="connect-to-device-button smart-focus-highlight disable-focus-highlight"
+                        onClick={this.handleWiredClick}
+                        disabled={wirelessConnected || this.state.collecting}>
+                    Wired Sensor
                 </button>
                 : null }
             </div>
@@ -843,17 +862,8 @@ export class App extends React.Component<AppProps, AppState> {
 
     renderAddSensorButton() {
         const { sensorManager } = this.state;
-        if (sensorManager && sensorManager.supportsDualCollection && !this.state.secondGraph) {
+        if (sensorManager && sensorManager.supportsDualCollection && !this.state.secondGraph && this.connectedSensorCount()>1) {
             return <Button className="add-sensor-button" onClick={this.addGraph}>+Add Sensor</Button>
-        } else {
-            return null;
-        }
-    }
-
-    renderRemoveSensorButton() {
-        const { sensorManager } = this.state;
-        if (sensorManager && sensorManager.supportsDualCollection && this.state.secondGraph) {
-            return <Button className="remove-sensor-button" onClick={this.removeGraph}>-Remove Sensor</Button>
         } else {
             return null;
         }
@@ -882,7 +892,8 @@ export class App extends React.Component<AppProps, AppState> {
                     sensorColumns={sensorColumns}
                     sensorPrecision={this.sensorPrecision(this.state.sensorSlots[0])}
                     onSensorSelect={this.handleSensorSelect}
-                    onZeroSensor={undefined} />
+                    onZeroSensor={undefined}
+                    onRemoveSensor={this.removeGraph} />
                 : null}
                 {connected && this.state.secondGraph ?
                     <GraphTopPanel
@@ -890,7 +901,8 @@ export class App extends React.Component<AppProps, AppState> {
                     sensorColumns={sensorColumns}
                     sensorPrecision={this.sensorPrecision(this.state.sensorSlots[1])}
                     onSensorSelect={this.handleSensorSelect}
-                    onZeroSensor={undefined} />
+                    onZeroSensor={undefined}
+                    onRemoveSensor={this.removeGraph} />
                 : null}
             </div>
         );
@@ -905,7 +917,7 @@ export class App extends React.Component<AppProps, AppState> {
         const wirelessConnected = sensorManager && sensorManager.isWirelessDevice();
         const wiredConnected = sensorManager && !sensorManager.isWirelessDevice();
         const isConnectorAwake = sensorManager ? sensorManager.isAwake() : true;
-
+        const wirelessIconClass = "wireless-status-icon " + (sensorManager!==null ? "connected" : null);
         return (
             <div className="app-container">
                 <ReactModal className="sensor-dialog-content"
@@ -964,15 +976,33 @@ export class App extends React.Component<AppProps, AppState> {
                 </ReactModal>
                 <div className="app-content">
                     <div className="app-top-bar">
-                        {wiredConnected || wirelessConnected ?
-                            <div className="status-message">Sensor Status: {this.state.statusMessage || "\xA0"}</div>
-                            : <div className="connect-message">{this.messages["connection_message"]}</div>
-                        }
-                        {this.renderGraphTopPanels()}
-                        <div className="sensor-buttons">
-                            {this.renderConnectionButtons()}
+                        <div className="top-bar-left-panel">
+                            <div className="status-message-holder">
+                                <div className="wireless-status-border">
+                                    <div className={wirelessIconClass}>
+                                    <div className="wireless-status-icon-hi"/>
+                                    </div>
+                                </div>
+                                <div className="status-message">{this.state.statusMessage || "\xA0"}</div>
+                            </div>
+                        </div>
+                        <div className="sensor-controls-holder">
+                            {!wiredConnected && !wirelessConnected ?
+                                <div className="connect-message-holder">
+                                    <div className="connect-message">{this.messages["connection_message"]}</div>
+                                    <div className="connect-sub-message">{this.messages["connection_sub_message"]}</div>
+                                </div>
+                                : null
+                            }
+                            <div className="sensor-buttons">
+                                {this.renderConnectionButtons()}
+                            </div>
+
+                            {this.renderGraphTopPanels()}
+
+                        </div>
+                        <div className="add-sensor-holder">
                             {this.renderAddSensorButton()}
-                            {this.renderRemoveSensorButton()}
                         </div>
                     </div>
                     <GraphsPanel
@@ -1007,6 +1037,7 @@ export class App extends React.Component<AppProps, AppState> {
                     onSaveData={this.sendData}
                     onReloadPage={this.reload}
                     onAboutClick={this.showAbout}
+                    isDisabled={sensorManager===null}
                 />
             </div>
         );
