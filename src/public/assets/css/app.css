@@ -90,10 +90,11 @@ button:active {
 }
 
 /* Sensor Status */
-.top-bar-left-panel {
+.top-bar-left-controls {
     flex-grow: 1;
     height: 100%;
     margin-left: 11px;
+    width: 200px;
 }
 
 .status-message-holder {
@@ -148,11 +149,12 @@ button:active {
 }
 
 /* Add Sensor */
-.add-sensor-holder {
+.top-bar-right-controls {
     flex-grow: 1;
     margin-right: 11px;
     display: flex;
     justify-content: flex-end;
+    width: 200px;
 }
 
 .add-sensor-button {
@@ -176,6 +178,7 @@ button:active {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     width: 110px;
     margin-left: 4px;
     margin-right: 4px;
@@ -291,6 +294,7 @@ button:active {
     font-weight: normal;
     font-style: italic;
     color: var(--sage-text);
+    margin-top: 1px;
 }
 
 .sensor-reading-surround {
@@ -346,6 +350,11 @@ button:active {
     border-bottom-right-radius: 5px;
     border: solid 1px var(--sage-dark-5);
     background-color: var(--sage-light-2);
+    margin-left: 2px;
+    margin-right: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
 }
 .remove-sensor-button:hover {

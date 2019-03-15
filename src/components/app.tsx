@@ -1004,7 +1004,7 @@ export class App extends React.Component<AppProps, AppState> {
                 </ReactModal>
                 <div className="app-content">
                     <div className="app-top-bar">
-                        <div className="top-bar-left-panel">
+                        <div className="top-bar-left-controls">
                             <div className="status-message-holder">
                                 <div className="wireless-status-border">
                                     <div className={wirelessIconClass}>
@@ -1029,7 +1029,7 @@ export class App extends React.Component<AppProps, AppState> {
                             {this.renderGraphTopPanels()}
 
                         </div>
-                        <div className="add-sensor-holder">
+                        <div className="top-bar-right-controls">
                             {this.renderAddSensorButton()}
                         </div>
                     </div>
