@@ -883,7 +883,7 @@ export class App extends React.Component<AppProps, AppState> {
 
     }
 
-    sensorPrecision(sensorSlot: any) {
+    sensorPrecision(sensorSlot: SensorSlot) {
         const sensor = sensorSlot && sensorSlot.sensor,
               sensorDefinition = sensor && sensor.definition;
         if (!sensorDefinition)
@@ -892,6 +892,16 @@ export class App extends React.Component<AppProps, AppState> {
         const sensorRange = sensorDefinition.maxReading - sensorDefinition.minReading,
                 sensorPrecision = Format.getFixValue(sensorRange);
         return sensorPrecision;
+    }
+
+    zeroSensor = (slotNum: number) => () => {
+        let sensorSlots = this.state.sensorSlots;
+        if (sensorSlots[slotNum].sensor) {
+            sensorSlots[slotNum].sensor.zeroSensor();
+            this.setState({
+                sensorSlots
+            });
+        }
     }
 
     renderGraphTopPanels() {
@@ -906,7 +916,7 @@ export class App extends React.Component<AppProps, AppState> {
                     sensorColumns={sensorColumns}
                     sensorPrecision={this.sensorPrecision(this.state.sensorSlots[0])}
                     onSensorSelect={this.handleSensorSelect}
-                    onZeroSensor={undefined}
+                    onZeroSensor={this.zeroSensor(0)}
                     onRemoveSensor={this.removeGraph}
                     showRemoveSensor={!this.props.sensorManager} />
                 : null}
@@ -916,7 +926,7 @@ export class App extends React.Component<AppProps, AppState> {
                     sensorColumns={sensorColumns}
                     sensorPrecision={this.sensorPrecision(this.state.sensorSlots[1])}
                     onSensorSelect={this.handleSensorSelect}
-                    onZeroSensor={undefined}
+                    onZeroSensor={this.zeroSensor(1)}
                     onRemoveSensor={this.removeGraph}
                     showRemoveSensor={true} />
                 : null}

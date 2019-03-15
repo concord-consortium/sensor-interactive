@@ -70,13 +70,6 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         }
     }
 
-    zeroSensor = () => {
-        if (this.props.sensorSlot.sensor) {
-          this.props.sensorSlot.sensor.zeroSensor();
-          this.setState(this.state);
-        }
-    }
-
     componentWillReceiveProps(nextProps:SensorGraphProps) {
         const { dataReset } = this.props;
         if (!dataReset && nextProps.dataReset) {
