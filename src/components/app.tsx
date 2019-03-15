@@ -870,7 +870,7 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     renderLegend() {
-        if (true) {
+        if (this.connectedSensorCount() > 0) {
             return <div className="bottom-legend">
                 <div className="bar primary" />
                 <div className="name primary">{this.state.sensorSlots[0].sensor.definition.measurementName}</div>
