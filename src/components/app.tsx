@@ -771,13 +771,20 @@ export class App extends React.Component<AppProps, AppState> {
         this.codap.updateInteractiveState({ secondGraph });
     }
 
-    removeGraph() {
-        let { secondGraph, sensorManager } = this.state;
+    removeGraph = (slotNum: number) => () => {
+        let { secondGraph, sensorManager, sensorSlots } = this.state;
         if (secondGraph) {
             // remove the second graph
             secondGraph = false;
-            this.setState({ secondGraph });
+            if (slotNum == 0) {
+                sensorSlots[0].sensor = sensorSlots[1].sensor;
+            }
+            this.setState({
+                sensorSlots: sensorSlots,
+                secondGraph: secondGraph
+            });
             this.codap.updateInteractiveState({ secondGraph });
+
         } else {
             // disconnect entirely
             if (sensorManager && sensorManager.isWirelessDevice()) {
@@ -901,7 +908,7 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     zeroSensor = (slotNum: number) => () => {
-        let sensorSlots = this.state.sensorSlots;
+        let { sensorSlots } = this.state;
         if (sensorSlots[slotNum].sensor) {
             sensorSlots[slotNum].sensor.zeroSensor();
             this.setState({
@@ -923,7 +930,7 @@ export class App extends React.Component<AppProps, AppState> {
                     sensorPrecision={this.sensorPrecision(this.state.sensorSlots[0])}
                     onSensorSelect={this.handleSensorSelect}
                     onZeroSensor={this.zeroSensor(0)}
-                    onRemoveSensor={this.removeGraph}
+                    onRemoveSensor={this.removeGraph(0)}
                     showRemoveSensor={!this.props.sensorManager} />
                 : null}
                 {connected && this.state.secondGraph ?
@@ -933,7 +940,7 @@ export class App extends React.Component<AppProps, AppState> {
                     sensorPrecision={this.sensorPrecision(this.state.sensorSlots[1])}
                     onSensorSelect={this.handleSensorSelect}
                     onZeroSensor={this.zeroSensor(1)}
-                    onRemoveSensor={this.removeGraph}
+                    onRemoveSensor={this.removeGraph(1)}
                     showRemoveSensor={true} />
                 : null}
             </div>
