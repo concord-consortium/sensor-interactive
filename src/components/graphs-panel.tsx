@@ -30,7 +30,6 @@ const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
                         title:string,
                         isSingletonGraph:boolean,
                         isLastGraph:boolean = isSingletonGraph) {
-    console.log(props.size.height);
     const sensorColumns = (props.sensorConfig && props.sensorConfig.dataColumns) || [],
           availableHeight = props.size.height && (props.size.height - 20),
           singleGraphHeight = availableHeight && (availableHeight + 8),
