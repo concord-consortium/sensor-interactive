@@ -495,12 +495,10 @@ button:active {
 
 .control-panel .left-controls {
     flex-grow: 1;
-    margin-left: 10px;
 }
 
 .control-panel .right-controls {
     flex-grow: 1;
-    margin-right: 10px;
     display: flex;
     justify-content: flex-end;
 }
@@ -515,8 +513,21 @@ button:active {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 30px;
+    width: 38px;
+    height: 38px;
     cursor: pointer;
+}
+.reload-container:hover {
+    background-color: var(--sage-dark-1);
+}
+.reload-container:active {
+    background-color: var(--sage-dark-1);
+}
+.reload-container:hover .icon.reload {
+    fill: var(--sage-dark-4);
+}
+.reload-container:active .icon.reload {
+    fill: var(--sage-dark-5);
 }
 
 .reload-page-label {
@@ -529,8 +540,21 @@ button:active {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 30px;
+    width: 38px;
+    height: 38px;
     cursor: pointer;
+}
+.about-container:hover {
+    background-color: var(--sage-dark-1);
+}
+.about-container:active {
+    background-color: var(--sage-dark-1);
+}
+.about-container:hover .icon.about {
+    fill: var(--sage-dark-4);
+}
+.about-container:active .icon.about {
+    fill: var(--sage-dark-5);
 }
 
 .about-label {
@@ -546,10 +570,4 @@ button:active {
 .icon.reload, .icon.about {
     width: 18px;
     height: 18px;
-}
-.icon.reload:hover, .icon.about:hover {
-    fill: var(--sage-dark-4);
-}
-.icon.reload:active, .icon.about:active {
-    fill: var(--sage-dark-5);
 }
