@@ -2,7 +2,6 @@ import * as React from "react";
 import { Sensor } from "../models/sensor";
 import { SensorSlot } from "../models/sensor-slot";
 import { Graph } from "./graph";
-import { GraphSidePanel } from "./graph-side-panel";
 import { SensorConfigColumnInfo } from "@concord-consortium/sensor-connector-interface";
 import { Format } from "../utils/format";
 
@@ -134,20 +133,6 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 xLabel={this.xLabel()}
                 yLabel={this.yLabel()} />
             </div>
-        );
-    }
-
-    renderSidePanel() {
-        const { collecting, hasData } = this.props,
-              onSensorSelect = !collecting && !hasData ? this.props.onSensorSelect : undefined,
-              onZeroSensor = !collecting && !hasData ? this.zeroSensor : undefined;
-        return (
-          <GraphSidePanel
-            sensorSlot={this.props.sensorSlot}
-            sensorColumns={this.props.sensorColumns}
-            sensorPrecision={this.sensorPrecision()}
-            onSensorSelect={onSensorSelect}
-            onZeroSensor={onZeroSensor} />
         );
     }
 

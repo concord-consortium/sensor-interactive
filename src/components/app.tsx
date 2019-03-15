@@ -826,7 +826,7 @@ export class App extends React.Component<AppProps, AppState> {
         const wirelessConnected = sensorManager && sensorManager.isWirelessDevice();
         const wiredConnected = sensorManager && !sensorManager.isWirelessDevice();
         if (!this.props.sensorManager) {
-            return <div className="connection-buttons">
+            return <div>
                 { !wiredConnected && !wirelessConnected ?
                 <button className="connect-to-device-button smart-focus-highlight disable-focus-highlight"
                         onClick={this.handleWirelessClick}

@@ -102,6 +102,7 @@ button:active {
     flex-direction: row;
     align-items: center;
 }
+
 .wireless-status-border {
     display: flex;
     justify-content: center;
@@ -112,6 +113,7 @@ button:active {
     border-radius: 50%;
     background-color: var(--white);
 }
+
 .wireless-status-icon {
     width: 12px;
     height: 12px;
@@ -127,6 +129,7 @@ button:active {
     border: solid 2px var(--sensor-green-dark);
     background-color: var(--sensor-green);
 }
+
 .wireless-status-icon-hi {
     margin-left: 2px;
     margin-top: 2px;
@@ -141,11 +144,157 @@ button:active {
     margin-left: 11px;
     width: 170px;
 }
+
+/* Sensor Controls */
 .sensor-controls-holder {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: left;
+}
+
+/* Connection Buttons */
+.sensor-buttons {
+    display: flex;
+    flex-direction: row;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.connect-to-device-button {
+    width: 106px;
+    height: 30px;
+    border-radius: 6px;
+    border: solid 3px var(--sage-dark-1);
+    background-color: var(--sage-light-2);
+    margin-left: 4px;
+    margin-right: 4px;
+    padding: 0px;
+    cursor: pointer;
+}
+.connect-to-device-button:hover {
+    background-color: var(--sage);
+}
+.connect-to-device-button:active {
+    border: solid 3px var(--sage-dark-3);
+    background-color: var(--sage-dark-1);
+}
+
+/* Connection Message */
+.connect-message-holder {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 110px;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.connect-message {
+    line-height: 1.1;
+}
+
+.connect-sub-message {
+    font-size: 10px;
+    font-weight: normal;
+    font-style: italic;
+    line-height: 1.1;
+}
+
+/* Sensor Selection */
+.sensor-select {
+    width: 200px;
+    height: 30px;
+    border: solid 1px var(--sage-dark-5);
+    background-color: var(--sage-light-3);
+    margin-right: 2px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    cursor: pointer;
+}
+.sensor-select:hover {
+    background-color: var(--sage-light-2);
+}
+.sensor-select:active {
+    background-color: var(--sage-light-1);
+}
+
+/* Sensor Reading */
+.reading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80px;
+    height: 28px;
+    border: solid 1px var(--sage-dark-5);
+    background-color: var(--graph-background);
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+.reading-label {
+    font-size: 9px;
+    font-weight: normal;
+    font-style: italic;
+    color: var(--sage-text);
+    margin-top: 1px;
+}
+
+.sensor-reading {
+    font-family: Arial;
+    font-size: 12px;
+    font-weight: normal;
+    font-style: normal;
+    color: var(--graph-text);
+}
+
+/* Zero Sensor */
+.zero-button {
+    width: 52px;
+    height: 30px;
+    border: solid 1px var(--sage-dark-5);
+    background-color: var(--sage-light-2);
+    line-height: 0.92;
+    text-align: center;
+    color: var(--sage-text);
+    margin-left: 2px;
+    margin-right: 2px;
+    cursor: pointer;
+}
+.zero-button:hover {
+    background-color: var(--sage);
+}
+.zero-button:active {
+    border: solid 1px var(--sage-dark-3);
+    background-color: var(--sage-dark-1);
+}
+.zero-button:disabled {
+    opacity: .35;
+    pointer-events: none;
+}
+
+/* Remove Sensor */
+.remove-sensor-button {
+    width: 30px;
+    height: 30px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border: solid 1px var(--sage-dark-5);
+    background-color: var(--sage-light-2);
+    margin-left: 2px;
+    margin-right: 2px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+.remove-sensor-button:hover {
+    background-color: var(--sage);
+}
+.remove-sensor-button:active {
+    border: solid 1px var(--sage-dark-3);
+    background-color: var(--sage-dark-1);
 }
 
 /* Add Sensor */
@@ -173,27 +322,7 @@ button:active {
     background-color: var(--sage-dark-1);
 }
 
-/* Connection Message */
-.connect-message-holder {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 110px;
-    margin-left: 4px;
-    margin-right: 4px;
-}
-.connect-message {
-    line-height: 1.1;
-}
-.connect-sub-message {
-    font-size: 10px;
-    font-weight: normal;
-    font-style: italic;
-    line-height: 1.1;
-}
-
-
+/* Graphs */
 .graphs-panel {
     flex: 1 1;
 }
@@ -254,148 +383,39 @@ button:active {
     margin-bottom: 4px;
 }
 
-.side-panel-item {
-    height: 24px;
-    margin-left: 10px;
-    margin-right: 10px;
-}
-
-.sensor-select {
-    width: 200px;
-    height: 30px;
-    border: solid 1px var(--sage-dark-5);
-    background-color: var(--sage-light-3);
-    margin-right: 2px;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    cursor: pointer;
-}
-.sensor-select:hover {
-    background-color: var(--sage-light-2);
-}
-.sensor-select:active {
-    background-color: var(--sage-light-1);
-}
-
-.reading-container {
+/* Graph Legend */
+.bottom-legend {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    width: 80px;
-    height: 28px;
-    border: solid 1px var(--sage-dark-5);
-    background-color: var(--graph-background);
-    margin-left: 2px;
-    margin-right: 2px;
-}
-
-.reading-label {
-    font-size: 9px;
-    font-weight: normal;
-    font-style: italic;
-    color: var(--sage-text);
-    margin-top: 1px;
-}
-
-.sensor-reading-surround {
-    width: 100px;
-    height: 24px;
-    background-color: white;
-    border-radius: 5px;
-    margin-right: 5px;
-    display: flex;
-    justify-content: space-around;
-    align-items: center
-}
-
-.sensor-reading {
+    position: absolute;
+    right: 14px;
+    bottom: 60px;
+    height: 20px;
     font-family: Arial;
     font-size: 12px;
     font-weight: normal;
     font-style: normal;
-    color: var(--graph-text);
+    color: black;
 }
-
-.sensor-label {
-    margin-top: 0px;
-}
-
-.zero-button {
-    width: 52px;
-    height: 30px;
-    border: solid 1px var(--sage-dark-5);
-    background-color: var(--sage-light-2);
-    line-height: 0.92;
-    text-align: center;
-    color: var(--sage-text);
-    margin-left: 2px;
+.bottom-legend .bar {
+    height: 3px;
+    width: 18px;
     margin-right: 2px;
-    cursor: pointer;
-}
-.zero-button:hover {
-    background-color: var(--sage);
-}
-.zero-button:active {
-    border: solid 1px var(--sage-dark-3);
-    background-color: var(--sage-dark-1);
-}
-.zero-button:disabled {
-    opacity: .35;
-    pointer-events: none;
-}
-.remove-sensor-button {
-    width: 30px;
-    height: 30px;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-    border: solid 1px var(--sage-dark-5);
-    background-color: var(--sage-light-2);
     margin-left: 2px;
-    margin-right: 2px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
 }
-.remove-sensor-button:hover {
-    background-color: var(--sage);
+.bottom-legend .bar.primary {
+    background-color: var(--graph-line-blue);
 }
-.remove-sensor-button:active {
-    border: solid 1px var(--sage-dark-3);
-    background-color: var(--sage-dark-1);
+.bottom-legend .bar.secondary {
+    background-color: var(--graph-line-orange);
+}
+.bottom-legend .name {
+    margin-right: 6px;
+    margin-left: 2px;
 }
 
-.sensor-buttons {
-    display: flex;
-    flex-direction: row;
-    margin-top: 4px;
-    margin-bottom: 4px;
-}
-
-.connection-buttons {
-    margin-top: 0px;
-}
-
-/* FIXME: This messes up the ording of the other items in the app-top-bar */
-.connect-to-device-button {
-    width: 106px;
-    height: 30px;
-    border-radius: 6px;
-    border: solid 3px var(--sage-dark-1);
-    background-color: var(--sage-light-2);
-    margin-left: 4px;
-    margin-right: 4px;
-    padding: 0px;
-    cursor: pointer;
-}
-.connect-to-device-button:hover {
-    background-color: var(--sage);
-}
-.connect-to-device-button:active {
-    border: solid 3px var(--sage-dark-3);
-    background-color: var(--sage-dark-1);
-}
-
+/* Bottom Control Panel */
 .control-panel {
     z-index: 1;
     width: 100%;
@@ -473,19 +493,6 @@ button:active {
     width: 70px;
 }
 
-.cc-logo {
-    /* 354 x 110 native */
-    width: 116px;
-    height: 36px;
-    min-width: 42px;
-    margin-left: 6px;
-    margin-right: 10px;
-    background-image: url("../images/cc-logo-crop.png");
-    background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-
 .control-panel .left-controls {
     flex-grow: 1;
     margin-left: 10px;
@@ -545,35 +552,4 @@ button:active {
 }
 .icon.reload:active, .icon.about:active {
     fill: var(--sage-dark-5);
-}
-
-.bottom-legend {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    right: 14px;
-    bottom: 60px;
-    height: 20px;
-    font-family: Arial;
-    font-size: 12px;
-    font-weight: normal;
-    font-style: normal;
-    color: black;
-}
-.bottom-legend .bar {
-    height: 3px;
-    width: 18px;
-    margin-right: 2px;
-    margin-left: 2px;
-}
-.bottom-legend .bar.primary {
-    background-color: var(--graph-line-blue);
-}
-.bottom-legend .bar.secondary {
-    background-color: var(--graph-line-orange);
-}
-.bottom-legend .name {
-    margin-right: 6px;
-    margin-left: 2px;
 }
