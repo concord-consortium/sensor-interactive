@@ -847,11 +847,11 @@ export class App extends React.Component<AppProps, AppState> {
             if (isConnectableSensorManager(sensorManager)) {
                 if (sensorManager.deviceConnected) {
                 return  <Button className="connect-to-device-button" onClick={this.disconnectFromDevice} >
-                            Disconnect from Device
+                            Disconnect Device
                         </Button>;
                 } else {
                 return  <Button className="connect-to-device-button" onClick={this.connectToDevice} >
-                            Connect to Device
+                            Connect Device
                         </Button>;
                 }
             } else {
@@ -863,10 +863,24 @@ export class App extends React.Component<AppProps, AppState> {
     renderAddSensorButton() {
         const { sensorManager } = this.state;
         if (sensorManager && sensorManager.supportsDualCollection && !this.state.secondGraph && this.connectedSensorCount()>1) {
-            return <Button className="add-sensor-button" onClick={this.addGraph}>+Add Sensor</Button>
+            return <Button className="add-sensor-button" onClick={this.addGraph}>+ Add A Sensor</Button>
         } else {
             return null;
         }
+    }
+
+    renderLegend() {
+        if (true) {
+            return <div className="bottom-legend">
+                <div className="bar primary" />
+                <div className="name primary">{this.state.sensorSlots[0].sensor.definition.measurementName}</div>
+                {this.state.secondGraph ? <div className="bar secondary" /> : null }
+                {this.state.secondGraph ? <div className="name secondary">{this.state.sensorSlots[1].sensor.definition.measurementName}</div> : null }
+            </div>
+        } else {
+            return null;
+        }
+
     }
 
     sensorPrecision(sensorSlot: any) {
@@ -893,7 +907,8 @@ export class App extends React.Component<AppProps, AppState> {
                     sensorPrecision={this.sensorPrecision(this.state.sensorSlots[0])}
                     onSensorSelect={this.handleSensorSelect}
                     onZeroSensor={undefined}
-                    onRemoveSensor={this.removeGraph} />
+                    onRemoveSensor={this.removeGraph}
+                    showRemoveSensor={!this.props.sensorManager} />
                 : null}
                 {connected && this.state.secondGraph ?
                     <GraphTopPanel
@@ -902,7 +917,8 @@ export class App extends React.Component<AppProps, AppState> {
                     sensorPrecision={this.sensorPrecision(this.state.sensorSlots[1])}
                     onSensorSelect={this.handleSensorSelect}
                     onZeroSensor={undefined}
-                    onRemoveSensor={this.removeGraph} />
+                    onRemoveSensor={this.removeGraph}
+                    showRemoveSensor={true} />
                 : null}
             </div>
         );
@@ -924,55 +940,67 @@ export class App extends React.Component<AppProps, AppState> {
                             overlayClassName="sensor-dialog-overlay"
                             contentLabel="SensorConnector not responding"
                             isOpen={this.state.notRespondingModal} >
+                    <div className="sensor-dialog-header">Warning</div>
                     <p>{this.messages["sensor_connector_not_responding"]}</p>
-                    <hr/>
-                    <button onClick={this.launchSensorConnector}>Launch SensorConnector</button>
-                    <button onClick={this.dismissNotRespondingModal}>Dismiss</button>
+                    <div className="sensor-dialog-buttons">
+                        <button onClick={this.launchSensorConnector}>Launch SensorConnector</button>
+                        <button onClick={this.dismissNotRespondingModal}>Dismiss</button>
+                    </div>
                 </ReactModal>
                 <ReactModal className="sensor-dialog-content"
                             overlayClassName="sensor-dialog-overlay"
                             contentLabel="Discard data?"
                             isOpen={this.state.warnNewModal} >
+                    <div className="sensor-dialog-header">Warning</div>
                     <p>{this.messages["check_save"]}</p>
                     <label>
                         <input type="checkbox" onChange={this.toggleWarning}/>
                         Don't show this message again
                     </label>
-                    <hr/>
-                    <button onClick={this.closeWarnNewModal}>Preserve Data</button>
-                    <button onClick={this.discardData}>Discard Data</button>
+                    <div className="sensor-dialog-buttons">
+                        <button onClick={this.closeWarnNewModal}>Preserve Data</button>
+                        <button onClick={this.discardData}>Discard Data</button>
+                    </div>
                 </ReactModal>
                 <ReactModal className="sensor-dialog-content"
                             overlayClassName="sensor-dialog-overlay"
                             contentLabel="Sensor not attached"
                             isOpen={this.state.reconnectModal} >
+                    <div className="sensor-dialog-header">Warning</div>
                     <p>{this.messages["sensor_not_attached"]}</p>
-                    <hr/>
-                    <button onClick={this.tryReconnectModal}>Try again</button>
+                    <div className="sensor-dialog-buttons">
+                        <button onClick={this.tryReconnectModal}>Try again</button>
+                    </div>
                 </ReactModal>
                 <ReactModal className="sensor-dialog-content"
                             overlayClassName="sensor-dialog-overlay"
                             contentLabel="Bluetooth connection failed"
                             isOpen={this.state.bluetoothErrorModal} >
+                    <div className="sensor-dialog-header">Error</div>
                     <p>{this.messages["bluetooth_connection_failed"]}</p>
-                    <hr/>
-                    <button onClick={this.closeBluetoothErrorModal}>Ok</button>
+                    <div className="sensor-dialog-buttons">
+                        <button onClick={this.closeBluetoothErrorModal}>Ok</button>
+                    </div>
                 </ReactModal>
                 <ReactModal className="sensor-dialog-content"
                             overlayClassName="sensor-dialog-overlay"
                             contentLabel="Sensor disconnection warning"
                             isOpen={this.state.disconnectionWarningModal} >
+                    <div className="sensor-dialog-header">Warning</div>
                     <p>{this.messages["sensor_disconnection_warning"]}</p>
-                    <hr/>
-                    <button onClick={this.closeDisconnectionWarningModal}>Ok</button>
+                    <div className="sensor-dialog-buttons">
+                        <button onClick={this.closeDisconnectionWarningModal}>Ok</button>
+                    </div>
                 </ReactModal>
                 <ReactModal className="sensor-dialog-content"
                             overlayClassName="sensor-dialog-overlay"
                             contentLabel="About: Sensor Interactive"
                             isOpen={this.state.aboutModal} >
+                    <div className="sensor-dialog-header">About</div>
                     <p>{this.messages["about_message"]}</p>
-                    <hr/>
-                    <button onClick={this.closeAboutModal}>Ok</button>
+                    <div className="sensor-dialog-buttons">
+                        <button onClick={this.closeAboutModal}>Ok</button>
+                    </div>
                 </ReactModal>
                 <div className="app-content">
                     <div className="app-top-bar">
@@ -1019,6 +1047,7 @@ export class App extends React.Component<AppProps, AppState> {
                         dataReset={this.state.dataReset}
                     />
                 </div>
+                {this.renderLegend()}
                 <ControlPanel
                     isConnectorAwake={isConnectorAwake}
                     interfaceType={interfaceType}

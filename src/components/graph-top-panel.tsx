@@ -13,6 +13,7 @@ interface IGraphTopPanelProps {
   onSensorSelect?:(sensorIndex:number, columnID:string) => void;
   onZeroSensor?:() => void;
   onRemoveSensor?:() => void;
+  showRemoveSensor:boolean;
 }
 
 export const GraphTopPanel: React.SFC<IGraphTopPanelProps> = (props) => {
@@ -86,12 +87,14 @@ export const GraphTopPanel: React.SFC<IGraphTopPanelProps> = (props) => {
               onClick={handleZeroSensor} disabled={!enableZeroSensor}>
         Zero Sensor
       </Button>
-      <Button className="remove-sensor-button"
-              onClick={handleRemoveSensor}>
-        <svg className="icon remove">
-          <use xlinkHref="#icon-remove"/>
-        </svg>
-      </Button>
+      {props.showRemoveSensor ?
+        <Button className="remove-sensor-button"
+                onClick={handleRemoveSensor}>
+          <svg className="icon remove">
+            <use xlinkHref="../assets/images/icons.svg#icon-remove"/>
+          </svg>
+        </Button>
+        : null }
     </div>
   );
 };

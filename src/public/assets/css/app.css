@@ -49,6 +49,17 @@ input, textarea, select, button {
     color: var(--sage-text);
 }
 
+button {
+    border: solid 1px var(--sage-dark-5);
+    background-color: var(--sage-light-2);
+}
+button:hover {
+    background-color: var(--sage);
+}
+button:active {
+    background-color: var(--sage-dark-2);
+}
+
 .disable-focus-highlight {
     outline: none;
 }
@@ -324,6 +335,10 @@ input, textarea, select, button {
     border: solid 1px var(--sage-dark-3);
     background-color: var(--sage-dark-1);
 }
+.zero-button:disabled {
+    opacity: .35;
+    pointer-events: none;
+}
 .remove-sensor-button {
     width: 30px;
     height: 30px;
@@ -519,6 +534,37 @@ input, textarea, select, button {
 .icon.reload:hover, .icon.about:hover {
     fill: var(--sage-dark-4);
 }
-icon.reload:active, .icon.about:active {
+.icon.reload:active, .icon.about:active {
     fill: var(--sage-dark-5);
+}
+
+.bottom-legend {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    right: 14px;
+    bottom: 60px;
+    height: 20px;
+    font-family: Arial;
+    font-size: 12px;
+    font-weight: normal;
+    font-style: normal;
+    color: black;
+}
+.bottom-legend .bar {
+    height: 3px;
+    width: 18px;
+    margin-right: 2px;
+    margin-left: 2px;
+}
+.bottom-legend .bar.primary {
+    background-color: var(--graph-line-blue);
+}
+.bottom-legend .bar.secondary {
+    background-color: var(--graph-line-orange);
+}
+.bottom-legend .name {
+    margin-right: 6px;
+    margin-left: 2px;
 }

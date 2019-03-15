@@ -128,7 +128,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                     axisLabelFormatter: (val:number) => {
                         return Format.formatFixedValue(val, this.state.yAxisFix, "", true);
                     },
-                    axisLabelWidth: 75
+                    axisLabelWidth: 65
                 }
             },
             xlabel: this.state.xLabel,
