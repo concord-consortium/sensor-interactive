@@ -147,7 +147,7 @@ export class App extends React.Component<AppProps, AppState> {
             suppressNotRespondingModal:false,
             warnNewModal:false,
             reconnectModal:false,
-            statusMessage:this.messages["no_sensors"],
+            statusMessage:this.messages["no_device_connected"],
             secondGraph:false,
             bluetoothErrorModal:false,
             disconnectionWarningModal:false,
@@ -240,19 +240,20 @@ export class App extends React.Component<AppProps, AppState> {
 
             this.setState({ sensorConfig, sensorSlots, timeUnit });
         }
+
     }
 
     // only used when a sensor is disconnected through an action external to the
     // sensor-interactive interface (e.g., device is turned off, device runs out
     // of battery power, device malfunctions)
-    onSensorDisconnect() {
+    onSensorDisconnect(showWarning = true) {
         this.removeSensorManagerListeners();
         this.setState({
             sensorManager: null,
             sensorConfig: null,
-            statusMessage: this.messages["no_sensors"],
+            statusMessage: this.messages["no_device_connected"],
             secondGraph: false,
-            disconnectionWarningModal: true
+            disconnectionWarningModal: showWarning
         });
    }
 
@@ -325,7 +326,7 @@ export class App extends React.Component<AppProps, AppState> {
                 sensorManager: null,
                 sensorConfig: null,
                 secondGraph: false,
-                statusMessage: this.messages["no_sensors"]
+                statusMessage: this.messages["no_device_connected"]
             });
         }
     }
@@ -346,7 +347,7 @@ export class App extends React.Component<AppProps, AppState> {
             sensorManager: null,
             sensorConfig: null,
             secondGraph: false,
-            statusMessage: this.messages["no_sensors"]
+            statusMessage: this.messages["no_device_connected"]
         });
     }
 
@@ -375,6 +376,10 @@ export class App extends React.Component<AppProps, AppState> {
                 });
                 return;
             }
+
+            this.setState({
+                statusMessage: this.messages["connecting"]
+            });
 
             const isGDX = wirelessDevice.name.includes("GDX");
             let sensorManager;
@@ -726,6 +731,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({
             bluetoothErrorModal: false
         });
+        this.onSensorDisconnect(false);
     }
 
     closeDisconnectionWarningModal() {
@@ -943,7 +949,15 @@ export class App extends React.Component<AppProps, AppState> {
         const wirelessConnected = sensorManager && sensorManager.isWirelessDevice();
         const wiredConnected = sensorManager && !sensorManager.isWirelessDevice();
         const isConnectorAwake = sensorManager ? sensorManager.isAwake() : true;
-        const wirelessIconClass = "wireless-status-icon " + (sensorManager!==null ? "connected" : null);
+        let wirelessIconClass = "wireless-status-icon ";
+        if (sensorManager!==null) {
+            if (sensorConfig && sensorConfig.hasInterface || !sensorManager.isWirelessDevice()) {
+                wirelessIconClass = wirelessIconClass + "connected";
+            } else {
+                wirelessIconClass = wirelessIconClass + "connecting";
+            }
+        }
+
         return (
             <div className="app-container">
                 <ReactModal className="sensor-dialog-content"

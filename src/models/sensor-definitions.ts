@@ -29,6 +29,7 @@ export const SensorStrings:ISensorStrings = {
       "not_responding": "SensorConnector not responding",
       "appears_stuck": "SensorConnector appears to be stuck",
       "no_sensors": "No sensors connected.",
+      "no_device_connected": "No devices connected.",
       "no_devices": "No devices plugged in.",
       "not_connected": "Not connected.",
       "connecting": "Connecting...",
