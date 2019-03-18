@@ -70,10 +70,11 @@ export const GraphTopPanel: React.SFC<IGraphTopPanelProps> = (props) => {
   const sensorOptions = sensorSelectOptions(props.sensorColumns),
         enableSensorSelect = sensorOptions && (sensorOptions.length > 1) && props.onSensorSelect,
         sensorDefinition = sensor && sensor.definition,
-        enableZeroSensor = sensorDefinition && sensorDefinition.tareable && props.onZeroSensor;
+        enableZeroSensor = sensorDefinition && sensorDefinition.tareable && props.onZeroSensor,
+        selectClass = "sensor-select " + (sensorOptions && sensorOptions.length <=1 ? "single" : null);
   return (
     <div className="graph-top-panel">
-      <Select className="sensor-select"
+      <Select className={selectClass}
               value={sensor.columnID}
               disabled={!enableSensorSelect}
               onChange={handleSensorSelect} >

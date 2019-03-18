@@ -206,18 +206,30 @@ button:active {
 .sensor-select {
     width: 200px;
     height: 30px;
-    border: solid 1px var(--sage-dark-5);
+    border: solid 3px var(--sage-dark-1);
     background-color: var(--sage-light-3);
     margin-right: 2px;
+    padding-left: 5px;
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
     cursor: pointer;
+}
+.sensor-select:focus > option:checked {
+    background: var(--sage) !important;
 }
 .sensor-select:hover {
     background-color: var(--sage-light-2);
 }
 .sensor-select:active {
     background-color: var(--sage-light-1);
+    border-color: var(--sage-dark-3);
+}
+.sensor-select.single {
+    border: solid 1px var(--sage-dark-5);
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    padding-left: 9px;
+    pointer-events: none;
 }
 
 /* Sensor Reading */
@@ -325,6 +337,9 @@ button:active {
 /* Graphs */
 .graphs-panel {
     flex: 1 1;
+}
+.graphs-panel.disabled {
+    opacity: .35;
 }
 
 .dygraph-label {
@@ -458,6 +473,9 @@ button:active {
 .control-panel .duration-select:disabled {
     opacity: .35;
     pointer-events: none;
+}
+.control-panel .duration-select:focus > option:checked {
+    background: var(--sage) !important;
 }
 
 .control-panel-select {
