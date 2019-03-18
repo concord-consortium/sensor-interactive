@@ -43,15 +43,13 @@ input, textarea, select, button {
     font-family: Lato, Verdana, Geneva, sans-serif;
     font-size: 12px;
     font-weight: bold;
-    font-style: normal;
-    font-stretch: normal;
-    letter-spacing: normal;
     color: var(--sage-text);
 }
 
 button {
     border: solid 1px var(--sage-dark-5);
     background-color: var(--sage-light-2);
+    transition-duration: .25s;
 }
 button:hover {
     background-color: var(--sage);
@@ -92,9 +90,9 @@ button:active {
 /* Sensor Status */
 .top-bar-left-controls {
     flex-grow: 1;
+    width: 200px;
     height: 100%;
     margin-left: 11px;
-    width: 200px;
 }
 
 .status-message-holder {
@@ -111,7 +109,6 @@ button:active {
     height: 24px;
     border: solid 3px var(--sage-dark-1);
     border-radius: 50%;
-    background-color: var(--white);
 }
 
 .wireless-status-icon {
@@ -131,8 +128,7 @@ button:active {
 }
 
 .wireless-status-icon-hi {
-    margin-left: 2px;
-    margin-top: 2px;
+    margin: 2px 0px 0px 2px;
     width: 4px;
     height: 4px;
     -webkit-filter: blur(1px);
@@ -148,17 +144,13 @@ button:active {
 /* Sensor Controls */
 .sensor-controls-holder {
     display: flex;
-    flex-direction: row;
     justify-content: center;
-    align-items: left;
 }
 
 /* Connection Buttons */
 .sensor-buttons {
     display: flex;
-    flex-direction: row;
-    margin-top: 4px;
-    margin-bottom: 4px;
+    margin: 4px 0px 4px 0px;
 }
 
 .connect-to-device-button {
@@ -167,10 +159,10 @@ button:active {
     border-radius: 6px;
     border: solid 3px var(--sage-dark-1);
     background-color: var(--sage-light-2);
-    margin-left: 4px;
-    margin-right: 4px;
+    margin: 0px 4px 0px 4px;
     padding: 0px;
     cursor: pointer;
+    transition-duration: .25s;
 }
 .connect-to-device-button:hover {
     background-color: var(--sage);
@@ -187,8 +179,7 @@ button:active {
     justify-content: center;
     align-items: center;
     width: 110px;
-    margin-left: 4px;
-    margin-right: 4px;
+    margin: 0px 4px 0px 4px;
 }
 
 .connect-message {
@@ -210,9 +201,9 @@ button:active {
     background-color: var(--sage-light-3);
     margin-right: 2px;
     padding-left: 5px;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
+    border-radius: 5px 0px 0px 5px;
     cursor: pointer;
+    transition-duration: .25s;
 }
 .sensor-select:focus > option:checked {
     background: var(--sage) !important;
@@ -241,8 +232,7 @@ button:active {
     height: 28px;
     border: solid 1px var(--sage-dark-5);
     background-color: var(--graph-background);
-    margin-left: 2px;
-    margin-right: 2px;
+    margin: 0px 2px 0px 2px;
 }
 
 .reading-label {
@@ -270,9 +260,9 @@ button:active {
     line-height: 0.92;
     text-align: center;
     color: var(--sage-text);
-    margin-left: 2px;
-    margin-right: 2px;
+    margin: 0px 2px 0px 2px;
     cursor: pointer;
+    transition-duration: .25s;
 }
 .zero-button:hover {
     background-color: var(--sage);
@@ -288,18 +278,17 @@ button:active {
 
 /* Remove Sensor */
 .remove-sensor-button {
-    width: 30px;
-    height: 30px;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-    border: solid 1px var(--sage-dark-5);
-    background-color: var(--sage-light-2);
-    margin-left: 2px;
-    margin-right: 2px;
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 30px;
+    height: 30px;
+    margin: 0px 2px 0px 2px;
+    border-radius: 0px 5px 5px 0px;
+    border: solid 1px var(--sage-dark-5);
+    background-color: var(--sage-light-2);
     cursor: pointer;
+    transition-duration: .25s;
 }
 .remove-sensor-button:hover {
     background-color: var(--sage);
@@ -312,9 +301,9 @@ button:active {
 /* Add Sensor */
 .top-bar-right-controls {
     flex-grow: 1;
-    margin-right: 11px;
     display: flex;
     justify-content: flex-end;
+    margin-right: 11px;
     width: 200px;
 }
 
@@ -325,6 +314,7 @@ button:active {
     border: solid 3px var(--sage-dark-1);
     background-color: var(--sage-light-2);
     cursor: pointer;
+    transition-duration: .25s;
 }
 .add-sensor-button:hover {
     background-color: var(--sage);
@@ -370,6 +360,7 @@ button:active {
     top: 10px;
     right: 15px;
     opacity: 0.5;
+    transition-duration: .25s;
 }
 
 .graph-rescale-button:hover {
@@ -394,8 +385,7 @@ button:active {
     display: flex;
     flex-direction: row;
     user-select: none;
-    margin-top: 4px;
-    margin-bottom: 4px;
+    margin: 4px 0px 4px 0px;
 }
 
 /* Graph Legend */
@@ -411,13 +401,12 @@ button:active {
     font-size: 12px;
     font-weight: normal;
     font-style: normal;
-    color: black;
+    color: var(--graph-text);
 }
 .bottom-legend .bar {
     height: 3px;
     width: 18px;
-    margin-right: 2px;
-    margin-left: 2px;
+    margin: 0px 2px 0px 2px;
 }
 .bottom-legend .bar.primary {
     background-color: var(--graph-line-blue);
@@ -426,20 +415,19 @@ button:active {
     background-color: var(--graph-line-orange);
 }
 .bottom-legend .name {
-    margin-right: 6px;
-    margin-left: 2px;
+    margin: 0px 2px 0px 6px;
 }
 
 /* Bottom Control Panel */
 .control-panel {
     z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     height: 38px;
     margin-top: 6px;   /* affects .app-content:max-height */
     background-color: var(--sage);
-    display: flex;
-    justify-content: center;
-    align-items: center;
     user-select: none;
 }
 .control-panel.disabled {
@@ -458,11 +446,10 @@ button:active {
     margin-right: 16px;
     border: solid 1px var(--sage-dark-5);
     background-color: var(--sage-light-3);
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    margin-left: 4px;
-    margin-right: 4px;
+    border-radius: 5px 0px 0px 5px;
+    margin: 0px 4px 0px 4px;
     cursor: pointer;
+    transition-duration: .25s;
 }
 .control-panel .duration-select:hover {
     background-color: var(--sage-light-2);
@@ -489,9 +476,9 @@ button:active {
     border-radius: 5px;
     border: solid 1px var(--sage-dark-5);
     background-color: var(--sage-light-2);
-    margin-left: 4px;
-    margin-right: 4px;
+    margin: 0px 4px 0px 4px;
     cursor: pointer;
+    transition-duration: .25s;
 }
 .control-panel-button:hover {
     background-color: var(--sage);
@@ -526,7 +513,7 @@ button:active {
     margin-right: 8px;
 }
 
-.reload-container {
+.icon-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -534,48 +521,22 @@ button:active {
     width: 38px;
     height: 38px;
     cursor: pointer;
+    transition-duration: .25s;
 }
-.reload-container:hover {
+.icon-container:hover {
     background-color: var(--sage-dark-1);
 }
-.reload-container:active {
+.icon-container:active {
     background-color: var(--sage-dark-1);
 }
-.reload-container:hover .icon.reload {
+.icon-container:hover .icon {
     fill: var(--sage-dark-4);
 }
-.reload-container:active .icon.reload {
+.icon-container:active .icon {
     fill: var(--sage-dark-5);
 }
 
-.reload-page-label {
-    font-size: 9px;
-    font-style: bold;
-}
-
-.about-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 38px;
-    height: 38px;
-    cursor: pointer;
-}
-.about-container:hover {
-    background-color: var(--sage-dark-1);
-}
-.about-container:active {
-    background-color: var(--sage-dark-1);
-}
-.about-container:hover .icon.about {
-    fill: var(--sage-dark-4);
-}
-.about-container:active .icon.about {
-    fill: var(--sage-dark-5);
-}
-
-.about-label {
+.icon-label {
     font-size: 9px;
     font-style: bold;
 }
@@ -584,6 +545,7 @@ button:active {
     width: 16px;
     height: 16px;
     fill: var(--sage-dark-3);
+    transition-duration: .25s;
 }
 .icon.reload, .icon.about {
     width: 18px;

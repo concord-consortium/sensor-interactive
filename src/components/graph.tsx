@@ -35,6 +35,11 @@ export interface GraphState {
     [key:string]: any;
 }
 
+const GRAPH1_LINE_COLOR = "#007fcf";
+const GRAPH2_LINE_COLOR = "#da5d1d";
+const AXIS_LABEL_WIDTH =  65;
+const CANVAS_FILL_COLOR = "rgba(248, 248, 248, 1.0)";
+
 // dygraph doesn't handle empty data
 function dyGraphData(data:number[][]) {
     return data && data.length ? data : [[0,0]];
@@ -103,7 +108,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     componentDidMount() {
-        const color = this.props.title === "graph1" ? "#007fcf" : "#da5d1d";
+        const color = this.props.title === "graph1" ? GRAPH1_LINE_COLOR : GRAPH2_LINE_COLOR;
         this.dygraph = new Dygraph("sensor-graph-" + this.props.title,
             dyGraphData(this.state.data), {
             color: color,
@@ -128,14 +133,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                     axisLabelFormatter: (val:number) => {
                         return Format.formatFixedValue(val, this.state.yAxisFix, "", true);
                     },
-                    axisLabelWidth: 65
+                    axisLabelWidth: AXIS_LABEL_WIDTH
                 }
             },
             xlabel: this.state.xLabel,
             ylabel: this.state.yLabel,
             legend: "follow",
             underlayCallback: function(canvas:any, area:any, g:any) {
-                canvas.fillStyle = "rgba(248, 248, 248, 1.0)";
+                canvas.fillStyle = CANVAS_FILL_COLOR;
                 canvas.fillRect(area.x, area.y, area.w, area.h);
             }
         });

@@ -3,7 +3,6 @@ import { Sensor } from "../models/sensor";
 import { SensorSlot } from "../models/sensor-slot";
 import { Graph } from "./graph";
 import { SensorConfigColumnInfo } from "@concord-consortium/sensor-connector-interface";
-import { Format } from "../utils/format";
 
 const kSidePanelWidth = 20;
 
@@ -43,18 +42,6 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         this.state = {
             sensorColID: undefined
         };
-    }
-
-    sensorPrecision() {
-        const { sensorSlot } = this.props,
-              sensor = sensorSlot && sensorSlot.sensor,
-              sensorDefinition = sensor && sensor.definition;
-        if (!sensorDefinition)
-            return 2;
-
-        const sensorRange = sensorDefinition.maxReading - sensorDefinition.minReading,
-              sensorPrecision = Format.getFixValue(sensorRange);
-        return sensorPrecision;
     }
 
     handleRescale = (xRange:number[], yRange:number[]) => {
@@ -122,7 +109,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 xMax={this.props.xEnd}
                 yMin={plotYMin}
                 yMax={plotYMax}
-                valuePrecision={this.sensorPrecision()}
+                valuePrecision={sensor ? sensor.sensorPrecision() : 2}
                 xLabel={this.xLabel()}
                 yLabel={this.yLabel()} />
             </div>

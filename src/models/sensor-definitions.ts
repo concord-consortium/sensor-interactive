@@ -74,7 +74,7 @@ export const SensorStrings:ISensorStrings = {
       "sensor_disconnection_warning": "Bluetooth sensor disconnection detected. Check Bluetooth sensor power and battery level before attempting reconnection.",
       "connection_message": "Connect A Device:",
       "connection_sub_message": "with one or more sensors",
-      "about_message": "Use Sensor Interactive to collect sensor data from your sensor devices.",
+      "about_message": "Use Sensor Interactive to collect and view data from your sensor devices.",
     },
     "measurements": {
       "sensor_reading": "Sensor Reading",

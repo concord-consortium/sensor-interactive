@@ -77,7 +77,7 @@ export const GraphTopPanel: React.SFC<IGraphTopPanelProps> = (props) => {
       <Select className={selectClass}
               value={sensor.columnID}
               disabled={!enableSensorSelect}
-              onChange={handleSensorSelect} >
+              onChange={handleSensorSelect}>
         {sensorOptions}
       </Select>
       <div className="reading-container">
@@ -85,7 +85,8 @@ export const GraphTopPanel: React.SFC<IGraphTopPanelProps> = (props) => {
         <label className="sensor-reading">{sensorReading()}</label>
       </div>
       <Button className="zero-button"
-              onClick={handleZeroSensor} disabled={!enableZeroSensor}>
+              onClick={handleZeroSensor}
+              disabled={!enableZeroSensor}>
         Zero Sensor
       </Button>
       {props.showRemoveSensor ?

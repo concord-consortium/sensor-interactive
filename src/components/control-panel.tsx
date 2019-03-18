@@ -31,7 +31,7 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
         disableStopCollecting = !props.collecting,
         disableSendData = !(props.hasData && props.dataChanged) || props.collecting,
         disableNewData = !props.hasData || props.collecting,
-        disableDuration= props.isDisabled || props.collecting,
+        disableDuration = props.isDisabled || props.collecting,
         durationOptions = (props.durationOptions || []).map((d) => {
                             const dNum = d < 60 ? d : d / 60,
                                   dUnit = d < 60 ? 's' : 'm',
@@ -43,13 +43,15 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
         startConnectingButton = (
           <Button className="start-connection control-panel-button"
                   style={{ width: 180 }}
-                  onClick={props.onStartConnecting} disabled={disableStartConnecting}>
+                  onClick={props.onStartConnecting}
+                  disabled={disableStartConnecting}>
             Launch SensorConnector
           </Button>
         ),
         startCollectingButton = (
           <Button className="start-sensor control-panel-button"
-                  onClick={props.onStartCollecting} disabled={disableStartCollecting}>
+                  onClick={props.onStartCollecting}
+                  disabled={disableStartCollecting}>
             Start
           </Button>
         );
@@ -59,19 +61,17 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
       props.onDurationChange(Number(evt.currentTarget.value));
   }
 
-
   return (
     <div className={controlPanelClass}>
 
       <div className="left-controls">
-        <div className="reload-container" onClick={props.onReloadPage}>
+        <div className="icon-container" onClick={props.onReloadPage}>
           <svg className="icon reload">
             <use xlinkHref="../assets/images/icons.svg#icon-reload" />
           </svg>
-          <div className="reload-page-label">Reload</div>
+          <div className="icon-label">Reload</div>
         </div>
       </div>
-
       <span className={durationLabelClass}>Duration:</span>
       <Select className="duration-select control-panel-select"
               onChange={handleDurationChange}
@@ -81,23 +81,27 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
       </Select>
       {props.isConnectorAwake ? startCollectingButton : startConnectingButton}
       <Button className="stop-sensor control-panel-button"
-              onClick={props.onStopCollecting} disabled={disableStopCollecting}>
+              onClick={props.onStopCollecting}
+              disabled={disableStopCollecting}>
         Stop
       </Button>
       <Button className="send-data control-panel-button"
-              onClick={props.onSaveData} disabled={disableSendData}>
+              onClick={props.onSaveData}
+              disabled={disableSendData}>
         Save Data
       </Button>
       <Button className="new-data control-panel-button"
-              onClick={props.onNewRun} disabled={disableNewData}>
+              onClick={props.onNewRun}
+              disabled={disableNewData}>
         New Run
       </Button>
       <div className="right-controls">
-        <div className="about-container" onClick={props.onAboutClick}>
+        <div className="icon-container"
+             onClick={props.onAboutClick}>
           <svg className="icon about">
             <use xlinkHref="../assets/images/icons.svg#icon-about"/>
           </svg>
-          <div className="about-label">About</div>
+          <div className="icon-label">About</div>
         </div>
       </div>
     </div>
