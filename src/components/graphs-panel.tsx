@@ -22,6 +22,7 @@ interface IGraphsPanelProps {
   collecting:boolean;
   hasData:boolean;
   dataReset:boolean;
+  hasConnected:boolean;
 }
 
 const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
@@ -57,8 +58,8 @@ const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
                         dataReset={props.dataReset}/>;
   }
 
-  const { sensorSlots, secondGraph } = props,
-        classes = `graphs-panel ${secondGraph ? 'two-graphs' : ''}`,
+  const { sensorSlots, secondGraph, hasConnected } = props,
+        classes = `graphs-panel ${secondGraph ? 'two-graphs' : ''} ${hasConnected ? '' : 'disabled'}`,
         style = { minHeight: secondGraph ? 320 : 170 };
 
   return (

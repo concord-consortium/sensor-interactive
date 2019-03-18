@@ -43,6 +43,7 @@ export interface AppState {
     bluetoothErrorModal:boolean;
     disconnectionWarningModal:boolean;
     aboutModal:boolean;
+    hasConnected:boolean;
 }
 
 function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo) {
@@ -151,7 +152,8 @@ export class App extends React.Component<AppProps, AppState> {
             secondGraph:false,
             bluetoothErrorModal:false,
             disconnectionWarningModal:false,
-            aboutModal:false
+            aboutModal:false,
+            hasConnected:(typeof this.props.sensorManager !== "undefined")
         };
 
         this.connectCodap = this.connectCodap.bind(this);
@@ -307,7 +309,7 @@ export class App extends React.Component<AppProps, AppState> {
             this.disconnectSensorConnector();
         } else {
             const sensorManager = new SensorConnectorManager();
-            this.setState({ sensorManager }, () => {
+            this.setState({ sensorManager, hasConnected:true }, () => {
                     this.addSensorManagerListeners();
                     if (this.state.sensorManager) {
                         this.state.sensorManager.startPolling();
@@ -400,7 +402,7 @@ export class App extends React.Component<AppProps, AppState> {
 
             this.removeSensorManagerListeners();
 
-            this.setState({ sensorManager }, () => {
+            this.setState({ sensorManager, hasConnected:true }, () => {
                 if (isConnectableSensorManager(this.state.sensorManager)) {
                     this.state.sensorManager.connectToDevice(wirelessDevice).then(val => {
                         if (!val) {
@@ -1076,6 +1078,7 @@ export class App extends React.Component<AppProps, AppState> {
                         collecting={this.state.collecting}
                         hasData={this.hasData()}
                         dataReset={this.state.dataReset}
+                        hasConnected={this.state.hasConnected}
                     />
                 </div>
                 {this.renderLegend()}
