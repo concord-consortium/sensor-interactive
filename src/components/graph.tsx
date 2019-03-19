@@ -203,12 +203,11 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         return (
             <div style={{position: "relative"}}>
                 <div id={"sensor-graph-" + title} className="graph-box" style={graphStyle}></div>
-                <a onClick={this.autoScale}
-                    className="graph-rescale-button"
-                    style={buttonStyle}
-                    title="Show all data (autoscale)">
-                    <i className="fa fa-arrows fa-lg"></i>
-                </a>
+                <div className="graph-rescale-button" onClick={this.autoScale} title="Show all data (autoscale)">
+                    <svg className="icon rescale">
+                        <use xlinkHref="./assets/images/icons.svg#icon-rescale" />
+                    </svg>
+                </div>
             </div>
         );
     }

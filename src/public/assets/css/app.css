@@ -106,32 +106,32 @@ button:active {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 20px;
-    height: 20px;
-    border: solid 2px var(--sage-dark-1);
+    width: 18px;
+    height: 18px;
+    border: solid 2.5px var(--sage-dark-1);
     border-radius: 50%;
 }
 
 .wireless-status-icon {
     width: 10px;
     height: 10px;
-    border: solid 1px var(--sensor-red-dark);
+    border: solid 1.5px var(--sensor-red-dark);
     border-radius: 50%;
     background-color: var(--sensor-red);
 }
 .wireless-status-icon.connecting {
-    border: solid 1px var(--sensor-yellow-dark);
+    border: solid 1.5px var(--sensor-yellow-dark);
     background-color: var(--sensor-yellow);
 }
 .wireless-status-icon.connected {
-    border: solid 1px var(--sensor-green-dark);
+    border: solid 1.5px var(--sensor-green-dark);
     background-color: var(--sensor-green);
 }
 
 .wireless-status-icon-hi {
     margin: 2px 0px 0px 2px;
-    width: 3px;
-    height: 3px;
+    width: 4px;
+    height: 4px;
     -webkit-filter: blur(1px);
     filter: blur(1px);
     background-color: var(--white);
@@ -358,14 +358,22 @@ button:active {
 
 .graph-rescale-button {
     position: absolute;
-    top: 10px;
-    right: 35px;
-    opacity: 0.5;
+    top: 8px;
+    right: 33px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
     transition-duration: .25s;
 }
-
-.graph-rescale-button:hover {
-    opacity: 1;
+.graph-rescale-button:hover .icon {
+    fill: #8f8f8f;
+}
+.graph-rescale-button:active .icon {
+    fill: var(--graph-axes);
 }
 
 .graph-side-panel {
@@ -551,4 +559,9 @@ button:active {
 .icon.reload, .icon.about {
     width: 18px;
     height: 18px;
+}
+.icon.rescale {
+    width: 20px;
+    height: 20px;
+    fill: #a7a7a7;
 }
