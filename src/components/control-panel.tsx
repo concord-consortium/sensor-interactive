@@ -25,8 +25,7 @@ interface IControlPanelProps {
 }
 
 export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
-  const disableStartConnecting = props.isConnectorAwake,
-        disableStartCollecting = (props.isConnectorAwake && !props.interfaceType) ||
+  const disableStartCollecting = (props.isConnectorAwake && !props.interfaceType) ||
                                   (props.sensorCount === 0) || props.collecting || props.hasData,
         disableStopCollecting = !props.collecting,
         disableSendData = !(props.hasData && props.dataChanged) || props.collecting,
@@ -40,14 +39,6 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
                           }),
         controlPanelClass = props.isDisabled ? "control-panel disabled" : "control-panel",
         durationLabelClass = props.isDisabled || props.collecting ? "duration-label disabled" : "duration-label",
-        startConnectingButton = (
-          <Button className="start-connection control-panel-button"
-                  style={{ width: 180 }}
-                  onClick={props.onStartConnecting}
-                  disabled={disableStartConnecting}>
-            Launch SensorConnector
-          </Button>
-        ),
         startCollectingButton = (
           <Button className="start-sensor control-panel-button"
                   onClick={props.onStartCollecting}
@@ -79,7 +70,7 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
               disabled={disableDuration}>
         {[durationOptions]}
       </Select>
-      {props.isConnectorAwake ? startCollectingButton : startConnectingButton}
+      {startCollectingButton}
       <Button className="stop-sensor control-panel-button"
               onClick={props.onStopCollecting}
               disabled={disableStopCollecting}>
