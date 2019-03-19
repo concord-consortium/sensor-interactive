@@ -24,6 +24,7 @@
     --sensor-green-dark: #5ec100;
     --graph-line-blue: #007fcf;
     --graph-line-orange: #da5d1d;
+    --app-content-unusable-vertical-height: 58px;
 }
 
 body {
@@ -75,9 +76,8 @@ button:active {
     flex-direction: column;
     flex: 1 1;
     margin-top: 8px;    /* affects .app-content:max-height */
-    /* 72px = .app-content:margin-top + .control-panel:flex-basis + .control-panel:margin-top */
-    /* Sass, Less, CSS variables, inline styles, etc. could be used to eliminate redundancy */
-    max-height: calc(100% - 58px);
+    /* 58px = .app-content:margin-top + .control-panel:flex-basis + .control-panel:margin-top */
+    max-height: calc(100% - var(--app-content-unusable-vertical-height));
 }
 
 .app-top-bar {
@@ -99,38 +99,39 @@ button:active {
     display: flex;
     flex-direction: row;
     align-items: center;
+    height: 38px;
 }
 
 .wireless-status-border {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 24px;
-    height: 24px;
-    border: solid 3px var(--sage-dark-1);
+    width: 20px;
+    height: 20px;
+    border: solid 2px var(--sage-dark-1);
     border-radius: 50%;
 }
 
 .wireless-status-icon {
-    width: 12px;
-    height: 12px;
-    border: solid 2px var(--sensor-red-dark);
+    width: 10px;
+    height: 10px;
+    border: solid 1px var(--sensor-red-dark);
     border-radius: 50%;
     background-color: var(--sensor-red);
 }
 .wireless-status-icon.connecting {
-    border: solid 2px var(--sensor-yellow-dark);
+    border: solid 1px var(--sensor-yellow-dark);
     background-color: var(--sensor-yellow);
 }
 .wireless-status-icon.connected {
-    border: solid 2px var(--sensor-green-dark);
+    border: solid 1px var(--sensor-green-dark);
     background-color: var(--sensor-green);
 }
 
 .wireless-status-icon-hi {
     margin: 2px 0px 0px 2px;
-    width: 4px;
-    height: 4px;
+    width: 3px;
+    height: 3px;
     -webkit-filter: blur(1px);
     filter: blur(1px);
     background-color: var(--white);

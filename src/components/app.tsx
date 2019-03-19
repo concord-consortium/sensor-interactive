@@ -152,7 +152,7 @@ export class App extends React.Component<AppProps, AppState> {
             bluetoothErrorModal:false,
             disconnectionWarningModal:false,
             aboutModal:false,
-            hasConnected:(typeof this.props.sensorManager !== "undefined")
+            hasConnected:!!this.props.sensorManager
         };
 
         this.connectCodap = this.connectCodap.bind(this);
@@ -815,7 +815,7 @@ export class App extends React.Component<AppProps, AppState> {
     renderStatusMessage() {
         const { sensorManager, sensorConfig } = this.state;
         let wirelessIconClass = "wireless-status-icon ";
-        if (sensorManager!==null) {
+        if (sensorManager != null) {
             if (sensorConfig && sensorConfig.hasInterface || !sensorManager.isWirelessDevice()) {
                 wirelessIconClass = wirelessIconClass + "connected";
             } else {
@@ -900,7 +900,7 @@ export class App extends React.Component<AppProps, AppState> {
 
     renderGraphTopPanels() {
         const { sensorManager, sensorSlots } = this.state;
-        const connected = sensorManager !== null;
+        const connected = sensorManager != null;
         const sensorColumns = (this.state.sensorConfig && this.state.sensorConfig.dataColumns) || [];
         return (
             <div className="graph-top-panel-holder">
@@ -1071,7 +1071,7 @@ export class App extends React.Component<AppProps, AppState> {
                     onSaveData={this.sendData}
                     onReloadPage={this.reload}
                     onAboutClick={this.showAbout}
-                    isDisabled={sensorManager===null}
+                    isDisabled={sensorManager == null}
                 />
             </div>
         );
