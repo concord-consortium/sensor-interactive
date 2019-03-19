@@ -67,7 +67,7 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
       <div className="left-controls">
         <div className="icon-container" onClick={props.onReloadPage}>
           <svg className="icon reload">
-            <use xlinkHref="../assets/images/icons.svg#icon-reload" />
+            <use xlinkHref="./assets/images/icons.svg#icon-reload" />
           </svg>
           <div className="icon-label">Reload</div>
         </div>
@@ -99,7 +99,7 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
         <div className="icon-container"
              onClick={props.onAboutClick}>
           <svg className="icon about">
-            <use xlinkHref="../assets/images/icons.svg#icon-about"/>
+            <use xlinkHref="./assets/images/icons.svg#icon-about"/>
           </svg>
           <div className="icon-label">About</div>
         </div>

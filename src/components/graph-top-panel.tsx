@@ -93,7 +93,7 @@ export const GraphTopPanel: React.SFC<IGraphTopPanelProps> = (props) => {
         <Button className="remove-sensor-button"
                 onClick={handleRemoveSensor}>
           <svg className="icon remove">
-            <use xlinkHref="../assets/images/icons.svg#icon-remove"/>
+            <use xlinkHref="./assets/images/icons.svg#icon-remove"/>
           </svg>
         </Button>
         : null }
