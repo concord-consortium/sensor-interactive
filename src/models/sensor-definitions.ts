@@ -64,7 +64,7 @@ export const SensorStrings:ISensorStrings = {
       "data_collection_complete": "Data collection complete.",
       "disconnected": "Disconnected.",
       "unexpected_error": "There was an unexpected error when connecting to the sensor.",
-      "sensor_connector_not_responding": "The SensorConnector application is not responding. To continue data collection click the \"Launch SensorConnector\" button at the bottom of the dialog or later click the corresponding button at the bottom of the window.",
+      "sensor_connector_not_responding": "The SensorConnector application is not responding. To continue data collection click the \"Launch SensorConnector\" button at the bottom of the dialog.",
       "sensor_not_attached": "No sensors appear to be attached. Try attaching one or more sensors and then click \"Try Again\".",
       "sensor_or_device_unplugged": "The __sensor_or_device_name__ was unplugged. Try plugging it back in, and then click \"$t(sensor.messages.try_again)\".",
       "try_again": "Try Again",
