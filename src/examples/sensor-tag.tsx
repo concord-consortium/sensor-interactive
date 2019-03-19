@@ -4,11 +4,14 @@ import { App } from "../components/app";
 import { SensorTagManager } from "../models/sensor-tag-manager";
 
 let sensorManager = new SensorTagManager();
+const assetPath = "../assets";
 
 // We should add the connect button above the App
 // Button was: className="zero-button side-panel-item"
 ReactDOM.render(
     <App
-      sensorManager={sensorManager}/>,
+      sensorManager={sensorManager}
+      assetsPath={assetPath}
+    />,
     document.getElementById("app")
 );

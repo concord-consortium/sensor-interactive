@@ -22,6 +22,7 @@ interface IControlPanelProps {
   onSaveData: () => void;
   onReloadPage: () => void;
   onAboutClick: () => void;
+  assetsPath?: string;
 }
 
 export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
@@ -39,6 +40,7 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
                           }),
         controlPanelClass = props.isDisabled ? "control-panel disabled" : "control-panel",
         durationLabelClass = props.isDisabled || props.collecting ? "duration-label disabled" : "duration-label",
+        assetsPath = !props.assetsPath ?  "./assets" : props.assetsPath,
         startCollectingButton = (
           <Button className="start-sensor control-panel-button"
                   onClick={props.onStartCollecting}
@@ -46,7 +48,6 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
             Start
           </Button>
         );
-
   function handleDurationChange(evt:React.FormEvent<HTMLSelectElement>) {
     if (props.onDurationChange)
       props.onDurationChange(Number(evt.currentTarget.value));
@@ -58,7 +59,7 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
       <div className="left-controls">
         <div className="icon-container" onClick={props.onReloadPage}>
           <svg className="icon reload">
-            <use xlinkHref="./assets/images/icons.svg#icon-reload" />
+            <use xlinkHref={assetsPath + "/images/icons.svg#icon-reload"} />
           </svg>
           <div className="icon-label">Reload</div>
         </div>
@@ -90,7 +91,7 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
         <div className="icon-container"
              onClick={props.onAboutClick}>
           <svg className="icon about">
-            <use xlinkHref="./assets/images/icons.svg#icon-about"/>
+            <use xlinkHref={assetsPath + "/images/icons.svg#icon-about"} />
           </svg>
           <div className="icon-label">About</div>
         </div>

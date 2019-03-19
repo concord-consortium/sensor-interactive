@@ -23,6 +23,7 @@ interface IGraphsPanelProps {
   hasData:boolean;
   dataReset:boolean;
   hasConnected:boolean;
+  assetsPath?: string;
 }
 
 const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
@@ -55,7 +56,8 @@ const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
                         timeUnit={props.timeUnit}
                         collecting={props.collecting}
                         hasData={props.hasData}
-                        dataReset={props.dataReset}/>;
+                        dataReset={props.dataReset}
+                        assetsPath={props.assetsPath}/>;
   }
 
   const { sensorSlots, secondGraph, hasConnected } = props,

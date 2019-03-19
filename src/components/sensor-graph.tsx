@@ -22,6 +22,7 @@ interface SensorGraphProps {
     xEnd:number;
     isSingletonGraph:boolean;
     isLastGraph:boolean;
+    assetsPath?: string;
 }
 
 interface SensorGraphState {
@@ -111,7 +112,8 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 yMax={plotYMax}
                 valuePrecision={sensor ? sensor.sensorPrecision() : 2}
                 xLabel={this.xLabel()}
-                yLabel={this.yLabel()} />
+                yLabel={this.yLabel()}
+                assetsPath={this.props.assetsPath} />
             </div>
         );
     }

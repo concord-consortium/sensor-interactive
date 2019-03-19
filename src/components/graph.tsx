@@ -16,6 +16,7 @@ export interface GraphProps {
     xLabel:string|undefined;
     yLabel:string|undefined;
     [key:string]: any;
+    assetsPath?: string;
 }
 
 export interface GraphState {
@@ -187,6 +188,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
     render() {
         const { width, height, title } = this.props;
+        const assetsPath = !this.props.assetsPath ?  "./assets" : this.props.assetsPath;
         let graphStyle:{width?:number; height?:number} = {};
         if (width && isFinite(width))
             graphStyle.width = width;
@@ -205,7 +207,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                 <div id={"sensor-graph-" + title} className="graph-box" style={graphStyle}></div>
                 <div className="graph-rescale-button" onClick={this.autoScale} title="Show all data (autoscale)">
                     <svg className="icon rescale">
-                        <use xlinkHref="./assets/images/icons.svg#icon-rescale" />
+                        <use xlinkHref={assetsPath + "/images/icons.svg#icon-rescale"} />
                     </svg>
                 </div>
             </div>

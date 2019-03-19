@@ -4,9 +4,12 @@ import { App } from "../components/app";
 import { FakeSensorManager } from "../models/fake-sensor-manager";
 
 let sensorManager = new FakeSensorManager();
+const assetPath = "../assets";
 
 ReactDOM.render(
     <App
-      sensorManager={sensorManager}/>,
+      sensorManager={sensorManager}
+      assetsPath={assetPath}
+    />,
     document.getElementById("app")
 );

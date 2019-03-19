@@ -19,6 +19,7 @@ import { SensorGDXManager } from "../models/sensor-gdx-manager";
 
 export interface AppProps {
     sensorManager?: SensorManager;
+    assetsPath?: string;
 }
 
 export interface AppState {
@@ -912,7 +913,8 @@ export class App extends React.Component<AppProps, AppState> {
                     onSensorSelect={this.handleSensorSelect}
                     onZeroSensor={this.zeroSensor(0)}
                     onRemoveSensor={this.removeGraph(0)}
-                    showRemoveSensor={!this.props.sensorManager} />
+                    showRemoveSensor={!this.props.sensorManager}
+                    assetsPath={this.props.assetsPath} />
                 : null}
                 {connected && this.state.secondGraph ?
                     <GraphTopPanel
@@ -922,7 +924,8 @@ export class App extends React.Component<AppProps, AppState> {
                     onSensorSelect={this.handleSensorSelect}
                     onZeroSensor={this.zeroSensor(1)}
                     onRemoveSensor={this.removeGraph(1)}
-                    showRemoveSensor={true} />
+                    showRemoveSensor={true}
+                    assetsPath={this.props.assetsPath} />
                 : null}
             </div>
         );
@@ -1050,6 +1053,7 @@ export class App extends React.Component<AppProps, AppState> {
                         hasData={this.hasData()}
                         dataReset={this.state.dataReset}
                         hasConnected={this.state.hasConnected}
+                        assetsPath={this.props.assetsPath}
                     />
                     {this.renderLegend()}
                 </div>
@@ -1072,6 +1076,7 @@ export class App extends React.Component<AppProps, AppState> {
                     onReloadPage={this.reload}
                     onAboutClick={this.showAbout}
                     isDisabled={sensorManager == null}
+                    assetsPath={this.props.assetsPath}
                 />
             </div>
         );
