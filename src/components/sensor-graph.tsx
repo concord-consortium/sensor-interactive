@@ -22,7 +22,7 @@ interface SensorGraphProps {
     xEnd:number;
     isSingletonGraph:boolean;
     isLastGraph:boolean;
-    assetsPath?: string;
+    assetsPath: string;
 }
 
 interface SensorGraphState {

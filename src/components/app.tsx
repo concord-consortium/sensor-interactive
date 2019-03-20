@@ -19,7 +19,6 @@ import { SensorGDXManager } from "../models/sensor-gdx-manager";
 
 export interface AppProps {
     sensorManager?: SensorManager;
-    assetsPath?: string;
 }
 
 export interface AppState {
@@ -120,6 +119,7 @@ const DOWN_SAMPLE_THRESHOLD_COUNT = 601;
 
 export class App extends React.Component<AppProps, AppState> {
 
+    private assetsPath:string;
     private messages:IStringMap;
     private codap:Codap;
     private selectionRange:{start:number,end:number|undefined} = {start:0,end:undefined};
@@ -130,6 +130,8 @@ export class App extends React.Component<AppProps, AppState> {
     constructor(props: AppProps) {
         super(props);
 
+        this.assetsPath = /\/examples\//.test(window.location.pathname)
+                            ? "../assets" : "./assets";
         this.messages = SensorStrings.messages as IStringMap;
 
         this.state = {
@@ -914,7 +916,7 @@ export class App extends React.Component<AppProps, AppState> {
                     onZeroSensor={this.zeroSensor(0)}
                     onRemoveSensor={this.removeGraph(0)}
                     showRemoveSensor={!this.props.sensorManager}
-                    assetsPath={this.props.assetsPath} />
+                    assetsPath={this.assetsPath} />
                 : null}
                 {connected && this.state.secondGraph ?
                     <GraphTopPanel
@@ -925,7 +927,7 @@ export class App extends React.Component<AppProps, AppState> {
                     onZeroSensor={this.zeroSensor(1)}
                     onRemoveSensor={this.removeGraph(1)}
                     showRemoveSensor={true}
-                    assetsPath={this.props.assetsPath} />
+                    assetsPath={this.assetsPath} />
                 : null}
             </div>
         );
@@ -1053,7 +1055,7 @@ export class App extends React.Component<AppProps, AppState> {
                         hasData={this.hasData()}
                         dataReset={this.state.dataReset}
                         hasConnected={this.state.hasConnected}
-                        assetsPath={this.props.assetsPath}
+                        assetsPath={this.assetsPath}
                     />
                     {this.renderLegend()}
                 </div>
@@ -1076,7 +1078,7 @@ export class App extends React.Component<AppProps, AppState> {
                     onReloadPage={this.reload}
                     onAboutClick={this.showAbout}
                     isDisabled={sensorManager == null}
-                    assetsPath={this.props.assetsPath}
+                    assetsPath={this.assetsPath}
                 />
             </div>
         );

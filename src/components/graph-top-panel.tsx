@@ -14,15 +14,14 @@ interface IGraphTopPanelProps {
   onZeroSensor?:() => void;
   onRemoveSensor?:() => void;
   showRemoveSensor:boolean;
-  assetsPath?: string;
+  assetsPath: string;
 }
 
 export const GraphTopPanel: React.SFC<IGraphTopPanelProps> = (props) => {
   const { sensorSlot, onZeroSensor, onRemoveSensor, onSensorSelect } = props,
         { sensor } = sensorSlot,
         tareValue = sensor.tareValue || 0,
-        sensorUnitStr = sensor.valueUnit || "",
-        assetsPath = !props.assetsPath ?  "./assets" : props.assetsPath;
+        sensorUnitStr = sensor.valueUnit || "";
 
   const handleZeroSensor = () => {
     if (onZeroSensor)
@@ -95,7 +94,7 @@ export const GraphTopPanel: React.SFC<IGraphTopPanelProps> = (props) => {
         <Button className="remove-sensor-button"
                 onClick={handleRemoveSensor}>
           <svg className="icon remove">
-            <use xlinkHref={assetsPath + "/images/icons.svg#icon-remove"} />
+            <use xlinkHref={`${props.assetsPath}/images/icons.svg#icon-remove`} />
           </svg>
         </Button>
         : null }

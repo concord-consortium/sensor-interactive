@@ -23,7 +23,7 @@ interface IGraphsPanelProps {
   hasData:boolean;
   dataReset:boolean;
   hasConnected:boolean;
-  assetsPath?: string;
+  assetsPath: string;
 }
 
 const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {

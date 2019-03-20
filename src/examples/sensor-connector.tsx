@@ -4,12 +4,10 @@ import { App } from "../components/app";
 import { SensorConnectorManager } from "../models/sensor-connector-manager";
 
 let sensorManager = new SensorConnectorManager();
-const assetPath = "../assets";
 
 ReactDOM.render(
     <App
       sensorManager={sensorManager}
-      assetsPath={assetPath}
       />,
     document.getElementById("app")
 );
