@@ -309,7 +309,7 @@ button:active {
 }
 
 .add-sensor-button {
-    width: 100px;
+    width: 106px;
     height: 30px;
     border-radius: 6px;
     border: solid 3px var(--sage-dark-1);
