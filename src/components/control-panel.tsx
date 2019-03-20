@@ -4,6 +4,7 @@ import Select from "./smart-highlight-select";
 
 interface IControlPanelProps {
   isConnectorAwake:boolean;
+  isDisabled:boolean,
   interfaceType:string;
   sensorCount:number;
   collecting:boolean;
@@ -20,77 +21,79 @@ interface IControlPanelProps {
   onNewRun: () => void;
   onSaveData: () => void;
   onReloadPage: () => void;
+  onAboutClick: () => void;
+  assetsPath: string;
 }
 
 export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
-  const disableStartConnecting = props.isConnectorAwake,
-        disableStartCollecting = (props.isConnectorAwake && !props.interfaceType) ||
+  const disableStartCollecting = (props.isConnectorAwake && !props.interfaceType) ||
                                   (props.sensorCount === 0) || props.collecting || props.hasData,
         disableStopCollecting = !props.collecting,
         disableSendData = !(props.hasData && props.dataChanged) || props.collecting,
         disableNewData = !props.hasData || props.collecting,
+        disableDuration = props.isDisabled || props.collecting,
         durationOptions = (props.durationOptions || []).map((d) => {
                             const dNum = d < 60 ? d : d / 60,
                                   dUnit = d < 60 ? 's' : 'm',
                                   dFormatted = `${dNum.toFixed(0)} ${dUnit}`;
                             return <option key={d} value={d}>{dFormatted}</option>;
                           }),
-        startConnectingButton = (
-          <Button className="startConnection control-panel-button"
-                  style={{ width: 180 }}
-                  onClick={props.onStartConnecting} disabled={disableStartConnecting}>
-            Launch SensorConnector
-          </Button>
-        ),
+        controlPanelClass = props.isDisabled ? "control-panel disabled" : "control-panel",
+        durationLabelClass = props.isDisabled || props.collecting ? "duration-label disabled" : "duration-label",
         startCollectingButton = (
-          <Button className="startSensor control-panel-button"
-                  onClick={props.onStartCollecting} disabled={disableStartCollecting}>
+          <Button className="start-sensor control-panel-button"
+                  onClick={props.onStartCollecting}
+                  disabled={disableStartCollecting}>
             Start
           </Button>
         );
-  
   function handleDurationChange(evt:React.FormEvent<HTMLSelectElement>) {
     if (props.onDurationChange)
       props.onDurationChange(Number(evt.currentTarget.value));
   }
 
-  function renderEmbedInCodapUrl(url:string|null) {
-    if (!url) return null;
-    return (
-      <a className="embed-codap-link" href={url}>Embed in CODAP</a>
-    );
-  }
-
   return (
-    <div className="control-panel">
-      <div className="cc-logo" />
-      <span className="duration-label">Duration:</span>
+    <div className={controlPanelClass}>
+
+      <div className="left-controls">
+        <div className="icon-container" onClick={props.onReloadPage}>
+          <svg className="icon reload">
+            <use xlinkHref={`${props.assetsPath}/images/icons.svg#icon-reload`} />
+          </svg>
+          <div className="icon-label">Reload</div>
+        </div>
+      </div>
+      <span className={durationLabelClass}>Duration:</span>
       <Select className="duration-select control-panel-select"
-              onChange={handleDurationChange} value={String(props.duration)}>
+              onChange={handleDurationChange}
+              value={String(props.duration)}
+              disabled={disableDuration}>
         {[durationOptions]}
       </Select>
-      {props.isConnectorAwake ? startCollectingButton : startConnectingButton}
-      <Button className="stopSensor control-panel-button"
-              onClick={props.onStopCollecting} disabled={disableStopCollecting}>
+      {startCollectingButton}
+      <Button className="stop-sensor control-panel-button"
+              onClick={props.onStopCollecting}
+              disabled={disableStopCollecting}>
         Stop
       </Button>
-      <Button className="sendData control-panel-button"
-              onClick={props.onSaveData} disabled={disableSendData}>
+      <Button className="send-data control-panel-button"
+              onClick={props.onSaveData}
+              disabled={disableSendData}>
         Save Data
       </Button>
-      <Button className="newData control-panel-button"
-              onClick={props.onNewRun} disabled={disableNewData}>
+      <Button className="new-data control-panel-button"
+              onClick={props.onNewRun}
+              disabled={disableNewData}>
         New Run
       </Button>
       <div className="right-controls">
-        <div>
-          <a onClick={props.onReloadPage}
-              className="reload-page-button"
-              title="Reload All">
-              <i className="fa fa-repeat fa-2x"></i>
-          </a>
+        <div className="icon-container"
+             onClick={props.onAboutClick}>
+          <svg className="icon about">
+            <use xlinkHref={`${props.assetsPath}/images/icons.svg#icon-lightbulb`} />
+          </svg>
+          <div className="icon-label">About</div>
         </div>
-        {renderEmbedInCodapUrl(props.embedInCodapUrl)}
       </div>
     </div>
   );

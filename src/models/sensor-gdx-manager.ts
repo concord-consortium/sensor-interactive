@@ -96,8 +96,6 @@ export class SensorGDXManager extends SensorManager {
     }
 
     requestStart() {
-      console.log("Reading GDX measurements");
-
       let startCollectionTime = Date.now();
 
       const readData = async () => {
@@ -139,7 +137,6 @@ export class SensorGDXManager extends SensorManager {
 
     async getBatteryLevel() {
       const batteryLevel = await this.gdxDevice.getBatteryLevel();
-      console.log("Battery Level: " + batteryLevel);
       return batteryLevel;
     }
 
@@ -151,12 +148,8 @@ export class SensorGDXManager extends SensorManager {
         return false;
       }
 
-      console.log("Created and connected to GDX device " + this.gdxDevice.name);
-      console.log(this.gdxDevice);
-
       // log disconnection
       this.gdxDevice.on("device-closed", () => {
-        console.log("Disconnected from GDX device " + this.gdxDevice.name);
         if (!this.disconnectRequested) {
           // user did not request disconnect, something went wrong!
           this.disconnectRequested = true;
@@ -180,10 +173,6 @@ export class SensorGDXManager extends SensorManager {
         console.log("Could not find any enabled sensors on device");
         return false;
       }
-
-      this.enabledSensors.forEach((sensor: any) => {
-        console.log("Sensor: " + sensor.name + " /  value: " + sensor.value + " /  units: " + sensor.unit);
-      });
 
       // read the enabled sensors and construct columns
       let columns: any = {};

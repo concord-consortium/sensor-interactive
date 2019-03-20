@@ -8,6 +8,7 @@ module.exports = {
         "examples/sensor-tag": "./src/examples/sensor-tag.tsx",
         "examples/thermoscope": "./src/examples/thermoscope.tsx",
         "examples/wired-wireless": "./src/examples/wired-wireless.tsx",
+        "examples/sensor-connector": "./src/examples/sensor-connector.tsx",
         globals: Object.keys(pkg.dependencies)
     },
     output: {

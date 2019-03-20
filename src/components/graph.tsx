@@ -16,6 +16,7 @@ export interface GraphProps {
     xLabel:string|undefined;
     yLabel:string|undefined;
     [key:string]: any;
+    assetsPath: string;
 }
 
 export interface GraphState {
@@ -35,19 +36,24 @@ export interface GraphState {
     [key:string]: any;
 }
 
+const GRAPH1_LINE_COLOR = "#007fcf";
+const GRAPH2_LINE_COLOR = "#da5d1d";
+const AXIS_LABEL_WIDTH =  65;
+const CANVAS_FILL_COLOR = "rgba(248, 248, 248, 1.0)";
+
 // dygraph doesn't handle empty data
 function dyGraphData(data:number[][]) {
     return data && data.length ? data : [[0,0]];
 }
 
 export class Graph extends React.Component<GraphProps, GraphState> {
-    
+
     private dygraph:Dygraph;
     private dyUpdateProps:string[];
-    
+
     constructor(props: GraphProps) {
         super(props);
-        
+
         this.state = {
             width: this.props.width,
             height: this.props.height,
@@ -63,11 +69,11 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             xAxisFix: Format.getAxisFix('x', this.props.xMax - this.props.xMin, this.props.width),
             yAxisFix: Format.getAxisFix('y', this.props.yMax - this.props.yMin, this.props.height)
         };
-        
+
         this.dyUpdateProps = ["width", "height", "xMin", "xMax", "yMin", "yMax",
                                 "valuePrecision", "xLabel", "yLabel"];
     }
-    
+
     update():void {
         if(!this.dygraph) {
             return;
@@ -91,7 +97,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         if (this.state.data && (this.state.data.length > 1))
             this.dygraph.resetZoom();
     }
-    
+
     onRescale = (xStart:number, xEnd:number, yRanges:number[][]) => {
         var yRange = this.dygraph.yAxisRange();
         var xRange = this.dygraph.xAxisRange();
@@ -101,10 +107,12 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         });
         this.props.onRescale(xRange, yRange);
     }
-    
+
     componentDidMount() {
+        const color = this.props.title === "graph1" ? GRAPH1_LINE_COLOR : GRAPH2_LINE_COLOR;
         this.dygraph = new Dygraph("sensor-graph-" + this.props.title,
             dyGraphData(this.state.data), {
+            color: color,
             dateWindow: [0, this.state.xMax],
             valueRange: [this.state.yMin, this.state.yMax],
             zoomCallback: this.onRescale,
@@ -126,14 +134,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                     axisLabelFormatter: (val:number) => {
                         return Format.formatFixedValue(val, this.state.yAxisFix, "", true);
                     },
-                    axisLabelWidth: 75
+                    axisLabelWidth: AXIS_LABEL_WIDTH
                 }
             },
             xlabel: this.state.xLabel,
             ylabel: this.state.yLabel,
             legend: "follow",
             underlayCallback: function(canvas:any, area:any, g:any) {
-                canvas.fillStyle = "rgba(255, 255, 255, 1.0)";
+                canvas.fillStyle = CANVAS_FILL_COLOR;
                 canvas.fillRect(area.x, area.y, area.w, area.h);
             }
         });
@@ -141,19 +149,19 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
     componentWillReceiveProps(nextProps:GraphProps) {
         var data = nextProps.data || [];
-        
+
         var newState:any = {};
         this.dyUpdateProps.forEach((prop)=> {
             if(nextProps[prop] !== this.props[prop]) {
                 newState[prop] = nextProps[prop];
             }
         });
-        
+
         if(data.length !== this.state.dataLength) {
             newState.data = data;
             newState.dataLength = data.length;
         }
-        
+
         if((newState.yMin != null) || (newState.yMax != null)) {
             const yMin = newState.yMin != null ? newState.yMin : this.state.yMin,
                   yMax = newState.yMax != null ? newState.yMax : this.state.yMax;
@@ -164,16 +172,16 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                   xMax = newState.xMax != null ? newState.xMax : this.state.xMax;
             newState.xAxisFix = Format.getAxisFix('x', xMax - xMin, nextProps.width);
         }
-        
+
         this.setState(newState);
     }
-    
+
     shouldComponentUpdate(nextProps:GraphProps, nextState:GraphState):boolean {
         return (nextState.data !== this.state.data) ||
                 (nextState.dataLength !== this.state.dataLength) ||
                 this.dyUpdateProps.some((prop) => nextState[prop] !== this.state[prop]);
     }
-    
+
     componentDidUpdate(prevProps:GraphProps, prevState:GraphState) {
         this.update();
     }
@@ -196,12 +204,11 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         return (
             <div style={{position: "relative"}}>
                 <div id={"sensor-graph-" + title} className="graph-box" style={graphStyle}></div>
-                <a onClick={this.autoScale}
-                    className="graph-rescale-button"
-                    style={buttonStyle}
-                    title="Show all data (autoscale)">
-                    <i className="fa fa-arrows fa-lg"></i>
-                </a>
+                <div className="graph-rescale-button" onClick={this.autoScale} title="Show all data (autoscale)">
+                    <svg className="icon rescale">
+                        <use xlinkHref={`${this.props.assetsPath}/images/icons.svg#icon-rescale`} />
+                    </svg>
+                </div>
             </div>
         );
     }

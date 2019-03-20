@@ -7,6 +7,6 @@ const appElt = document.getElementById("app");
 ReactModal.setAppElement(appElt);
 
 ReactDOM.render(
-    <App/>,
+    <App />,
     appElt
 );

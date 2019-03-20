@@ -9,6 +9,7 @@ let sensorManager = new SensorTagManager();
 // Button was: className="zero-button side-panel-item"
 ReactDOM.render(
     <App
-      sensorManager={sensorManager}/>,
+      sensorManager={sensorManager}
+    />,
     document.getElementById("app")
 );
