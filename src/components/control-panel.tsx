@@ -90,7 +90,7 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
         <div className="icon-container"
              onClick={props.onAboutClick}>
           <svg className="icon about">
-            <use xlinkHref={`${props.assetsPath}/images/icons.svg#icon-about`} />
+            <use xlinkHref={`${props.assetsPath}/images/icons.svg#icon-lightbulb`} />
           </svg>
           <div className="icon-label">About</div>
         </div>

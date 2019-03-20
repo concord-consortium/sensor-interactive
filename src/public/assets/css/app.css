@@ -544,6 +544,14 @@ button:active {
 .icon-container:active .icon {
     fill: var(--sage-dark-5);
 }
+.icon-container:hover .icon.about {
+    filter: saturate(1.07);
+    filter: brightness(1.07);
+}
+.icon-container:active .icon.about {
+    filter: saturate(1.15);
+    filter: brightness(1.15);
+}
 
 .icon-label {
     font-size: 9px;
@@ -564,4 +572,8 @@ button:active {
     width: 20px;
     height: 20px;
     fill: #a7a7a7;
+}
+.icon.about {
+    width: 17.3px;
+    height: 16px;
 }
