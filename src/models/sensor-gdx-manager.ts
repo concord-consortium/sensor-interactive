@@ -7,7 +7,7 @@ const goDirectServiceUUID = "d91714ef-28b9-4f91-ba16-f0d9a604f112";
 const goDirectDevicePrefix = "GDX";
 
 const POLLING_INTERVAL = 1000;
-const READ_DATA_INTERVAL = 10;
+const READ_DATA_INTERVAL = 50;
 
 export class SensorGDXManager extends SensorManager {
     supportsDualCollection = true;
