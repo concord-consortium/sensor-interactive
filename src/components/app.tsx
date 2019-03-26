@@ -819,10 +819,16 @@ export class App extends React.Component<AppProps, AppState> {
         const { sensorManager, sensorConfig } = this.state;
         let wirelessIconClass = "wireless-status-icon ";
         if (sensorManager != null) {
-            if (sensorConfig && sensorConfig.hasInterface || !sensorManager.isWirelessDevice()) {
-                wirelessIconClass = wirelessIconClass + "connected";
+            if (sensorManager.isWirelessDevice()) {
+                if (sensorConfig && sensorConfig.hasInterface) {
+                    wirelessIconClass = wirelessIconClass + "connected";
+                } else {
+                    wirelessIconClass = wirelessIconClass + "connecting";
+                }
             } else {
-                wirelessIconClass = wirelessIconClass + "connecting";
+                if (sensorConfig && sensorConfig.hasInterface) {
+                    wirelessIconClass = wirelessIconClass + "connected";
+                }
             }
         }
         return (
