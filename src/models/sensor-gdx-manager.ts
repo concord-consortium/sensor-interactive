@@ -19,6 +19,7 @@ export class SensorGDXManager extends SensorManager {
     private gdxDevice: any;
     private enabledSensors: any;
     private initialColumnNum = 100;
+    private timerId: any;
 
     constructor() {
       super();
@@ -105,16 +106,14 @@ export class SensorGDXManager extends SensorManager {
           this.updateSensorValue(cNum.toString(), time / 1000, sensor.value);
         });
 
-        if (!this.stopRequested) {
-          // Repeat
-          setTimeout(readData, READ_DATA_INTERVAL);
-        } else {
+        if (this.stopRequested) {
+          clearInterval(this.timerId);
           this.onSensorCollectionStopped();
           this.stopRequested = false;
         }
       };
 
-      readData();
+      this.timerId = setInterval(readData, READ_DATA_INTERVAL);
 
     }
 
