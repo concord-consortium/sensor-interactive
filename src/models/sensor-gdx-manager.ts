@@ -141,7 +141,7 @@ export class SensorGDXManager extends SensorManager {
     }
 
     async connectToDevice(device?: any): Promise<boolean> {
-      this.gdxDevice = await godirect.createDevice(device);
+      this.gdxDevice = await godirect.createDevice(device, { open: true, startMeasurements: false });
 
       if (!this.gdxDevice) {
         console.log("Could not create GDX device");
@@ -157,6 +157,9 @@ export class SensorGDXManager extends SensorManager {
           this.onSensorDisconnect();
         }
       });
+
+      // set a new interval and start measurements
+      this.gdxDevice.start(this.gdxDevice.minMeasurementPeriod);
 
       // turn on any default sensors
       this.gdxDevice.enableDefaultSensors();
