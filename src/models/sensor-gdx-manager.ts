@@ -7,7 +7,7 @@ const goDirectServiceUUID = "d91714ef-28b9-4f91-ba16-f0d9a604f112";
 const goDirectDevicePrefix = "GDX";
 
 const POLLING_INTERVAL = 1000;
-const READ_DATA_INTERVAL = 10;
+const READ_DATA_INTERVAL = 50;
 
 export class SensorGDXManager extends SensorManager {
     supportsDualCollection = true;
@@ -19,6 +19,7 @@ export class SensorGDXManager extends SensorManager {
     private gdxDevice: any;
     private enabledSensors: any;
     private initialColumnNum = 100;
+    private timerId: any;
 
     constructor() {
       super();
@@ -105,16 +106,14 @@ export class SensorGDXManager extends SensorManager {
           this.updateSensorValue(cNum.toString(), time / 1000, sensor.value);
         });
 
-        if (!this.stopRequested) {
-          // Repeat
-          setTimeout(readData, READ_DATA_INTERVAL);
-        } else {
+        if (this.stopRequested) {
+          clearInterval(this.timerId);
           this.onSensorCollectionStopped();
           this.stopRequested = false;
         }
       };
 
-      readData();
+      this.timerId = setInterval(readData, READ_DATA_INTERVAL);
 
     }
 
@@ -141,7 +140,7 @@ export class SensorGDXManager extends SensorManager {
     }
 
     async connectToDevice(device?: any): Promise<boolean> {
-      this.gdxDevice = await godirect.createDevice(device);
+      this.gdxDevice = await godirect.createDevice(device, { open: true, startMeasurements: false });
 
       if (!this.gdxDevice) {
         console.log("Could not create GDX device");
@@ -157,6 +156,9 @@ export class SensorGDXManager extends SensorManager {
           this.onSensorDisconnect();
         }
       });
+
+      // set a new interval and start measurements
+      this.gdxDevice.start(this.gdxDevice.minMeasurementPeriod);
 
       // turn on any default sensors
       this.gdxDevice.enableDefaultSensors();
