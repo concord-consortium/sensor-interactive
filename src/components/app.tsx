@@ -826,7 +826,7 @@ export class App extends React.Component<AppProps, AppState> {
                     wirelessIconClass = wirelessIconClass + "connecting";
                 }
             } else {
-                if (sensorConfig && sensorConfig.hasInterface) {
+                if (sensorConfig && sensorConfig.hasInterface && this.connectedSensorCount() > 0) {
                     wirelessIconClass = wirelessIconClass + "connected";
                 }
             }
