@@ -1,14 +1,62 @@
+/* Color palette */
+:root {
+    --sage-light-3: #f1f6ed;
+    --sage-light-2: #e4ecdb;
+    --sage-light-1: #d7e3c9;
+    --sage: #c9dab7;
+    --sage-dark-1: #b3ca9d;
+    --sage-dark-2: #9eba83;
+    --sage-dark-3: #85a667;
+    --sage-dark-4: #6a8e4a;
+    --sage-dark-5: #547935;
+    --sage-text: #2e5f02;
+    --inner-shadow: rgba(0, 0, 0, 0.5);
+    --white: #ffffff;
+    --graph-text: #242424;
+    --graph-background: #f8f8f8;
+    --graph-axes: #747474;
+    --graph-lines: #bfbfbf;
+    --sensor-red: #ff0000;
+    --sensor-red-dark: #cf0000;
+    --sensor-yellow: #eef800;
+    --sensor-yellow-dark: #a9b000;
+    --sensor-green: #7afa00;
+    --sensor-green-dark: #5ec100;
+    --graph-line-blue: #007fcf;
+    --graph-line-orange: #da5d1d;
+    --app-content-unusable-vertical-height: 58px;
+}
+
 body {
-    background-color: #F9EDC3;
+    background-color: white;
     font-family: Lato, Verdana, Geneva, sans-serif;
     font-size: 12px;
+    font-weight: bold;
+    font-style: normal;
+    font-stretch: normal;
+    letter-spacing: normal;
+    color: var(--sage-text);
     margin: 0;
     overflow: hidden;
 }
 
 input, textarea, select, button {
-    font-family: Lato, Verdana, Geneva, sans-serif;    
+    font-family: Lato, Verdana, Geneva, sans-serif;
     font-size: 12px;
+    font-weight: bold;
+    color: var(--sage-text);
+}
+
+button {
+    border: solid 1px var(--sage-dark-5);
+    background-color: var(--sage-light-2);
+    transition-duration: .25s;
+}
+button:hover {
+    background-color: var(--sage);
+}
+button:active {
+    background-color: var(--sage-dark-2);
 }
 
 .disable-focus-highlight {
@@ -28,29 +76,261 @@ input, textarea, select, button {
     flex-direction: column;
     flex: 1 1;
     margin-top: 8px;    /* affects .app-content:max-height */
-    /* 72px = .app-content:margin-top + .control-panel:flex-basis + .control-panel:margin-top */
-    /* Sass, Less, CSS variables, inline styles, etc. could be used to eliminate redundancy */
-    max-height: calc(100% - 72px);
+    /* 58px = .app-content:margin-top + .control-panel:flex-basis + .control-panel:margin-top */
+    max-height: calc(100% - var(--app-content-unusable-vertical-height));
 }
 
 .app-top-bar {
-    flex: 0 0 18px;
     display: flex;
-    flex-direction: row-reverse;
-    justify-content: space-between;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Sensor Status */
+.top-bar-left-controls {
+    flex-grow: 1;
+    width: 200px;
+    height: 100%;
+    margin-left: 11px;
+}
+
+.status-message-holder {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 38px;
+}
+
+.wireless-status-border {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 18px;
+    height: 18px;
+    border: solid 2.5px var(--sage-dark-1);
+    border-radius: 50%;
+}
+
+.wireless-status-icon {
+    width: 10px;
+    height: 10px;
+    border: solid 1.5px var(--sensor-red-dark);
+    border-radius: 50%;
+    background-color: var(--sensor-red);
+}
+.wireless-status-icon.connecting {
+    border: solid 1.5px var(--sensor-yellow-dark);
+    background-color: var(--sensor-yellow);
+}
+.wireless-status-icon.connected {
+    border: solid 1.5px var(--sensor-green-dark);
+    background-color: var(--sensor-green);
+}
+
+.wireless-status-icon-hi {
+    margin: 2px 0px 0px 2px;
+    width: 4px;
+    height: 4px;
+    -webkit-filter: blur(1px);
+    filter: blur(1px);
+    background-color: var(--white);
 }
 
 .status-message {
-    margin-left: 8px;
+    margin-left: 11px;
+    width: 170px;
 }
 
-.two-sensors-checkbox {
-    margin-right: 66px;
-    user-select: none;
+/* Sensor Controls */
+.sensor-controls-holder {
+    display: flex;
+    justify-content: center;
 }
 
+/* Connection Buttons */
+.sensor-buttons {
+    display: flex;
+    margin: 4px 0px 4px 0px;
+}
+
+.connect-to-device-button {
+    width: 106px;
+    height: 30px;
+    border-radius: 6px;
+    border: solid 3px var(--sage-dark-1);
+    background-color: var(--sage-light-2);
+    margin: 0px 4px 0px 4px;
+    padding: 0px;
+    cursor: pointer;
+    transition-duration: .25s;
+}
+.connect-to-device-button:hover {
+    background-color: var(--sage);
+}
+.connect-to-device-button:active {
+    border: solid 3px var(--sage-dark-3);
+    background-color: var(--sage-dark-1);
+}
+
+/* Connection Message */
+.connect-message-holder {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 110px;
+    margin: 0px 4px 0px 4px;
+}
+
+.connect-message {
+    line-height: 1.1;
+}
+
+.connect-sub-message {
+    font-size: 10px;
+    font-weight: normal;
+    font-style: italic;
+    line-height: 1.1;
+}
+
+/* Sensor Selection */
+.sensor-select {
+    width: 200px;
+    height: 30px;
+    border: solid 3px var(--sage-dark-1);
+    background-color: var(--sage-light-3);
+    margin-right: 2px;
+    padding-left: 5px;
+    border-radius: 5px 0px 0px 5px;
+    cursor: pointer;
+    transition-duration: .25s;
+}
+.sensor-select:focus > option:checked {
+    background: var(--sage) !important;
+}
+.sensor-select:hover {
+    background-color: var(--sage-light-2);
+}
+.sensor-select:active {
+    background-color: var(--sage-light-1);
+    border-color: var(--sage-dark-3);
+}
+.sensor-select.single {
+    border: solid 1px var(--sage-dark-5);
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    padding-left: 9px;
+    pointer-events: none;
+}
+
+/* Sensor Reading */
+.reading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 80px;
+    height: 28px;
+    border: solid 1px var(--sage-dark-5);
+    background-color: var(--graph-background);
+    margin: 0px 2px 0px 2px;
+}
+
+.reading-label {
+    font-size: 9px;
+    font-weight: normal;
+    font-style: italic;
+    color: var(--sage-text);
+    margin-top: 1px;
+}
+
+.sensor-reading {
+    font-family: Arial;
+    font-size: 12px;
+    font-weight: normal;
+    font-style: normal;
+    color: var(--graph-text);
+}
+
+/* Zero Sensor */
+.zero-button {
+    width: 52px;
+    height: 30px;
+    border: solid 1px var(--sage-dark-5);
+    background-color: var(--sage-light-2);
+    line-height: 0.92;
+    text-align: center;
+    color: var(--sage-text);
+    margin: 0px 2px 0px 2px;
+    cursor: pointer;
+    transition-duration: .25s;
+}
+.zero-button:hover {
+    background-color: var(--sage);
+}
+.zero-button:active {
+    border: solid 1px var(--sage-dark-3);
+    background-color: var(--sage-dark-1);
+}
+.zero-button:disabled {
+    opacity: .35;
+    pointer-events: none;
+}
+
+/* Remove Sensor */
+.remove-sensor-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    margin: 0px 2px 0px 2px;
+    border-radius: 0px 5px 5px 0px;
+    border: solid 1px var(--sage-dark-5);
+    background-color: var(--sage-light-2);
+    cursor: pointer;
+    transition-duration: .25s;
+}
+.remove-sensor-button:hover {
+    background-color: var(--sage);
+}
+.remove-sensor-button:active {
+    border: solid 1px var(--sage-dark-3);
+    background-color: var(--sage-dark-1);
+}
+
+/* Add Sensor */
+.top-bar-right-controls {
+    flex-grow: 1;
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 11px;
+    width: 200px;
+}
+
+.add-sensor-button {
+    width: 106px;
+    height: 30px;
+    border-radius: 6px;
+    border: solid 3px var(--sage-dark-1);
+    background-color: var(--sage-light-2);
+    cursor: pointer;
+    transition-duration: .25s;
+}
+.add-sensor-button:hover {
+    background-color: var(--sage);
+}
+.add-sensor-button:active {
+    border: solid 3px var(--sage-dark-3);
+    background-color: var(--sage-dark-1);
+}
+
+/* Graphs */
 .graphs-panel {
     flex: 1 1;
+}
+.graphs-panel.disabled {
+    opacity: .35;
 }
 
 .dygraph-label {
@@ -69,17 +349,31 @@ input, textarea, select, button {
 .sensor-graph {
     flex: 1 1;
     user-select: none;
+    font-family: Arial;
+    font-size: 12px;
+    font-weight: normal;
+    font-style: normal;
+    color: var(--graph-text);
 }
 
 .graph-rescale-button {
     position: absolute;
-    top: 10px;
-    right: 15px;
-    opacity: 0.5;
+    top: 8px;
+    right: 33px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    transition-duration: .25s;
 }
-
-.graph-rescale-button:hover {
-    opacity: 1;
+.graph-rescale-button:hover .icon {
+    fill: #8f8f8f;
+}
+.graph-rescale-button:active .icon {
+    fill: var(--graph-axes);
 }
 
 .graph-side-panel {
@@ -91,80 +385,93 @@ input, textarea, select, button {
     user-select: none;
 }
 
-.side-panel-item {
-    height: 24px;
-    margin-left: 10px;
-    margin-right: 10px;
-}
-
-.reading-label {
-    margin-top: 8px;
-}
-
-.sensor-reading-surround {
-    width: 100px;
-    height: 24px;
-    margin-left: 48px;
-    margin-bottom: 8px;
-    background-color: white;
-    border-radius: 5px;
+.graph-top-panel-holder {
     display: flex;
-    justify-content: space-around;
-    align-items: center
+    flex-direction: column;
 }
 
-.sensor-reading {
-    margin-left: 0;
-    margin-top: 6px;
-    margin-bottom: -3px;
-    text-align: center;
+.graph-top-panel {
+    display: flex;
+    flex-direction: row;
+    user-select: none;
+    margin: 4px 0px 4px 0px;
 }
 
-.sensor-label {
-    margin-top: 8px;
+/* Graph Legend */
+.bottom-legend {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    right: 14px;
+    bottom: 46px;
+    height: 20px;
+    font-family: Arial;
+    font-size: 12px;
+    font-weight: normal;
+    font-style: normal;
+    color: var(--graph-text);
+}
+.bottom-legend .bar {
+    height: 3px;
+    width: 18px;
+    margin: 0px 2px 0px 2px;
+}
+.bottom-legend .bar.primary {
+    background-color: var(--graph-line-blue);
+}
+.bottom-legend .bar.secondary {
+    background-color: var(--graph-line-orange);
+}
+.bottom-legend .name {
+    margin: 0px 2px 0px 6px;
 }
 
-.sensor-select {
-    background-color: #eee;
-}
-
-.zero-button {
-    width: 100px;
-    background-color: #eee;
-    border-radius: 4px;
-    margin-left: 48px;
-    margin-top: 20px;
-    margin-bottom: 10px;
-}
-
-/* FIXME: This messes up the ording of the other items in the app-top-bar */
-.connect-to-device-button {
-    width: 200px;
-    background-color: #eee;
-    border-radius: 4px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: auto;
-}
-
+/* Bottom Control Panel */
 .control-panel {
     z-index: 1;
-    width: 100vw;
-    flex: 0 0 44px;     /* affects .app-content:max-height */
-    margin-top: 20px;   /* affects .app-content:max-height */
-    background-color: white;
     display: flex;
+    justify-content: center;
     align-items: center;
+    width: 100%;
+    height: 38px;
+    margin-top: 6px;   /* affects .app-content:max-height */
+    background-color: var(--sage);
     user-select: none;
+}
+.control-panel.disabled {
+    background-color: rgba(201, 218, 183, 0.35);
 }
 
 .control-panel .duration-label {
     margin-left: 6px;
-    margin-right: 4px;
+}
+.control-panel .duration-label.disabled {
+    opacity: .35;
+    pointer-events: none;
 }
 
 .control-panel .duration-select {
     margin-right: 16px;
+    border: solid 1px var(--sage-dark-5);
+    background-color: var(--sage-light-3);
+    border-radius: 5px 0px 0px 5px;
+    margin: 0px 4px 0px 4px;
+    cursor: pointer;
+    transition-duration: .25s;
+}
+.control-panel .duration-select:hover {
+    background-color: var(--sage-light-2);
+}
+.control-panel .duration-select:active {
+    background-color: var(--sage-light-1);
+}
+.control-panel .duration-select:disabled {
+    opacity: .35;
+    pointer-events: none;
+}
+.control-panel .duration-select:focus > option:checked {
+    background: var(--sage) !important;
 }
 
 .control-panel-select {
@@ -173,29 +480,41 @@ input, textarea, select, button {
 }
 
 .control-panel-button {
-    width: 100px;
-    height: 26px;
-    background-color: #eee;
-    border-radius: 4px;
+    width: 50px;
+    height: 22px;
+    border-radius: 5px;
+    border: solid 1px var(--sage-dark-5);
+    background-color: var(--sage-light-2);
+    margin: 0px 4px 0px 4px;
+    cursor: pointer;
+    transition-duration: .25s;
+}
+.control-panel-button:hover {
+    background-color: var(--sage);
+}
+.control-panel-button:active {
+    background-color: var(--sage-dark-2);
+}
+.control-panel-button:disabled {
+    opacity: .35;
+    pointer-events: none;
 }
 
-.cc-logo {
-    /* 354 x 110 native */
-    width: 116px;
-    height: 36px;
-    min-width: 42px;
-    margin-left: 6px;
-    margin-right: 10px;
-    background-image: url("../images/cc-logo-crop.png");
-    background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
+.send-data {
+    width: 75px;
+}
+.new-data {
+    width: 70px;
+}
+
+.control-panel .left-controls {
+    flex-grow: 1;
 }
 
 .control-panel .right-controls {
     flex-grow: 1;
     display: flex;
-    flex-direction: row-reverse;
+    justify-content: flex-end;
 }
 
 .embed-codap-link {
@@ -203,11 +522,58 @@ input, textarea, select, button {
     margin-right: 8px;
 }
 
-.reload-page-button {
-    margin-right: 8px;
-    opacity: 0.5;
+.icon-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+    transition-duration: .25s;
+}
+.icon-container:hover {
+    background-color: var(--sage-dark-1);
+}
+.icon-container:active {
+    background-color: var(--sage-dark-1);
+}
+.icon-container:hover .icon {
+    fill: var(--sage-dark-4);
+}
+.icon-container:active .icon {
+    fill: var(--sage-dark-5);
+}
+.icon-container:hover .icon.about {
+    filter: saturate(1.07);
+    filter: brightness(1.07);
+}
+.icon-container:active .icon.about {
+    filter: saturate(1.15);
+    filter: brightness(1.15);
 }
 
-.reload-page-button:hover {
-    opacity: 1;
+.icon-label {
+    font-size: 9px;
+    font-style: bold;
+}
+
+.icon {
+    width: 16px;
+    height: 16px;
+    fill: var(--sage-dark-3);
+    transition-duration: .25s;
+}
+.icon.reload, .icon.about {
+    width: 18px;
+    height: 18px;
+}
+.icon.rescale {
+    width: 20px;
+    height: 20px;
+    fill: #a7a7a7;
+}
+.icon.about {
+    width: 17.3px;
+    height: 16px;
 }

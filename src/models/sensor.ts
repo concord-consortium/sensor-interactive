@@ -1,4 +1,5 @@
 import { SensorDefinition } from "@concord-consortium/sensor-connector-interface";
+import { Format } from "../utils/format";
 
 export class Sensor {
     columnID?:string;
@@ -30,6 +31,15 @@ export class Sensor {
         if (this.sensorValue != null) {
             this.tareValue = this.sensorValue;
         }
+    }
+
+    sensorPrecision() {
+        if (!this.definition)
+            return 2;
+
+        const sensorRange = this.definition.maxReading - this.definition.minReading,
+              sensorPrecision = Format.getFixValue(sensorRange);
+        return sensorPrecision;
     }
 
 }

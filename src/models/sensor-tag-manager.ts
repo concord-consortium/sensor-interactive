@@ -212,12 +212,27 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
       // this.sensorConfig = new SensorConfiguration(this.internalConfig);
     }
 
+    static getOptionalServices() {
+      return [tagAddrs.luxometer.service,
+              tagAddrs.humidity.service,
+              tagAddrs.IRTemperature.service,
+              tagAddrs.IO.service];
+    }
+
+    static getWirelessFilters() {
+      return [{ services: [tagIdentifier] }];
+    }
+
     sendSensorConfig(includeOnConnect:boolean) {
       let sensorConfig = new SensorConfiguration(this.internalConfig);
       if(includeOnConnect) {
         this.onSensorConnect(sensorConfig);
       }
       this.onSensorStatus(sensorConfig);
+    }
+
+    isWirelessDevice() {
+      return true;
     }
 
     startPolling() {
@@ -305,15 +320,19 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
       this.stopRequested = true;
     }
 
-    async connectToDevice() {
-      // Step 1: ask for a device
-      this.device = await navigator.bluetooth.requestDevice({
+    async connectToDevice(device?: any): Promise<boolean> {
+      if (device) {
+        this.device = device;
+      } else {
+        // Step 1: ask for a device
+        this.device = await navigator.bluetooth.requestDevice({
           filters: [{ services: [tagIdentifier] }],
           optionalServices: [tagAddrs.luxometer.service,
                              tagAddrs.humidity.service,
                              tagAddrs.IRTemperature.service,
                              tagAddrs.IO.service]
         });
+      }
       // Step 2: Connect to device
       this.server = await this.device.gatt.connect();
 
@@ -322,6 +341,8 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
 
       // Make the green led go solid so we know we are connected
       this.turnOnGreenLED();
+
+      return true;
     }
 
     async turnOnGreenLED() {

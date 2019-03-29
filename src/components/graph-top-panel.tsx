@@ -6,24 +6,31 @@ import { SensorConfigColumnInfo } from "@concord-consortium/sensor-connector-int
 import Button from "./smart-highlight-button";
 import Select from "./smart-highlight-select";
 
-interface IGraphSidePanelProps {
-  width?:number;
+interface IGraphTopPanelProps {
   sensorSlot:SensorSlot;
   sensorColumns:SensorConfigColumnInfo[];
   sensorPrecision:number;
   onSensorSelect?:(sensorIndex:number, columnID:string) => void;
   onZeroSensor?:() => void;
+  onRemoveSensor?:() => void;
+  showRemoveSensor:boolean;
+  assetsPath: string;
 }
 
-export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
-  const { sensorSlot, onZeroSensor, onSensorSelect } = props,
+export const GraphTopPanel: React.SFC<IGraphTopPanelProps> = (props) => {
+  const { sensorSlot, onZeroSensor, onRemoveSensor, onSensorSelect } = props,
         { sensor } = sensorSlot,
         tareValue = sensor.tareValue || 0,
         sensorUnitStr = sensor.valueUnit || "";
-  
+
   const handleZeroSensor = () => {
     if (onZeroSensor)
       onZeroSensor();
+  };
+
+  const handleRemoveSensor = () => {
+    if (onRemoveSensor)
+      onRemoveSensor();
   };
 
   const handleSensorSelect = (evt:React.FormEvent<HTMLSelectElement>) => {
@@ -61,29 +68,36 @@ export const GraphSidePanel: React.SFC<IGraphSidePanelProps> = (props) => {
     });
   };
 
-  const width = props.width && isFinite(props.width) ? props.width : null,
-        style = width ? { width } : {},
-        sensorOptions = sensorSelectOptions(props.sensorColumns),
+  const sensorOptions = sensorSelectOptions(props.sensorColumns),
         enableSensorSelect = sensorOptions && (sensorOptions.length > 1) && props.onSensorSelect,
         sensorDefinition = sensor && sensor.definition,
-        enableZeroSensor = sensorDefinition && sensorDefinition.tareable && props.onZeroSensor;
+        enableZeroSensor = sensorDefinition && sensorDefinition.tareable && props.onZeroSensor,
+        selectClass = "sensor-select " + (sensorOptions && sensorOptions.length <=1 ? "single" : null);
   return (
-    <div className="graph-side-panel" style={style}>
-      <label className="reading-label side-panel-item">Reading:</label>
-      <div className="sensor-reading-surround">
-        <label className="sensor-reading side-panel-item">{sensorReading()}</label>
-      </div>
-      <label className="sensor-label side-panel-item">Sensor:</label>
-      <Select className="sensor-select side-panel-item"
+    <div className="graph-top-panel">
+      <Select className={selectClass}
               value={sensor.columnID}
               disabled={!enableSensorSelect}
-              onChange={handleSensorSelect} >
+              onChange={handleSensorSelect}>
         {sensorOptions}
       </Select>
-      <Button className="zero-button side-panel-item"
-              onClick={handleZeroSensor} disabled={!enableZeroSensor}>
+      <div className="reading-container">
+        <label className="reading-label">Reading</label>
+        <label className="sensor-reading">{sensorReading()}</label>
+      </div>
+      <Button className="zero-button"
+              onClick={handleZeroSensor}
+              disabled={!enableZeroSensor}>
         Zero Sensor
       </Button>
+      {props.showRemoveSensor ?
+        <Button className="remove-sensor-button"
+                onClick={handleRemoveSensor}>
+          <svg className="icon remove">
+            <use xlinkHref={`${props.assetsPath}/images/icons.svg#icon-remove`} />
+          </svg>
+        </Button>
+        : null }
     </div>
   );
 };

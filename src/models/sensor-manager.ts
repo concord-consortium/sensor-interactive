@@ -17,18 +17,19 @@ export interface ConnectableSensorManager {
   // The sensor-interactive code will use connectToDevice to determine
   // if the sensorManager instance implements ConnectableSensorManager
   // typescript doesn't have runtime type checking
-  connectToDevice: () => void;
+  connectToDevice: (device?: any) => Promise<boolean>;
   disconnectFromDevice: () => void;
   deviceConnected: boolean;
 }
 
 export abstract class SensorManager {
   supportsDualCollection: boolean;
-  
+
   abstract startPolling() : void;
   abstract hasSensorData() : boolean;
   abstract requestStart() : void;
   abstract requestStop() : void;
+  abstract isWirelessDevice() : boolean;
 
   isAwake() : boolean {
     return true;
@@ -81,6 +82,10 @@ export abstract class SensorManager {
 
   protected onSensorConnect(sensorConfig: SensorConfiguration) {
     this.notifyListeners('onSensorConnect', sensorConfig);
+  }
+
+  protected onSensorDisconnect() {
+    this.notifyListeners('onSensorDisconnect');
   }
 
   protected onSensorData(newData:NewSensorData) {

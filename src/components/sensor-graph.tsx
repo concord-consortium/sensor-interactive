@@ -2,11 +2,9 @@ import * as React from "react";
 import { Sensor } from "../models/sensor";
 import { SensorSlot } from "../models/sensor-slot";
 import { Graph } from "./graph";
-import { GraphSidePanel } from "./graph-side-panel";
 import { SensorConfigColumnInfo } from "@concord-consortium/sensor-connector-interface";
-import { Format } from "../utils/format";
 
-const kSidePanelWidth = 200;
+const kSidePanelWidth = 20;
 
 interface SensorGraphProps {
     width:number|null;
@@ -24,6 +22,7 @@ interface SensorGraphProps {
     xEnd:number;
     isSingletonGraph:boolean;
     isLastGraph:boolean;
+    assetsPath: string;
 }
 
 interface SensorGraphState {
@@ -46,18 +45,6 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         };
     }
 
-    sensorPrecision() {
-        const { sensorSlot } = this.props,
-              sensor = sensorSlot && sensorSlot.sensor,
-              sensorDefinition = sensor && sensor.definition;
-        if (!sensorDefinition)
-            return 2;
-
-        const sensorRange = sensorDefinition.maxReading - sensorDefinition.minReading,
-              sensorPrecision = Format.getFixValue(sensorRange);
-        return sensorPrecision;
-    }
-
     handleRescale = (xRange:number[], yRange:number[]) => {
         const { sensorSlot } = this.props,
               { yMin, yMax } = this.state,
@@ -71,16 +58,9 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         }
     }
 
-    zeroSensor = () => {
-        if(this.props.sensorSlot.sensor) {
-          this.props.sensorSlot.sensor.zeroSensor();
-          this.setState(this.state);
-        }
-    }
-
     componentWillReceiveProps(nextProps:SensorGraphProps) {
         const { dataReset } = this.props;
-        if(!dataReset && nextProps.dataReset) {
+        if (!dataReset && nextProps.dataReset) {
             this.lastDataIndex = 0;
 
             // if sensor type changes, revert to default axis range for sensor
@@ -130,24 +110,11 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 xMax={this.props.xEnd}
                 yMin={plotYMin}
                 yMax={plotYMax}
-                valuePrecision={this.sensorPrecision()}
+                valuePrecision={sensor ? sensor.sensorPrecision() : 2}
                 xLabel={this.xLabel()}
-                yLabel={this.yLabel()} />
+                yLabel={this.yLabel()}
+                assetsPath={this.props.assetsPath} />
             </div>
-        );
-    }
-
-    renderSidePanel() {
-        const { collecting, hasData } = this.props,
-              onSensorSelect = !collecting && !hasData ? this.props.onSensorSelect : undefined,
-              onZeroSensor = !collecting && !hasData ? this.zeroSensor : undefined;
-        return (
-          <GraphSidePanel
-            sensorSlot={this.props.sensorSlot}
-            sensorColumns={this.props.sensorColumns}
-            sensorPrecision={this.sensorPrecision()}
-            onSensorSelect={onSensorSelect}
-            onZeroSensor={onZeroSensor} />
         );
     }
 
@@ -156,7 +123,6 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         return (
             <div className="sensor-graph-panel">
                 {this.renderGraph(graphWidth)}
-                {this.renderSidePanel()}
             </div>
         );
     }

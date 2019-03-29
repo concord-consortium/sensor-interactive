@@ -22,6 +22,8 @@ interface IGraphsPanelProps {
   collecting:boolean;
   hasData:boolean;
   dataReset:boolean;
+  hasConnected:boolean;
+  assetsPath: string;
 }
 
 const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
@@ -30,7 +32,6 @@ const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
                         title:string,
                         isSingletonGraph:boolean,
                         isLastGraph:boolean = isSingletonGraph) {
-
     const sensorColumns = (props.sensorConfig && props.sensorConfig.dataColumns) || [],
           availableHeight = props.size.height && (props.size.height - 20),
           singleGraphHeight = availableHeight && (availableHeight + 8),
@@ -55,11 +56,12 @@ const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
                         timeUnit={props.timeUnit}
                         collecting={props.collecting}
                         hasData={props.hasData}
-                        dataReset={props.dataReset}/>;
+                        dataReset={props.dataReset}
+                        assetsPath={props.assetsPath}/>;
   }
 
-  const { sensorSlots, secondGraph } = props,
-        classes = `graphs-panel ${secondGraph ? 'two-graphs' : ''}`,
+  const { sensorSlots, secondGraph, hasConnected } = props,
+        classes = `graphs-panel ${secondGraph ? 'two-graphs' : ''} ${hasConnected ? '' : 'disabled'}`,
         style = { minHeight: secondGraph ? 320 : 170 };
 
   return (

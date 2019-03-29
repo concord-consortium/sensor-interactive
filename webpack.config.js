@@ -7,11 +7,16 @@ module.exports = {
         "examples/fake-sensor": "./src/examples/fake-sensor.tsx",
         "examples/sensor-tag": "./src/examples/sensor-tag.tsx",
         "examples/thermoscope": "./src/examples/thermoscope.tsx",
+        "examples/wired-wireless": "./src/examples/wired-wireless.tsx",
+        "examples/sensor-connector": "./src/examples/sensor-connector.tsx",
         globals: Object.keys(pkg.dependencies)
     },
     output: {
         filename: "[name].js",
         path: __dirname + "/dist/assets/js"
+    },
+    performance: {
+        hints: false
     },
 
     // Enable sourcemaps for debugging webpack's output.
@@ -30,7 +35,5 @@ module.exports = {
             // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
             { enforce: "pre", test: /\.js$/, loader: "source-map-loader" }
         ]
-    },
-
-    plugins: [new webpack.optimize.CommonsChunkPlugin({ name: "globals", filename: "globals.js" })]
+    }
 };
