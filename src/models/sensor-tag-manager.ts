@@ -4,7 +4,7 @@ import { SensorManager,
 import { SensorConfig } from "@concord-consortium/sensor-connector-interface";
 import { cloneDeep } from "lodash";
 
-const tagIdentifier = 0xaa80;
+const tagIdentifier = 0xaa20;
 interface ISensorAddrs {
   service: string;
   data: string;
