@@ -365,7 +365,6 @@ export class App extends React.Component<AppProps, AppState> {
             });
 
             wirelessFilters = wirelessFilters.concat(SensorGDXManager.getWirelessFilters());
-            console.log(wirelessFilters);
             // Step 1: ask for a device
             const wirelessDevice: any = await navigator.bluetooth.requestDevice({
                 filters: wirelessFilters,
