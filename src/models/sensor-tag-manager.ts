@@ -220,7 +220,11 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
     }
 
     static getWirelessFilters() {
-      return [{ services: [tagIdentifier] }];
+      return [
+        // This is a filter for the CC2650
+        { services: [tagIdentifier] },
+        // This is a filter for the LPSTK
+        { services: ['f0001110-0451-4000-b000-000000000000']}];
     }
 
     sendSensorConfig(includeOnConnect:boolean) {
@@ -340,6 +344,11 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
       this.sendSensorConfig(true);
 
       // Make the green led go solid so we know we are connected
+      // FIXME: this service is different on LPSTK sensor tag
+      // The app provided by TI seems to turn the green LED of the LPSTK on
+      // upon connection, but this doesn't seem to happen by default. So it
+      // probably makes sense that we continue to do this for both the
+      // CC2650 and the LPSTK sensor tags
       this.turnOnGreenLED();
 
       return true;
