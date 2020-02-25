@@ -270,7 +270,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
 
       const readData = async () => {
         // collect all of the promises
-        const readSensorPromises = this.activeSensors.map((sensor) => {
+        const readSensorPromises = this.activeSensors.map((sensor:any) => {
           return this.readSensor(startCollectionTime, sensor, true);
         });
 
@@ -355,7 +355,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
       ];
 
       // For each one get its valueCharacteristic
-      this.activeSensors.forEach((sensor) => {
+      this.activeSensors.forEach((sensor:any) => {
         this.setupSensor(sensor);
       });
 
