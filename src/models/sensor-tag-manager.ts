@@ -291,12 +291,12 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
       readData();
     }
 
-    printByteArray(byteArray:DataView) {
+    printByteArray(label: string, byteArray:DataView) {
       let hex:string = "";
       for(let i=0; i < byteArray.byteLength; i++) {
         hex += toPaddedHexString(byteArray.getUint8(i));
       }
-      console.log(`read bytes: ${hex}`);
+      console.log(`${label}: ${hex}`);
     }
 
     async readSensor(startCollectionTime:number, sensor:any, sendData:boolean) {
@@ -307,7 +307,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
 
       // Step 7: Read bytes
       const byteArray = await sensor.dataCharacteristic.readValue();
-      this.printByteArray(byteArray);
+      this.printByteArray(sensor.sensorName ,byteArray);
 
       const time = Date.now() - startCollectionTime;
 
