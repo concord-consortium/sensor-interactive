@@ -355,8 +355,9 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
       ];
 
       // For each one get its valueCharacteristic
-      this.activeSensors.forEach((sensor:any) => {
-        this.setupSensor(sensor);
+      for (let index = 0; index < this.activeSensors.length; index++) {
+        let sensor = this.activeSensors[index];
+        await this.setupSensor(sensor);
       });
 
       // Resend the sensorconfig so the UI includes the list of sensors
