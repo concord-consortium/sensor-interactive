@@ -116,10 +116,17 @@ export class App extends React.Component<AppProps, AppState> {
                             ? "../assets" : "./assets";
         this.messages = SensorStrings.messages as IStringMap;
 
+        // Predefine the sensor types for the two slots.
+        // The matchSensorsToDataColumns uses the units to do the match
+        const sensor1 = new Sensor();
+        const sensor2 = new Sensor();
+        sensor1.valueUnit = "degC";
+        sensor2.valueUnit = "lux";
+
         this.state = {
             sensorManager:null,
             sensorConfig:null,
-            sensorSlots:[new SensorSlot(0, new Sensor()), new SensorSlot(1, new Sensor())],
+            sensorSlots:[new SensorSlot(0, sensor1), new SensorSlot(1, sensor2)],
             hasData:false,
             dataChanged:false,
             collecting:false,
@@ -129,7 +136,7 @@ export class App extends React.Component<AppProps, AppState> {
             suppressNotRespondingModal:false,
             reconnectModal:false,
             statusMessage:this.messages["no_device_connected"],
-            secondGraph:false,
+            secondGraph:true,
             bluetoothErrorModal:false,
             disconnectionWarningModal:false,
             hasConnected:!!this.props.sensorManager
