@@ -358,7 +358,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
       for (let index = 0; index < this.activeSensors.length; index++) {
         let sensor = this.activeSensors[index];
         await this.setupSensor(sensor);
-      });
+      }
 
       // Resend the sensorconfig so the UI includes the list of sensors
       this.sendSensorConfig(true);
