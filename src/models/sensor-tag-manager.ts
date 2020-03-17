@@ -106,7 +106,7 @@ function toPaddedHexString(num:number) : string {
 }
 
 export class SensorTagManager extends SensorManager implements ConnectableSensorManager {
-    supportsDualCollection = false;
+    supportsDualCollection = true;
 
     // private sensorConfig: SensorConfiguration;
     private internalConfig: SensorConfig;
@@ -114,6 +114,8 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
     private stopRequested: boolean = false;
     private device: any;
     private server: any;
+
+    private activeSensors: any = [];
 
     constructor() {
       super();
@@ -152,7 +154,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
             id: "102",
             setID: "100",
             position: 1,
-            name: "Temperature",
+            name: "Ambient Temperature (1)",
             units: "degC",
             liveValue: "NaN",
             liveValueTimeStamp: new Date(),
@@ -185,7 +187,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
             id: "105",
             setID: "100",
             position: 1,
-            name: "Temperature",
+            name: "Ambient Temperature (1)",
             units: "degC",
             liveValue: "NaN",
             liveValueTimeStamp: new Date(),
@@ -205,7 +207,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
             name: "Run 1",
             // colIDs: [100, 102, 103]
             // colIDs: [100, 101]
-            colIDs: [100, 104, 105]
+            colIDs: [100, 101, 102, 103, 104, 105]
           }
         }
       };
@@ -220,7 +222,12 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
     }
 
     static getWirelessFilters() {
-      return [{ services: [tagIdentifier] }];
+      return [
+        // this is a filter for the CC2650
+        { services: [tagIdentifier] },
+        // this is a filter for the LPSTK
+        { services: ['f0001110-0451-4000-b000-000000000000']}
+      ];
     }
 
     sendSensorConfig(includeOnConnect:boolean) {
@@ -238,12 +245,18 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
     startPolling() {
       setTimeout(() => {
         this.sendSensorConfig(true);
+
       }, 10);
-      setInterval(() => {
-        // resend the sensorConfig so we will know if the device is disconnected
-        // This could be smarter if it keeps track of which sensors have been
-        // enabled on the device
-        this.sendSensorConfig(false);
+      setInterval(async () => {
+        // each readSensor call resends the sensorConfig which will tell the UI
+        // if we are disconnected (I hope)
+        // probably this loop needs to do different things during active collection
+        // or when things are disconnected
+        for (let index = 0; index < this.activeSensors.length; index++) {
+          await this.readSensor(0, this.activeSensors[index], false);
+        }
+
+        // this.sendSensorConfig(false);
       }, 1000);
     }
 
@@ -252,27 +265,18 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
     }
 
     requestStart() {
-      // cloneDeep is used because we are saving the dataCharacteristic on this object
-      // and that will change after the device is disconnected and reconnected
-
-      // const activeSensors = [  cloneDeep(sensorDescriptions.IRTemperature) ];
-      // const activeSensors = [ cloneDeep(sensorDescriptions.luxometer) ];
-      const activeSensors = [ cloneDeep(sensorDescriptions.humidity) ];
-
-      // For each one get its valueCharacteristic
-      activeSensors.forEach((sensor) => {
-        this.setupSensor(sensor);
-      });
 
       let startCollectionTime = Date.now();
 
       const readData = async () => {
         // collect all of the promises
-        const readSensorPromises = activeSensors.map((sensor) => {
-          return this.readSensor(startCollectionTime, sensor);
+        const readSensorPromises = this.activeSensors.map((sensor:any) => {
+          return this.readSensor(startCollectionTime, sensor, true);
         });
 
         // wait for all active sensors to be read
+        // The bluetooth api says it doesn't handle parallel operations well
+        // so this might not be a good thing to do
         await Promise.all(readSensorPromises);
 
         if(!this.stopRequested) {
@@ -287,15 +291,15 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
       readData();
     }
 
-    printByteArray(byteArray:DataView) {
+    printByteArray(label: string, byteArray:DataView) {
       let hex:string = "";
       for(let i=0; i < byteArray.byteLength; i++) {
         hex += toPaddedHexString(byteArray.getUint8(i));
       }
-      console.log(`read bytes: ${hex}`);
+      console.log(`${label}: ${hex}`);
     }
 
-    async readSensor(startCollectionTime:number, sensor:any) {
+    async readSensor(startCollectionTime:number, sensor:any, sendData:boolean) {
       if(!sensor.dataCharacteristic) {
         // The dataCharacteristic hasn't been setup yet
         return;
@@ -303,7 +307,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
 
       // Step 7: Read bytes
       const byteArray = await sensor.dataCharacteristic.readValue();
-      this.printByteArray(byteArray);
+      this.printByteArray(sensor.sensorName ,byteArray);
 
       const time = Date.now() - startCollectionTime;
 
@@ -312,7 +316,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
         // This would be better if the SensorManager interface supported
         // the ability to send multiple values for a single time value
         this.updateSensorValue(valueDesc.columnID, time / 1000,
-          valueDesc.convertFunct(byteArray));
+          valueDesc.convertFunct(byteArray), sendData);
       });
     }
 
@@ -341,6 +345,23 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
 
       // Make the green led go solid so we know we are connected
       this.turnOnGreenLED();
+
+      // cloneDeep is used because we are saving the dataCharacteristic on this object
+      // and that will change after the device is disconnected and reconnected
+      this.activeSensors = [
+        cloneDeep(sensorDescriptions.IRTemperature),
+        cloneDeep(sensorDescriptions.luxometer),
+        cloneDeep(sensorDescriptions.humidity)
+      ];
+
+      // For each one get its valueCharacteristic
+      for (let index = 0; index < this.activeSensors.length; index++) {
+        let sensor = this.activeSensors[index];
+        await this.setupSensor(sensor);
+      }
+
+      // Resend the sensorconfig so the UI includes the list of sensors
+      this.sendSensorConfig(true);
 
       return true;
     }
@@ -381,20 +402,26 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
         return;
       }
 
+      // Clear out the activeSensors so they won't be polled anymore
+      this.activeSensors = [];
+
       await this.device.gatt.disconnect();
 
       // Resend the sensorconfig so the UI udpates after the disconnection
       this.sendSensorConfig(true);
     }
 
-    updateSensorValue(ID:string, time:number, value:number) {
+    updateSensorValue(ID:string, time:number, value:number, sendData:boolean) {
       this.internalConfig.columns[ID].liveValue = value.toString();
       this.hasData = true;
 
       this.onSensorStatus(new SensorConfiguration(this.internalConfig));
       const data:NewSensorData = {};
-      data[ID] = [[time, value]];
-      this.onSensorData(data);
+
+      if(sendData) {
+        data[ID] = [[time, value]];
+        this.onSensorData(data);
+      }
     }
 
     async setupSensor(sensorDescription:any) {
