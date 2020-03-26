@@ -1,0 +1,18 @@
+{
+    "production": {
+      "baseUrl": "https://sensor-interactive.concord.org/"
+      },
+    "master": {
+      "baseUrl": "https://sensor-interactive.concord.org/branch/master/"
+      },
+    "branch": {
+      "baseUrl": "https://sensor-interactive.concord.org/branch/"
+      },
+    "dev": {
+      "baseUrl": "dev baseUrl needs to be set in config/user-config.json (see config/user-config.sample.json)"
+    },
+    "local":{
+      "baseUrl": "http://127.0.0.1:8080/"
+      }
+  }
+  
