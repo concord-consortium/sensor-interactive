@@ -10,7 +10,12 @@ install:
 # Install the AWS CLI tools for explicit CloudFront invalidation
 - travis_retry pip install awscli --upgrade --user
 before_script: npm run build
-script: ./s3_deploy.sh
+script: 
+  - npm run start &
+  - wait-on http://127.0.0.1/:8080
+  - npm run test:cypress:ci
+after_script:
+  -  ./s3_deploy.sh
 cache:
   bundler: true
   directories:
