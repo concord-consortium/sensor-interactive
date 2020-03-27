@@ -7,12 +7,13 @@ before_install:
 - rvm use 2.2.7
 cache:
   directories:
-    - "$HOME/.cache" 
+    - "$HOME/.npm"
+    - "$HOME/.cache"
 install:
 - travis_retry gem install s3_website -v 2.12.3
-- travis_retry npm install
 # Install the AWS CLI tools for explicit CloudFront invalidation
 - travis_retry pip install awscli --upgrade --user
+- travis_retry npm ci
 script:
   - npm run build
   - npm run test:cypress:ci
