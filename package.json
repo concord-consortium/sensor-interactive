@@ -21,14 +21,14 @@
     "cloudfront:inval-root": "aws cloudfront create-invalidation --distribution-id E3V22UD5MXF4CR --paths /index.html",
     "test:full": "npm-run-all test test:cypress",
     "test:cypress": "cypress run --config video=false,defaultCommandTimeout=10000 --env testEnv=local",
-    "test:cypress:ci": "cypress run --config video=false,defaultCommandTimeout=10000 --env testEnv=local",
+    "test:cypress:ci": "cypress run --config defaultCommandTimeout=10000 --env testEnv=local --record",
     "test:cypress:smoke": "cypress run --spec 'cypress/integration/smoke/*' --config video=false,defaultCommandTimeout=10000 --env testEnv=local",
     "test:cypress:branch": "cypress run --spec 'cypress/integration/branch/**/*' --config video=false,defaultCommandTimeout=10000 --env testEnv=local",
     "test:cypress:staging": "cypress run --config video=false,defaultCommandTimeout=10000 --env testEnv=staging,failOnSnapshotDiff=false",
-    "test:production": "cypress open --env testEnv=production,failOnSnapshotDiff=false",
-    "test:staging": "cypress open --env testEnv=staging,failOnSnapshotDiff=false",
-    "test:branch": "cypress open --env testEnv=branch,failOnSnapshotDiff=false",
-    "test:local": "cypress open --env testEnv=local,failOnSnapshotDiff=false"
+    "test:production": "cypress open --config video=false --env testEnv=production,failOnSnapshotDiff=false",
+    "test:staging": "cypress open --config video=false --env testEnv=staging,failOnSnapshotDiff=false",
+    "test:branch": "cypress open --config video=false --env testEnv=branch,failOnSnapshotDiff=false",
+    "test:local": "cypress open --config video=false --env testEnv=local,failOnSnapshotDiff=false"
   },
   "repository": {
     "type": "git",
