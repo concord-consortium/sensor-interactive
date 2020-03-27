@@ -1,4 +1,5 @@
 language: node_js
+dist: trusty
 node_js: node
 before_install:
 # According to the "Build system information" in the Travis log,
@@ -10,7 +11,7 @@ install:
 # Install the AWS CLI tools for explicit CloudFront invalidation
 - travis_retry pip install awscli --upgrade --user
 before_script: npm run build
-script: 
+script:
   - npm run start &
   - wait-on http://127.0.0.1/:8080
   - npm run test:cypress:ci
