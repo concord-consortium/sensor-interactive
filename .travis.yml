@@ -5,15 +5,16 @@ before_install:
 # According to the "Build system information" in the Travis log,
 # Ruby 2.2.7 is predeployed on the system, so installing 2.2.0 is unnecessary.
 - rvm use 2.2.7
+cache:
+  directories:
+    - "$HOME/.cache" 
 install:
 - travis_retry gem install s3_website -v 2.12.3
 - travis_retry npm install
 # Install the AWS CLI tools for explicit CloudFront invalidation
 - travis_retry pip install awscli --upgrade --user
-before_script: npm run build
 script:
-  - npm run start &
-  - wait-on http://127.0.0.1/:8080
+  - npm run build
   - npm run test:cypress:ci
 after_script:
   -  ./s3_deploy.sh
