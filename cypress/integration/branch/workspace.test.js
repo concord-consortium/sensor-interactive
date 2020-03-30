@@ -61,7 +61,7 @@ context('Connection UI',()=>{
         })
         it('verify ui when sensor is not connected',()=>{ //depends on previous test
             workspace.getStatusIcon().should('be.visible').and('not.have.attr','connected')
-            workspace.getStatusMessage().should('contain','No devices connected')
+            workspace.getStatusMessage().should('contain','No').and('contain','connected')
         })
     })
 })
