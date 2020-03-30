@@ -41,15 +41,26 @@ class Workspace{
         return cy.get('.graph-box')
     }
 
-    // Launch SensorConnector dialog
+    //Sensor Interactive dialogs
     getDialogHeader(){
         return cy.get('.sensor-dialog-header')
     }
+    getDialogButtons(){
+        return cy.get('.sensor-dialog-buttons')
+    }
+    // Launch SensorConnector dialog
     launchSensorConnector(){
         cy.get('.sensor-dialog-buttons').contains('Launch SensorConnector').click();
     }
     dismissDialog(){
         cy.get('.sensor-dialog-buttons').contains('Dismiss').click();
+    }
+    //New Run Warning dialog
+    preserveData(){
+        cy.get('.sensor-dialog-buttons').contains('Preserve Data').click();
+    }
+    discardData(){
+        cy.get('.sensor-dialog-buttons').contains('Discard Data').click();
     }
 
     //Connected sensor ui
@@ -65,6 +76,19 @@ class Workspace{
     getRemoveSensorButton(){
         return cy.get('.remove-sensor-button')
     }
+    getAddSensorButton(){
+        return cy.get('.add-sensor-button')
+    }
 
+    //graph
+    getYAxis(){
+        return cy.get('.dygraph-label')
+    }
+    getGraphLegend(){
+        return cy.get('.bottom-legend')
+    }
+    getXAxisMaxValue(){
+        return cy.get('.dygraph-axis-label-x').last()
+    }
 }
 export default Workspace
