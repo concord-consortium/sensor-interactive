@@ -1,5 +1,3 @@
-import { createYield } from "typescript"
-
 class Workspace{
     getStatusMessage(){
         return cy.get('.status-message')
@@ -34,12 +32,6 @@ class Workspace{
     getNewRunButton(){
         return cy.get('.new-data')
     }
-    getRescaleButton(){
-        return cy.get('.graph-rescale-button')
-    }
-    getGraphPanel(){
-        return cy.get('.graph-box')
-    }
 
     //Sensor Interactive dialogs
     getDialogHeader(){
@@ -64,8 +56,11 @@ class Workspace{
     }
 
     //Connected sensor ui
-    selectSensor(sensor){//sensor value is a number string
-        cy.get('.sensor-select').select(sensor)
+    getSensorDropdown(){
+        return cy.get('.sensor-select')
+    }
+    selectSensor(sensor, position=0){//sensor value is a number string
+        this.getSensorDropdown().eq(position).select(sensor)
     }
     getSensorReading(){
         return cy.get('.sensor-reading')
@@ -81,8 +76,17 @@ class Workspace{
     }
 
     //graph
-    getYAxis(){
-        return cy.get('.dygraph-label')
+    getRescaleButton(){
+        return cy.get('.graph-rescale-button')
+    }
+    getGraphPanel(){
+        return cy.get('.graph-box')
+    }
+    getYAxisLabel(){
+        return cy.get('.dygraph-ylabel')
+    }
+    getXAxisLabel(){
+        return cy.get('.dygraph-xlabel')
     }
     getGraphLegend(){
         return cy.get('.bottom-legend')
