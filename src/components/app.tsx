@@ -14,11 +14,13 @@ import SmartFocusHighlight from "../utils/smart-focus-highlight";
 import { find, pull, sumBy, cloneDeep } from "lodash";
 import Button from "./smart-highlight-button";
 import { SensorConnectorManager } from "../models/sensor-connector-manager";
+import { FakeSensorManager } from "../models/fake-sensor-manager";
 import { SensorTagManager } from "../models/sensor-tag-manager";
 import { SensorGDXManager } from "../models/sensor-gdx-manager";
 
 export interface AppProps {
     sensorManager?: SensorManager;
+    fakeSensor?: boolean;
 }
 
 export interface AppState {
@@ -310,14 +312,25 @@ export class App extends React.Component<AppProps, AppState> {
         if (sensorManager instanceof SensorConnectorManager) {
             this.disconnectSensorConnector();
         } else {
-            const sensorManager = new SensorConnectorManager();
-            this.setState({ sensorManager, hasConnected:true }, () => {
-                    this.addSensorManagerListeners();
-                    if (this.state.sensorManager) {
-                        this.state.sensorManager.startPolling();
+            if (this.props.fakeSensor) {
+                const sensorManager = new FakeSensorManager();
+                this.setState({ sensorManager, hasConnected:true }, () => {
+                        this.addSensorManagerListeners();
+                        if (this.state.sensorManager) {
+                            this.state.sensorManager.startPolling();
+                        }
                     }
-                }
-            );
+                );
+            } else {
+                const sensorManager = new SensorConnectorManager();
+                this.setState({ sensorManager, hasConnected:true }, () => {
+                        this.addSensorManagerListeners();
+                        if (this.state.sensorManager) {
+                            this.state.sensorManager.startPolling();
+                        }
+                    }
+                );
+            }
         }
     }
 
@@ -338,13 +351,24 @@ export class App extends React.Component<AppProps, AppState> {
     handleWirelessClick = () => {
         const { sensorManager } = this.state;
         if (sensorManager && sensorManager.isWirelessDevice()) {
-            this.disconnectWirelessDevice();
+            this.disconnectDevice();
         } else {
-            this.connectWirelessDevice();
+            if (this.props.fakeSensor) {
+                const sensorManager = new FakeSensorManager();
+                this.setState({ sensorManager, hasConnected:true }, () => {
+                        this.addSensorManagerListeners();
+                        if (this.state.sensorManager) {
+                            this.state.sensorManager.startPolling();
+                        }
+                    }
+                );
+            } else {
+                this.connectWirelessDevice();
+            }
         }
     }
 
-    disconnectWirelessDevice = () => {
+    disconnectDevice = () => {
         this.disconnectFromDevice();
         this.removeSensorManagerListeners();
         this.setState({
@@ -764,8 +788,8 @@ export class App extends React.Component<AppProps, AppState> {
             this.codap.updateInteractiveState({ secondGraph });
         } else {
             // if only one graph shown, then disconnect from device entirely
-            if (sensorManager && sensorManager.isWirelessDevice()) {
-                this.disconnectWirelessDevice();
+            if (sensorManager && (sensorManager.isWirelessDevice() || sensorManager instanceof FakeSensorManager)) {
+                this.disconnectDevice();
             } else if (sensorManager instanceof SensorConnectorManager) {
                 this.disconnectSensorConnector();
             }
