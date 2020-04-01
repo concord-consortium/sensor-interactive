@@ -5,8 +5,9 @@ const workspace = new Workspace
 before(()=>{
     cy.visit('/examples/fake-sensor.html')
 })
-context('Connecting a sensor',()=>{
+context('Connecting a wired sensor',()=>{
     it('verify status message shows connection',()=>{
+        workspace.getSensorTypeButton('Wired').click()
         workspace.getStatusIcon().should('be.visible').and ('have.class','connected')
         workspace.getStatusMessage().should('contain','Fake Sensor connected')
     })
