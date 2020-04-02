@@ -4,6 +4,7 @@ const workspace = new Workspace
 
 before(()=>{
     cy.visit('/examples/fake-sensor.html')
+    workspace.getSensorTypeButton('Wired').click()
     workspace.getAddSensorButton().click();
 })
 context('Add second sensor',()=>{
@@ -20,7 +21,7 @@ context('Add second sensor',()=>{
             workspace.getSensorDropdown().should('have.length', 2)
         })
         it('verify Remove sensor button is visible',()=>{
-            workspace.getRemoveSensorButton().should('be.visible')
+            workspace.getRemoveSensorButton().should('have.length', 2)
         })
         it.skip('verify both reading shows value',()=>{ //need to work on fake sensor code to show a value
 
@@ -102,7 +103,7 @@ context('Collecting Data from 2 sensor',()=>{
 })
 context('Remove sensor',()=>{
     it('verify remove sensor',()=>{
-        workspace.getRemoveSensorButton().click();
+        workspace.getRemoveSensorButton().eq(1).click();
         workspace.getStatusMessage().should('contain','Data collection stopped')
         workspace.getSensorDropdown().should('have.length',1)
         workspace.getAddSensorButton().should('be.visible')
