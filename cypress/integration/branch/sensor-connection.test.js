@@ -10,12 +10,15 @@ context('Connecting a sensor',()=>{
         workspace.getStatusIcon().should('be.visible').and ('have.class','connected')
         workspace.getStatusMessage().should('contain','Fake Sensor connected')
     })
+    it('verify zero sensor button exists',()=>{
+        workspace.getZeroSensorButton().should('exist');
+    })
     it('verify sensor selection dropdown shows available sensors',()=>{
         workspace.selectSensor("102")
-        workspace.getYAxis().should('contain', "Position (m)")
+        workspace.getYAxisLabel().should('contain', "Position (m)")
         workspace.getGraphLegend().find('.name').should('contain','Position')
         workspace.selectSensor("101")
-        workspace.getYAxis().should('contain',"Temperature (degC)")
+        workspace.getYAxisLabel().should('contain',"Temperature (degC)")
         workspace.getGraphLegend().find('.name').should('contain','Temperature')
     })
     it.skip('verify reading shows value',()=>{ //need to work on fake sensor code to show a value
