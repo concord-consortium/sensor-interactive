@@ -48,6 +48,16 @@ context('Connecting a wired sensor',()=>{
     it('verify Reading container shows a reading',()=>{
         workspace.getSensorReading().should('not.to.be.empty')
     })
+    //for some reason website gets reloaded at this point during Travis build causing test to fail
+    //so will have to initialize conditions again so test can proceed
+    it('initialize state again',()=>{
+        let duration="1";
+        cy.visit('/examples/fake-sensor.html')
+        workspace.getSensorTypeButton('Wired').click()
+        workspace.selectDuration(duration)
+        workspace.getStartButton().click();
+        cy.wait(1000);
+    })
     it('verify Save Data button is enabled',()=>{
         workspace.getSaveDataButton().should('not.have.attr','disabled')
     })
@@ -79,7 +89,7 @@ context('Connecting a wired sensor',()=>{
         cy.wait(5000);
         workspace.getStartButton().should('have.attr','disabled')
     })
-    it('verify Stop button is enabled when data collection is started',()=>{ //depends on previous test
+    it('verify Stop button is enabled when data collection is started',()=>{//depends on previous test
         workspace.getStopButton().should('not.have.attr','disabled')
     })
     it('verify data collection is stopped when Stop button is clicked',()=>{

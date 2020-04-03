@@ -4,6 +4,7 @@ const workspace = new Workspace
 
 before(()=>{
     cy.visit('/examples/fake-sensor.html')
+    workspace.getSensorTypeButton('Wired').click()
     workspace.getAddSensorButton().click();
 })
 context('Add second sensor',()=>{
@@ -20,7 +21,7 @@ context('Add second sensor',()=>{
             workspace.getSensorDropdown().should('have.length', 2)
         })
         it('verify Remove sensor button is visible',()=>{
-            workspace.getRemoveSensorButton().should('be.visible')
+            workspace.getRemoveSensorButton().should('have.length', 2)
         })
         it.skip('verify both reading shows value',()=>{ //need to work on fake sensor code to show a value
 
@@ -101,13 +102,34 @@ context('Collecting Data from 2 sensor',()=>{
     })
 })
 context('Remove sensor',()=>{
-    it('verify remove sensor',()=>{
-        workspace.getRemoveSensorButton().click();
+    it('verify remove second sensor',()=>{
+        workspace.getRemoveSensorButton().eq(1).click();
         workspace.getStatusMessage().should('contain','Data collection stopped')
         workspace.getSensorDropdown().should('have.length',1)
         workspace.getAddSensorButton().should('be.visible')
         workspace.getGraphPanel().should('have.length',1)
         workspace.getYAxisLabel().should('contain', 'Position (m)')
         workspace.getGraphLegend().should('contain','Position')
+    })
+    it('verify remove first sensor',()=>{
+        //add second sensor back in
+        workspace.getAddSensorButton().click();
+        workspace.getSensorDropdown().should('have.length',2)
+
+        workspace.getRemoveSensorButton().eq(0).click();
+        workspace.getSensorDropdown().should('have.length',1)
+        workspace.getAddSensorButton().should('be.visible')
+        workspace.getGraphPanel().should('have.length',1)
+        workspace.getYAxisLabel().should('contain', 'Temperature')
+        workspace.getGraphLegend().should('contain','Temperature')
+    })
+    it('verify remove all sensors',()=>{
+        workspace.getRemoveSensorButton().eq(0).click();
+        workspace.getSensorDropdown().should('not.exist')
+        workspace.getSensorTypeButton('Wired').should('be.visible')
+        workspace.getSensorTypeButton('Wireless').should('be.visible')
+        workspace.getGraphPanel().should('have.length',1)
+        workspace.getYAxisLabel().should('contain', 'Temperature')
+        workspace.getGraphLegend().should('contain','Temperature')
     })
 })
