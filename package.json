@@ -46,7 +46,7 @@
     "d3-format": "^1.4.3",
     "dygraphs": "^2.1.0",
     "iframe-phone": "^1.2.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-modal": "^3.11.2",
