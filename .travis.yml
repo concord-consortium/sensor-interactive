@@ -1,6 +1,8 @@
 language: node_js
 dist: trusty
-node_js: node
+language: node_js
+node_js:
+  - 14
 before_install:
 # According to the "Build system information" in the Travis log,
 # Ruby 2.2.7 is predeployed on the system, so installing 2.2.0 is unnecessary.
