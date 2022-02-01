@@ -43,22 +43,6 @@ export const ReportItemComponent = () => {
 
   const {view, interactiveItemId} = initMessage;
 
-  useEffect(() => {
-    addGetReportItemAnswerListener((request) => {
-      const {type, platformUserId, interactiveState /*, authoredState */} = request;
-
-      switch (type) {
-        case "html":
-          const html = reportItemMetricsHtml({interactiveState, platformUserId, interactiveItemId});
-          sendReportItemAnswer({type: "html", platformUserId, html});
-          break;
-      }
-    });
-
-    // tell the portal-report we are ready for messages
-    getClient().post("reportItemClientReady");
-  }, []);
-
   return (
     <div className={`reportItem ${view}`}>
       <ReportItemMetricsLegendComponent view={view} />
