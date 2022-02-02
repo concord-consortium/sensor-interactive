@@ -17,10 +17,17 @@ import { SensorConnectorManager } from "../models/sensor-connector-manager";
 import { FakeSensorManager } from "../models/fake-sensor-manager";
 import { SensorTagManager } from "../models/sensor-tag-manager";
 import { SensorGDXManager } from "../models/sensor-gdx-manager";
+import { IInteractiveState } from "../interactive/types";
+
+export type InteractiveHost = "codap" | "runtime" | "report";
 
 export interface AppProps {
     sensorManager?: SensorManager;
     fakeSensor?: boolean;
+    interactiveHost?: InteractiveHost;
+    maxGraphHeight?: number;
+    interactiveState?: IInteractiveState | null;
+    setInteractiveState?: (stateOrUpdateFunc: IInteractiveState | ((prevState: IInteractiveState | null) => IInteractiveState) | null) => void
 }
 
 export interface AppState {
@@ -123,16 +130,19 @@ export class App extends React.Component<AppProps, AppState> {
 
     private assetsPath:string;
     private messages:IStringMap;
-    private codap:Codap;
+    private codap:Codap | undefined;
     private selectionRange:{start:number,end:number|undefined} = {start:0,end:undefined};
     private disableWarning:boolean = false;
     private isReloading:boolean = false;
     private columnInfoCache: { [columnID: string]: SensorConfigColumnInfo[]; } = {};
+    private interactiveHost: InteractiveHost;
 
     constructor(props: AppProps) {
         super(props);
 
-        this.assetsPath = /\/examples\//.test(window.location.pathname)
+        this.interactiveHost = this.props.interactiveHost || "codap";
+
+        this.assetsPath = /\/examples|interactive\//.test(window.location.pathname)
                             ? "../assets" : "./assets";
         this.messages = SensorStrings.messages as IStringMap;
 
@@ -160,15 +170,16 @@ export class App extends React.Component<AppProps, AppState> {
             hasConnected:!!this.props.sensorManager
         };
 
-        this.connectCodap = this.connectCodap.bind(this);
-
         this.onSensorConnect = this.onSensorConnect.bind(this);
         this.onSensorDisconnect = this.onSensorDisconnect.bind(this);
         this.onSensorData = this.onSensorData.bind(this);
         this.onSensorStatus = this.onSensorStatus.bind(this);
         this.onSensorCollectionStopped = this.onSensorCollectionStopped.bind(this);
 
-        setTimeout(this.connectCodap, 1000);
+        if (this.interactiveHost === "codap") {
+            this.connectCodap = this.connectCodap.bind(this);
+            setTimeout(this.connectCodap, 1000);
+        }
 
         // support previous versions where we passed a sensor manager into the props
         if (this.state.sensorManager) {
@@ -632,10 +643,10 @@ export class App extends React.Component<AppProps, AppState> {
             };
         });
         if (!sendSecondSensorData) {
-            this.codap.sendData(dataSpecs[0]);
+            this.codap?.sendData(dataSpecs[0]);
         }
         else {
-            this.codap.sendDualData(dataSpecs);
+            this.codap?.sendDualData(dataSpecs);
         }
 
         this.setState({ dataChanged: false });
@@ -671,7 +682,7 @@ export class App extends React.Component<AppProps, AppState> {
     onTimeSelect(newTime:number) {
         this.setState({ runLength: newTime });
         this.setXZoomState(newTime);
-        this.codap.updateInteractiveState({ runLength: newTime });
+        this.codap?.updateInteractiveState({ runLength: newTime });
     }
 
     onGraphZoom(xStart:number, xEnd:number) {
@@ -768,7 +779,7 @@ export class App extends React.Component<AppProps, AppState> {
     addGraph() {
         const secondGraph = true;
         this.setState({ secondGraph });
-        this.codap.updateInteractiveState({ secondGraph });
+        this.codap?.updateInteractiveState({ secondGraph });
     }
 
     removeGraph = (slotNum: number) => () => {
@@ -785,7 +796,7 @@ export class App extends React.Component<AppProps, AppState> {
                 sensorSlots: sensorSlots,
                 secondGraph: secondGraph
             });
-            this.codap.updateInteractiveState({ secondGraph });
+            this.codap?.updateInteractiveState({ secondGraph });
         } else {
             // if only one graph shown, then disconnect from device entirely
             if (sensorManager && (sensorManager.isWirelessDevice() || sensorManager instanceof FakeSensorManager)) {
@@ -1086,6 +1097,7 @@ export class App extends React.Component<AppProps, AppState> {
                         dataReset={this.state.dataReset}
                         hasConnected={this.state.hasConnected}
                         assetsPath={this.assetsPath}
+                        maxHeight={this.props.maxGraphHeight}
                     />
                     {this.renderLegend()}
                 </div>
@@ -1104,7 +1116,7 @@ export class App extends React.Component<AppProps, AppState> {
                     onStartCollecting={this.startSensor}
                     onStopCollecting={this.stopSensor}
                     onNewRun={this.checkNewData}
-                    onSaveData={this.sendData}
+                    onSaveData={this.interactiveHost === "codap" ? this.sendData : undefined}
                     onReloadPage={this.reload}
                     onAboutClick={this.showAbout}
                     isDisabled={sensorManager == null}

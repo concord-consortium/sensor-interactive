@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useEffect } from "react";
 
-import { useInitMessage, setSupportedFeatures, useAutoSetHeight  } from "@concord-consortium/lara-interactive-api";
+import { useInitMessage, setSupportedFeatures, useAutoSetHeight } from "@concord-consortium/lara-interactive-api";
 import { AuthoringComponent } from "./authoring";
 import { ReportComponent } from "./report";
 import { RuntimeComponent } from "./runtime";

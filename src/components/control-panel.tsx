@@ -19,7 +19,7 @@ interface IControlPanelProps {
   onStartCollecting: () => void;
   onStopCollecting: () => void;
   onNewRun: () => void;
-  onSaveData: () => void;
+  onSaveData: (() => void) | undefined;
   onReloadPage: () => void;
   onAboutClick: () => void;
   assetsPath: string;
@@ -76,11 +76,12 @@ export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
               disabled={disableStopCollecting}>
         Stop
       </Button>
+      {props.onSaveData ?
       <Button className="send-data control-panel-button"
               onClick={props.onSaveData}
               disabled={disableSendData}>
         Save Data
-      </Button>
+      </Button> : undefined}
       <Button className="new-data control-panel-button"
               onClick={props.onNewRun}
               disabled={disableNewData}>
