@@ -24,6 +24,7 @@ interface IGraphsPanelProps {
   dataReset:boolean;
   hasConnected:boolean;
   assetsPath: string;
+  maxHeight?: number;
 }
 
 const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
@@ -33,7 +34,8 @@ const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
                         isSingletonGraph:boolean,
                         isLastGraph:boolean = isSingletonGraph) {
     const sensorColumns = (props.sensorConfig && props.sensorConfig.dataColumns) || [],
-          availableHeight = props.size.height && (props.size.height - 20),
+          height = props.maxHeight || props.size.height,
+          availableHeight = height && (height - 20),
           singleGraphHeight = availableHeight && (availableHeight + 8),
           graphBaseHeight = availableHeight && Math.floor((availableHeight - 18) / 2),
           firstGraphHeight = graphBaseHeight,
