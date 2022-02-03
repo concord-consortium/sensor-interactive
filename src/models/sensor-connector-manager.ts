@@ -1,6 +1,6 @@
 //import SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
 // must use the following form when using npm link to develop/debug locally
-import SensorConnectorInterface = require("@concord-consortium/sensor-connector-interface");
+import * as SensorConnectorInterface from "@concord-consortium/sensor-connector-interface";
 import { SensorConfiguration } from "./sensor-configuration";
 import { SensorConfigColumnInfo, SensorConnectorDataset } from "@concord-consortium/sensor-connector-interface";
 import { SensorManager, NewSensorData } from "./sensor-manager";

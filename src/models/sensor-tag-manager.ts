@@ -37,7 +37,7 @@ const tagAddrs: { [index:string] : ISensorAddrs } = {
 // http://processors.wiki.ti.com/index.php/CC2650_SensorTag_User%27s_Guide
 const IR_SCALE_LSB = 0.03125;
 
-// tslint:disable:no-bitwise
+/*eslint no-bitwise:"off"*/
 
 const sensorDescriptions = {
   luxometer: {
