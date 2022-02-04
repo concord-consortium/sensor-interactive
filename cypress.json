@@ -4,5 +4,7 @@
   "viewportHeight": 1000,
   "pageLoadTimeout": 60000,
   "projectId": "4n37b2",
-  "baseUrl": "http://localhost:8080"
+  "baseUrl": "http://localhost:8080",
+  "video": true,
+  "videoUploadOnPasses": false
 }
