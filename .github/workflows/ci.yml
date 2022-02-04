@@ -27,7 +27,7 @@ jobs:
           parallel: ${{ !!secrets.CYPRESS_RECORD_KEY }}
           # upload videos for failing specs
           config: video=true,videoUploadOnPasses=false,pageLoadTimeout=100000,baseUrl=http://localhost:8080
-          config-file: cypress.json
+          # config-file: cypress.json
           browser: chrome
         env:
           # pass the Dashboard record key as an environment variable
