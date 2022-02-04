@@ -1,17 +1,23 @@
 import * as React from "react";
-import { IAuthoringInitInteractive } from "@concord-consortium/lara-interactive-api";
-import { IAuthoredState } from "./types";
+import { IAuthoringInitInteractive, useAuthoredState } from "@concord-consortium/lara-interactive-api";
+
+import { defaultAuthoredState, IAuthoredState } from "./types";
 
 interface Props {
   initMessage: IAuthoringInitInteractive<IAuthoredState>;
 }
 
 export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
+  const {authoredState, setAuthoredState} = useAuthoredState<IAuthoredState>();
+  const { useFakeSensor } = authoredState || defaultAuthoredState;
+
+  const handleFakeSensor = (e: React.ChangeEvent<HTMLInputElement>) => setAuthoredState({useFakeSensor: e.target.checked});
+
   return (
-    <div className="padded">
+    <div className="authoring">
       <fieldset>
-        <legend>Authoring Init Message</legend>
-        <div className="padded monospace pre">{JSON.stringify(initMessage, null, 2)}</div>
+        <legend>Sensor Types</legend>
+        <input type="checkbox" checked={useFakeSensor} onChange={handleFakeSensor} /> Use fake sensor
       </fieldset>
     </div>
   );
