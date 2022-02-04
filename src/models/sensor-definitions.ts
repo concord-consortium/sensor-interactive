@@ -10,7 +10,7 @@ export interface ISensorStrings {
   [key:string]: string|IStringMap;
 }
 
-/* tslint:disable:max-line-length */
+/* eslint-disable max-len */
 
 export const SensorStrings:ISensorStrings = {
     "select_sensor": "Select Sensor",
@@ -166,7 +166,7 @@ export const SensorStrings:ISensorStrings = {
 };
 
 // TODO: remove when i18n module is integrated
-export class i18n { // tslint:disable-line:class-name
+export class i18n { // eslint-disable-line @typescript-eslint/naming-convention
     static t(id:string): string {
         var category = id.substring(id.indexOf(".")+1, id.lastIndexOf("."));
         var prop = id.substring(id.lastIndexOf(".")+1);

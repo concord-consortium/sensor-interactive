@@ -2,7 +2,7 @@ import * as React from "react";
 import { SensorConfiguration } from "../models/sensor-configuration";
 import SensorGraph from "./sensor-graph";
 import { SensorSlot } from "../models/sensor-slot";
-import sizeMe = require("react-sizeme");
+import { withSize }  from "react-sizeme";
 
 interface ISizeMeSize {
   width:number|null;
@@ -81,5 +81,7 @@ const sizeMeConfig = {
   monitorHeight: true,
   noPlaceholder: true
 };
-const GraphsPanel = sizeMe(sizeMeConfig)(GraphsPanelImp);
+
+const GraphsPanel = withSize(sizeMeConfig)(GraphsPanelImp);
+
 export default GraphsPanel;
