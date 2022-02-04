@@ -25,12 +25,12 @@ interface IControlPanelProps {
   assetsPath: string;
 }
 
-export const ControlPanel: React.SFC<IControlPanelProps> = (props) => {
+export const ControlPanel: React.FC<IControlPanelProps> = (props) => {
   const disableStartCollecting = (props.isConnectorAwake && !props.interfaceType) ||
-                                  (props.sensorCount === 0) || props.collecting || props.hasData,
+                                  (props.sensorCount === 0) || props.collecting || props.hasData || props.isDisabled,
         disableStopCollecting = !props.collecting,
         disableSendData = !(props.hasData && props.dataChanged) || props.collecting,
-        disableNewData = !props.hasData || props.collecting,
+        disableNewData = props.isDisabled || !props.hasData || props.collecting,
         disableDuration = props.isDisabled || props.collecting,
         durationOptions = (props.durationOptions || []).map((d) => {
                             const dNum = d < 60 ? d : d / 60,

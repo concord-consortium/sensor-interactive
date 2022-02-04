@@ -1,22 +1,22 @@
 import * as React from "react";
-import { IReportInitInteractive, useInteractiveState } from "@concord-consortium/lara-interactive-api";
+import { IReportInitInteractive } from "@concord-consortium/lara-interactive-api";
 
-import { IInteractiveState } from "./types";
+import { IAuthoredState, IInteractiveState } from "./types";
 import { App } from "../components/app";
 
 interface Props {
-  initMessage: IReportInitInteractive;
+  initMessage: IReportInitInteractive<IInteractiveState, IAuthoredState>;
 }
 
 export const ReportComponent: React.FC<Props> = ({initMessage}) => {
-  const { interactiveState } = useInteractiveState<IInteractiveState>();
+  const initialInteractiveState = initMessage.interactiveState;
 
   return (
     <App
       interactiveHost="report"
       fakeSensor={true}
       maxGraphHeight={625}
-      interactiveState={interactiveState}
+      initialInteractiveState={initialInteractiveState}
     />
   );
 };

@@ -60,6 +60,10 @@ export class SensorConfiguration {
     const timeColumn = this.timeColumn;
     return timeColumn && timeColumn.units;
   }
+
+  get currentConfig() {
+    return this.config;
+  }
 }
 
 export const gNullSensorConfig = new SensorConfiguration(null);

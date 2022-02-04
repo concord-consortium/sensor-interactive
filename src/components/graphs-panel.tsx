@@ -27,7 +27,7 @@ interface IGraphsPanelProps {
   maxHeight?: number;
 }
 
-const GraphsPanelImp: React.SFC<IGraphsPanelProps> = (props) => {
+const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
 
   function renderGraph( sensorSlot:SensorSlot,
                         title:string,
