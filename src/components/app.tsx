@@ -1008,6 +1008,7 @@ export class App extends React.Component<AppProps, AppState> {
                         : "",
             interfaceType = (sensorConfig && sensorConfig.interface) || "";
         const isConnectorAwake = sensorManager ? sensorManager.isAwake() : true;
+        const showControls = this.props.interactiveHost !== "report";
 
         return (
             <div className="app-container">
@@ -1078,11 +1079,11 @@ export class App extends React.Component<AppProps, AppState> {
                     </div>
                 </ReactModal>
                 <div className="app-content">
-                    <div className="app-top-bar">
+                    {showControls && <div className="app-top-bar">
                         {this.renderStatusMessage()}
                         {this.renderSensorControls()}
                         {this.renderAddSensorButton()}
-                    </div>
+                    </div>}
                     <GraphsPanel
                         sensorConfig={this.state.sensorConfig}
                         sensorSlots={this.state.sensorSlots}
@@ -1101,7 +1102,7 @@ export class App extends React.Component<AppProps, AppState> {
                     />
                     {this.renderLegend()}
                 </div>
-                <ControlPanel
+                {showControls &&<ControlPanel
                     isConnectorAwake={isConnectorAwake}
                     interfaceType={interfaceType}
                     sensorCount={this.connectedSensorCount()}
@@ -1121,7 +1122,7 @@ export class App extends React.Component<AppProps, AppState> {
                     onAboutClick={this.showAbout}
                     isDisabled={sensorManager == null}
                     assetsPath={this.assetsPath}
-                />
+                />}
             </div>
         );
     }
