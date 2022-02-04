@@ -3,5 +3,6 @@
   "viewportWidth": 1400,
   "viewportHeight": 1000,
   "pageLoadTimeout": 60000,
-  "projectId": "4n37b2"
+  "projectId": "4n37b2",
+  "baseUrl": "http://localhost:8080"
 }
