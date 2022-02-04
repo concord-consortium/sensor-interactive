@@ -1,6 +1,8 @@
 var webpack = require("webpack");
 const pkg = require("./package.json");
 const path = require('path');
+const CopyPlugin = require("copy-webpack-plugin");
+
 module.exports = {
     entry: {
         app: "./src/app.tsx",
@@ -14,7 +16,7 @@ module.exports = {
     },
     output: {
         filename: "[name].js",
-        path: path.resolve(__dirname,"dist/assets/js")
+        path: path.resolve(__dirname, "dist")
     },
     performance: {
         hints: false
@@ -23,7 +25,10 @@ module.exports = {
     // Enable sourcemaps for debugging webpack's output.
     devtool: "source-map",
     devServer: {
-        static: 'dist',
+        static: {
+            directory: path.join(__dirname, 'src/public'),
+            serveIndex: true,
+        }
     },
     resolve: {
         // Add '.ts' and '.tsx' as resolvable extensions.
@@ -36,5 +41,13 @@ module.exports = {
             loader: "ts-loader",
             exclude: /node_modules/,
         }]
-    }
+    },
+    plugins: [
+        new CopyPlugin({
+          patterns: [{
+            from: "**/*",
+            context: path.resolve(__dirname, "src", "public")
+            }]
+        }),
+      ],
 };
