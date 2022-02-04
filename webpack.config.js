@@ -10,8 +10,7 @@ module.exports = {
         "examples/wired-wireless": "./src/examples/wired-wireless.tsx",
         "examples/sensor-connector": "./src/examples/sensor-connector.tsx",
         interactive: "./src/interactive/index.tsx",
-        "report-item": "./src/interactive/report-item.tsx",
-        globals: Object.keys(pkg.dependencies)
+        "report-item": "./src/interactive/report-item.tsx"
     },
     output: {
         filename: "[name].js",
