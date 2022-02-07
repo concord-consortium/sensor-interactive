@@ -1,7 +1,10 @@
 {
   "defaultCommandTimeout": 10000,
   "viewportWidth": 1400,
-  "viewportHeight": 1000,
-  "pageLoadTimeout": 60000,
-  "projectId": "4n37b2"
+  "viewportHeight": 1280,
+  "pageLoadTimeout": 10000,
+  "projectId": "fjsyqb",
+  "baseUrl": "http://localhost:8080",
+  "video": true,
+  "videoUploadOnPasses": false
 }

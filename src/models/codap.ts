@@ -1,4 +1,4 @@
-import * as CodapInterface from "../public/assets/js/CodapInterface";
+import CodapInterface from "../js/CodapInterface";
 
 interface IAttribute {
     name:string;
@@ -78,7 +78,7 @@ export class Codap {
                 action: 'get',
                 resource: `${runsCollection}.caseCount`
             }, this.responseCallback)
-            .then((response) => {
+            .then((response: any) => {
                 if (response.success) {
                     // request the last case
                     const caseCount = response.values;
@@ -87,7 +87,7 @@ export class Codap {
                             action: 'get',
                             resource: `${runsCollection}.caseByIndex[${caseCount-1}]`
                         }, this.responseCallback)
-                        .then((response) => {
+                        .then((response: any) => {
                             // retrieve the run number from the last case
                             if (response.success) {
                                 const theCase = response.values['case'];

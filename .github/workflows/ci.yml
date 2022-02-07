@@ -1,0 +1,71 @@
+name: Continuous Integration
+
+on: push
+
+jobs:
+  cypress:
+    runs-on: ubuntu-latest
+    strategy:
+      # when one test fails, DO NOT cancel the other
+      # containers, because this will kill Cypress processes
+      # leaving the Dashboard hanging ...
+      # https://github.com/cypress-io/github-action/issues/48
+      fail-fast: false
+      matrix:
+        # run 5 copies of the current job in parallel
+        containers: [1, 2, 3, 4, 5]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: cypress-io/github-action@v2
+        with:
+          start: npm start
+          wait-on: 'http://localhost:8080'
+          # only record the results to dashboard.cypress.io if CYPRESS_RECORD_KEY is set
+          record: ${{ !!secrets.CYPRESS_RECORD_KEY }}
+          # only do parallel if we have a record key
+          parallel: ${{ !!secrets.CYPRESS_RECORD_KEY }}
+          # upload videos for failing specs
+          config: video=true,videoUploadOnPasses=false,pageLoadTimeout=100000,baseUrl=http://localhost:8080
+          config-file: cypress.json
+          browser: chrome
+        env:
+          # pass the Dashboard record key as an environment variable
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          # pass GitHub token to allow accurately detecting a build vs a re-run build
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # turn on code coverage when running npm start
+          # so far we've been using a webpack istanbul-instrumenter-loader for this
+          # but there has been work on building code coverage into node itself, which
+          # should be much faster
+          CODE_COVERAGE: true
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          flags: cypress
+          token: ${{ secrets.CODECOV_TOKEN }}
+  s3-deploy:
+    name: S3 Deploy
+    needs:
+      - cypress
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      - name: Setup Ruby
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.7'
+      - name: Install Dependencies
+        run: |
+          gem install s3_website -v 3.4.0
+          npm ci
+      - name: Build
+        run: npm run build
+      - name: Deploy
+        run: ./s3_deploy.sh
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
