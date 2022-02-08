@@ -5,19 +5,23 @@ import { defaultAuthoredState, IAuthoredState, IInteractiveState } from "./types
 import { App } from "../components/app";
 
 interface Props {
-  initMessage: IRuntimeInitInteractive<{}, IAuthoredState>;
+  initMessage: IRuntimeInitInteractive<IInteractiveState, IAuthoredState>;
 }
 
 export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
   const authoredState = initMessage.authoredState || defaultAuthoredState;
-  const { interactiveState, setInteractiveState } = useInteractiveState<IInteractiveState>();
+
+  // NOTE: we only use the interactive state from startup, the sensor app maintains its own state during runtime.
+  // The interactive state is saved to display at runtime startup and the report and report-item interactive views.
+  const initialInteractiveState = initMessage.interactiveState;
+  const { setInteractiveState } = useInteractiveState<IInteractiveState>();
 
   return (
     <App
       interactiveHost="runtime"
       fakeSensor={authoredState.useFakeSensor}
       maxGraphHeight={625}
-      interactiveState={interactiveState}
+      initialInteractiveState={initialInteractiveState}
       setInteractiveState={setInteractiveState}
     />
   );

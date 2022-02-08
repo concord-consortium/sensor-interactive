@@ -17,7 +17,7 @@ interface IGraphTopPanelProps {
   assetsPath: string;
 }
 
-export const GraphTopPanel: React.SFC<IGraphTopPanelProps> = (props) => {
+export const GraphTopPanel: React.FC<IGraphTopPanelProps> = (props) => {
   const { sensorSlot, onZeroSensor, onRemoveSensor, onSensorSelect } = props,
         { sensor } = sensorSlot,
         tareValue = sensor.tareValue || 0,

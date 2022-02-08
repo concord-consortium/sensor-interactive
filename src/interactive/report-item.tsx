@@ -4,15 +4,18 @@ import { addGetReportItemAnswerListener, getClient, IReportItemInitInteractive,
          sendReportItemAnswer, useAutoSetHeight, useInitMessage } from "@concord-consortium/lara-interactive-api";
 import { useEffect } from "react";
 import { ReportItemMetricsLegendComponent, reportItemMetricsHtml } from "./report-item-metrics";
+import { IAuthoredState, IInteractiveState } from "./types";
 
 export const ReportItemComponent = () => {
-  const initMessage = useInitMessage<IReportItemInitInteractive<{}, {}>, {}>();
+  const initMessage = useInitMessage<IReportItemInitInteractive<IInteractiveState, IAuthoredState>, IAuthoredState>();
 
   useAutoSetHeight();
 
   useEffect(() => {
     addGetReportItemAnswerListener((request) => {
-      const {type, platformUserId, interactiveState, /* authoredState */} = request;
+      // TODO: update lara interactive api to change addGetReportItemAnswerListener to a generic with <IInteractiveState, IAuthoredState>
+      // and remove the `any` after request
+      const {type, platformUserId, interactiveState, /* authoredState */} = request as any;
       switch (type) {
         case "html":
           const html = reportItemMetricsHtml({interactiveState, platformUserId, interactiveItemId});

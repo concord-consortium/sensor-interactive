@@ -1,6 +1,7 @@
 import { SensorConfiguration } from "./sensor-configuration";
 import { SensorManager } from "./sensor-manager";
 import { SensorConfig } from "@concord-consortium/sensor-connector-interface";
+import { cloneDeep } from "lodash";
 
 export class FakeSensorManager extends SensorManager {
     supportsDualCollection = true;
@@ -71,13 +72,17 @@ export class FakeSensorManager extends SensorManager {
       // this.sensorConfig = new SensorConfiguration(this.internalConfig);
     }
 
+    cloneInternalConfig() {
+      return cloneDeep(this.internalConfig);
+    }
+
     isWirelessDevice() {
       return false;
     }
 
     startPolling() {
       setTimeout(() => {
-        let sensorConfig = new SensorConfiguration(this.internalConfig);
+        let sensorConfig = new SensorConfiguration(this.cloneInternalConfig());
         this.onSensorConnect(sensorConfig);
         this.onSensorStatus(sensorConfig);
       }, 100);
@@ -97,7 +102,7 @@ export class FakeSensorManager extends SensorManager {
         this.internalConfig.columns["102"].liveValue = positionValue.toString();
         this.hasData = true;
 
-        this.onSensorStatus(new SensorConfiguration(this.internalConfig));
+        this.onSensorStatus(new SensorConfiguration(this.cloneInternalConfig()));
         this.onSensorData({ "101": [[time, temperatureValue]]});
         this.onSensorData({ "102": [[time, positionValue]]});
 
