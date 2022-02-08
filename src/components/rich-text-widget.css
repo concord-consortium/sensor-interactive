@@ -1,0 +1,45 @@
+.customRichTextWidget {
+
+  :global .ccrte-modal-dialog {
+    margin: 0;
+
+    .dialog {
+      top: 0;
+      left: 50%;
+      transform: translate(-50%, 0);
+      z-index: 1;
+      .content {
+        .label {
+          padding: 0;
+          font-size: inherit;
+          font-weight: bold;
+        }
+        > .inline-row {
+          margin-top: -10px;
+          margin-bottom: -10px;
+        }
+        .checkbox {
+          input[type=checkbox] {
+            position: static;
+          }
+          input:checked + span::before {
+            font-family: arial;
+            font-size: 14px;
+            font-weight: bold;
+            top: 0.5rem;
+            left: 2.9rem;
+          }
+          span {
+            font-weight: bold;
+            margin-top: 0px;
+          }
+        }
+      }
+    }
+  }
+
+  .customRichTextEditor {
+    height: 100%;
+    overflow: hidden;
+  }
+}

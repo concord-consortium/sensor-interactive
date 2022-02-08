@@ -55,6 +55,7 @@
     "text-encoding": "^0.7.0"
   },
   "devDependencies": {
+    "@concord-consortium/slate-editor": "^0.7.3",
     "@types/d3-format": "^1.4.2",
     "@types/dygraphs": "^1.1.13",
     "@types/lodash": "^4.14.178",
