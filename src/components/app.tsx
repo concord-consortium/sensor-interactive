@@ -19,6 +19,9 @@ import { SensorTagManager } from "../models/sensor-tag-manager";
 import { SensorGDXManager } from "../models/sensor-gdx-manager";
 import { IInteractiveState } from "../interactive/types";
 
+import "./app.css";
+import "./dialog.css";
+
 export type InteractiveHost = "codap" | "runtime" | "report";
 
 export interface AppProps {

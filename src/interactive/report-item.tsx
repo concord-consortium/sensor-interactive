@@ -5,6 +5,7 @@ import { addGetReportItemAnswerListener, getClient, IReportItemInitInteractive,
 import { useEffect } from "react";
 import { ReportItemMetricsLegendComponent, reportItemMetricsHtml } from "./report-item-metrics";
 
+import "./report-item.css";
 export const ReportItemComponent = () => {
   const initMessage = useInitMessage<IReportItemInitInteractive<{}, {}>, {}>();
 
