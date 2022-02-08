@@ -7,25 +7,30 @@ import { ReportItemMetricsLegendComponent, reportItemMetricsHtml } from "./repor
 import { IAuthoredState, IInteractiveState } from "./types";
 
 import "./report-item.css";
+
 export const ReportItemComponent = () => {
   const initMessage = useInitMessage<IReportItemInitInteractive<IInteractiveState, IAuthoredState>, IAuthoredState>();
 
   useAutoSetHeight();
 
   useEffect(() => {
-    addGetReportItemAnswerListener((request) => {
-      // TODO: update lara interactive api to change addGetReportItemAnswerListener to a generic with <IInteractiveState, IAuthoredState>
-      // and remove the `any` after request
-      const {type, platformUserId, interactiveState, /* authoredState */} = request as any;
-      switch (type) {
-        case "html":
-          const html = reportItemMetricsHtml({interactiveState, platformUserId, interactiveItemId});
-          sendReportItemAnswer({type: "html", platformUserId, html});
-          break;
-      }
-    });
-    getClient().post("reportItemClientReady");
-  }, []);
+    if (initMessage && initMessage.mode === "reportItem") {
+      const {interactiveItemId} = initMessage;
+
+      addGetReportItemAnswerListener((request) => {
+        // TODO: update lara interactive api to change addGetReportItemAnswerListener to a generic with <IInteractiveState, IAuthoredState>
+        // and remove the `any` after request
+        const {type, platformUserId, interactiveState, /* authoredState */} = request as any;
+        switch (type) {
+          case "html":
+            const html = reportItemMetricsHtml({interactiveState, platformUserId, interactiveItemId});
+            sendReportItemAnswer({type: "html", platformUserId, html});
+            break;
+        }
+      });
+      getClient().post("reportItemClientReady");
+    }
+}, [initMessage]);
 
   if (!initMessage) {
     return (
@@ -45,7 +50,7 @@ export const ReportItemComponent = () => {
     );
   }
 
-  const {view, interactiveItemId} = initMessage;
+  const {view} = initMessage;
 
   return (
     <div className={`reportItem ${view}`}>

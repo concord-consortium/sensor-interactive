@@ -1,16 +1,42 @@
 import * as React from "react";
-import { IInteractiveState } from "./types";
+import * as Renderer from "react-dom/server";
+
+import { IInteractiveSensorData, IInteractiveState } from "./types";
+import { Sparklines, SparklinesLine } from "react-sparklines";
 
 export const ReportItemMetricsLegendComponent = ({view}: {view: "singleAnswer" | "multipleAnswer"}) => {
+  // TODO: metricsLegend (empty for now)
   return (
-    <div className={`metricsLegend ${view}`}>
-      TODO: metricsLegend
-    </div>
+    <div className={`metricsLegend ${view}`} />
   );
 };
 
+const SparklineGraph = ({sensorData, color}: {sensorData: IInteractiveSensorData, color: string}) => {
+  const data = sensorData.data.map(p => p[1])
+
+  return (
+    <>
+      <div>{sensorData.name} ({sensorData.unit})</div>
+      {data.length === 0
+        ?
+          <div className="no-sensor-data">No sensor data available</div>
+        :
+          <Sparklines data={data} limit={data.length} width={100} height={20} margin={5}>
+            <SparklinesLine color={color} />
+          </Sparklines>}
+    </>
+  );
+}
+
 export const reportItemMetricsHtml = ({interactiveState, platformUserId, interactiveItemId}: {interactiveState: IInteractiveState, platformUserId: string, interactiveItemId: string}) => {
-  let metrics: string = "TODO: metricsReportItemHtml";
+  const {data, secondGraph} = interactiveState.sensor;
+
+  const metrics = Renderer.renderToStaticMarkup(
+    <>
+      <SparklineGraph sensorData={data[0]} color={"#007fcf"} />
+      {secondGraph && <SparklineGraph sensorData={data[1]} color={"#da5d1d"} />}
+    </>
+  );
 
   return `
     <style>
@@ -24,6 +50,13 @@ export const reportItemMetricsHtml = ({interactiveState, platformUserId, interac
       .wide > div {
         margin-right: 10px;
       }
+      .wide svg {
+        max-width: 300px;
+      }
+      .no-sensor-data {
+        margin: 0 10px;
+        font-weight: bold;
+      }
     </style>
     <div class="tall">
       ${metrics}
@@ -32,4 +65,3 @@ export const reportItemMetricsHtml = ({interactiveState, platformUserId, interac
       ${metrics}
     </div>`;
 };
-
