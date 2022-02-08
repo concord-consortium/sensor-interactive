@@ -4,4 +4,4 @@ node_modules/
 .vscode/
 cypress/screenshots
 cypress/videos
-cypress/snapshots
+**/__diff_output__/**
