@@ -12,11 +12,26 @@ export const ReportItemMetricsLegendComponent = ({view}: {view: "singleAnswer" |
 };
 
 const SparklineGraph = ({sensorData, color}: {sensorData: IInteractiveSensorData, color: string}) => {
-  const data = sensorData.data.map(p => p[1])
+
+  let min: number|undefined = undefined;
+  let max: number|undefined = undefined;
+  let data: number[] = [];
+  sensorData.data.forEach((p, index) => {
+    const value = p[1];
+    if ((min === undefined) || (max === undefined)) {
+      min = max = value;
+    } else {
+      min = Math.min(min, value);
+      max = Math.max(max, value);
+    }
+    data.push(value);
+  })
+
+  const range = min !== undefined && max !== undefined ? <span>{min} to {max} </span> : "";
 
   return (
     <>
-      <div>{sensorData.name} ({sensorData.unit})</div>
+      <div>{sensorData.name} ({range}{sensorData.unit})</div>
       {data.length === 0
         ?
           <div className="no-sensor-data">No sensor data available</div>
