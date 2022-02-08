@@ -2,6 +2,8 @@ import * as React from "react";
 import Dygraph from "dygraphs";
 import { Format } from "../utils/format";
 
+import "./dygraph.css";
+
 export interface GraphProps {
     title:string|undefined;
     width:number|null;

@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { ReportItemMetricsLegendComponent, reportItemMetricsHtml } from "./report-item-metrics";
 import { IAuthoredState, IInteractiveState } from "./types";
 
+import "./report-item.css";
 export const ReportItemComponent = () => {
   const initMessage = useInitMessage<IReportItemInitInteractive<IInteractiveState, IAuthoredState>, IAuthoredState>();
 
