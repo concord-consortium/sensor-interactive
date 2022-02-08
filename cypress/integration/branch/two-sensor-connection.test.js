@@ -4,6 +4,8 @@ const workspace = new Workspace
 
 before(()=>{
     cy.visit('/examples/fake-sensor.html')
+    // See cypress.json for viewport size
+    cy.viewport(1400,1280)
     workspace.getSensorTypeButton('Wired').click()
     workspace.getAddSensorButton().click();
 })
