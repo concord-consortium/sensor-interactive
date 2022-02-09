@@ -22,11 +22,14 @@ import { IInteractiveSensorData, IInteractiveState } from "../interactive/types"
 import "./app.css";
 import "./dialog.css";
 
+const DEFAULT_RUN_LENGTH = 5;
+
 export type InteractiveHost = "codap" | "runtime" | "report";
 
 export interface AppProps {
     sensorManager?: SensorManager;
     fakeSensor?: boolean;
+    singleReads?: boolean;
     interactiveHost?: InteractiveHost;
     maxGraphHeight?: number;
     initialInteractiveState?: IInteractiveState | null;
@@ -157,9 +160,9 @@ export class App extends React.Component<AppProps, AppState> {
             dataChanged:false,
             dataReset:false,
             collecting:false,
-            runLength:5,
+            runLength:DEFAULT_RUN_LENGTH,
             xStart:0,
-            xEnd:5.01, // without the .01, last tick number sometimes fails to display
+            xEnd:DEFAULT_RUN_LENGTH + 0.01, // without the .01, last tick number sometimes fails to display
             timeUnit:"",
             notRespondingModal:false,
             suppressNotRespondingModal:false,
@@ -345,7 +348,7 @@ export class App extends React.Component<AppProps, AppState> {
             this.disconnectSensorConnector();
         } else {
             if (this.props.fakeSensor) {
-                const sensorManager = new FakeSensorManager();
+                const sensorManager = new FakeSensorManager({singleReads: this.props.singleReads});
                 this.setState({ sensorManager, hasConnected:true }, () => {
                         this.addSensorManagerListeners();
                         if (this.state.sensorManager) {
@@ -388,7 +391,7 @@ export class App extends React.Component<AppProps, AppState> {
             this.disconnectDevice();
         } else {
             if (this.props.fakeSensor) {
-                const sensorManager = new FakeSensorManager();
+                const sensorManager = new FakeSensorManager({singleReads: this.props.singleReads});
                 this.setState({ sensorManager, hasConnected:true, secondGraph: false }, () => {
                         this.addSensorManagerListeners();
                         if (this.state.sensorManager) {
@@ -484,9 +487,10 @@ export class App extends React.Component<AppProps, AppState> {
     startSensor() {
         const { sensorManager } = this.state;
         if (sensorManager) {
+            this.state.sensorSlots.forEach(s => s.numRequestedDataPoints++);
             sensorManager.requestStart();
+            this.setState({statusMessage: this.messages["starting_data_collection"]});
         }
-        this.setState({ statusMessage: this.messages["starting_data_collection"] });
     }
 
     stopSensor() {
@@ -512,6 +516,32 @@ export class App extends React.Component<AppProps, AppState> {
 
     // This should only be called while we are collecting
     onSensorData(newSensorData: NewSensorData) {
+        const { sensorSlots } = this.state;
+
+        if (this.props.singleReads) {
+            let haveAllData = true;
+            let xEnd = 0;
+            sensorSlots.forEach((sensorSlot) => {
+                const sensor = sensorSlot.sensor,
+                    sensorData = sensor && sensor.columnID && newSensorData[sensor.columnID];
+                if (sensor && sensor.columnID && sensorData && sensorData.length > 0) {
+                    sensorSlot.recordOneDataPointIfNeeded(sensorData);
+                }
+                haveAllData = haveAllData && (sensorSlot.numDataPoints === sensorSlot.numRequestedDataPoints);
+                xEnd = Math.ceil(Math.max(xEnd, sensorSlot.timeOfLastData));
+            });
+            if (haveAllData) {
+                this.stopSensor();
+            }
+            // allow for some padding on the right side
+            xEnd = Math.max(DEFAULT_RUN_LENGTH, xEnd + 1) + 0.01;
+            this.setState({xEnd, sensorSlots}, () => {
+                // TODO: this causes the same issue as saving after a new run
+                // this.saveInteractiveState();
+            });
+            return;
+        }
+
         if (!this.state.collecting) {
             this.setState({
                 hasData: true,
@@ -524,7 +554,6 @@ export class App extends React.Component<AppProps, AppState> {
                 sensorManager.addListener('onSensorCollectionStopped', this.onSensorCollectionStopped);
             }
         }
-        const { sensorSlots } = this.state;
 
         // Keep track of the smallest last time value. We want to keep collecting
         // until all of the sensors have reached the runLength.
@@ -715,13 +744,21 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     newData() {
-        const { sensorSlots, runLength } = this.state;
-        sensorSlots.forEach((slot) => slot.clearData());
+        let { runLength } = this.state;
+        const { sensorSlots } = this.state;
+        sensorSlots.forEach((slot) => {
+            slot.clearData();
+            slot.numRequestedDataPoints = 0;
+        });
+        if (this.props.singleReads) {
+            runLength = DEFAULT_RUN_LENGTH;
+        }
         this.setState({
             hasData:false,
             dataReset:true,
             dataChanged:false,
-            sensorSlots
+            sensorSlots,
+            runLength
         }, () => {
             // FIXME: calling this causes new pushes to the slotData to throw
             // an "object is not extensible" error.  Disabled for now, this
@@ -1077,6 +1114,7 @@ export class App extends React.Component<AppProps, AppState> {
             interfaceType = (sensorConfig && sensorConfig.interface) || "";
         const isConnectorAwake = sensorManager ? sensorManager.isAwake() : true;
         const showControls = this.props.interactiveHost !== "report";
+        const singleReads = !!this.props.singleReads;
 
         return (
             <div className="app-container">
@@ -1167,6 +1205,7 @@ export class App extends React.Component<AppProps, AppState> {
                         hasConnected={this.state.hasConnected}
                         assetsPath={this.assetsPath}
                         maxHeight={this.props.maxGraphHeight}
+                        singleReads={singleReads}
                     />
                     {this.renderLegend()}
                 </div>
@@ -1190,6 +1229,7 @@ export class App extends React.Component<AppProps, AppState> {
                     onAboutClick={this.showAbout}
                     isDisabled={sensorManager == null}
                     assetsPath={this.assetsPath}
+                    singleReads={singleReads}
                 />}
             </div>
         );

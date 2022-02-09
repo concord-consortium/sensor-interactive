@@ -20,6 +20,7 @@ export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
     <App
       interactiveHost="runtime"
       fakeSensor={authoredState.useFakeSensor}
+      singleReads={authoredState.singleReads}
       maxGraphHeight={625}
       initialInteractiveState={initialInteractiveState}
       setInteractiveState={setInteractiveState}

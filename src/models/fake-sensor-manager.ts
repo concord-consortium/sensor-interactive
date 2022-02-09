@@ -10,9 +10,12 @@ export class FakeSensorManager extends SensorManager {
     private internalConfig: SensorConfig;
     private hasData: boolean = false;
     private interval: any;
+    private singleReads: boolean;
 
-    constructor() {
+    constructor(options?: {singleReads?: boolean}) {
       super();
+      this.singleReads = !!options?.singleReads;
+
       // create fake SensorConfiguration
       // This should be improved, we don't need all of these properties when making
       // a new sensor manager. The SensorConfiguration class could be have an
@@ -93,21 +96,20 @@ export class FakeSensorManager extends SensorManager {
     }
 
     requestStart() {
-      let time = 0.0;
-      this.interval = setInterval(() => {
-        const temperatureValue = Math.sin((Math.PI/3)*time)*3 + 20,
-            positionValue = Math.sin((Math.PI/3)*time);
-
-        this.internalConfig.columns["101"].liveValue = temperatureValue.toString();
-        this.internalConfig.columns["102"].liveValue = positionValue.toString();
-        this.hasData = true;
-
-        this.onSensorStatus(new SensorConfiguration(this.cloneInternalConfig()));
-        this.onSensorData({ "101": [[time, temperatureValue]]});
-        this.onSensorData({ "102": [[time, positionValue]]});
-
-        time += 0.1;
-      }, 100);
+      if (this.singleReads) {
+        const temperatureValue = 17 + (Math.random() * 5),
+              positionValue = 1 - (Math.random() * 2);
+        this.sendValues(0, {temperatureValue, positionValue});
+      }
+      else {
+        let time = 0.0;
+        this.interval = setInterval(() => {
+          const temperatureValue = Math.sin((Math.PI/3)*time)*3 + 20,
+                positionValue = Math.sin((Math.PI/3)*time);
+          this.sendValues(time, {temperatureValue, positionValue});
+          time += 0.1;
+        }, 100);
+      }
     }
 
     requestStop() {
@@ -115,5 +117,15 @@ export class FakeSensorManager extends SensorManager {
       setTimeout(() => {
         this.onSensorCollectionStopped();
       });
+    }
+
+    private sendValues(time: number, {temperatureValue, positionValue}: {temperatureValue: number, positionValue: number}) {
+      this.internalConfig.columns["101"].liveValue = temperatureValue.toString();
+      this.internalConfig.columns["102"].liveValue = positionValue.toString();
+      this.hasData = true;
+
+      this.onSensorStatus(new SensorConfiguration(this.cloneInternalConfig()));
+      this.onSensorData({ "101": [[time, temperatureValue]]});
+      this.onSensorData({ "102": [[time, positionValue]]});
     }
 }

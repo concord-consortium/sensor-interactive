@@ -25,6 +25,7 @@ interface IGraphsPanelProps {
   hasConnected:boolean;
   assetsPath: string;
   maxHeight?: number;
+  singleReads?: boolean;
 }
 
 const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
@@ -59,7 +60,9 @@ const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
                         collecting={props.collecting}
                         hasData={props.hasData}
                         dataReset={props.dataReset}
-                        assetsPath={props.assetsPath}/>;
+                        assetsPath={props.assetsPath}
+                        singleReads={props.singleReads}
+                        />;
   }
 
   const { sensorSlots, secondGraph, hasConnected } = props,

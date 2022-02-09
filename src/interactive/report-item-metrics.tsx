@@ -1,8 +1,9 @@
 import * as React from "react";
 import * as Renderer from "react-dom/server";
 
-import { IInteractiveSensorData, IInteractiveState } from "./types";
+import { IAuthoredState, IInteractiveSensorData, IInteractiveState } from "./types";
 import { Sparklines, SparklinesLine } from "react-sparklines";
+import SparklinesPoints from "./report-item-sparkline-points";
 
 export const ReportItemMetricsLegendComponent = ({view}: {view: "singleAnswer" | "multipleAnswer"}) => {
   // TODO: metricsLegend (empty for now)
@@ -11,7 +12,7 @@ export const ReportItemMetricsLegendComponent = ({view}: {view: "singleAnswer" |
   );
 };
 
-const SparklineGraph = ({sensorData, color}: {sensorData: IInteractiveSensorData, color: string}) => {
+const SparklineGraph = ({sensorData, color, usePoints}: {sensorData: IInteractiveSensorData, color: string, usePoints: boolean}) => {
 
   let min: number|undefined = undefined;
   let max: number|undefined = undefined;
@@ -37,19 +38,20 @@ const SparklineGraph = ({sensorData, color}: {sensorData: IInteractiveSensorData
           <div className="no-sensor-data">No sensor data available</div>
         :
           <Sparklines data={data} limit={data.length} width={100} height={20} margin={5}>
-            <SparklinesLine color={color} />
+            {usePoints ? <SparklinesPoints color={color} /> : <SparklinesLine color={color} />}
           </Sparklines>}
     </>
   );
 }
 
-export const reportItemMetricsHtml = ({interactiveState, platformUserId, interactiveItemId}: {interactiveState: IInteractiveState, platformUserId: string, interactiveItemId: string}) => {
+export const reportItemMetricsHtml = ({interactiveState, authoredState, platformUserId, interactiveItemId}: {interactiveState: IInteractiveState, authoredState: IAuthoredState, platformUserId: string, interactiveItemId: string}) => {
   const {data, secondGraph} = interactiveState.sensor;
+  const usePoints = !!authoredState.singleReads;
 
   const metrics = Renderer.renderToStaticMarkup(
     <>
-      <SparklineGraph sensorData={data[0]} color={"#007fcf"} />
-      {secondGraph && <SparklineGraph sensorData={data[1]} color={"#da5d1d"} />}
+      <SparklineGraph sensorData={data[0]} color={"#007fcf"} usePoints={usePoints} />
+      {secondGraph && <SparklineGraph sensorData={data[1]} color={"#da5d1d"} usePoints={usePoints} />}
     </>
   );
 

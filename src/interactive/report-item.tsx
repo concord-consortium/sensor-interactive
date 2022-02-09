@@ -20,10 +20,10 @@ export const ReportItemComponent = () => {
       addGetReportItemAnswerListener((request) => {
         // TODO: update lara interactive api to change addGetReportItemAnswerListener to a generic with <IInteractiveState, IAuthoredState>
         // and remove the `any` after request
-        const {type, platformUserId, interactiveState, /* authoredState */} = request as any;
+        const {type, platformUserId, interactiveState, authoredState} = request as any;
         switch (type) {
           case "html":
-            const html = reportItemMetricsHtml({interactiveState, platformUserId, interactiveItemId});
+            const html = reportItemMetricsHtml({interactiveState, authoredState, platformUserId, interactiveItemId});
             sendReportItemAnswer({type: "html", platformUserId, html});
             break;
         }
