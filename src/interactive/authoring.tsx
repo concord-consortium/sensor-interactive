@@ -11,19 +11,9 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
   const {authoredState, setAuthoredState} = useAuthoredState<IAuthoredState>();
   const { singleReads, useFakeSensor, prompt, hint } = authoredState || defaultAuthoredState;
 
-  const updateAuthoredState = (update: Partial<IAuthoredState>) => {
-    setAuthoredState({
-      useFakeSensor,
-      singleReads,
-      ...update,
-    });
-  }
-
-  const handleFakeSensor = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({useFakeSensor: e.target.checked});
   const handlesingleReads = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({singleReads: e.target.checked});
 
   const updateAuthoredState = (newState: Partial<IAuthoredState>) => {
-    console.log(newState);
     setAuthoredState( prev => {
       if(prev) {
         return {
@@ -41,9 +31,11 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
   const handlePrompt = (nextValue: string) => updateAuthoredState({prompt: nextValue});
   const handleHint = (nextValue: string) => updateAuthoredState({hint: nextValue});
   const update = (id: string, value: string) => {
+  const handleFakeSensor = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({useFakeSensor: e.target.checked});
+
+  const textWidgetBlur = (id: string, value: string) => {
     if(id === "prompt") { updateAuthoredState({prompt: value}); }
     if(id === "hint") { updateAuthoredState({hint: value}); }
-    console.log(value);
   }
 
   return (
@@ -56,11 +48,11 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
         <legend>Data Acquisition</legend>
         <input type="checkbox" checked={singleReads} onChange={handlesingleReads} /> Single reads
         <legend>Prompt</legend>
-        <RichTextWidget id="prompt" value={prompt} onChange={handlePrompt} onBlur={update} onFocus={update}/>
+        <RichTextWidget id="prompt" value={prompt} onBlur={textWidgetBlur}/>
       </fieldset>
       <fieldset>
         <legend>Hint</legend>
-        <RichTextWidget id="hint" value={hint} onChange={handleHint} onBlur={update} onFocus={update}/>
+        <RichTextWidget id="hint" value={hint} onBlur={textWidgetBlur}/>
       </fieldset>
     </div>
   );

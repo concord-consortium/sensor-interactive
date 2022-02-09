@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { getContentHeight, htmlToSlate, SlateEditor, slateToHtml, SlateToolbar } from "@concord-consortium/slate-editor";
-import { useRefState } from "../hooks/use-ref-state";
+// import { useRefState } from "../hooks/use-ref-state";
 import "@concord-consortium/slate-editor/build/index.css";
 import "./rich-text-widget.css";
 
@@ -8,8 +8,6 @@ const kThemeColor = "#34a5be";
 
 interface IRichTextProps {
   id: string;
-  onFocus: (id: string, value:string) => void;
-  onChange: (value: string) => void;
   onBlur:  (id: string, value:string) => void;
   value: string;
 }
@@ -23,8 +21,8 @@ function exportHtml(value: any) {
 }
 
 export const RichTextWidget = (props: IRichTextProps) => {
-  const { id, onFocus, onChange, onBlur } = props;
-  const [value, valueRef, setValue] = useRefState(htmlToSlate(props.value || ""));
+  const { id, onBlur } = props;
+  const [value, setValue] = useState(htmlToSlate(props.value || ""));
   const [changeCount, setChangeCount] = useState(0);
   const editorRef = useRef<any>();
   const kExtraHeight = 30;
@@ -35,6 +33,7 @@ export const RichTextWidget = (props: IRichTextProps) => {
     setChangeCount(count => count + 1);
   }, []);
 
+
   const handleEditorRef = useCallback((editor: any | null) => {
     editorRef.current = editor || undefined;
     if (editor) {
@@ -43,19 +42,14 @@ export const RichTextWidget = (props: IRichTextProps) => {
     }
   }, [id]);
 
-  const handleFocus = useCallback(() => {
-    onFocus(id, exportHtml(valueRef.current));
-  }, [id, onFocus, valueRef]);
-
-  const handleChange = useCallback((editorValue: any) => {
+  const handleChange = (editorValue: any) => {
     setValue(editorValue);
     setChangeCount(count => count + 1);
-    onChange(exportHtml(editorValue));
-  }, [onChange, setValue]);
+  };
 
-  const handleBlur = useCallback(() => {
-    onBlur(id, exportHtml(valueRef.current));
-  }, [id, onBlur, valueRef]);
+  const handleBlur = () => {
+    onBlur(id, exportHtml(value));
+  };
 
   // dynamically resize editor to fit content
   useEffect(() => {
@@ -68,6 +62,9 @@ export const RichTextWidget = (props: IRichTextProps) => {
     }
   }, [changeCount, value, height]);
 
+  useEffect(() => {
+    setValue(htmlToSlate(props.value || ""));
+  }, [props.value]);
   return (
     <div className="customRichTextWidget">
       <SlateToolbar
@@ -88,9 +85,9 @@ export const RichTextWidget = (props: IRichTextProps) => {
           value={value}
           onEditorRef={handleEditorRef}
           onLoad={handleLoad}
-          onFocus={handleFocus}
           onValueChange={handleChange}
-          onBlur={handleBlur} />
+          onBlur={handleBlur}
+        />
       </div>
     </div>);
 };
