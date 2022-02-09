@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { getContentHeight, htmlToSlate, SlateEditor, slateToHtml, SlateToolbar } from "@concord-consortium/slate-editor";
-// import { useRefState } from "../hooks/use-ref-state";
+
 import "@concord-consortium/slate-editor/build/index.css";
 import "./rich-text-widget.css";
 
