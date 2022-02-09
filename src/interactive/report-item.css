@@ -8,7 +8,6 @@ body {
 }
 
 #app {
-  min-height: 200px;
 }
 
 .centered {
@@ -33,3 +32,4 @@ body {
 .monospace {
   font-family: 'Courier New', Courier, monospace;
 }
+
