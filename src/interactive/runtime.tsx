@@ -18,9 +18,8 @@ export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
   const { setInteractiveState } = useInteractiveState<IInteractiveState>();
   if(hint) { setHint(hint) };
   return (
-    <>
-      { prompt && <div dangerouslySetInnerHTML={{ __html: prompt}} /> }
       <App
+        prompt={prompt}
         interactiveHost="runtime"
         fakeSensor={authoredState.useFakeSensor}
         singleReads={authoredState.singleReads}
@@ -28,6 +27,5 @@ export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
         initialInteractiveState={initialInteractiveState}
         setInteractiveState={setInteractiveState}
       />
-    </>
   );
 };
