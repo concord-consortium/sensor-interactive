@@ -24,6 +24,19 @@ import "./app.css";
 
 const DEFAULT_RUN_LENGTH = 5;
 
+// TODO: move this to where it makes more sense
+
+export interface SensorRecording {
+    unit: string;
+    precision: number;
+    name: string;
+    min: number;
+    max: number;
+    data: number[][];
+}
+
+// ODOT
+
 export type InteractiveHost = "codap" | "runtime" | "report";
 
 export interface AppProps {
@@ -1108,7 +1121,7 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     render() {
-        var { sensorConfig, sensorManager } = this.state,
+        var { sensorConfig, sensorManager, sensorSlots } = this.state,
             codapURL = window.self === window.top
                         ? "http://codap.concord.org/releases/latest?di=" + window.location.href
                         : "",
@@ -1116,6 +1129,23 @@ export class App extends React.Component<AppProps, AppState> {
         const isConnectorAwake = sensorManager ? sensorManager.isAwake() : true;
         const showControls = this.props.interactiveHost !== "report";
         const singleReads = !!this.props.singleReads;
+
+        const sensorRecordings: SensorRecording[] = [];
+        sensorSlots.forEach((sensorSlot, index) => {
+            const isFirstSlot = index === 0;
+            if (isFirstSlot || this.state.secondGraph) {
+                const sensor = sensorSlot.dataSensor || sensorSlot.sensor;
+                const sensorDefinition = sensor.definition;
+                sensorRecordings.push({
+                    unit: sensor.valueUnit,
+                    precision: sensor.sensorPrecision(),
+                    name: sensorDefinition.measurementName,
+                    min: sensorDefinition.minReading,
+                    max: sensorDefinition.maxReading,
+                    data: sensorSlot.sensorData
+                })
+            }
+        });
 
         return (
             <div className="app-container">
@@ -1193,9 +1223,7 @@ export class App extends React.Component<AppProps, AppState> {
                         {this.renderAddSensorButton()}
                     </div>}
                     <GraphsPanel
-                        sensorConfig={this.state.sensorConfig}
-                        sensorSlots={this.state.sensorSlots}
-                        secondGraph={this.state.secondGraph}
+                        sensorRecordings={sensorRecordings}
                         onGraphZoom={this.onGraphZoom}
                         onSensorSelect={this.handleSensorSelect}
                         xStart={this.state.xStart}
