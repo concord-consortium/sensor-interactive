@@ -20,12 +20,6 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
     });
   };
 
-  console.log("prompt", prompt);
-  console.log("hint", hint);
-
-  const handlePrompt = (nextValue: string) => updateAuthoredState({prompt: nextValue});
-  const handleHint = (nextValue: string) => updateAuthoredState({hint: nextValue});
-  const update = (id: string, value: string) => {
   const handleFakeSensor = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({useFakeSensor: e.target.checked});
 
   const textWidgetBlur = (id: string, value: string) => {
@@ -42,6 +36,8 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
       <fieldset>
         <legend>Data Acquisition</legend>
         <input type="checkbox" checked={singleReads} onChange={handlesingleReads} /> Single reads
+      </fieldset>
+      <fieldset>
         <legend>Prompt</legend>
         <RichTextWidget id="prompt" value={prompt} onBlur={textWidgetBlur}/>
       </fieldset>
