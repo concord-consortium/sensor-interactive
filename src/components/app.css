@@ -506,6 +506,9 @@ button:active {
 .new-data {
     width: 70px;
 }
+.record-sensor {
+    width: 70px;
+}
 
 .control-panel .left-controls {
     flex-grow: 1;

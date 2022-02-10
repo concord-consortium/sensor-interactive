@@ -19,6 +19,7 @@ export interface GraphProps {
     yLabel:string|undefined;
     [key:string]: any;
     assetsPath: string;
+    singleReads?: boolean;
 }
 
 export interface GraphState {
@@ -44,8 +45,8 @@ const AXIS_LABEL_WIDTH =  65;
 const CANVAS_FILL_COLOR = "rgba(248, 248, 248, 1.0)";
 
 // dygraph doesn't handle empty data
-function dyGraphData(data:number[][]) {
-    return data && data.length ? data : [[0,0]];
+function dyGraphData(data:number[][], useOffScreenPoint?: boolean) {
+    return data && data.length ? data : (useOffScreenPoint ? [[-100,0]] : [[0,0]]);
 }
 
 export class Graph extends React.Component<GraphProps, GraphState> {
@@ -82,7 +83,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         }
         const { data, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
         this.dygraph.updateOptions({
-            file: dyGraphData(data),
+            file: dyGraphData(data, this.props.singleReads),
             dateWindow: [xMin, xMax],
             valueRange: [yMin, yMax],
             xlabel: xLabel,
@@ -112,8 +113,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
     componentDidMount() {
         const color = this.props.title === "graph1" ? GRAPH1_LINE_COLOR : GRAPH2_LINE_COLOR;
+        const singleReadOptions: Partial<dygraphs.Options> = this.props.singleReads ? {drawPoints: true, strokeWidth: 0, pointSize: 10}: {};
+
         this.dygraph = new Dygraph("sensor-graph-" + this.props.title,
-            dyGraphData(this.state.data), {
+            dyGraphData(this.state.data, this.props.singleReads), {
             color: color,
             dateWindow: [0, this.state.xMax],
             valueRange: [this.state.yMin, this.state.yMax],
@@ -145,7 +148,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             underlayCallback: function(canvas:any, area:any, g:any) {
                 canvas.fillStyle = CANVAS_FILL_COLOR;
                 canvas.fillRect(area.x, area.y, area.w, area.h);
-            }
+            },
+            ...singleReadOptions
         });
     }
 

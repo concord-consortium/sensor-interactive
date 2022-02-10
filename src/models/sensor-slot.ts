@@ -6,11 +6,14 @@ export class SensorSlot {
   sensor:Sensor;
   sensorData:number[][];
   dataSensor?:Sensor;
+  numRequestedDataPoints:number;
+  firstDataPointTimestamp:number;
 
   constructor(index:number, sensor:Sensor) {
     this.slotIndex = index;
     this.sensor = sensor;
     this.sensorData = [];
+    this.numRequestedDataPoints = 0;
   }
 
   get isConnected() {
@@ -19,6 +22,10 @@ export class SensorSlot {
 
   get hasData():boolean {
     return !!(this.sensorData && this.sensorData.length);
+  }
+
+  get numDataPoints():number {
+    return this.sensorData?.length || 0;
   }
 
   get sensorForData() {
@@ -67,5 +74,18 @@ export class SensorSlot {
 
     if (!this.dataSensor)
       this.dataSensor = cloneDeep(this.sensor);
+  }
+
+  recordOneDataPointIfNeeded(newData:number[][]) {
+    if (this.numDataPoints < this.numRequestedDataPoints && newData.length > 0) {
+      const sample = newData[0];
+      if (this.sensorData.length === 0) {
+        sample[0] = 1;
+        this.firstDataPointTimestamp = Date.now();
+      } else {
+        sample[0] = 1 + (Date.now() - this.firstDataPointTimestamp) / 1000;
+      }
+      this.appendData([sample], sample[0]);
+    }
   }
 }

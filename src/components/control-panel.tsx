@@ -23,6 +23,7 @@ interface IControlPanelProps {
   onReloadPage: () => void;
   onAboutClick: () => void;
   assetsPath: string;
+  singleReads?: boolean;
 }
 
 export const ControlPanel: React.FC<IControlPanelProps> = (props) => {
@@ -38,6 +39,7 @@ export const ControlPanel: React.FC<IControlPanelProps> = (props) => {
                                   dFormatted = `${dNum.toFixed(0)} ${dUnit}`;
                             return <option key={d} value={d}>{dFormatted}</option>;
                           }),
+        disableRecord = props.isDisabled,
         controlPanelClass = props.isDisabled ? "control-panel disabled" : "control-panel",
         durationLabelClass = props.isDisabled || props.collecting ? "duration-label disabled" : "duration-label",
         startCollectingButton = (
@@ -63,19 +65,29 @@ export const ControlPanel: React.FC<IControlPanelProps> = (props) => {
           <div className="icon-label">Reload</div>
         </div>
       </div>
-      <span className={durationLabelClass}>Duration:</span>
-      <Select className="duration-select control-panel-select"
-              onChange={handleDurationChange}
-              value={String(props.duration)}
-              disabled={disableDuration}>
-        {[durationOptions]}
-      </Select>
-      {startCollectingButton}
-      <Button className="stop-sensor control-panel-button"
-              onClick={props.onStopCollecting}
-              disabled={disableStopCollecting}>
-        Stop
-      </Button>
+      {props.singleReads ?
+        <Button className="record-sensor control-panel-button"
+          onClick={props.onStartCollecting}
+          disabled={disableRecord}>
+          Record
+        </Button>
+      :
+        <>
+          <span className={durationLabelClass}>Duration:</span>
+          <Select className="duration-select control-panel-select"
+                  onChange={handleDurationChange}
+                  value={String(props.duration)}
+                  disabled={disableDuration}>
+            {[durationOptions]}
+          </Select>
+          {startCollectingButton}
+          <Button className="stop-sensor control-panel-button"
+                  onClick={props.onStopCollecting}
+                  disabled={disableStopCollecting}>
+            Stop
+          </Button>
+        </>
+      }
       {props.onSaveData ?
       <Button className="send-data control-panel-button"
               onClick={props.onSaveData}
