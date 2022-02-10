@@ -3,6 +3,8 @@ import { ISensorConfig } from "../models/sensor-connector-interface";
 export interface IAuthoredState {
   useFakeSensor: boolean;
   singleReads: boolean;
+  prompt: string;
+  hint: string;
 };
 
 export interface IInteractiveState {
@@ -24,4 +26,6 @@ export interface IInteractiveSensorData {
 export const defaultAuthoredState: IAuthoredState = {
   useFakeSensor: false,
   singleReads: false,
+  prompt: "",
+  hint: ""
 };

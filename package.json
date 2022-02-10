@@ -10,7 +10,6 @@
     "webpack:watch": "cross-env NODE_ENV=production webpack -w --mode production",
     "dev-webpack": "cross-env NODE_ENV=development webpack --mode development",
     "dev-webpack:watch": "cross-env NODE_ENV=development webpack -w --mode development",
-    "browse": "live-server dist/",
     "build": "cross-env NODE_ENV=production webpack --mode production",
     "dev-build": "cross-env NODE_ENV=development webpack --mode development",
     "start": "cross-env NODE_ENV=development webpack serve --mode development --open",
@@ -55,6 +54,7 @@
     "text-encoding": "^0.7.0"
   },
   "devDependencies": {
+    "@concord-consortium/slate-editor": "^0.7.3",
     "@types/d3-format": "^1.4.2",
     "@types/dygraphs": "^1.1.13",
     "@types/lodash": "^4.14.178",
@@ -76,9 +76,7 @@
     "eslint-plugin-import": "^2.25.4",
     "eslint-plugin-jsdoc": "^37.7.0",
     "eslint-plugin-prefer-arrow": "^1.2.3",
-    "live-server": "^1.2.1",
     "npm-run-all": "^4.1.5",
-    "onchange": "^6.1.1",
     "postcss": "^8.4.6",
     "postcss-loader": "^6.2.1",
     "source-map-loader": "^0.2.4",

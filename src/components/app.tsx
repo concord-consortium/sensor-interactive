@@ -19,8 +19,8 @@ import { SensorTagManager } from "../models/sensor-tag-manager";
 import { SensorGDXManager } from "../models/sensor-gdx-manager";
 import { IInteractiveSensorData, IInteractiveState } from "../interactive/types";
 
-import "./app.css";
 import "./dialog.css";
+import "./app.css";
 
 const DEFAULT_RUN_LENGTH = 5;
 
@@ -33,6 +33,7 @@ export interface AppProps {
     interactiveHost?: InteractiveHost;
     maxGraphHeight?: number;
     initialInteractiveState?: IInteractiveState | null;
+    prompt?: string;
     setInteractiveState?: (stateOrUpdateFunc: IInteractiveState | ((prevState: IInteractiveState | null) => IInteractiveState) | null) => void
 }
 
@@ -1184,6 +1185,7 @@ export class App extends React.Component<AppProps, AppState> {
                         <button onClick={this.closeAboutModal}>Ok</button>
                     </div>
                 </ReactModal>
+                { this.props.prompt && <div dangerouslySetInnerHTML={{ __html: this.props.prompt}} /> }
                 <div className="app-content">
                     {showControls && <div className="app-top-bar">
                         {this.renderStatusMessage()}
