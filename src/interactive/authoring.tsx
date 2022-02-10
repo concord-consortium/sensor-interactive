@@ -15,13 +15,8 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
 
   const updateAuthoredState = (newState: Partial<IAuthoredState>) => {
     setAuthoredState( prev => {
-      if(prev) {
-        return {
-          ...prev,
-          ...newState
-        }
-      }
-      return {...defaultAuthoredState, ...newState};
+      const newValue = {...(prev || defaultAuthoredState), ...newState};
+      return newValue;
     });
   };
 

@@ -29,10 +29,6 @@ export const RichTextWidget = (props: IRichTextProps) => {
   const kInitialHeight = 50;
   const [height, setHeight] = useState(kInitialHeight);
 
-  const handleLoad = useCallback(() => {
-    setChangeCount(count => count + 1);
-  }, []);
-
 
   const handleEditorRef = useCallback((editor: any | null) => {
     editorRef.current = editor || undefined;
@@ -84,7 +80,6 @@ export const RichTextWidget = (props: IRichTextProps) => {
           className="customRichTextEditor"
           value={value}
           onEditorRef={handleEditorRef}
-          onLoad={handleLoad}
           onValueChange={handleChange}
           onBlur={handleBlur}
         />

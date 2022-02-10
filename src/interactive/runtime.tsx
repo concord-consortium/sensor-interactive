@@ -14,12 +14,12 @@ export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
   // NOTE: we only use the interactive state from startup, the sensor app maintains its own state during runtime.
   // The interactive state is saved to display at runtime startup and the report and report-item interactive views.
   const initialInteractiveState = initMessage.interactiveState;
-  const prompt = authoredState.prompt;
+  const {prompt, hint} = authoredState;
   const { setInteractiveState } = useInteractiveState<IInteractiveState>();
-  setHint(authoredState.hint);
+  if(hint) { setHint(hint) };
   return (
     <>
-      <div dangerouslySetInnerHTML={{ __html: prompt}} />
+      { prompt && <div dangerouslySetInnerHTML={{ __html: prompt}} /> }
       <App
         interactiveHost="runtime"
         fakeSensor={authoredState.useFakeSensor}
