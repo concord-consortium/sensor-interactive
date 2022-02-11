@@ -1,10 +1,12 @@
 export interface SensorRecording {
+  columnID: string;
   unit: string;
   precision: number;
   name: string;
   min: number;
   max: number;
   tareValue: number;
+  sensorPosition: number;
   data: number[][];
 }
 

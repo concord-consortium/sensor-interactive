@@ -20,6 +20,7 @@ interface IGraphsPanelProps {
   hasData:boolean;
   dataReset:boolean;
   assetsPath: string;
+  secondGraph:boolean;
   maxHeight?: number;
   singleReads?: boolean;
 }
@@ -57,16 +58,16 @@ const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
                         />;
   }
 
-  const { sensorRecordings } = props,
+  const { sensorRecordings, secondGraph } = props,
         hasConnected = sensorRecordings.length > 0,
-        secondGraph = sensorRecordings.length > 1,
-        classes = `graphs-panel ${secondGraph ? 'two-graphs' : ''} ${hasConnected ? '' : 'disabled'}`,
-        style = { minHeight: secondGraph ? 320 : 170 };
+        showSecondGraph = secondGraph || (sensorRecordings.length > 1),
+        classes = `graphs-panel ${showSecondGraph ? 'two-graphs' : ''} ${hasConnected ? '' : 'disabled'}`,
+        style = { minHeight: showSecondGraph ? 320 : 170 };
 
   return (
       <div className={classes} style={style}>
-        {renderGraph({sensorRecording: sensorRecordings[0], title: "graph1", isSingletonGraph: !secondGraph, isLastGraph: !secondGraph})}
-        {secondGraph
+        {renderGraph({sensorRecording: sensorRecordings[0], title: "graph1", isSingletonGraph: !showSecondGraph, isLastGraph: !showSecondGraph})}
+        {showSecondGraph
             ? renderGraph({sensorRecording: sensorRecordings[1], title: "graph2", isSingletonGraph: false, isLastGraph: true})
             : null}
       </div>
