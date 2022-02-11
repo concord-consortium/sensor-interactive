@@ -193,7 +193,6 @@ export interface AppState {
     bluetoothErrorModal:boolean;
     disconnectionWarningModal:boolean;
     aboutModal:boolean;
-    hasConnected:boolean;
     sensorRecordings: SensorRecording[];
 }
 
@@ -310,7 +309,6 @@ export class App extends React.Component<AppProps, AppState> {
             bluetoothErrorModal:false,
             disconnectionWarningModal:false,
             aboutModal:false,
-            hasConnected:!!this.props.sensorManager,
             sensorRecordings:[]
         };
 
@@ -489,7 +487,7 @@ export class App extends React.Component<AppProps, AppState> {
         } else {
             if (this.props.fakeSensor) {
                 const sensorManager = new FakeSensorManager({singleReads: this.props.singleReads});
-                this.setState({ sensorManager, hasConnected:true }, () => {
+                this.setState({ sensorManager }, () => {
                         this.addSensorManagerListeners();
                         if (this.state.sensorManager) {
                             this.state.sensorManager.startPolling();
@@ -498,7 +496,7 @@ export class App extends React.Component<AppProps, AppState> {
                 );
             } else {
                 const sensorManager = new SensorConnectorManager();
-                this.setState({ sensorManager, hasConnected:true }, () => {
+                this.setState({ sensorManager }, () => {
                         this.addSensorManagerListeners();
                         if (this.state.sensorManager) {
                             this.state.sensorManager.startPolling();
@@ -532,7 +530,7 @@ export class App extends React.Component<AppProps, AppState> {
         } else {
             if (this.props.fakeSensor) {
                 const sensorManager = new FakeSensorManager({singleReads: this.props.singleReads});
-                this.setState({ sensorManager, hasConnected:true, secondGraph: false }, () => {
+                this.setState({ sensorManager, secondGraph: false }, () => {
                         this.addSensorManagerListeners();
                         if (this.state.sensorManager) {
                             this.state.sensorManager.startPolling();
@@ -597,7 +595,7 @@ export class App extends React.Component<AppProps, AppState> {
 
             this.removeSensorManagerListeners();
 
-            this.setState({ sensorManager, hasConnected:true }, () => {
+            this.setState({ sensorManager }, () => {
                 if (isConnectableSensorManager(this.state.sensorManager)) {
                     this.state.sensorManager.connectToDevice(wirelessDevice).then(val => {
                         if (!val) {
@@ -1328,7 +1326,6 @@ export class App extends React.Component<AppProps, AppState> {
                         collecting={this.state.collecting}
                         hasData={this.hasData()}
                         dataReset={this.state.dataReset}
-                        hasConnected={this.state.hasConnected}
                         assetsPath={this.assetsPath}
                         maxHeight={this.props.maxGraphHeight}
                         singleReads={singleReads}

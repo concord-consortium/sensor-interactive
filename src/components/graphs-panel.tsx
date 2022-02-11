@@ -19,7 +19,6 @@ interface IGraphsPanelProps {
   collecting:boolean;
   hasData:boolean;
   dataReset:boolean;
-  hasConnected:boolean;
   assetsPath: string;
   maxHeight?: number;
   singleReads?: boolean;
@@ -58,7 +57,8 @@ const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
                         />;
   }
 
-  const { sensorRecordings, hasConnected } = props,
+  const { sensorRecordings } = props,
+        hasConnected = sensorRecordings.length > 0,
         secondGraph = sensorRecordings.length > 1,
         classes = `graphs-panel ${secondGraph ? 'two-graphs' : ''} ${hasConnected ? '' : 'disabled'}`,
         style = { minHeight: secondGraph ? 320 : 170 };
@@ -79,6 +79,6 @@ const sizeMeConfig = {
   noPlaceholder: true
 };
 
-const GraphsPanel = withSize(sizeMeConfig)(GraphsPanelImp);
+const GraphsPanel: React.FC<Omit<IGraphsPanelProps, "size">> = withSize(sizeMeConfig)(GraphsPanelImp);
 
 export default GraphsPanel;
