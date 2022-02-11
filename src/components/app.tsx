@@ -7,7 +7,7 @@ import { SensorConfigColumnInfo } from "@concord-consortium/sensor-connector-int
 import GraphsPanel from "./graphs-panel";
 import { GraphTopPanel } from "./graph-top-panel";
 import { ControlPanel } from "./control-panel";
-import { Codap } from "../models/codap";
+import { Codap, IDataSpec } from "../models/codap";
 import { IStringMap, SensorStrings, SensorDefinitions } from "../models/sensor-definitions";
 import { SensorManager, NewSensorData, ConnectableSensorManager } from "../models/sensor-manager";
 import SmartFocusHighlight from "../utils/smart-focus-highlight";
@@ -17,23 +17,145 @@ import { SensorConnectorManager } from "../models/sensor-connector-manager";
 import { FakeSensorManager } from "../models/fake-sensor-manager";
 import { SensorTagManager } from "../models/sensor-tag-manager";
 import { SensorGDXManager } from "../models/sensor-gdx-manager";
-import { IInteractiveSensorData, IInteractiveState } from "../interactive/types";
+import { IInteractiveState, SensorRecording } from "../interactive/types";
 
 import "./dialog.css";
 import "./app.css";
 
 const DEFAULT_RUN_LENGTH = 5;
 
-// TODO: move this to where it makes more sense
+type SensorRecordingStoreListener = (recordings: SensorRecording[]) => void;
+class SensorRecordingStore {
+    private sensorRecordings: SensorRecording[] = [];
+    private sensorSlotMap: WeakMap<SensorSlot, SensorRecording> = new WeakMap();
+    private listeners: SensorRecordingStoreListener[] = [];
+    private numRequestedDataPoints: number = 0;
+    private firstDataPointTimestamp: number = 0;
 
-export interface SensorRecording {
-    unit: string;
-    precision: number;
-    name: string;
-    min: number;
-    max: number;
-    data: number[][];
+    getSensorRecording(sensorSlot: SensorSlot) {
+        return this.sensorSlotMap.get(sensorSlot);
+    }
+
+    startNewRecordings(sensorSlots: SensorSlot[], FIXME_SECOND_GRAPH: boolean) {
+        // create new recordings
+        this.sensorRecordings = [];
+        this.sensorSlotMap = new WeakMap();
+        this.numRequestedDataPoints = 0;
+
+        sensorSlots.forEach((sensorSlot, index) => {
+            const isFirstSlot = index === 0;
+            if (isFirstSlot || FIXME_SECOND_GRAPH) {
+                const sensor = sensorSlot.dataSensor || sensorSlot.sensor;
+                const sensorDefinition = sensor.definition;
+                const sensorRecording: SensorRecording = {
+                    unit: sensor.valueUnit,
+                    precision: sensor.sensorPrecision(),
+                    name: sensorDefinition.measurementName,
+                    min: sensorDefinition.minReading,
+                    max: sensorDefinition.maxReading,
+                    tareValue: sensor.tareValue,
+                    data: []
+                };
+                this.sensorRecordings.push(sensorRecording);
+                this.sensorSlotMap.set(sensorSlot, sensorRecording);
+            }
+        });
+
+        this.notifyListeners();
+    }
+
+    setRecordings(sensorRecordings: SensorRecording[]) {
+        this.sensorRecordings = cloneDeep(sensorRecordings);
+        this.sensorSlotMap = new WeakMap();
+        this.notifyListeners();
+    }
+
+    requestNewDataPoint() {
+        this.numRequestedDataPoints++;
+    }
+
+    recordOneDataPointIfNeeded(sensorSlot: SensorSlot, sensorData: number[][]) {
+        let haveAllData = false;
+        const sensorRecording = this.getSensorRecording(sensorSlot);
+        if (sensorRecording && (sensorData.length > 0) && sensorRecording.data.length < this.numRequestedDataPoints) {
+            const sample = sensorData[0];
+            // set the time offset of the data point
+            if (sensorRecording.data.length === 0) {
+              sample[0] = 1;
+              this.firstDataPointTimestamp = Date.now();
+            } else {
+              sample[0] = 1 + (Date.now() - this.firstDataPointTimestamp) / 1000;
+            }
+            this.appendData(sensorSlot, [sample], sample[0]);
+            haveAllData = sensorRecording.data.length >= this.numRequestedDataPoints;
+        }
+        return haveAllData;
+    }
+
+    appendData(sensorSlot: SensorSlot, sensorData: number[][], runLength: number) {
+        const sensorRecording = this.getSensorRecording(sensorSlot);
+        if (sensorRecording) {
+            const { tareValue } = sensorRecording;
+
+            sensorData.forEach( (item) => {
+              const time = item[0];
+              // don't include data past the end of the experiment
+              if (time <= runLength) {
+                let value = item[1];
+                if (tareValue) {
+                  // Tare the data before appending it
+                  value -= tareValue;
+                }
+                sensorRecording.data = [...sensorRecording.data, [time, value]];
+              }
+            });
+            this.notifyListeners();
+        }
+    }
+
+    hasData(sensorSlot: SensorSlot): boolean {
+        return this.numDataPoints(sensorSlot) > 0;
+    }
+
+    numDataPoints(sensorSlot: SensorSlot):number {
+        const sensorRecording = this.getSensorRecording(sensorSlot);
+        return sensorRecording?.data.length || 0;
+    }
+
+    timeOfLastData(sensorSlot: SensorSlot) {
+        const sensorRecording = this.getSensorRecording(sensorSlot);
+        if (sensorRecording && sensorRecording.data.length > 0) {
+            return sensorRecording.data[sensorRecording.data.length - 1][0];
+        }
+        return 0;
+    }
+
+    clearData(sensorSlot: SensorSlot) {
+        const sensorRecording = this.getSensorRecording(sensorSlot);
+        if (sensorRecording) {
+            sensorRecording.data = [];
+        }
+    }
+
+    setData(sensorSlot: SensorSlot, sensorData:number[][]) {
+        const sensorRecording = this.getSensorRecording(sensorSlot);
+        if (sensorRecording) {
+            sensorRecording.data = sensorData;
+        }
+    }
+
+    listenForNewData(listener: SensorRecordingStoreListener) {
+        this.listeners.push(listener)
+    }
+
+    private notifyListeners() {
+        // variable name due to spending way too long to figure out why React was blowing up (it marked the data as not extensible and then we later try to add to the data in the object)
+        const cloneSoThatWhenReactMarksItAsNotExtensibleWeDontBlowUpWhenUsingThisAsAPropFactoryBean = cloneDeep(this.sensorRecordings);
+        this.listeners.forEach(listener => listener(cloneSoThatWhenReactMarksItAsNotExtensibleWeDontBlowUpWhenUsingThisAsAPropFactoryBean));
+    }
 }
+
+const sensorRecordingStore = new SensorRecordingStore();
 
 // ODOT
 
@@ -72,6 +194,7 @@ export interface AppState {
     disconnectionWarningModal:boolean;
     aboutModal:boolean;
     hasConnected:boolean;
+    sensorRecordings: SensorRecording[];
 }
 
 function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo) {
@@ -187,7 +310,8 @@ export class App extends React.Component<AppProps, AppState> {
             bluetoothErrorModal:false,
             disconnectionWarningModal:false,
             aboutModal:false,
-            hasConnected:!!this.props.sensorManager
+            hasConnected:!!this.props.sensorManager,
+            sensorRecordings:[]
         };
 
         this.onSensorConnect = this.onSensorConnect.bind(this);
@@ -225,6 +349,8 @@ export class App extends React.Component<AppProps, AppState> {
         this.closeAboutModal = this.closeAboutModal.bind(this);
         this.showAbout= this.showAbout.bind(this);
         this.saveInteractiveState = this.saveInteractiveState.bind(this);
+
+        sensorRecordingStore.listenForNewData((sensorRecordings) => this.setState({sensorRecordings}));
     }
 
     passedSensorManager = () => {
@@ -236,15 +362,14 @@ export class App extends React.Component<AppProps, AppState> {
 
         const {initialInteractiveState} = this.props;
         if (initialInteractiveState) {
-            const {config} = initialInteractiveState.sensor;
-            this.onSensorConnect(new SensorConfiguration(config), () => {
-                const {sensorSlots} = this.state;
-                const {data, runLength, secondGraph} = initialInteractiveState.sensor;
-                const hasData = data[0].data.length > 0 || data[1].data.length > 0;
-                data.length > 0 && data[0].data.length > 0 && sensorSlots[0].setData(cloneDeep(data[0].data));
-                data.length > 1 && data[1].data.length > 0 && sensorSlots[1].setData(cloneDeep(data[1].data));
-                this.setState({sensorSlots, runLength, secondGraph, hasData, hasConnected: true, dataChanged: false});
-            });
+            if (initialInteractiveState.version === 1) {
+                const {sensorRecordings} = initialInteractiveState;
+                const runLength = initialInteractiveState.runLength || DEFAULT_RUN_LENGTH;
+                sensorRecordingStore.setRecordings(sensorRecordings);
+                this.setState({runLength, xEnd: runLength + 0.01});
+            } else {
+                console.error(`Unknown interactive state version: ${initialInteractiveState.version}`, {initialInteractiveState});
+            }
         }
     }
 
@@ -292,6 +417,7 @@ export class App extends React.Component<AppProps, AppState> {
             this.setState({ sensorConfig, sensorSlots, timeUnit }, callback);
         }
 
+        sensorRecordingStore.startNewRecordings(sensorSlots, this.state.secondGraph);
     }
 
     // only used when a sensor is disconnected through an action external to the
@@ -499,9 +625,13 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     startSensor() {
-        const { sensorManager } = this.state;
+        const { sensorManager, sensorSlots, secondGraph } = this.state;
         if (sensorManager) {
-            this.state.sensorSlots.forEach(s => s.numRequestedDataPoints++);
+            if (this.props.singleReads) {
+                sensorRecordingStore.requestNewDataPoint();
+            } else {
+                sensorRecordingStore.startNewRecordings(sensorSlots, secondGraph);
+            }
             sensorManager.requestStart();
             this.setState({statusMessage: this.messages["starting_data_collection"]});
         }
@@ -526,35 +656,12 @@ export class App extends React.Component<AppProps, AppState> {
             sensorManager!.removeListener('onSensorCollectionStopped',
             this.onSensorCollectionStopped);
         }
+        // TODO: trigger state saving
     }
 
     // This should only be called while we are collecting
     onSensorData(newSensorData: NewSensorData) {
         const { sensorSlots } = this.state;
-
-        if (this.props.singleReads) {
-            let haveAllData = true;
-            let xEnd = 0;
-            sensorSlots.forEach((sensorSlot) => {
-                const sensor = sensorSlot.sensor,
-                    sensorData = sensor && sensor.columnID && newSensorData[sensor.columnID];
-                if (sensor && sensor.columnID && sensorData && sensorData.length > 0) {
-                    sensorSlot.recordOneDataPointIfNeeded(sensorData);
-                }
-                haveAllData = haveAllData && (sensorSlot.numDataPoints === sensorSlot.numRequestedDataPoints);
-                xEnd = Math.ceil(Math.max(xEnd, sensorSlot.timeOfLastData));
-            });
-            if (haveAllData) {
-                this.stopSensor();
-            }
-            // allow for some padding on the right side
-            xEnd = Math.max(DEFAULT_RUN_LENGTH, xEnd + 1) + 0.01;
-            this.setState({xEnd, sensorSlots}, () => {
-                // TODO: this causes the same issue as saving after a new run
-                // this.saveInteractiveState();
-            });
-            return;
-        }
 
         if (!this.state.collecting) {
             this.setState({
@@ -567,6 +674,29 @@ export class App extends React.Component<AppProps, AppState> {
             if (sensorManager) {
                 sensorManager.addListener('onSensorCollectionStopped', this.onSensorCollectionStopped);
             }
+        }
+
+        if (this.props.singleReads) {
+            let haveAllData = true;
+            let xEnd = 0;
+            sensorSlots.forEach((sensorSlot) => {
+                const sensor = sensorSlot.sensor,
+                    sensorData = sensor && sensor.columnID && newSensorData[sensor.columnID];
+                if (sensorData) {
+                    haveAllData = haveAllData && sensorRecordingStore.recordOneDataPointIfNeeded(sensorSlot, sensorData);
+                }
+                xEnd = Math.ceil(Math.max(xEnd, sensorRecordingStore.timeOfLastData(sensorSlot)));
+            });
+            if (haveAllData) {
+                this.stopSensor();
+            }
+            // allow for some padding on the right side
+            xEnd = Math.max(DEFAULT_RUN_LENGTH, xEnd + 1) + 0.01;
+            this.setState({xEnd, sensorSlots}, () => {
+                // TODO: this causes the same issue as saving after a new run
+                // this.saveInteractiveState();
+            });
+            return;
         }
 
         // Keep track of the smallest last time value. We want to keep collecting
@@ -586,12 +716,12 @@ export class App extends React.Component<AppProps, AppState> {
           if (!sensorData) {
             // The sensorSlot is not empty. Just newData doesn't contain any data
             // for this sensor
-            lastTime = Math.min(lastTime, sensorSlot.timeOfLastData);
+            lastTime = Math.min(lastTime, sensorRecordingStore.timeOfLastData(sensorSlot));
             return;
           }
-          sensorSlot.appendData(sensorData, this.state.runLength);
+          sensorRecordingStore.appendData(sensorSlot, sensorData, this.state.runLength);
           newSensorDataArrived = true;
-          lastTime = Math.min(lastTime, sensorSlot.timeOfLastData);
+          lastTime = Math.min(lastTime, sensorRecordingStore.timeOfLastData(sensorSlot));
           overTime = (sensorData[0][0] > this.state.runLength);
         });
 
@@ -679,7 +809,7 @@ export class App extends React.Component<AppProps, AppState> {
 
     hasData() {
         const { sensorSlots } = this.state;
-        return sensorSlots.some((slot) => slot.sensorData && (slot.sensorData.length > 0));
+        return sensorSlots.some((slot) => sensorRecordingStore.hasData(slot));
     }
 
     downSample(data: number[][]) {
@@ -700,16 +830,20 @@ export class App extends React.Component<AppProps, AppState> {
 
     sendData() {
         const { sensorSlots, secondGraph } = this.state,
-              sendSecondSensorData = secondGraph && sensorSlots[1].hasData;
-        const dataSpecs = sensorSlots.map((slot, i) => {
-            const sensor = slot.sensorForData,
-                  name = sensor && sensor.definition.measurementName,
-                  position = (sensor && sensor.sensorPosition) || i+1,
-                  data = slot.sensorData.slice(this.selectionRange.start, this.selectionRange.end);
+              sendSecondSensorData = secondGraph && sensorRecordingStore.hasData(sensorSlots[1]),
+              dataSpecs: IDataSpec[] = [];
+        sensorSlots.forEach((slot, i) => {
+            const sensorRecording = sensorRecordingStore.getSensorRecording(slot);
+            if (sensorRecording) {
+                const position = i + 1; // TODO WAS: (sensor && sensor.sensorPosition) || i+1,
+                const {name, unit, data} = sensorRecording;
+                dataSpecs.push({
+                    name: sendSecondSensorData ? `${name}_${position}` : name,
+                    unit,
+                    data: this.downSample(data.slice(this.selectionRange.start, this.selectionRange.end))
+                })
+            }
             return {
-                name: sendSecondSensorData ? `${name}_${position}` : name,
-                unit: sensor ? sensor.valueUnit : '',
-                data: this.downSample(data)
             };
         });
         if (!sendSecondSensorData) {
@@ -724,26 +858,10 @@ export class App extends React.Component<AppProps, AppState> {
 
     saveInteractiveState() {
         if (this.props.setInteractiveState) {
-            const { sensorSlots, sensorConfig, secondGraph } = this.state;
-            const data: IInteractiveSensorData[] = [];
-            sensorSlots.forEach(slot => {
-                const sensor = slot.sensorForData;
-                if (sensor) {
-                    data.push({
-                        name: sensor.definition.measurementName,
-                        unit: sensor.valueUnit,
-                        data: this.downSample(slot.sensorData)
-                    })
-                }
-            });
             this.props.setInteractiveState({
                 version: 1,
-                sensor: {
-                    data,
-                    config: sensorConfig?.currentConfig || null,
-                    runLength: this.state.runLength,
-                    secondGraph
-                }
+                sensorRecordings: this.state.sensorRecordings,
+                runLength: this.state.runLength
             });
             this.setState({dataChanged: false});
         }
@@ -760,13 +878,7 @@ export class App extends React.Component<AppProps, AppState> {
     newData() {
         let { runLength } = this.state;
         const { sensorSlots } = this.state;
-        sensorSlots.forEach((slot) => {
-            slot.clearData();
-            slot.numRequestedDataPoints = 0;
-        });
-        if (this.props.singleReads) {
-            runLength = DEFAULT_RUN_LENGTH;
-        }
+        sensorRecordingStore.startNewRecordings(sensorSlots, this.state.secondGraph);
         this.setState({
             hasData:false,
             dataReset:true,
@@ -777,7 +889,7 @@ export class App extends React.Component<AppProps, AppState> {
             // FIXME: calling this causes new pushes to the slotData to throw
             // an "object is not extensible" error.  Disabled for now, this
             // will need to be fixed before the end of the sensor interactive work
-            // this.saveInteractiveState();
+            this.saveInteractiveState();
         });
         this.setXZoomState(runLength);
     }
@@ -799,7 +911,8 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     onGraphZoom(xStart:number, xEnd:number) {
-        const sensor1Data = this.state.sensorSlots[0].sensorData;
+        const sensorRecording = sensorRecordingStore.getSensorRecording(this.state.sensorSlots[0])
+        const sensor1Data = sensorRecording?.data || [];
         const { xStart: prevXStart, xEnd: prevXEnd } = this.state;
 
         // bail if no change
@@ -1121,7 +1234,7 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     render() {
-        var { sensorConfig, sensorManager, sensorSlots } = this.state,
+        var { sensorConfig, sensorManager, sensorRecordings } = this.state,
             codapURL = window.self === window.top
                         ? "http://codap.concord.org/releases/latest?di=" + window.location.href
                         : "",
@@ -1129,23 +1242,6 @@ export class App extends React.Component<AppProps, AppState> {
         const isConnectorAwake = sensorManager ? sensorManager.isAwake() : true;
         const showControls = this.props.interactiveHost !== "report";
         const singleReads = !!this.props.singleReads;
-
-        const sensorRecordings: SensorRecording[] = [];
-        sensorSlots.forEach((sensorSlot, index) => {
-            const isFirstSlot = index === 0;
-            if (isFirstSlot || this.state.secondGraph) {
-                const sensor = sensorSlot.dataSensor || sensorSlot.sensor;
-                const sensorDefinition = sensor.definition;
-                sensorRecordings.push({
-                    unit: sensor.valueUnit,
-                    precision: sensor.sensorPrecision(),
-                    name: sensorDefinition.measurementName,
-                    min: sensorDefinition.minReading,
-                    max: sensorDefinition.maxReading,
-                    data: sensorSlot.sensorData
-                })
-            }
-        });
 
         return (
             <div className="app-container">

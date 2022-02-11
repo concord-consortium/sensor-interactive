@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as Renderer from "react-dom/server";
 
-import { IAuthoredState, IInteractiveSensorData, IInteractiveState } from "./types";
+import { IAuthoredState, IInteractiveState, SensorRecording } from "./types";
 import { Sparklines, SparklinesLine } from "react-sparklines";
 import SparklinesPoints from "./report-item-sparkline-points";
 
@@ -12,12 +12,16 @@ export const ReportItemMetricsLegendComponent = ({view}: {view: "singleAnswer" |
   );
 };
 
-const SparklineGraph = ({sensorData, color, usePoints}: {sensorData: IInteractiveSensorData, color: string, usePoints: boolean}) => {
+const SparklineGraph = ({sensorRecording, color, usePoints}: {sensorRecording?: SensorRecording, color: string, usePoints: boolean}) => {
+
+  if (!sensorRecording) {
+    return null;
+  }
 
   let min: number|undefined = undefined;
   let max: number|undefined = undefined;
   let data: number[] = [];
-  sensorData.data.forEach((p, index) => {
+  sensorRecording.data.forEach((p, index) => {
     const value = p[1];
     if ((min === undefined) || (max === undefined)) {
       min = max = value;
@@ -32,7 +36,7 @@ const SparklineGraph = ({sensorData, color, usePoints}: {sensorData: IInteractiv
 
   return (
     <>
-      <div>{sensorData.name} ({range}{sensorData.unit})</div>
+      <div>{sensorRecording.name} ({range}{sensorRecording.unit})</div>
       {data.length === 0
         ?
           <div className="no-sensor-data">No sensor data available</div>
@@ -45,13 +49,13 @@ const SparklineGraph = ({sensorData, color, usePoints}: {sensorData: IInteractiv
 }
 
 export const reportItemMetricsHtml = ({interactiveState, authoredState, platformUserId, interactiveItemId}: {interactiveState: IInteractiveState, authoredState: IAuthoredState, platformUserId: string, interactiveItemId: string}) => {
-  const {data, secondGraph} = interactiveState.sensor;
+  const {sensorRecordings} = interactiveState;
   const usePoints = !!authoredState.singleReads;
 
   const metrics = Renderer.renderToStaticMarkup(
     <>
-      <SparklineGraph sensorData={data[0]} color={"#007fcf"} usePoints={usePoints} />
-      {secondGraph && <SparklineGraph sensorData={data[1]} color={"#da5d1d"} usePoints={usePoints} />}
+      <SparklineGraph sensorRecording={sensorRecordings[0]} color={"#007fcf"} usePoints={usePoints} />
+      <SparklineGraph sensorRecording={sensorRecordings[1]} color={"#da5d1d"} usePoints={usePoints} />
     </>
   );
 

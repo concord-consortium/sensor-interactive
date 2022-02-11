@@ -1,7 +1,7 @@
 import * as React from "react";
 import SensorGraph from "./sensor-graph";
 import { withSize }  from "react-sizeme";
-import { SensorRecording } from "./app";
+import { SensorRecording } from "../interactive/types";
 
 interface ISizeMeSize {
   width:number|null;
@@ -27,11 +27,9 @@ interface IGraphsPanelProps {
 
 const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
 
-  function renderGraph( sensorRecording:SensorRecording,
-                        title:string,
-                        isSingletonGraph:boolean,
-                        isLastGraph:boolean = isSingletonGraph) {
-    const height = props.maxHeight || props.size.height,
+  function renderGraph(options: {sensorRecording?:SensorRecording, title:string, isSingletonGraph:boolean, isLastGraph:boolean}) {
+    const {sensorRecording, title, isSingletonGraph, isLastGraph} = options,
+          height = props.maxHeight || props.size.height,
           availableHeight = height && (height - 20),
           singleGraphHeight = availableHeight && (availableHeight + 8),
           graphBaseHeight = availableHeight && Math.floor((availableHeight - 18) / 2),
@@ -67,9 +65,9 @@ const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
 
   return (
       <div className={classes} style={style}>
-        {renderGraph(sensorRecordings[0], "graph1", !secondGraph)}
+        {renderGraph({sensorRecording: sensorRecordings[0], title: "graph1", isSingletonGraph: !secondGraph, isLastGraph: !secondGraph})}
         {secondGraph
-            ? renderGraph(sensorRecordings[1], "graph2", false, true)
+            ? renderGraph({sensorRecording: sensorRecordings[1], title: "graph2", isSingletonGraph: false, isLastGraph: true})
             : null}
       </div>
     );
