@@ -1,4 +1,14 @@
-import { ISensorConfig } from "../models/sensor-connector-interface";
+export interface SensorRecording {
+  columnID: string;
+  unit: string;
+  precision: number;
+  name: string;
+  min: number;
+  max: number;
+  tareValue: number;
+  sensorPosition: number;
+  data: number[][];
+}
 
 export interface IAuthoredState {
   useFakeSensor: boolean;
@@ -8,13 +18,9 @@ export interface IAuthoredState {
 };
 
 export interface IInteractiveState {
-  version: 1,
-  sensor: {
-    data: IInteractiveSensorData[];
-    config: ISensorConfig | null;
-    runLength: number;
-    secondGraph: boolean;
-  }
+  version: 1;
+  sensorRecordings: SensorRecording[];
+  runLength: number;
 };
 
 export interface IInteractiveSensorData {

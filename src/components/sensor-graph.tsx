@@ -1,16 +1,14 @@
 import * as React from "react";
+import { SensorRecording } from "../interactive/types";
 import { Sensor } from "../models/sensor";
-import { SensorSlot } from "../models/sensor-slot";
 import { Graph } from "./graph";
-import { SensorConfigColumnInfo } from "@concord-consortium/sensor-connector-interface";
 
 const kSidePanelWidth = 20;
 
 interface SensorGraphProps {
     width:number|null;
     height:number|null;
-    sensorColumns:SensorConfigColumnInfo[];
-    sensorSlot:SensorSlot;
+    sensorRecording?:SensorRecording;
     title:string;
     onGraphZoom:(xStart:number, xEnd:number) => void;
     onSensorSelect:(sensorIndex:number, columnID:string) => void;
@@ -27,8 +25,6 @@ interface SensorGraphProps {
 }
 
 interface SensorGraphState {
-    sensorColID?:string;
-    sensorUnit?:string;
     yMin?:number|null;
     yMax?:number|null;
 }
@@ -40,19 +36,13 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
 
     constructor(props:SensorGraphProps) {
         super(props);
-
-        this.state = {
-            sensorColID: undefined
-        };
+        this.state = {};
     }
 
     handleRescale = (xRange:number[], yRange:number[]) => {
-        const { sensorSlot } = this.props,
-              { yMin, yMax } = this.state,
-              sensor = sensorSlot && sensorSlot.sensor,
-              sensorUnit = sensor && sensor.valueUnit;
+        const { yMin, yMax } = this.state;
         if (yMin !== yRange[0] || yMax !== yRange[1]) {
-            this.setState({ sensorUnit, yMin: yRange[0], yMax: yRange[1] });
+            this.setState({ yMin: yRange[0], yMax: yRange[1] });
         }
         if (this.props.onGraphZoom) {
             this.props.onGraphZoom(xRange[0], xRange[1]);
@@ -65,10 +55,9 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
             this.lastDataIndex = 0;
 
             // if sensor type changes, revert to default axis range for sensor
-            const { sensorUnit } = this.state,
-                  nextSensor = nextProps.sensorSlot && nextProps.sensorSlot.sensor,
-                  nextSensorUnit = nextSensor && nextSensor.valueUnit;
-            if (sensorUnit !== nextSensorUnit) {
+            const { sensorRecording } = this.props,
+                  nextSensorRecording = nextProps.sensorRecording;
+            if (sensorRecording?.unit !== nextSensorRecording?.unit) {
                 this.setState({ yMin: null, yMax: null });
             }
         }
@@ -80,38 +69,31 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
 
     yLabel() {
-        const { sensorSlot } = this.props,
+        const { sensorRecording } = this.props;
         // label the data (if any) or the current sensor (if no data)
-        sensor = sensorSlot.dataSensor || sensorSlot.sensor,
-        sensorDefinition = sensor && sensor.definition,
-        measurementName = (sensorDefinition && sensorDefinition.measurementName) || "",
-        valueUnit = sensor.valueUnit || "";
-        return measurementName
-                ? `${measurementName} (${valueUnit})`
+        return sensorRecording?.name
+                ? `${sensorRecording.name} (${sensorRecording.unit})`
                 : "Sensor Reading (-)";
     }
 
     renderGraph(graphWidth:number|null) {
-        const { sensor } = this.props.sensorSlot,
+        const { sensorRecording } = this.props,
               { yMin, yMax } = this.state,
-              sensorDefinition = sensor && sensor.definition,
-              minReading = sensorDefinition && sensorDefinition.minReading,
-              maxReading = sensorDefinition && sensorDefinition.maxReading,
-              plotYMin = yMin != null ? yMin : (minReading != null ? minReading : 0),
-              plotYMax = yMax != null ? yMax : (maxReading != null ? maxReading : 10);
+              plotYMin = yMin != null ? yMin : (sensorRecording?.min != null ? sensorRecording.min : 0),
+              plotYMax = yMax != null ? yMax : (sensorRecording?.max != null ? sensorRecording.max : 10);
         return (
             <div className="sensor-graph">
               <Graph
                 title={this.props.title}
                 width={graphWidth}
                 height={this.props.height}
-                data={this.props.sensorSlot.sensorData}
+                data={sensorRecording?.data || []}
                 onRescale={this.handleRescale}
                 xMin={this.props.xStart}
                 xMax={this.props.xEnd}
                 yMin={plotYMin}
                 yMax={plotYMax}
-                valuePrecision={sensor ? sensor.sensorPrecision() : 2}
+                valuePrecision={sensorRecording?.precision || 2}    // TODO: figure out default precision
                 xLabel={this.xLabel()}
                 yLabel={this.yLabel()}
                 assetsPath={this.props.assetsPath}

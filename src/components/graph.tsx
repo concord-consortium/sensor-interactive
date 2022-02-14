@@ -163,10 +163,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             }
         });
 
-        if(data.length !== this.state.dataLength) {
-            newState.data = data;
-            newState.dataLength = data.length;
-        }
+        newState.data = data;
+        newState.dataLength = data.length;
 
         if((newState.yMin != null) || (newState.yMax != null)) {
             const yMin = newState.yMin != null ? newState.yMin : this.state.yMin,

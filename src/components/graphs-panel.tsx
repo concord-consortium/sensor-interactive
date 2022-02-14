@@ -1,8 +1,7 @@
 import * as React from "react";
-import { SensorConfiguration } from "../models/sensor-configuration";
 import SensorGraph from "./sensor-graph";
-import { SensorSlot } from "../models/sensor-slot";
 import { withSize }  from "react-sizeme";
+import { SensorRecording } from "../interactive/types";
 
 interface ISizeMeSize {
   width:number|null;
@@ -11,9 +10,7 @@ interface ISizeMeSize {
 
 interface IGraphsPanelProps {
   size:ISizeMeSize;
-  sensorConfig:SensorConfiguration|null;
-  sensorSlots:SensorSlot[];
-  secondGraph:boolean;
+  sensorRecordings:SensorRecording[];
   onGraphZoom:(xStart:number, xEnd:number) => void;
   onSensorSelect:(sensorIndex:number, columnID:string) => void;
   xStart:number;
@@ -22,19 +19,16 @@ interface IGraphsPanelProps {
   collecting:boolean;
   hasData:boolean;
   dataReset:boolean;
-  hasConnected:boolean;
   assetsPath: string;
+  secondGraph:boolean;
   maxHeight?: number;
   singleReads?: boolean;
 }
 
 const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
 
-  function renderGraph( sensorSlot:SensorSlot,
-                        title:string,
-                        isSingletonGraph:boolean,
-                        isLastGraph:boolean = isSingletonGraph) {
-    const sensorColumns = (props.sensorConfig && props.sensorConfig.dataColumns) || [],
+  function renderGraph(options: {sensorRecording?:SensorRecording, title:string, isSingletonGraph:boolean, isLastGraph:boolean}) {
+    const {sensorRecording, title, isSingletonGraph, isLastGraph} = options,
           height = props.maxHeight || props.size.height,
           availableHeight = height && (height - 20),
           singleGraphHeight = availableHeight && (availableHeight + 8),
@@ -47,8 +41,7 @@ const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
                           : isLastGraph ? secondGraphHeight : firstGraphHeight;
     return <SensorGraph width={graphWidth}
                         height={graphHeight}
-                        sensorColumns={sensorColumns}
-                        sensorSlot={sensorSlot}
+                        sensorRecording={sensorRecording}
                         title={title}
                         isSingletonGraph={isSingletonGraph}
                         isLastGraph={isLastGraph}
@@ -65,15 +58,17 @@ const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
                         />;
   }
 
-  const { sensorSlots, secondGraph, hasConnected } = props,
-        classes = `graphs-panel ${secondGraph ? 'two-graphs' : ''} ${hasConnected ? '' : 'disabled'}`,
-        style = { minHeight: secondGraph ? 320 : 170 };
+  const { sensorRecordings, secondGraph } = props,
+        hasConnected = sensorRecordings.length > 0,
+        showSecondGraph = secondGraph || (sensorRecordings.length > 1),
+        classes = `graphs-panel ${showSecondGraph ? 'two-graphs' : ''} ${hasConnected ? '' : 'disabled'}`,
+        style = { minHeight: showSecondGraph ? 320 : 170 };
 
   return (
       <div className={classes} style={style}>
-        {renderGraph(sensorSlots && sensorSlots[0], "graph1", !secondGraph)}
-        {secondGraph
-            ? renderGraph(sensorSlots && sensorSlots[1], "graph2", false, true)
+        {renderGraph({sensorRecording: sensorRecordings[0], title: "graph1", isSingletonGraph: !showSecondGraph, isLastGraph: !showSecondGraph})}
+        {showSecondGraph
+            ? renderGraph({sensorRecording: sensorRecordings[1], title: "graph2", isSingletonGraph: false, isLastGraph: true})
             : null}
       </div>
     );
@@ -85,6 +80,6 @@ const sizeMeConfig = {
   noPlaceholder: true
 };
 
-const GraphsPanel = withSize(sizeMeConfig)(GraphsPanelImp);
+const GraphsPanel: React.FC<Omit<IGraphsPanelProps, "size">> = withSize(sizeMeConfig)(GraphsPanelImp);
 
 export default GraphsPanel;
