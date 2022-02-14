@@ -24,12 +24,16 @@ export interface ConnectableSensorManager {
 
 export abstract class SensorManager {
   supportsDualCollection: boolean;
+  supportsHeartbeat: boolean = false;
+
+  protected heartbeatInterval: number = 0;
 
   abstract startPolling() : void;
   abstract hasSensorData() : boolean;
   abstract requestStart() : void;
   abstract requestStop() : void;
   abstract isWirelessDevice() : boolean;
+  abstract requestHeartbeat(enabled: boolean) : void;
 
   isAwake() : boolean {
     return true;
@@ -92,6 +96,10 @@ export abstract class SensorManager {
     this.notifyListeners('onSensorData', newData);
   }
 
+  protected onSensorHeartbeat(sensorConfig: SensorConfiguration) {
+    this.notifyListeners('onSensorHeartbeat', sensorConfig);
+  }
+
   protected onSensorCollectionStopped() {
     this.notifyListeners('onSensorCollectionStopped');
   }
@@ -102,5 +110,12 @@ export abstract class SensorManager {
 
   protected onCommunicationError() {
     this.notifyListeners('onCommunicationError');
+  }
+
+  protected manageHeartbeat(enabled: boolean, callback: () => void) {
+    clearInterval(this.heartbeatInterval);
+    if (enabled) {
+      this.heartbeatInterval = window.setInterval(callback, 1000);
+    }
   }
 }

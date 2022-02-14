@@ -229,6 +229,11 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
       this.stopRequested = true;
     }
 
+    requestHeartbeat(enabled: boolean): void {
+      // FIXME: add heartbeat support when a device to test is available
+      console.error("Heartbeat not currently supported for this sensor");
+    }
+
     async connectToDevice(): Promise<boolean> {
       // ask for a device
       this.device = await navigator.bluetooth.requestDevice({

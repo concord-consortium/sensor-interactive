@@ -5,6 +5,7 @@ export class Sensor {
     columnID?:string;
     sensorPosition?:number; // index in received dataColumns array
     sensorValue?:number;
+    sensorHeartbeatValue?:number;  // sampled value at intervals when heartbeat is enabled
     dataChanged:boolean;
     tareValue:number;
     timeUnit:string;
@@ -28,8 +29,9 @@ export class Sensor {
     }
 
     zeroSensor() {
-        if (this.sensorValue != null) {
-            this.tareValue = this.sensorValue;
+        const currentValue = this.sensorValue || this.sensorHeartbeatValue;
+        if (currentValue != null) {
+            this.tareValue = currentValue;
         }
     }
 

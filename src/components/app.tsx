@@ -75,6 +75,7 @@ export interface AppState {
     disconnectionWarningModal:boolean;
     aboutModal:boolean;
     sensorRecordings: SensorRecording[];
+    pauseHeartbeat: boolean;
 }
 
 function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo) {
@@ -190,7 +191,8 @@ export class App extends React.Component<AppProps, AppState> {
             bluetoothErrorModal:false,
             disconnectionWarningModal:false,
             aboutModal:false,
-            sensorRecordings:[]
+            sensorRecordings:[],
+            pauseHeartbeat: false
         };
 
         this.onSensorConnect = this.onSensorConnect.bind(this);
@@ -198,6 +200,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.onSensorData = this.onSensorData.bind(this);
         this.onSensorStatus = this.onSensorStatus.bind(this);
         this.onSensorCollectionStopped = this.onSensorCollectionStopped.bind(this);
+        this.onSensorHeartbeat = this.onSensorHeartbeat.bind(this);
 
         if (this.interactiveHost === "codap") {
             this.connectCodap = this.connectCodap.bind(this);
@@ -228,8 +231,15 @@ export class App extends React.Component<AppProps, AppState> {
         this.closeAboutModal = this.closeAboutModal.bind(this);
         this.showAbout= this.showAbout.bind(this);
         this.saveInteractiveState = this.saveInteractiveState.bind(this);
+        this.togglePauseHeartbeat = this.togglePauseHeartbeat.bind(this);
 
         sensorRecordingStore.listenForNewData((sensorRecordings) => this.setState({sensorRecordings}));
+    }
+
+    togglePauseHeartbeat() {
+        const pauseHeartbeat = !this.state.pauseHeartbeat;
+        this.setState({pauseHeartbeat});
+        this.state.sensorManager?.requestHeartbeat(!pauseHeartbeat);
     }
 
     passedSensorManager = () => {
@@ -360,6 +370,9 @@ export class App extends React.Component<AppProps, AppState> {
             sensorManager.addListener("onSensorData", this.onSensorData);
             sensorManager.addListener("onSensorStatus", this.onSensorStatus);
             sensorManager.addListener("onCommunicationError", this.onCommunicationError);
+            sensorManager.addListener("onSensorHeartbeat", this.onSensorHeartbeat);
+
+            sensorManager.requestHeartbeat(true);
         }
     }
 
@@ -371,6 +384,9 @@ export class App extends React.Component<AppProps, AppState> {
             sensorManager.removeListener("onSensorData", this.onSensorData);
             sensorManager.removeListener("onSensorStatus", this.onSensorStatus);
             sensorManager.removeListener("onCommunicationError", this.onCommunicationError);
+            sensorManager.removeListener("onSensorHeartbeat", this.onSensorHeartbeat);
+
+            sensorManager.requestHeartbeat(false);
         }
     }
 
@@ -619,6 +635,21 @@ export class App extends React.Component<AppProps, AppState> {
         if (lastTime !== Number.MAX_SAFE_INTEGER && (lastTime >= this.state.runLength || overTime)) {
             this.stopSensor();
         }
+    }
+
+    onSensorHeartbeat(sensorConfig:SensorConfiguration) {
+        const { sensorSlots } = this.state;
+
+        sensorSlots.forEach((sensorSlot) => {
+          const { sensor } = sensorSlot,
+              columnID = sensor.columnID,
+              dataColumn = columnID && sensorConfig.getColumnByID(columnID),
+              liveValue = dataColumn ? Number(dataColumn.liveValue) : undefined;
+
+          sensor.sensorHeartbeatValue = liveValue;
+        });
+
+        this.setState({ sensorSlots });
     }
 
     onSensorStatus(sensorConfig:SensorConfiguration) {
@@ -1059,7 +1090,7 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     renderGraphTopPanels() {
-        const { sensorManager, sensorSlots } = this.state;
+        const { sensorManager, sensorSlots, pauseHeartbeat } = this.state;
         const connected = sensorManager != null;
         const sensorColumns = (this.state.sensorConfig && this.state.sensorConfig.dataColumns) || [];
         return (
@@ -1073,7 +1104,9 @@ export class App extends React.Component<AppProps, AppState> {
                     onZeroSensor={this.zeroSensor(0)}
                     onRemoveSensor={this.removeGraph(0)}
                     showRemoveSensor={!this.props.sensorManager}
-                    assetsPath={this.assetsPath} />
+                    assetsPath={this.assetsPath}
+                    readingPaused={pauseHeartbeat}
+                    />
                 : null}
                 {connected && this.state.secondGraph ?
                     <GraphTopPanel
@@ -1084,20 +1117,29 @@ export class App extends React.Component<AppProps, AppState> {
                     onZeroSensor={this.zeroSensor(1)}
                     onRemoveSensor={this.removeGraph(1)}
                     showRemoveSensor={true}
-                    assetsPath={this.assetsPath} />
+                    assetsPath={this.assetsPath}
+                    readingPaused={pauseHeartbeat}
+                    />
                 : null}
             </div>
         );
     }
 
-    renderAddSensorButton() {
-        const { sensorManager } = this.state;
+    renderTopRightButtons() {
+        const { sensorManager, pauseHeartbeat } = this.state;
+        const pauseLabel = `${pauseHeartbeat ? "Start" : "Pause"} Reading`
+        const pauseDisabled = this.state.collecting;
+        const pauseClassName = `pause-heartbeat-button ${pauseDisabled ? "disabled" : ""}`;
         return (
             <div className="top-bar-right-controls">
                 {sensorManager && sensorManager.supportsDualCollection &&
                  !this.state.secondGraph &&
                  this.connectedSensorCount() > 1 ?
                  <Button className="add-sensor-button" onClick={this.addGraph}>+ Add A Sensor</Button>
+                 : null
+                }
+                {sensorManager && sensorManager.supportsHeartbeat && this.connectedSensorCount() > 0 ?
+                 <Button className={pauseClassName} onClick={this.togglePauseHeartbeat} disabled={pauseDisabled}>{pauseLabel}</Button>
                  : null
                 }
             </div>
@@ -1200,7 +1242,7 @@ export class App extends React.Component<AppProps, AppState> {
                     {showControls && <div className="app-top-bar">
                         {this.renderStatusMessage()}
                         {this.renderSensorControls()}
-                        {this.renderAddSensorButton()}
+                        {this.renderTopRightButtons()}
                     </div>}
                     <GraphsPanel
                         sensorRecordings={sensorRecordings}

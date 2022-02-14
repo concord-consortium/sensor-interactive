@@ -325,6 +325,29 @@ button:active {
     background-color: var(--sage-dark-1);
 }
 
+.pause-heartbeat-button {
+    width: 106px;
+    height: 30px;
+    border-radius: 6px;
+    border: solid 2px var(--sage-dark-1);
+    background-color: var(--sage-light-2);
+    cursor: pointer;
+    transition-duration: .25s;
+    margin-left: 10px;
+}
+.pause-heartbeat-button:hover {
+    background-color: var(--sage);
+}
+.pause-heartbeat-button:active {
+    border: solid 2px var(--sage-dark-3);
+    background-color: var(--sage-dark-1);
+}
+.pause-heartbeat-button:disabled {
+    opacity: .35;
+    pointer-events: none;
+}
+
+
 /* Graphs */
 .graphs-panel {
     flex: 1 1;
