@@ -25,6 +25,19 @@ import "./app.css";
 
 const DEFAULT_RUN_LENGTH = 5;
 
+/*
+    SensorRecordingStore Design Notes & Future Work
+
+    The SensorRecordingStore was the result of work to both pull the data storage out of the SensorSlot
+    and to replace the fixed 2-element SensorSlot array with a dynamic array of Sensor objects so that
+    the secondGraph app state flag could be removed along with simplifing the code to know how many
+    graphs had data.  This work was done to decouple sensors and graphs so that saved and prediction
+    graphs could be displayed without sensors being connected.
+
+    The 2-element SensorSlot array is still in place as time ran out to refactor that code.  In the future
+    this app could be further simplified by replacing that structure with a 0, 1 or 2 element array of
+    sensors, with the current SensorSlot slotIndex variable pulled into the sensor class.
+*/
 const sensorRecordingStore = new SensorRecordingStore();
 
 export type InteractiveHost = "codap" | "runtime" | "report";
