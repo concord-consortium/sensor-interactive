@@ -320,6 +320,11 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
       this.stopRequested = true;
     }
 
+    requestHeartbeat(enabled: boolean): void {
+      // FIXME: add heartbeat support when a device to test is available
+      console.error("Heartbeat not currently supported for this sensor");
+    }
+
     async connectToDevice(device?: any): Promise<boolean> {
       if (device) {
         this.device = device;

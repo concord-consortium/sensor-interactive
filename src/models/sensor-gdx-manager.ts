@@ -2,6 +2,7 @@ import { SensorConfiguration } from "./sensor-configuration";
 import { SensorManager, NewSensorData } from "./sensor-manager";
 import { SensorConfig } from "@concord-consortium/sensor-connector-interface";
 import godirect from "@vernier/godirect"
+import { cloneDeep } from "lodash";
 
 const goDirectServiceUUID = "d91714ef-28b9-4f91-ba16-f0d9a604f112";
 const goDirectDevicePrefix = "GDX";
@@ -45,6 +46,8 @@ export class SensorGDXManager extends SensorManager {
           }
         }
       };
+
+      this.supportsHeartbeat = true;
     }
 
     static getOptionalServices() {
@@ -132,6 +135,19 @@ export class SensorGDXManager extends SensorManager {
 
     requestStop() {
       this.stopRequested = true;
+    }
+
+    requestHeartbeat(enabled: boolean): void {
+        this.manageHeartbeat(enabled, () => {
+          if (!this.disconnectRequested) {
+            const config = cloneDeep(this.internalConfig);
+            this.enabledSensors.forEach((sensor: any, index: number) => {
+              const cNum = this.initialColumnNum + index;
+              config.columns[cNum.toString()].liveValue = sensor.value.toString();
+            });
+            this.onSensorHeartbeat(new SensorConfiguration(config));
+          }
+        });
     }
 
     async getBatteryLevel() {

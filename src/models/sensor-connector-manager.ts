@@ -74,6 +74,11 @@ export class SensorConnectorManager extends SensorManager {
       this.sensorConnector.requestStop();
     }
 
+    requestHeartbeat(enabled: boolean): void {
+        // FIXME: add heartbeat support when a device to test is available
+        console.error("Heartbeat not currently supported for this sensor");
+    }
+
     isAwake() {
       return this.sensorConnector.isConnected;
     }

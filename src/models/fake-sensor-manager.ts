@@ -73,6 +73,8 @@ export class FakeSensorManager extends SensorManager {
         }
       };
       // this.sensorConfig = new SensorConfiguration(this.internalConfig);
+
+      this.supportsHeartbeat = true;
     }
 
     cloneInternalConfig() {
@@ -117,6 +119,19 @@ export class FakeSensorManager extends SensorManager {
       setTimeout(() => {
         this.onSensorCollectionStopped();
       });
+    }
+
+    requestHeartbeat(enabled: boolean): void {
+        this.manageHeartbeat(enabled, () => {
+          const temperatureValue = 17 + (Math.random() * 5);
+          const positionValue = 1 - (Math.random() * 2);
+          const config = this.cloneInternalConfig();
+
+          config.columns["101"].liveValue = temperatureValue.toString();
+          config.columns["102"].liveValue = positionValue.toString();
+
+          this.onSensorHeartbeat(new SensorConfiguration(config));
+        });
     }
 
     private sendValues(time: number, {temperatureValue, positionValue}: {temperatureValue: number, positionValue: number}) {

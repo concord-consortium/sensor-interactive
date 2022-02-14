@@ -15,10 +15,11 @@ interface IGraphTopPanelProps {
   onRemoveSensor?:() => void;
   showRemoveSensor:boolean;
   assetsPath: string;
+  readingPaused: boolean;
 }
 
 export const GraphTopPanel: React.FC<IGraphTopPanelProps> = (props) => {
-  const { sensorSlot, onZeroSensor, onRemoveSensor, onSensorSelect } = props,
+  const { sensorSlot, onZeroSensor, onRemoveSensor, onSensorSelect, readingPaused } = props,
         { sensor } = sensorSlot,
         tareValue = sensor.tareValue || 0,
         sensorUnitStr = sensor.valueUnit || "";
@@ -41,7 +42,11 @@ export const GraphTopPanel: React.FC<IGraphTopPanelProps> = (props) => {
   };
 
   const sensorReading = () => {
-    const sensorValue = sensor && sensor.sensorValue;
+    if (readingPaused) {
+      return "Paused";
+    }
+
+    const sensorValue = sensor && (sensor.sensorHeartbeatValue || sensor.sensorValue);
     if ((sensorValue == null) || isNaN(sensorValue))
       return "";
 
