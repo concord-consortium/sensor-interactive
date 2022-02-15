@@ -594,12 +594,19 @@ button:active {
     width: 18px;
     height: 18px;
 }
+
 .icon.rescale {
     width: 20px;
     height: 20px;
     fill: #a7a7a7;
 }
+
 .icon.about {
     width: 17.3px;
     height: 16px;
+}
+
+.prompt {
+    padding-left: 1em;
+    font-size: 12px;
 }

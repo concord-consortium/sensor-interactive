@@ -11,6 +11,7 @@ interface ISizeMeSize {
 interface IGraphsPanelProps {
   size:ISizeMeSize;
   sensorRecordings:SensorRecording[];
+  preRecordings:SensorRecording[];
   onGraphZoom:(xStart:number, xEnd:number) => void;
   onSensorSelect:(sensorIndex:number, columnID:string) => void;
   xStart:number;
@@ -27,8 +28,13 @@ interface IGraphsPanelProps {
 
 const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
 
-  function renderGraph(options: {sensorRecording?:SensorRecording, title:string, isSingletonGraph:boolean, isLastGraph:boolean}) {
-    const {sensorRecording, title, isSingletonGraph, isLastGraph} = options,
+  function renderGraph(options: {
+    sensorRecording?:SensorRecording,
+    preRecording?: SensorRecording,
+    title:string,
+    isSingletonGraph:boolean,
+    isLastGraph:boolean}) {
+    const {sensorRecording, preRecording, title, isSingletonGraph, isLastGraph} = options,
           height = props.maxHeight || props.size.height,
           availableHeight = height && (height - 20),
           singleGraphHeight = availableHeight && (availableHeight + 8),
@@ -42,6 +48,7 @@ const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
     return <SensorGraph width={graphWidth}
                         height={graphHeight}
                         sensorRecording={sensorRecording}
+                        preRecording={preRecording}
                         title={title}
                         isSingletonGraph={isSingletonGraph}
                         isLastGraph={isLastGraph}
@@ -58,7 +65,7 @@ const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
                         />;
   }
 
-  const { sensorRecordings, secondGraph } = props,
+  const { sensorRecordings, preRecordings, secondGraph } = props,
         hasConnected = sensorRecordings.length > 0,
         showSecondGraph = secondGraph || (sensorRecordings.length > 1),
         classes = `graphs-panel ${showSecondGraph ? 'two-graphs' : ''} ${hasConnected ? '' : 'disabled'}`,
@@ -66,7 +73,7 @@ const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
 
   return (
       <div className={classes} style={style}>
-        {renderGraph({sensorRecording: sensorRecordings[0], title: "graph1", isSingletonGraph: !showSecondGraph, isLastGraph: !showSecondGraph})}
+        {renderGraph({sensorRecording: sensorRecordings[0], preRecording: preRecordings && preRecordings[0], title: "graph1", isSingletonGraph: !showSecondGraph, isLastGraph: !showSecondGraph})}
         {showSecondGraph
             ? renderGraph({sensorRecording: sensorRecordings[1], title: "graph2", isSingletonGraph: false, isLastGraph: true})
             : null}

@@ -1,3 +1,4 @@
+import { Unit } from "../models/sensor-definitions";
 export interface SensorRecording {
   columnID: string;
   unit: string;
@@ -15,6 +16,8 @@ export interface IAuthoredState {
   singleReads: boolean;
   prompt: string;
   hint: string;
+  sensorUnit?: Unit;
+  recordedData?: SensorRecording;
 };
 
 export interface IInteractiveState {
@@ -33,5 +36,6 @@ export const defaultAuthoredState: IAuthoredState = {
   useFakeSensor: false,
   singleReads: false,
   prompt: "",
-  hint: ""
+  hint: "",
+  sensorUnit: undefined
 };
