@@ -1,6 +1,7 @@
 import * as React from "react";
 import { SensorRecording } from "../interactive/types";
 import { Sensor } from "../models/sensor";
+import { mergeTimeSeriesData } from "../utils/merge-timeseries-data";
 import { Graph } from "./graph";
 
 const kSidePanelWidth = 20;
@@ -83,25 +84,11 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
               plotYMin = yMin != null ? yMin : (sensorRecording?.min != null ? sensorRecording.min : 0),
               plotYMax = yMax != null ? yMax : (sensorRecording?.max != null ? sensorRecording.max : 10);
 
-        let data = [];
-        // If we have both the sensor and pre-recording data, plot both.
+        let data:number[][] = [];
         // Dygraph requires each row of data to have the same number of columns.
+        // If we have both the sensor and pre-recording data, plot both.
         if (preRecording && sensorRecording) {
-            const sData = sensorRecording.data;
-            let sensorIndex = 0;
-            let rData = sensorRecording.data[0];
-            // combine the two data columns into one row:
-            // TODO: add an interpolation method for missing columns.
-            for(rData of preRecording.data) {
-                while(sensorIndex < sData.length && sData[sensorIndex][0] <= rData[0]) {
-                    data.push([rData[0], rData[1], sData[sensorIndex][1]]);
-                        sensorIndex++;
-                }
-            }
-            // Add any remaining sensor data
-            while(sensorIndex < sData.length) {
-                data.push([sData[sensorIndex][0], rData[1], sData[sensorIndex][1]]);
-            }
+            data = mergeTimeSeriesData(preRecording.data, sensorRecording.data);
         } else if (sensorRecording) {
             data = sensorRecording.data;
         } else if (preRecording) {
@@ -114,8 +101,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 title={this.props.title}
                 width={graphWidth}
                 height={this.props.height}
-                data={sensorRecording?.data || []}
-
+                data={data}
                 onRescale={this.handleRescale}
                 xMin={this.props.xStart}
                 xMax={this.props.xEnd}
