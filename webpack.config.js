@@ -23,7 +23,7 @@ module.exports = {
     },
 
     // Enable sourcemaps for debugging webpack's output.
-    devtool: "source-map",
+    devtool: "eval-cheap-source-map",
     devServer: {
         static: {
             directory: path.join(__dirname, 'src/public'),
