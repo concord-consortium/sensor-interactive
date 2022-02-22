@@ -6,9 +6,8 @@ Sensor measuring interactive embeddable in CODAP and AP.
 ## Development
 
 Run `npm start` to start webpackdevserver.
-Run `npm run start-https` to run https with certs. See `mkcert` in the SSL section below.
-Run `npm run start-self-signed` to run https with self-signed certs.
-
+Run `npm run start:secure` to run https with certs. See `mkcert` in the SSL section below.
+Run `npm run start:self-signed` to run https with self-signed certs.
 
 
 ## SSL Information:
@@ -19,8 +18,8 @@ See: https://github.com/FiloSottile/mkcert#mkcert
   brew install mkcert
   mkcert -install
 
-  mkcert -cert-file ./certs/localhost.crt \
-    -key-file ./certs/localhost.key \
+  mkcert -cert-file ~/.localhost-ssl/localhost.crt \
+    -key-file ~/.localhost-ssl/localhost.key \
     localhost 127.0.0.1 ::1
 ```
 the `.certs` directory should be ignored by `.gitignore`
