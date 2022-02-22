@@ -1,20 +1,24 @@
 import { mergeTimeSeriesData } from './merge-timeseries-data';
 
 test('merges dataA and dataB time series', () => {
-  const dataA = [[1, 3], [3, 4]];
+  const dataA = [[1, 3], [3, 4], [5, 6]];
   const dataB = [[1, 1], [2, 2]];
   const mergedData = mergeTimeSeriesData(dataA,dataB);
-  expect(mergedData.length).toBe(3);
+  expect(mergedData.length).toBe(4);
 
-  expect(mergedData[0][0]).toBe(1);
-  expect(mergedData[0][1]).toBe(3);
-  expect(mergedData[0][2]).toBe(1);
+  // First time series row:
+  expect(mergedData[0][0]).toBe(1);   // Specified in data
+  expect(mergedData[0][1]).toBe(3);   // Specified in data
+  expect(mergedData[0][2]).toBe(1);   // Specified in data
 
-  expect(mergedData[1][0]).toBe(2);
-  expect(mergedData[1][1]).toBe(3);
-  expect(mergedData[1][2]).toBe(2);
+  // Second time series row:
+  expect(mergedData[1][0]).toBe(2);   // Specified in data (time from dataB)
+  expect(mergedData[1][1]).toBe(3.5); // Lerp missing dataA index 2: Between 3 and 4
+  expect(mergedData[1][2]).toBe(2);   // Specified in data (dataB)
 
-  expect(mergedData[2][0]).toBe(3);
-  expect(mergedData[2][1]).toBe(4);
-  expect(mergedData[2][2]).toBe(2);
+  // Third time series row:
+  expect(mergedData[2][0]).toBe(3);  // Specified in data (time from dataA)
+  expect(mergedData[2][1]).toBe(4);  // Specified in data (dataA)
+  expect(mergedData[2][2]).toBe(2);  // last value of dataB we have
+
 });

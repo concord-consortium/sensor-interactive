@@ -1,5 +1,33 @@
 type timeSeriesData = number[][];
 
+const lerp = (a: number, b: number, t: number) => a * (1 - t) + b * t;
+
+const lerpForTime = (array: timeSeriesData, time: number) => {
+  const firstTime =array[0][0];
+  const finalTime = array[array.length - 1][0];
+  if(time < firstTime) {
+    return array[0][1];
+  }
+  if(time > finalTime) {
+    return array[array.length - 1][1];
+  }
+  let lastValue = 0;
+  let lastTime = 0;
+  let index = 0
+  while(array[index][0] < time) {
+    lastValue = array[index][1];
+    lastTime = array[index][0];
+    index++;
+  }
+  const nextValue = array[index][1];
+  const nextTime = array[index][0];
+  if (nextTime === time) {
+    return nextValue;
+  }
+  const t = (time - lastTime) / (nextTime - lastTime);
+  return lerp(lastValue, nextValue, t);
+}
+
 // Given two input arrays of time series data, merge them into a single array
 // where each element is a triplet of  numbers representing a time value of a and b.
 export const mergeTimeSeriesData = (dataA: timeSeriesData, dataB:timeSeriesData) => {
@@ -10,19 +38,12 @@ export const mergeTimeSeriesData = (dataA: timeSeriesData, dataB:timeSeriesData)
   // Now make the data unique:
   let uniqueTimes = times.filter((item, index) => times.indexOf(item) === index);
 
-  const valueAtTime = (array:timeSeriesData, timeIndex:number, notFound=0) => {
-    const found = array.find(d => d[0] === uniqueTimes[timeIndex]);
-    if(found) {
-      return found[1];
-    }
-    return notFound;
-  }
 
   let lastDataA = dataA[0][1];
   let lastDataB = dataB[0][1];
   const data = uniqueTimes.map(t => {
-    lastDataA = valueAtTime(dataA, uniqueTimes.indexOf(t), lastDataA);
-    lastDataB = valueAtTime(dataB, uniqueTimes.indexOf(t), lastDataB);
+    lastDataA = lerpForTime(dataA, t);
+    lastDataB = lerpForTime(dataB, t);
     return [t, lastDataA, lastDataB];
   });
 

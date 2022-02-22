@@ -77,6 +77,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                                 "valuePrecision", "xLabel", "yLabel"];
     }
 
+    labels():string[] {
+        const numColumns = this.state.data[0] ? this.state.data[0].length : 0;
+        if (numColumns > 2){
+            return ["x", "y", "y2"];
+        }
+        return [this.state.xLabel || "x", this.state.yLabel || "y"];
+    };
+
     update():void {
         if(!this.dygraph) {
             return;
@@ -86,6 +94,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             file: dyGraphData(data, this.props.singleReads),
             dateWindow: [xMin, xMax],
             valueRange: [yMin, yMax],
+            labels: this.labels(),
             xlabel: xLabel,
             ylabel: yLabel
         });
@@ -142,6 +151,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                     axisLabelWidth: AXIS_LABEL_WIDTH
                 }
             },
+            labels: this.labels(),
             xlabel: this.state.xLabel,
             ylabel: this.state.yLabel,
             legend: "follow",
