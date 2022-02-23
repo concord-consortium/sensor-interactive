@@ -538,7 +538,7 @@ export class App extends React.Component<AppProps, AppState> {
                 sensorRecordingStore.startNewRecordings();
             }
             sensorManager.requestStart();
-            this.setState({statusMessage: this.messages["starting_data_collection"]});
+            this.setState({statusMessage: this.messages["starting_data_collection"],pauseHeartbeat: true});
         }
     }
 

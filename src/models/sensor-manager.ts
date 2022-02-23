@@ -4,6 +4,7 @@ export interface NewSensorData {
   [key:string]: number[][];
 }
 
+export const HEARBEAT_INTERVAL_MS = 1000;
 type OnSensorConnectFunction = (sensorConfig: SensorConfiguration) => void;
 type OnSensorDataFunction = (newData:NewSensorData) => void;
 type OnSensorCollectionStoppedFunction = () => void;
@@ -25,7 +26,6 @@ export interface ConnectableSensorManager {
 export abstract class SensorManager {
   supportsDualCollection: boolean;
   supportsHeartbeat: boolean = false;
-
   protected heartbeatInterval: number = 0;
 
   abstract startPolling() : void;
@@ -115,7 +115,7 @@ export abstract class SensorManager {
   protected manageHeartbeat(enabled: boolean, callback: () => void) {
     clearInterval(this.heartbeatInterval);
     if (enabled) {
-      this.heartbeatInterval = window.setInterval(callback, 1000);
+      this.heartbeatInterval = window.setInterval(callback, HEARBEAT_INTERVAL_MS);
     }
   }
 }
