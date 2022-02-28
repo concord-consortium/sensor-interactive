@@ -26,7 +26,10 @@
   font-size: medium;
   color: black;
 }
-
+.authoring .parse-error {
+  color: red;
+  font-weight: bold;
+}
 .authoring select {
   font-size: medium;
   color: black;

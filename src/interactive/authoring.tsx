@@ -13,6 +13,7 @@ interface Props {
 export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
   const {authoredState, setAuthoredState} = useAuthoredState<IAuthoredState>();
   const { singleReads, useFakeSensor, prompt, hint, sensorUnit, recordedData } = authoredState || defaultAuthoredState;
+  const [parseError, setParseError] = React.useState<boolean>(false);
 
   const handlesingleReads = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({singleReads: e.target.checked});
 
@@ -35,25 +36,29 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
 
   const handleRecordedDataChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
-
+    setParseError(false)
     if(authoredState?.sensorUnit) {
       let data = [] as number[][];
       let rows = [];
-      try {
-        rows = value.split('\n');
-        for (let row of rows) {
-          data.push(row.split(/,/g).map(d => parseFloat(d)));
+
+      rows = value.split('\n');
+      for (let row of rows) {
+        let cols = row.split(',');
+        let [x, y] = cols.map(Number);
+        if(isNaN(x) || isNaN(y) || x === undefined || cols.length !== 2) {
+          console.error('cant parse data', e);
+          setParseError(true)
         }
-      }
-      catch (e) {
-        console.error('cant parse data', e);
+        else {
+          data.push([x, y]);
+        }
       }
 
       const unit = authoredState.sensorUnit as string;
       const definition = SensorDefinitions[unit];
       const precision = 2;
-      const columnID = "110";   // TODO: ??
-      const sensorPosition = 0; // TODO: ??
+      const columnID = "110";
+      const sensorPosition = 0;
       const tareValue = 0;
       const a: SensorRecording = {
         data,
@@ -122,14 +127,26 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
     );
   });
 
+  const renderErrorParseError = () => {
+    if(parseError) {
+      return (
+        <div className="parse-error">
+          <p>Unable to parse CSV data.</p>
+          <p>Please check that the data is comma separated and contains only numbers.</p>
+          <p>Each row should be newline terminated</p>
+        </div>
+      )
+    }
+  }
+
   const renderPrerecordedText = () => {
     if(sensorUnit) {
+      const data = recordedData && recordedData.data?.map(row => row.join(',')).join('\n');
       return (
         <fieldset>
           <legend>Data</legend>
-            <textarea name="recordedData" onChange={handleRecordedDataChange}>
-              {recordedData && recordedData.data?.map(row => row.join(',')).join('\n')}
-          </textarea>
+            <textarea name="recordedData" onChange={handleRecordedDataChange} defaultValue={data}/>
+          {renderErrorParseError()}
         </fieldset>
       );
     }
