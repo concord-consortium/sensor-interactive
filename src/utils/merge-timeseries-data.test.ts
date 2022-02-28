@@ -22,3 +22,18 @@ test('merges dataA and dataB time series', () => {
   expect(mergedData[2][2]).toBe(2);  // last value of dataB we have
 
 });
+
+test('when one of the data arrays is zero length', () => {
+  let dataA = [[1, 1]];
+  let dataB: number[][] = [];
+  let mergedData = mergeTimeSeriesData(dataA, dataB);
+  expect(mergedData.length).toBe(1);
+  dataA = [];
+  dataB = [[1, 1]];
+  mergedData = mergeTimeSeriesData(dataA, dataB);
+  expect(mergedData.length).toBe(1);
+  dataB = [];
+  dataA = [];
+  mergedData = mergeTimeSeriesData(dataA, dataB);
+  expect(mergedData.length).toBe(0);
+})

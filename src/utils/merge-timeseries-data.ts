@@ -31,6 +31,19 @@ const lerpForTime = (array: timeSeriesData, time: number) => {
 // Given two input arrays of time series data, merge them into a single array
 // where each element is a triplet of  numbers representing a time value of a and b.
 export const mergeTimeSeriesData = (dataA: timeSeriesData, dataB:timeSeriesData) => {
+  // check for zero length data arrays. TBD: should we throw an error?
+  if(dataA.length === 0) {
+    console.error('mergeTimeSeriesData: dataA is zero length');
+    if(dataB.length === 0) {
+      console.error('mergeTimeSeriesData: both dataA and dataB are zero length');
+      return [];
+    }
+    return dataB;
+  }
+  if(dataB.length === 0) {
+    console.error('mergeTimeSeriesData: dataB is zero length');
+    return dataA;
+  }
 
   // First just get a list of time indexes:
   let times = dataA.map(d => d[0]).concat(dataB.map(d => d[0]));

@@ -86,12 +86,16 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         const plotYMin = yMin != null ? yMin : (source?.min != null ? source.min : 0);
         const plotYMax = yMax != null ? yMax : (source?.max != null ? source.max : 10);
 
- let data:number[][] = [];
+        let data:number[][] = [];
         const hasSensorData = sensorRecording && sensorRecording.data.length > 0;
         // Dygraph requires each row of data to have the same number of columns.
         // If we have both the sensor and pre-recording data, plot both.
         if (preRecording && hasSensorData) {
             data = mergeTimeSeriesData(preRecording.data, sensorRecording.data);
+            // When drawing the sensor graph, we need to clip the dataset, which
+            // will hide the pre-recording data beyond the current time index.
+            // otherwise the sensor graph will interpolate future data
+            // which looks weird in the graph.
             const maxSensorTime = sensorRecording.data[sensorRecording.data.length - 1][0];
             data = data.filter(row => row[0] <= maxSensorTime);
         } else if (hasSensorData) {
