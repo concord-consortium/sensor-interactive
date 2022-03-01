@@ -4,7 +4,7 @@ export interface NewSensorData {
   [key:string]: number[][];
 }
 
-export const HEARBEAT_INTERVAL_MS = 1000;
+export const HEARTBEAT_INTERVAL_MS = 1000;
 type OnSensorConnectFunction = (sensorConfig: SensorConfiguration) => void;
 type OnSensorDataFunction = (newData:NewSensorData) => void;
 type OnSensorCollectionStoppedFunction = () => void;
@@ -115,7 +115,7 @@ export abstract class SensorManager {
   protected manageHeartbeat(enabled: boolean, callback: () => void) {
     clearInterval(this.heartbeatInterval);
     if (enabled) {
-      this.heartbeatInterval = window.setInterval(callback, HEARBEAT_INTERVAL_MS);
+      this.heartbeatInterval = window.setInterval(callback, HEARTBEAT_INTERVAL_MS);
     }
   }
 }

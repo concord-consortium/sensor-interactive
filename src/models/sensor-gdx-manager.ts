@@ -1,5 +1,5 @@
 import { SensorConfiguration } from "./sensor-configuration";
-import { SensorManager, NewSensorData, HEARBEAT_INTERVAL_MS } from "./sensor-manager";
+import { SensorManager, NewSensorData, HEARTBEAT_INTERVAL_MS } from "./sensor-manager";
 import { SensorConfig } from "@concord-consortium/sensor-connector-interface";
 import godirect from "@vernier/godirect"
 import { cloneDeep } from "lodash";
@@ -8,7 +8,11 @@ const goDirectServiceUUID = "d91714ef-28b9-4f91-ba16-f0d9a604f112";
 const goDirectDevicePrefix = "GDX";
 
 const POLLING_INTERVAL = 1000;
-const SENSOR_HEARTBEAT_INTERVAL = HEARBEAT_INTERVAL_MS / 2;
+
+// calibration display: We only need to sample at twice heartbeat rate
+// This is the nyquist frequency, and insures we have at least one sample for
+// each heartbeat.
+const SENSOR_HEARTBEAT_INTERVAL = HEARTBEAT_INTERVAL_MS / 2;
 const READ_DATA_INTERVAL = 50;
 
 export class SensorGDXManager extends SensorManager {
@@ -144,7 +148,7 @@ export class SensorGDXManager extends SensorManager {
     requestHeartbeat(enabled: boolean): void {
       if(enabled) {
         if(this.gdxDevice) {
-          // calibration display: We only need to sample at ½ heartbeat interval
+
           this.gdxDevice.start(SENSOR_HEARTBEAT_INTERVAL);
         }
       } else {
