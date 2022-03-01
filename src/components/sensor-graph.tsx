@@ -1,6 +1,7 @@
 import * as React from "react";
 import { SensorRecording } from "../interactive/types";
 import { Sensor } from "../models/sensor";
+import { mergeTimeSeriesData } from "../utils/merge-timeseries-data";
 import { Graph } from "./graph";
 
 const kSidePanelWidth = 20;
@@ -9,6 +10,7 @@ interface SensorGraphProps {
     width:number|null;
     height:number|null;
     sensorRecording?:SensorRecording;
+    preRecording?:SensorRecording;
     title:string;
     onGraphZoom:(xStart:number, xEnd:number) => void;
     onSensorSelect:(sensorIndex:number, columnID:string) => void;
@@ -69,25 +71,46 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
 
     yLabel() {
-        const { sensorRecording } = this.props;
+        const { sensorRecording, preRecording } = this.props;
+        const source = sensorRecording || preRecording;
         // label the data (if any) or the current sensor (if no data)
-        return sensorRecording?.name
-                ? `${sensorRecording.name} (${sensorRecording.unit})`
+        return source?.name
+                ? `${source.name} (${source.unit})`
                 : "Sensor Reading (-)";
     }
 
     renderGraph(graphWidth:number|null) {
-        const { sensorRecording } = this.props,
-              { yMin, yMax } = this.state,
-              plotYMin = yMin != null ? yMin : (sensorRecording?.min != null ? sensorRecording.min : 0),
-              plotYMax = yMax != null ? yMax : (sensorRecording?.max != null ? sensorRecording.max : 10);
+        const { sensorRecording, preRecording } = this.props;
+        const { yMin, yMax } = this.state;
+        const source = sensorRecording || preRecording;
+        const plotYMin = yMin != null ? yMin : (source?.min != null ? source.min : 0);
+        const plotYMax = yMax != null ? yMax : (source?.max != null ? source.max : 10);
+
+        let data:number[][] = [];
+        const hasSensorData = sensorRecording && sensorRecording.data.length > 0;
+        // Dygraph requires each row of data to have the same number of columns.
+        // If we have both the sensor and pre-recording data, plot both.
+        if (preRecording && hasSensorData) {
+            data = mergeTimeSeriesData(preRecording.data, sensorRecording.data);
+            // When drawing the sensor graph, we need to clip the dataset, which
+            // will hide the pre-recording data beyond the current time index.
+            // otherwise the sensor graph will interpolate future data
+            // which looks weird in the graph.
+            const maxSensorTime = sensorRecording.data[sensorRecording.data.length - 1][0];
+            data = data.filter(row => row[0] <= maxSensorTime);
+        } else if (hasSensorData) {
+            data = sensorRecording.data;
+        } else if (preRecording) {
+            data = preRecording.data;
+        }
+
         return (
             <div className="sensor-graph">
               <Graph
                 title={this.props.title}
                 width={graphWidth}
                 height={this.props.height}
-                data={sensorRecording?.data || []}
+                data={data}
                 onRescale={this.handleRescale}
                 xMin={this.props.xStart}
                 xMax={this.props.xEnd}

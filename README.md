@@ -6,7 +6,23 @@ Sensor measuring interactive embeddable in CODAP and AP.
 ## Development
 
 Run `npm start` to start webpackdevserver.
+Run `npm run start:secure` to run https with certs. See `mkcert` in the SSL section below.
+Run `npm run start:self-signed` to run https with self-signed certs.
 
+
+## SSL Information:
+First install mkcert, and install a ROOT CA for yourself:
+See: https://github.com/FiloSottile/mkcert#mkcert
+
+```
+  brew install mkcert
+  mkcert -install
+
+  mkcert -cert-file ~/.localhost-ssl/localhost.crt \
+    -key-file ~/.localhost-ssl/localhost.key \
+    localhost 127.0.0.1 ::1
+```
+the `.certs` directory should be ignored by `.gitignore`
 ## URLS
 
 - index.html - CODAP embeddable interactive

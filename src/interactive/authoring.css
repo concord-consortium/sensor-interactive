@@ -1,0 +1,36 @@
+.authoring {
+  font-size: 10pt;
+}
+
+.authoring dl {
+  display: flex;
+  flex-flow: row wrap;
+}
+
+.authoring dt {
+  padding: 2px 4px;
+  text-align: right;
+  font-weight: bold;
+}
+
+.authoring dd {
+  flex-grow: 2;
+  margin: 0;
+  padding: 2px 4px;
+}
+
+.authoring textarea {
+  width: 80%;
+  min-height: 100px;
+  font-family: monospace;
+  font-size: medium;
+  color: black;
+}
+.authoring .parse-error {
+  color: red;
+  font-weight: bold;
+}
+.authoring select {
+  font-size: medium;
+  color: black;
+}

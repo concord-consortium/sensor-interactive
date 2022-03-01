@@ -659,4 +659,7 @@ export const SensorDefinitions:ISensorDefinitions = {
     "minReading": -35.0,
     "maxReading": 35.0
   }
-};
+} as const;
+
+export type Unit = keyof typeof SensorDefinitions
+

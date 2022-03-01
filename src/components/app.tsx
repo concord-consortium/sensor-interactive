@@ -49,6 +49,7 @@ export interface AppProps {
     interactiveHost?: InteractiveHost;
     maxGraphHeight?: number;
     initialInteractiveState?: IInteractiveState | null;
+    preRecordings?: SensorRecording[];
     prompt?: string;
     setInteractiveState?: (stateOrUpdateFunc: IInteractiveState | ((prevState: IInteractiveState | null) => IInteractiveState) | null) => void
 }
@@ -1168,7 +1169,7 @@ export class App extends React.Component<AppProps, AppState> {
         const isConnectorAwake = sensorManager ? sensorManager.isAwake() : true;
         const showControls = this.props.interactiveHost !== "report";
         const singleReads = !!this.props.singleReads;
-
+        const preRecordings = this.props.preRecordings ? [...this.props.preRecordings] : [];
         return (
             <div className="app-container">
                 <ReactModal className="sensor-dialog-content"
@@ -1237,7 +1238,7 @@ export class App extends React.Component<AppProps, AppState> {
                         <button onClick={this.closeAboutModal}>Ok</button>
                     </div>
                 </ReactModal>
-                { this.props.prompt && <div dangerouslySetInnerHTML={{ __html: this.props.prompt}} /> }
+                { this.props.prompt && <div className="prompt" dangerouslySetInnerHTML={{ __html: this.props.prompt}} /> }
                 <div className="app-content">
                     {showControls && <div className="app-top-bar">
                         {this.renderStatusMessage()}
@@ -1246,6 +1247,7 @@ export class App extends React.Component<AppProps, AppState> {
                     </div>}
                     <GraphsPanel
                         sensorRecordings={sensorRecordings}
+                        preRecordings={preRecordings}
                         onGraphZoom={this.onGraphZoom}
                         onSensorSelect={this.handleSensorSelect}
                         xStart={this.state.xStart}
