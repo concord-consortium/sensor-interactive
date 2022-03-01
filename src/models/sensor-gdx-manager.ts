@@ -1,5 +1,5 @@
 import { SensorConfiguration } from "./sensor-configuration";
-import { SensorManager, NewSensorData } from "./sensor-manager";
+import { SensorManager, NewSensorData, HEARTBEAT_INTERVAL_MS } from "./sensor-manager";
 import { SensorConfig } from "@concord-consortium/sensor-connector-interface";
 import godirect from "@vernier/godirect"
 import { cloneDeep } from "lodash";
@@ -8,6 +8,11 @@ const goDirectServiceUUID = "d91714ef-28b9-4f91-ba16-f0d9a604f112";
 const goDirectDevicePrefix = "GDX";
 
 const POLLING_INTERVAL = 1000;
+
+// calibration display: We only need to sample at twice heartbeat rate
+// This is the nyquist frequency, and insures we have at least one sample for
+// each heartbeat.
+const SENSOR_HEARTBEAT_INTERVAL = HEARTBEAT_INTERVAL_MS / 2;
 const READ_DATA_INTERVAL = 50;
 
 export class SensorGDXManager extends SensorManager {
@@ -101,7 +106,8 @@ export class SensorGDXManager extends SensorManager {
 
     requestStart() {
       let startCollectionTime = Date.now();
-
+      this.gdxDevice.stop();
+      this.gdxDevice.start(this.gdxDevice.minMeasurementPeriod);
       const readData = async () => {
         this.enabledSensors.forEach((sensor: any, index: number) => {
           const cNum = this.initialColumnNum + index;
@@ -111,6 +117,7 @@ export class SensorGDXManager extends SensorManager {
 
         if (this.stopRequested) {
           clearInterval(this.timerId);
+          this.gdxDevice.stop();
           this.onSensorCollectionStopped();
           this.stopRequested = false;
         }
@@ -137,17 +144,28 @@ export class SensorGDXManager extends SensorManager {
       this.stopRequested = true;
     }
 
+    // Will also update live sensor display values for calibration.
     requestHeartbeat(enabled: boolean): void {
-        this.manageHeartbeat(enabled, () => {
-          if (!this.disconnectRequested) {
-            const config = cloneDeep(this.internalConfig);
-            this.enabledSensors.forEach((sensor: any, index: number) => {
-              const cNum = this.initialColumnNum + index;
-              config.columns[cNum.toString()].liveValue = sensor.value.toString();
-            });
-            this.onSensorHeartbeat(new SensorConfiguration(config));
-          }
-        });
+      if(enabled) {
+        if(this.gdxDevice) {
+
+          this.gdxDevice.start(SENSOR_HEARTBEAT_INTERVAL);
+        }
+      } else {
+        if(this.gdxDevice) {
+          this.gdxDevice.stop();
+        }
+      }
+      this.manageHeartbeat(enabled, () => {
+        if (!this.disconnectRequested) {
+          const config = cloneDeep(this.internalConfig);
+          this.enabledSensors.forEach((sensor: any, index: number) => {
+            const cNum = this.initialColumnNum + index;
+            config.columns[cNum.toString()].liveValue = sensor.value.toString();
+          });
+          this.onSensorHeartbeat(new SensorConfiguration(config));
+        }
+      });
     }
 
     async getBatteryLevel() {
@@ -173,8 +191,9 @@ export class SensorGDXManager extends SensorManager {
         }
       });
 
-      // set a new interval and start measurements
-      this.gdxDevice.start(this.gdxDevice.minMeasurementPeriod);
+      // set a new reading interval for live calibration readings
+      // can be much slower than capture interval.
+      this.gdxDevice.start(SENSOR_HEARTBEAT_INTERVAL);
 
       // turn on any default sensors
       this.gdxDevice.enableDefaultSensors();
