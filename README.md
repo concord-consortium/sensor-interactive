@@ -85,3 +85,7 @@ Here are the current required filters and optional services:
   - Thermoscope
     - temperatureA (f000aa00-0451-4000-b000-000000000000)
     - temperatureB (f000bb00-0451-4000-b000-000000000000)
+
+
+### Deployment:
+- TBD
