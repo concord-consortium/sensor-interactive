@@ -244,7 +244,8 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     togglePauseHeartbeat() {
-        this.enableHeartbeat(!this.state.pauseHeartbeat);
+        // If we are paused, enable the heartbeat when pressed (unpausing)
+        this.enableHeartbeat(this.state.pauseHeartbeat);
     }
 
     passedSensorManager = () => {
@@ -559,6 +560,7 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     onSensorCollectionStopped() {
+        const { enablePause } = this.props;
         this.setState({
             collecting: false,
             statusMessage: this.messages["data_collection_stopped"]
@@ -569,7 +571,7 @@ export class App extends React.Component<AppProps, AppState> {
             sensorManager!.removeListener('onSensorCollectionStopped',
             this.onSensorCollectionStopped);
         }
-        if(!this.props.enablePause) {
+        if(!enablePause) {
             // If we don't have a pause button, then we need to start the
             // heartbeat monitor again, as the student has no way of doing
             // it themselves.
@@ -1146,10 +1148,12 @@ export class App extends React.Component<AppProps, AppState> {
         const pauseLabel = `${pauseHeartbeat ? "Start" : "Pause"} Reading`
         const pauseDisabled = this.state.collecting;
         const pauseClassName = `pause-heartbeat-button ${pauseDisabled ? "disabled" : ""}`;
+        const { enablePause } = this.props;;
+
         const showPauseButton = sensorManager
             && sensorManager.supportsHeartbeat
             && this.connectedSensorCount() > 0
-            && this.props.enablePause;
+            && enablePause;
 
         return (
             <div className="top-bar-right-controls">
