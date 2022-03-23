@@ -522,7 +522,8 @@ export class App extends React.Component<AppProps, AppState> {
                 }
             });
         } catch (err) {
-            console.log("No wireless device selected");
+            console.error(err);
+            console.error("No wireless device selected");
         }
     }
 
