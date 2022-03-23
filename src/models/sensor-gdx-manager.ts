@@ -13,6 +13,9 @@ const POLLING_INTERVAL = 1000;
 // This is the nyquist frequency, and insures we have at least one sample for
 // each heartbeat.
 const SENSOR_HEARTBEAT_INTERVAL = HEARTBEAT_INTERVAL_MS / 2;
+
+// According to Vernier, the maximum sampling frequency got GDX-MD is 50hz
+// see: https://www.vernier.com/til/5
 const READ_DATA_INTERVAL = 50;
 
 export class SensorGDXManager extends SensorManager {
@@ -92,7 +95,7 @@ export class SensorGDXManager extends SensorManager {
           this.enabledSensors.forEach((sensor: any, index: number) => {
             const cNum = this.initialColumnNum + index;
             this.internalConfig.columns[cNum].liveValueTimeStamp = new Date();
-            this.internalConfig.columns[cNum].liveValue = sensor.value.toString();
+            this.internalConfig.columns[cNum].liveValue = sensor.value?.toString() || "none";
           });
           this.sendSensorConfig(false);
         }
@@ -161,7 +164,8 @@ export class SensorGDXManager extends SensorManager {
           const config = cloneDeep(this.internalConfig);
           this.enabledSensors.forEach((sensor: any, index: number) => {
             const cNum = this.initialColumnNum + index;
-            config.columns[cNum.toString()].liveValue = sensor.value.toString();
+            config.columns[cNum.toString()].liveValue =
+              sensor.value?.toString() || "none";
           });
           this.onSensorHeartbeat(new SensorConfiguration(config));
         }

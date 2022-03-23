@@ -14,6 +14,7 @@ export interface SensorRecording {
 export interface IAuthoredState {
   useFakeSensor: boolean;
   singleReads: boolean;
+  enablePause: boolean;
   prompt: string;
   hint: string;
   sensorUnit?: Unit;
@@ -35,6 +36,7 @@ export interface IInteractiveSensorData {
 export const defaultAuthoredState: IAuthoredState = {
   useFakeSensor: false,
   singleReads: false,
+  enablePause: true,
   prompt: "",
   hint: "",
   sensorUnit: undefined

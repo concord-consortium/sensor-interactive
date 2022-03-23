@@ -51,6 +51,7 @@ export interface AppProps {
     initialInteractiveState?: IInteractiveState | null;
     preRecordings?: SensorRecording[];
     prompt?: string;
+    enablePause?: boolean;
     setInteractiveState?: (stateOrUpdateFunc: IInteractiveState | ((prevState: IInteractiveState | null) => IInteractiveState) | null) => void
 }
 
@@ -237,10 +238,13 @@ export class App extends React.Component<AppProps, AppState> {
         sensorRecordingStore.listenForNewData((sensorRecordings) => this.setState({sensorRecordings}));
     }
 
+    enableHeartbeat(enabled: boolean) {
+        this.setState({pauseHeartbeat: !enabled});
+        this.state.sensorManager?.requestHeartbeat(enabled);
+    }
+
     togglePauseHeartbeat() {
-        const pauseHeartbeat = !this.state.pauseHeartbeat;
-        this.setState({pauseHeartbeat});
-        this.state.sensorManager?.requestHeartbeat(!pauseHeartbeat);
+        this.enableHeartbeat(!this.state.pauseHeartbeat);
     }
 
     passedSensorManager = () => {
@@ -537,8 +541,12 @@ export class App extends React.Component<AppProps, AppState> {
             } else {
                 sensorRecordingStore.startNewRecordings();
             }
+            // before we start recording data, turn off the heartbeat handler.
+            sensorManager.requestHeartbeat(false);
             sensorManager.requestStart();
-            this.setState({statusMessage: this.messages["starting_data_collection"],pauseHeartbeat: true});
+            this.setState({
+                statusMessage: this.messages["starting_data_collection"],pauseHeartbeat: true
+            });
         }
     }
 
@@ -559,6 +567,12 @@ export class App extends React.Component<AppProps, AppState> {
         if (sensorManager) {
             sensorManager!.removeListener('onSensorCollectionStopped',
             this.onSensorCollectionStopped);
+        }
+        if(!this.props.enablePause) {
+            // If we don't have a pause button, then we need to start the
+            // heartbeat monitor again, as the student has no way of doing
+            // it themselves.
+            this.enableHeartbeat(true);
         }
     }
 
@@ -1131,6 +1145,11 @@ export class App extends React.Component<AppProps, AppState> {
         const pauseLabel = `${pauseHeartbeat ? "Start" : "Pause"} Reading`
         const pauseDisabled = this.state.collecting;
         const pauseClassName = `pause-heartbeat-button ${pauseDisabled ? "disabled" : ""}`;
+        const showPauseButton = sensorManager
+            && sensorManager.supportsHeartbeat
+            && this.connectedSensorCount() > 0
+            && this.props.enablePause;
+
         return (
             <div className="top-bar-right-controls">
                 {sensorManager && sensorManager.supportsDualCollection &&
@@ -1139,9 +1158,11 @@ export class App extends React.Component<AppProps, AppState> {
                  <Button className="add-sensor-button" onClick={this.addGraph}>+ Add A Sensor</Button>
                  : null
                 }
-                {sensorManager && sensorManager.supportsHeartbeat && this.connectedSensorCount() > 0 ?
-                 <Button className={pauseClassName} onClick={this.togglePauseHeartbeat} disabled={pauseDisabled}>{pauseLabel}</Button>
-                 : null
+                {showPauseButton &&
+                 <Button
+                    className={pauseClassName}
+                    onClick={this.togglePauseHeartbeat}
+                    disabled={pauseDisabled}>{pauseLabel}</Button>
                 }
             </div>
         );
