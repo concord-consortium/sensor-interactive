@@ -12,10 +12,12 @@ interface Props {
 
 export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
   const {authoredState, setAuthoredState} = useAuthoredState<IAuthoredState>();
-  const { singleReads, useFakeSensor, prompt, hint, sensorUnit, recordedData } = authoredState || defaultAuthoredState;
+  const { singleReads, enablePause, useFakeSensor, prompt, hint, sensorUnit, recordedData } = authoredState || defaultAuthoredState;
   const [parseError, setParseError] = React.useState<boolean>(false);
 
   const handlesingleReads = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({singleReads: e.target.checked});
+
+  const handleEnablePause = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({enablePause: e.target.checked});
 
   const updateAuthoredState = (newState: Partial<IAuthoredState>) => {
     setAuthoredState( prev => {
@@ -175,6 +177,8 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
       <fieldset>
         <legend>Data Acquisition</legend>
         <input type="checkbox" checked={singleReads} onChange={handlesingleReads} /> Single reads
+        <br />
+        <input type="checkbox" checked={enablePause} onChange={handleEnablePause} /> EnablePause
       </fieldset>
       { displayConfig() }
       { renderPrerecordedText() }

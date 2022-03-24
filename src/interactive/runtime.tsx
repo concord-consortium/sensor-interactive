@@ -23,6 +23,7 @@ export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
         interactiveHost="runtime"
         fakeSensor={authoredState.useFakeSensor}
         singleReads={authoredState.singleReads}
+        enablePause={authoredState.enablePause}
         maxGraphHeight={625}
         initialInteractiveState={initialInteractiveState}
         preRecordings ={recordedData ? [recordedData] : []}
