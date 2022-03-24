@@ -1148,7 +1148,7 @@ export class App extends React.Component<AppProps, AppState> {
         const pauseLabel = `${pauseHeartbeat ? "Start" : "Pause"} Reading`
         const pauseDisabled = this.state.collecting;
         const pauseClassName = `pause-heartbeat-button ${pauseDisabled ? "disabled" : ""}`;
-        const { enablePause } = this.props;;
+        const { enablePause } = this.props;
 
         const showPauseButton = sensorManager
             && sensorManager.supportsHeartbeat

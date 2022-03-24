@@ -36,7 +36,7 @@ export interface IInteractiveSensorData {
 export const defaultAuthoredState: IAuthoredState = {
   useFakeSensor: false,
   singleReads: false,
-  enablePause: true,
+  enablePause: false,
   prompt: "",
   hint: "",
   sensorUnit: undefined
