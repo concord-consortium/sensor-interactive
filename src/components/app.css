@@ -25,6 +25,23 @@
     --graph-line-blue: #007fcf;
     --graph-line-orange: #da5d1d;
     --app-content-unusable-vertical-height: 58px;
+
+    --cc-charcoal: #3f3f3f;
+    --cc-charcoal-hint: #828282;
+    --cc-charcoal-light-1: #979797;
+    --cc-charcoal-light-2: #dfdfdf;
+    --cc-teal-dark-2: #016082;
+    --cc-teal-dark-1: #0481a0;
+    --cc-teal: #0592af;
+    --cc-teal-light-1: #2ba5c1;
+    --cc-teal-light-2: #6fc6da;
+    --cc-teal-light-3: #93d5e4;
+    --cc-teal-light-4: #b7e2ec;
+    --cc-teal-light-5: #cdebf2;
+    --cc-teal-light-5-b: #d8eff5;
+    --cc-teal-light-6: #e2f4f8;
+    --cc-teal-light-6-b: #f0f9fb;
+    --cc-teal-light-7: #f5fbfc;
 }
 
 body {
@@ -42,21 +59,45 @@ body {
 
 input, textarea, select, button {
     font-family: Lato, Verdana, Geneva, sans-serif;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: bold;
     color: var(--sage-text);
 }
 
+select {
+    height: 36px;
+}
+
 button {
-    border: solid 1px var(--sage-dark-5);
-    background-color: var(--sage-light-2);
     transition-duration: .25s;
+    border-radius: 4px;
+    height: 36px;
+    /* padding: 8px 10px 9px; */
+    border-radius: 4px;
+    border: solid 1.5px var(--cc-charcoal-light-1);
+    background-color: var(--cc-teal-light-6);
+    color: var(--cc-charcoal);
+    font-family: lato, verdana, geneva, sans-serif;
+    font-size: 16px;
 }
+
 button:hover {
-    background-color: var(--sage);
+    background-color: var(--cc-teal-light-4);
 }
+
 button:active {
-    background-color: var(--sage-dark-2);
+    background-color: var(--cc-teal);
+    color: white;
+    border-color: white;
+}
+
+button:disabled {
+    opacity: 0.5;
+}
+
+button:disabled:hover {
+    opacity: 0.5;
+    background-color: var(--cc-teal-light-6);
 }
 
 .disable-focus-highlight {
@@ -149,12 +190,12 @@ button:active {
 }
 
 /* Connection Buttons */
-.sensor-buttons {
+/* .sensor-buttons {
     display: flex;
     margin: 4px 0px 4px 0px;
-}
+} */
 
-.connect-to-device-button {
+/* .connect-to-device-button {
     width: 106px;
     height: 30px;
     border-radius: 6px;
@@ -171,7 +212,7 @@ button:active {
 .connect-to-device-button:active {
     border: solid 3px var(--sage-dark-3);
     background-color: var(--sage-dark-1);
-}
+} */
 
 /* Connection Message */
 .connect-message-holder {
@@ -197,7 +238,7 @@ button:active {
 /* Sensor Selection */
 .sensor-select {
     width: 200px;
-    height: 30px;
+    height: 36px;
     border: solid 3px var(--sage-dark-1);
     background-color: var(--sage-light-3);
     margin-right: 2px;
@@ -278,7 +319,7 @@ button:active {
 }
 
 /* Remove Sensor */
-.remove-sensor-button {
+/* .remove-sensor-button {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -297,7 +338,7 @@ button:active {
 .remove-sensor-button:active {
     border: solid 1px var(--sage-dark-3);
     background-color: var(--sage-dark-1);
-}
+} */
 
 /* Add Sensor */
 .top-bar-right-controls {
@@ -307,7 +348,7 @@ button:active {
     margin-right: 11px;
     width: 200px;
 }
-
+/* 
 .add-sensor-button {
     width: 106px;
     height: 30px;
@@ -345,7 +386,7 @@ button:active {
 .pause-heartbeat-button:disabled {
     opacity: .35;
     pointer-events: none;
-}
+} */
 
 
 /* Graphs */
@@ -457,13 +498,15 @@ button:active {
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 38px;
-    margin-top: 6px;   /* affects .app-content:max-height */
-    background-color: var(--sage);
+    height: 60px;
+    /* margin: 21px 0 0; */
+    color: white;
+    background-color: var(--cc-teal-dark-1);
     user-select: none;
 }
+
 .control-panel.disabled {
-    background-color: rgba(201, 218, 183, 0.35);
+    opacity: 0.5;
 }
 
 .control-panel .duration-label {
@@ -497,14 +540,8 @@ button:active {
     background: var(--sage) !important;
 }
 
-.control-panel-select {
-    height: 24px;
-    background-color: #eee;
-}
-
-.control-panel-button {
+/* .control-panel-button {
     width: 50px;
-    height: 22px;
     border-radius: 5px;
     border: solid 1px var(--sage-dark-5);
     background-color: var(--sage-light-2);
@@ -521,16 +558,15 @@ button:active {
 .control-panel-button:disabled {
     opacity: .35;
     pointer-events: none;
+} */
+
+.control-panel button {
+    margin: 0 14px 0 0;
 }
 
-.send-data {
-    width: 75px;
-}
-.new-data {
-    width: 70px;
-}
-.record-sensor {
-    width: 70px;
+.control-panel .send-data, .new-data, .record-sensor {
+    width: 87px;
+    font-size: 14px;
 }
 
 .control-panel .left-controls {
@@ -541,6 +577,7 @@ button:active {
     flex-grow: 1;
     display: flex;
     justify-content: flex-end;
+    margin-right: 20px
 }
 
 .embed-codap-link {
@@ -593,6 +630,8 @@ button:active {
 .icon.reload, .icon.about {
     width: 18px;
     height: 18px;
+    stroke: none;
+    fill: white;
 }
 
 .icon.rescale {

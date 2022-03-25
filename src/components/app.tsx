@@ -19,6 +19,7 @@ import { SensorTagManager } from "../models/sensor-tag-manager";
 import { SensorGDXManager } from "../models/sensor-gdx-manager";
 import { IInteractiveState, SensorRecording } from "../interactive/types";
 import { SensorRecordingStore } from "../models/recording-store";
+import { PredictionState } from "./types";
 
 import "./dialog.css";
 import "./app.css";
@@ -52,6 +53,7 @@ export interface AppProps {
     preRecordings?: SensorRecording[];
     prompt?: string;
     enablePause?: boolean;
+    requirePrediction?: boolean;
     setInteractiveState?: (stateOrUpdateFunc: IInteractiveState | ((prevState: IInteractiveState | null) => IInteractiveState) | null) => void
 }
 
@@ -62,6 +64,7 @@ export interface AppState {
     hasData:boolean;
     dataChanged:boolean;
     dataReset:boolean;
+    predictionState: PredictionState;
     collecting:boolean;
     runLength:number;
     timeUnit:string;
@@ -180,6 +183,7 @@ export class App extends React.Component<AppProps, AppState> {
             dataChanged:false,
             dataReset:false,
             collecting:false,
+            predictionState: props.requirePrediction ? "pending" : "not-required",
             runLength:DEFAULT_RUN_LENGTH,
             xStart:0,
             xEnd:DEFAULT_RUN_LENGTH + 0.01, // without the .01, last tick number sometimes fails to display
@@ -234,7 +238,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.showAbout= this.showAbout.bind(this);
         this.saveInteractiveState = this.saveInteractiveState.bind(this);
         this.togglePauseHeartbeat = this.togglePauseHeartbeat.bind(this);
-
+        this.startPrediction = this.startPrediction.bind(this);
         sensorRecordingStore.listenForNewData((sensorRecordings) => this.setState({sensorRecordings}));
     }
 
@@ -247,6 +251,11 @@ export class App extends React.Component<AppProps, AppState> {
                 }
             }
         );
+    }
+
+    startPrediction() {
+        console.log("start prediction");
+        this.setState({predictionState:"started"});
     }
 
     passedSensorManager = () => {
@@ -1148,12 +1157,13 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     renderTopRightButtons() {
-        const { sensorManager, pauseHeartbeat } = this.state;
+        const { sensorManager, pauseHeartbeat, predictionState } = this.state;
         const pauseLabel = `${pauseHeartbeat ? "Start" : "Pause"} Reading`
         const pauseDisabled = this.state.collecting;
         const pauseClassName = `pause-heartbeat-button ${pauseDisabled ? "disabled" : ""}`;
-        const { enablePause } = this.props;
-
+        const { enablePause, requirePrediction } = this.props;
+        const diasablePredictionButton =
+            predictionState === "started" || predictionState === "completed";
         const showPauseButton = sensorManager
             && sensorManager.supportsHeartbeat
             && this.connectedSensorCount() > 0
@@ -1162,9 +1172,13 @@ export class App extends React.Component<AppProps, AppState> {
         return (
             <div className="top-bar-right-controls">
                 {sensorManager && sensorManager.supportsDualCollection &&
-                 !this.state.secondGraph &&
-                 this.connectedSensorCount() > 1 ?
-                 <Button className="add-sensor-button" onClick={this.addGraph}>+ Add A Sensor</Button>
+                    !this.state.secondGraph &&
+                    this.connectedSensorCount() > 1 ?
+                    <Button
+                        className="add-sensor-button"
+                        onClick={this.addGraph}>
+                        + Add A Sensor
+                    </Button>
                  : null
                 }
                 {showPauseButton &&
@@ -1172,6 +1186,14 @@ export class App extends React.Component<AppProps, AppState> {
                     className={pauseClassName}
                     onClick={this.togglePauseHeartbeat}
                     disabled={pauseDisabled}>{pauseLabel}</Button>
+                }
+                {requirePrediction &&
+                    <Button
+                        className="prediction-button"
+                        onClick={this.startPrediction}
+                        disabled={diasablePredictionButton}>
+                        Predict
+                    </Button>
                 }
             </div>
         );
@@ -1312,6 +1334,8 @@ export class App extends React.Component<AppProps, AppState> {
                     onReloadPage={this.reload}
                     onAboutClick={this.showAbout}
                     isDisabled={sensorManager == null}
+                    predictionEnabled={this.props.requirePrediction || false}
+                    hasPrediction={this.state.predictionState == "completed"}
                     assetsPath={this.assetsPath}
                     singleReads={singleReads}
                 />}

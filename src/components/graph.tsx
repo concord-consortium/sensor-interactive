@@ -1,6 +1,7 @@
 import * as React from "react";
 import Dygraph from "dygraphs";
 import { Format } from "../utils/format";
+import { PredictionState } from "./types";
 
 import "./dygraph.css";
 
@@ -9,6 +10,7 @@ export interface GraphProps {
     width:number|null;
     height:number|null;
     data:number[][];
+    predictionState?: PredictionState;
     onRescale:(xRange:number[], yRange:number[]) => void;
     xMin:number;
     xMax:number;
@@ -39,10 +41,16 @@ export interface GraphState {
     [key:string]: any;
 }
 
-const GRAPH1_LINE_COLOR = "#007fcf";
-const GRAPH2_LINE_COLOR = "#da5d1d";
+// Zeplin specs:  https://zpl.io/09kdQlE
+const GRAPH1_LINE_COLOR = "#0081ff";
+const GRAPH2_LINE_COLOR = "#008a00";
+const PREDICTION_LINE_COLOR = "#ff8415";
+const PREDICTION2_LINE_COLOR = "#ff8415";
+const AUTHORED_LINE_COLOR = "#d100d1";
+const AUTHORED2_LINE_COLOR = "#d100d1";
+
 const AXIS_LABEL_WIDTH =  65;
-const CANVAS_FILL_COLOR = "rgba(248, 248, 248, 1.0)";
+const CANVAS_FILL_COLOR = "#ffffff";
 
 // dygraph doesn't handle empty data
 function dyGraphData(data:number[][], useOffScreenPoint?: boolean) {
@@ -120,13 +128,37 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         this.props.onRescale(xRange, yRange);
     }
 
+    colorForGraphName(graphName:string):string {
+        let color = GRAPH1_LINE_COLOR;
+        switch (graphName) {
+            case "graph2":
+                color = GRAPH2_LINE_COLOR;
+                break;
+            case "prediction":
+                color = PREDICTION_LINE_COLOR;
+                break;
+            case "prediction2":
+                color = PREDICTION2_LINE_COLOR;
+                break;
+            case "authored":
+                color = AUTHORED_LINE_COLOR;
+                break;
+            case "authored2":
+                color = AUTHORED2_LINE_COLOR;
+                break;
+        }
+        return color;
+    }
+
     componentDidMount() {
-        const color = this.props.title === "graph1" ? GRAPH1_LINE_COLOR : GRAPH2_LINE_COLOR;
+        const color = this.colorForGraphName(this.props.title||"");
+        const strokeWidth = 2;
         const singleReadOptions: Partial<dygraphs.Options> = this.props.singleReads ? {drawPoints: true, strokeWidth: 0, pointSize: 10}: {};
 
         this.dygraph = new Dygraph("sensor-graph-" + this.props.title,
             dyGraphData(this.state.data, this.props.singleReads), {
             color: color,
+            strokeWidth,
             dateWindow: [0, this.state.xMax],
             valueRange: [this.state.yMin, this.state.yMax],
             zoomCallback: this.onRescale,

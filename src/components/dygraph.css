@@ -4,6 +4,7 @@
 
 .dygraph-legend {
   position: absolute;
+  font-family: Lato, Verdana, Geneva, sans-serif;
   font-size: 14px;
   z-index: 10;
   /*
