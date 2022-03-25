@@ -15,6 +15,7 @@ export interface IAuthoredState {
   useFakeSensor: boolean;
   singleReads: boolean;
   enablePause: boolean;
+  usePrediction: boolean;
   prompt: string;
   hint: string;
   sensorUnit?: Unit;
@@ -37,6 +38,7 @@ export const defaultAuthoredState: IAuthoredState = {
   useFakeSensor: false,
   singleReads: false,
   enablePause: false,
+  usePrediction: false,
   prompt: "",
   hint: "",
   sensorUnit: undefined
