@@ -1,12 +1,12 @@
 import * as React from "react";
 import Button from "./smart-highlight-button";
 import Select from "./smart-highlight-select";
+import { PredictionState } from "./types";
 
 interface IControlPanelProps {
   isConnectorAwake:boolean;
   isDisabled:boolean,
-  predictionEnabled: boolean,
-  hasPrediction: boolean,
+  predictionStatus: PredictionState,
   interfaceType:string;
   sensorCount:number;
   collecting:boolean;
@@ -20,6 +20,8 @@ interface IControlPanelProps {
   onStartConnecting: () => void;
   onStartCollecting: () => void;
   onStopCollecting: () => void;
+  onClearPrediction: () => void;
+  onSavePrediction: () => void;
   onNewRun: () => void;
   onSaveData: (() => void) | undefined;
   onReloadPage: () => void;
@@ -29,11 +31,23 @@ interface IControlPanelProps {
 }
 
 export const ControlPanel: React.FC<IControlPanelProps> = (props) => {
+  const { predictionStatus } = props;
+  const predictionRequired =
+           (predictionStatus !== "not-required")
+        && (predictionStatus !== "completed");
+  const showPredictionButtons =
+        predictionStatus !== "not-required"
+    &&  predictionStatus !== "pending";
+
+  const disableClearPrediciton = predictionStatus !== "started";
+  const diableSavePredciton = predictionStatus !== "started";
+
   const disableStartCollecting =
       (props.isConnectorAwake && !props.interfaceType)
     ||(props.sensorCount === 0)
     || props.collecting
     || props.hasData
+    || predictionRequired
     || props.isDisabled;
 
   const disableStopCollecting = !props.collecting;
@@ -57,11 +71,29 @@ export const ControlPanel: React.FC<IControlPanelProps> = (props) => {
     ? "duration-label disabled"
     : "duration-label";
 
+  const {onSavePrediction, onClearPrediction} = props;
+
   const startCollectingButton = (
     <Button className="start-sensor control-panel-button"
             onClick={props.onStartCollecting}
             disabled={disableStartCollecting}>
       Start
+    </Button>
+  );
+
+  const clearPredictionButton = (
+    <Button className="start-sensor control-panel-button"
+            onClick={onClearPrediction}
+            disabled={disableClearPrediciton}>
+      Clear Prediction
+    </Button>
+  );
+
+  const savePredictionButton = (
+    <Button className="start-sensor control-panel-button"
+            onClick={onSavePrediction}
+            disabled={diableSavePredciton}>
+      Save Prediction
     </Button>
   );
 
@@ -80,6 +112,8 @@ export const ControlPanel: React.FC<IControlPanelProps> = (props) => {
           </svg>
           <div className="icon-label">Reload</div>
         </div>
+        {showPredictionButtons && clearPredictionButton}
+        {showPredictionButtons && savePredictionButton}
       </div>
 
       <div className="right-controls">

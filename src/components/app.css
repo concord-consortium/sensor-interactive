@@ -574,9 +574,13 @@ button:disabled:hover {
 }
 
 .control-panel .left-controls {
-    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
 }
-
+.control-panel .left-controls button {
+    margin: 0 0 0 14px;
+}
 .control-panel .right-controls {
     flex-grow: 1;
     display: flex;

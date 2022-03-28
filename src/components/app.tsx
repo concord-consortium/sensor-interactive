@@ -1161,12 +1161,16 @@ export class App extends React.Component<AppProps, AppState> {
         const pauseLabel = `${pauseHeartbeat ? "Start" : "Pause"} Reading`
         const pauseDisabled = this.state.collecting;
         const pauseClassName = `pause-heartbeat-button ${pauseDisabled ? "disabled" : ""}`;
-        const { enablePause, requirePrediction } = this.props;
+        const { enablePause } = this.props;
+        const isConnected = this.connectedSensorCount() > 0;
+
+        const showPredictionButton = isConnected && predictionState !== 'not-required';
         const diasablePredictionButton =
             predictionState === "started" || predictionState === "completed";
+
         const showPauseButton = sensorManager
             && sensorManager.supportsHeartbeat
-            && this.connectedSensorCount() > 0
+            && isConnected
             && enablePause;
 
         return (
@@ -1187,7 +1191,7 @@ export class App extends React.Component<AppProps, AppState> {
                     onClick={this.togglePauseHeartbeat}
                     disabled={pauseDisabled}>{pauseLabel}</Button>
                 }
-                {requirePrediction &&
+                {showPredictionButton &&
                     <Button
                         className="prediction-button"
                         onClick={this.startPrediction}
@@ -1221,7 +1225,16 @@ export class App extends React.Component<AppProps, AppState> {
         const isConnectorAwake = sensorManager ? sensorManager.isAwake() : true;
         const showControls = this.props.interactiveHost !== "report";
         const singleReads = !!this.props.singleReads;
-        const preRecordings = this.props.preRecordings ? [...this.props.preRecordings] : [];
+        const preRecordings = this.props.preRecordings ? [...this.props.preRecordings]: [];
+
+        const savePrediction = () => {
+            this.setState({predictionState: "completed"});
+            console.log("Saved prediction");
+        }
+        const clearPrediction = () => {
+            this.setState({predictionState: "pending"});
+            console.log("Cleared prediction");
+        }
         return (
             <div className="app-container">
                 <ReactModal className="sensor-dialog-content"
@@ -1334,8 +1347,9 @@ export class App extends React.Component<AppProps, AppState> {
                     onReloadPage={this.reload}
                     onAboutClick={this.showAbout}
                     isDisabled={sensorManager == null}
-                    predictionEnabled={this.props.requirePrediction || false}
-                    hasPrediction={this.state.predictionState == "completed"}
+                    predictionStatus={this.state.predictionState}
+                    onClearPrediction={clearPrediction}
+                    onSavePrediction={savePrediction}
                     assetsPath={this.assetsPath}
                     singleReads={singleReads}
                 />}
