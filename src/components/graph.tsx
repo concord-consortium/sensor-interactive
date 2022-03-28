@@ -10,6 +10,7 @@ export interface GraphProps {
     width:number|null;
     height:number|null;
     data:number[][];
+    predictionData?:number[][];
     predictionState?: PredictionState;
     onRescale:(xRange:number[], yRange:number[]) => void;
     xMin:number;
@@ -28,6 +29,7 @@ export interface GraphState {
     width:number|null;
     height:number|null;
     data:number[][];
+    predictionData:number[][];
     dataLength:number;
     xMin:number;
     xMax:number;
@@ -69,6 +71,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             width: this.props.width,
             height: this.props.height,
             data: this.props.data || [],
+            predictionData: this.props.predictionData || [],
             dataLength: this.props.data ? this.props.data.length : 0,
             xMin: this.props.xMin,
             xMax: this.props.xMax,
@@ -98,13 +101,26 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             return;
         }
         const { data, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
+        // const extraOpts = true
+        // ?   {
+        //     interactionModel: {
+        //             mouseDown: this.drawPredictionLineMouseUp,
+        //             mouseUp: this.drawPredictionLineMouseUp,
+        //             mouseClick: this.drawPredictionLineMouseUp
+        //         }
+        //     }
+        // : {};
+
         this.dygraph.updateOptions({
             file: dyGraphData(data, this.props.singleReads),
             dateWindow: [xMin, xMax],
             valueRange: [yMin, yMax],
             labels: this.labels(),
             xlabel: xLabel,
-            ylabel: yLabel
+            ylabel: yLabel,
+            interactionModel: {
+                mouseup: this.drawPredictionLineMouseUp,
+            }
         });
 
         // override @types/dygraphs definition to allow no arguments
@@ -155,10 +171,11 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         const strokeWidth = 2;
         const singleReadOptions: Partial<dygraphs.Options> = this.props.singleReads ? {drawPoints: true, strokeWidth: 0, pointSize: 10}: {};
 
-        this.dygraph = new Dygraph("sensor-graph-" + this.props.title,
-            dyGraphData(this.state.data, this.props.singleReads), {
+        const dygraphOptions:dygraphs.Options = {
             color: color,
             strokeWidth,
+            drawPoints: true,
+            pointSize: 6,
             dateWindow: [0, this.state.xMax],
             valueRange: [this.state.yMin, this.state.yMax],
             zoomCallback: this.onRescale,
@@ -187,13 +204,38 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             xlabel: this.state.xLabel,
             ylabel: this.state.yLabel,
             legend: "follow",
+            interactionModel: {
+                mouseup: this.drawPredictionLineMouseUp,
+            },
             underlayCallback: function(canvas:any, area:any, g:any) {
                 canvas.fillStyle = CANVAS_FILL_COLOR;
                 canvas.fillRect(area.x, area.y, area.w, area.h);
             },
             ...singleReadOptions
-        });
+        };
+        // if (true) {
+        //     dygraphOptions.interactionModel = {
+        //         mouseDown: this.drawPredictionLineMouseUp,
+        //         mouseUp: this.drawPredictionLineMouseUp,
+        //         mouseClick: this.drawPredictionLineMouseUp
+        //     }
+        // }
+        this.dygraph = new Dygraph(
+            "sensor-graph-" + this.props.title,
+            dyGraphData(this.state.data, this.props.singleReads),
+            dygraphOptions
+        );
     }
+
+    drawPredictionLineMouseUp = (event:any, g:Dygraph, context:any[]) => {
+        const graphPos = g.eventToDomCoords(event);
+        const xy = g.toDataCoords(graphPos[0], graphPos[1]);
+        const predictionData = this.state.data
+            .concat([[xy[0], xy[1]]])
+            .sort((a:number[], b:number[]) => a[0] - b[0]);
+        this.setState({data: predictionData});
+        console.log("x: " + xy[0] + ", y: " + xy[1]);
+    };
 
     componentWillReceiveProps(nextProps:GraphProps) {
         var data = nextProps.data || [];

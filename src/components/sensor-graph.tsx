@@ -11,6 +11,7 @@ interface SensorGraphProps {
     height:number|null;
     sensorRecording?:SensorRecording;
     preRecording?:SensorRecording;
+    prediction?: number[][];
     title:string;
     onGraphZoom:(xStart:number, xEnd:number) => void;
     onSensorSelect:(sensorIndex:number, columnID:string) => void;
