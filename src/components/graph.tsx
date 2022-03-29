@@ -11,7 +11,7 @@ export interface GraphProps {
     height:number|null;
     data:number[][];
     predictionData?:number[][];
-    predictionState?: PredictionState;
+    predictionState: PredictionState;
     onRescale:(xRange:number[], yRange:number[]) => void;
     xMin:number;
     xMax:number;
@@ -85,7 +85,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         };
 
         this.dyUpdateProps = ["width", "height", "xMin", "xMax", "yMin", "yMax",
-                                "valuePrecision", "xLabel", "yLabel"];
+                                "valuePrecision", "xLabel", "yLabel", "predictionState"];
     }
 
     labels():string[] {
@@ -96,35 +96,50 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         return [this.state.xLabel || "x", this.state.yLabel || "y"];
     };
 
-    update():void {
-        if(!this.dygraph) {
-            return;
+    series() {
+        const result: Record<string,{color:string}> = {};
+        const labels = this.labels();
+        for (let label of labels) {
+            if (label == "x") { continue; }
+            if (label == "y2" || label == "prediction") {
+                result[label] ={color: PREDICTION_LINE_COLOR};
+            } else {
+                result[label] ={color: GRAPH1_LINE_COLOR};
+            }
         }
-        const { data, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
-        // const extraOpts = true
+        return result;
+    }
+
+    update():void {
+        // if(!this.dygraph) {
+        //     return;
+        // }
+        // const { data, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
+        // const extraOpts = this.props.predictionState == "started"
         // ?   {
-        //     interactionModel: {
-        //             mouseDown: this.drawPredictionLineMouseUp,
-        //             mouseUp: this.drawPredictionLineMouseUp,
-        //             mouseClick: this.drawPredictionLineMouseUp
+        //         interactionModel: {
+        //             mouseup: this.drawPredictionLineMouseUp,
         //         }
         //     }
         // : {};
+        console.log("UPDATE");
+        console.log(this.props.predictionState);
+        this.makeDygraph();
+        // this.dygraph.updateOptions({
+        //     file: dyGraphData(data, this.props.singleReads),
+        //     dateWindow: [xMin, xMax],
+        //     valueRange: [yMin, yMax],
+        //     labels: this.labels(),
+        //     xlabel: xLabel,
+        //     ylabel: yLabel,
+        //     interactionModel: {
+        //         mouseup: this.drawPredictionLineMouseUp,
+        //     }
+        //     // ...extraOpts
+        // });
 
-        this.dygraph.updateOptions({
-            file: dyGraphData(data, this.props.singleReads),
-            dateWindow: [xMin, xMax],
-            valueRange: [yMin, yMax],
-            labels: this.labels(),
-            xlabel: xLabel,
-            ylabel: yLabel,
-            interactionModel: {
-                mouseup: this.drawPredictionLineMouseUp,
-            }
-        });
-
-        // override @types/dygraphs definition to allow no arguments
-        // (which is explicitly described by the docs as resizing to parent div)
+        // // override @types/dygraphs definition to allow no arguments
+        // // (which is explicitly described by the docs as resizing to parent div)
         type FResize = (width?:number, height?:number) => void;
         (this.dygraph.resize as FResize)();
     }
@@ -166,10 +181,15 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         return color;
     }
 
-    componentDidMount() {
+    makeDygraph() {
         const color = this.colorForGraphName(this.props.title||"");
         const strokeWidth = 2;
-        const singleReadOptions: Partial<dygraphs.Options> = this.props.singleReads ? {drawPoints: true, strokeWidth: 0, pointSize: 10}: {};
+        const singleReadOptions: Partial<dygraphs.Options> = this.props.singleReads
+            ? {drawPoints: true, strokeWidth: 0, pointSize: 10}
+            : {};
+        const predictionOptions: Partial<dygraphs.Options> = this.props.predictionState == "started"
+            ? {interactionModel: { mouseup: this.drawPredictionLineMouseUp }}
+            : {};
 
         const dygraphOptions:dygraphs.Options = {
             color: color,
@@ -201,30 +221,26 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                 }
             },
             labels: this.labels(),
+            series: this.series(),
             xlabel: this.state.xLabel,
             ylabel: this.state.yLabel,
             legend: "follow",
-            interactionModel: {
-                mouseup: this.drawPredictionLineMouseUp,
-            },
             underlayCallback: function(canvas:any, area:any, g:any) {
                 canvas.fillStyle = CANVAS_FILL_COLOR;
                 canvas.fillRect(area.x, area.y, area.w, area.h);
             },
-            ...singleReadOptions
+            ...singleReadOptions,
+            ...predictionOptions
         };
-        // if (true) {
-        //     dygraphOptions.interactionModel = {
-        //         mouseDown: this.drawPredictionLineMouseUp,
-        //         mouseUp: this.drawPredictionLineMouseUp,
-        //         mouseClick: this.drawPredictionLineMouseUp
-        //     }
-        // }
+
         this.dygraph = new Dygraph(
             "sensor-graph-" + this.props.title,
             dyGraphData(this.state.data, this.props.singleReads),
             dygraphOptions
         );
+    }
+    componentDidMount() {
+        this.makeDygraph();
     }
 
     drawPredictionLineMouseUp = (event:any, g:Dygraph, context:any[]) => {

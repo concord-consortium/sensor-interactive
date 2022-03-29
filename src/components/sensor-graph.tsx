@@ -3,6 +3,7 @@ import { SensorRecording } from "../interactive/types";
 import { Sensor } from "../models/sensor";
 import { mergeTimeSeriesData } from "../utils/merge-timeseries-data";
 import { Graph } from "./graph";
+import { PredictionState } from "./types";
 
 const kSidePanelWidth = 20;
 
@@ -12,6 +13,7 @@ interface SensorGraphProps {
     sensorRecording?:SensorRecording;
     preRecording?:SensorRecording;
     prediction?: number[][];
+    predictionState: PredictionState;
     title:string;
     onGraphZoom:(xStart:number, xEnd:number) => void;
     onSensorSelect:(sensorIndex:number, columnID:string) => void;
@@ -122,6 +124,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 yLabel={this.yLabel()}
                 assetsPath={this.props.assetsPath}
                 singleReads={this.props.singleReads}
+                predictionState={this.props.predictionState}
               />
             </div>
         );

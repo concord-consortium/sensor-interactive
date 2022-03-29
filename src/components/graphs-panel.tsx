@@ -2,6 +2,7 @@ import * as React from "react";
 import SensorGraph from "./sensor-graph";
 import { withSize }  from "react-sizeme";
 import { SensorRecording } from "../interactive/types";
+import { PredictionState } from "./types";
 
 interface ISizeMeSize {
   width:number|null;
@@ -12,6 +13,7 @@ interface IGraphsPanelProps {
   size:ISizeMeSize;
   sensorRecordings:SensorRecording[];
   preRecordings:SensorRecording[];
+  predictionState: PredictionState;
   onGraphZoom:(xStart:number, xEnd:number) => void;
   onSensorSelect:(sensorIndex:number, columnID:string) => void;
   xStart:number;
@@ -62,6 +64,7 @@ const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
                         dataReset={props.dataReset}
                         assetsPath={props.assetsPath}
                         singleReads={props.singleReads}
+                        predictionState={props.predictionState}
                         />;
   }
 

@@ -1313,6 +1313,7 @@ export class App extends React.Component<AppProps, AppState> {
                     <GraphsPanel
                         sensorRecordings={sensorRecordings}
                         preRecordings={preRecordings}
+                        predictionState={this.state.predictionState}
                         onGraphZoom={this.onGraphZoom}
                         onSensorSelect={this.handleSensorSelect}
                         xStart={this.state.xStart}
