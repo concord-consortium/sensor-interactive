@@ -81,7 +81,7 @@ button {
     background-color: var(--cc-teal-light-6);
     color: var(--cc-charcoal);
     font-family: lato, verdana, geneva, sans-serif;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 button:hover {
