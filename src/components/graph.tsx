@@ -158,14 +158,19 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             ? {drawPoints: true, strokeWidth: 0, pointSize: 10}
             : {};
         const predictionOptions: Partial<dygraphs.Options> = this.props.predictionState == "started"
-            ? {interactionModel: { mouseup: this.drawPredictionLineMouseUp }}
+            ? {
+                interactionModel: {
+                    mouseup: this.drawPredictionLineMouseUp
+                },
+                pointSize: 6,
+                drawPoints: true,
+            }
             : {};
 
         const dygraphOptions:dygraphs.Options = {
             color: color,
             strokeWidth,
-            drawPoints: true,
-            pointSize: 6,
+            drawPoints: false,
             dateWindow: [0, this.state.xMax],
             valueRange: [this.state.yMin, this.state.yMax],
             zoomCallback: this.onRescale,
