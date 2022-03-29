@@ -54,8 +54,8 @@ jobs:
   #         token: ${{ secrets.CODECOV_TOKEN }}
   s3-deploy:
     name: S3 Deploy
-    needs:
-      - cypress
+    # needs:
+    #   - cypress
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
