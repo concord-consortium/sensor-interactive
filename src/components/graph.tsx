@@ -10,9 +10,9 @@ export interface GraphProps {
     width:number|null;
     height:number|null;
     data:number[][];
-    predictionData?:number[][];
     predictionState: PredictionState;
     onRescale:(xRange:number[], yRange:number[]) => void;
+    onAddPrediction: (data: number[]) => void;
     xMin:number;
     xMax:number;
     yMin:number;
@@ -29,7 +29,6 @@ export interface GraphState {
     width:number|null;
     height:number|null;
     data:number[][];
-    predictionData:number[][];
     dataLength:number;
     xMin:number;
     xMax:number;
@@ -71,7 +70,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             width: this.props.width,
             height: this.props.height,
             data: this.props.data || [],
-            predictionData: this.props.predictionData || [],
             dataLength: this.props.data ? this.props.data.length : 0,
             xMin: this.props.xMin,
             xMax: this.props.xMax,
@@ -111,35 +109,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     update():void {
-        // if(!this.dygraph) {
-        //     return;
-        // }
-        // const { data, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
-        // const extraOpts = this.props.predictionState == "started"
-        // ?   {
-        //         interactionModel: {
-        //             mouseup: this.drawPredictionLineMouseUp,
-        //         }
-        //     }
-        // : {};
-        console.log("UPDATE");
-        console.log(this.props.predictionState);
         this.makeDygraph();
-        // this.dygraph.updateOptions({
-        //     file: dyGraphData(data, this.props.singleReads),
-        //     dateWindow: [xMin, xMax],
-        //     valueRange: [yMin, yMax],
-        //     labels: this.labels(),
-        //     xlabel: xLabel,
-        //     ylabel: yLabel,
-        //     interactionModel: {
-        //         mouseup: this.drawPredictionLineMouseUp,
-        //     }
-        //     // ...extraOpts
-        // });
-
-        // // override @types/dygraphs definition to allow no arguments
-        // // (which is explicitly described by the docs as resizing to parent div)
         type FResize = (width?:number, height?:number) => void;
         (this.dygraph.resize as FResize)();
     }
@@ -246,11 +216,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     drawPredictionLineMouseUp = (event:any, g:Dygraph, context:any[]) => {
         const graphPos = g.eventToDomCoords(event);
         const xy = g.toDataCoords(graphPos[0], graphPos[1]);
-        const predictionData = this.state.data
-            .concat([[xy[0], xy[1]]])
-            .sort((a:number[], b:number[]) => a[0] - b[0]);
-        this.setState({data: predictionData});
-        console.log("x: " + xy[0] + ", y: " + xy[1]);
+        this.props.onAddPrediction(xy);
     };
 
     componentWillReceiveProps(nextProps:GraphProps) {

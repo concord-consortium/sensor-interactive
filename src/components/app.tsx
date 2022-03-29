@@ -65,6 +65,7 @@ export interface AppState {
     dataChanged:boolean;
     dataReset:boolean;
     predictionState: PredictionState;
+    prediction: number[][];
     collecting:boolean;
     runLength:number;
     timeUnit:string;
@@ -184,6 +185,7 @@ export class App extends React.Component<AppProps, AppState> {
             dataReset:false,
             collecting:false,
             predictionState: props.requirePrediction ? "pending" : "not-required",
+            prediction: [],
             runLength:DEFAULT_RUN_LENGTH,
             xStart:0,
             xEnd:DEFAULT_RUN_LENGTH + 0.01, // without the .01, last tick number sometimes fails to display
@@ -260,6 +262,10 @@ export class App extends React.Component<AppProps, AppState> {
 
     passedSensorManager = () => {
         return (typeof this.props.sensorManager !== "undefined" ? this.props.sensorManager : null);
+    }
+
+    addPrediction = (p: number[]) => {
+        this.setState({prediction: [...this.state.prediction, p]});
     }
 
     componentDidMount() {
@@ -1229,11 +1235,9 @@ export class App extends React.Component<AppProps, AppState> {
 
         const savePrediction = () => {
             this.setState({predictionState: "completed"});
-            console.log("Saved prediction");
         }
         const clearPrediction = () => {
             this.setState({predictionState: "pending"});
-            console.log("Cleared prediction");
         }
         return (
             <div className="app-container">
@@ -1314,6 +1318,8 @@ export class App extends React.Component<AppProps, AppState> {
                         sensorRecordings={sensorRecordings}
                         preRecordings={preRecordings}
                         predictionState={this.state.predictionState}
+                        prediction={this.state.prediction}
+                        onAddPrediction={this.addPrediction}
                         onGraphZoom={this.onGraphZoom}
                         onSensorSelect={this.handleSensorSelect}
                         xStart={this.state.xStart}

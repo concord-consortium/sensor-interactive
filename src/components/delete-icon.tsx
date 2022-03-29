@@ -17,7 +17,7 @@ export const DeleteIcon = (props: IIconProps) => {
       width={width}
       height={height}
       viewBox={viewBox}>
-      <g fill="none" fill-rule="evenodd">
+      <g fill="none" fillRule="evenodd">
           <g>
               <g>
                   <g>
