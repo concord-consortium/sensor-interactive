@@ -90,6 +90,7 @@ export class SensorRecordingStore {
 
     appendData(sensorSlot: SensorSlot, sensorData: number[][], runLength: number) {
         const sensorRecording = this.getSensorRecording(sensorSlot);
+        let dataChanged = false;
         if (sensorRecording) {
             const { tareValue } = sensorRecording;
 
@@ -102,10 +103,28 @@ export class SensorRecordingStore {
                   // Tare the data before appending it
                   value -= tareValue;
                 }
-                sensorRecording.data = [...sensorRecording.data, [time, value]];
+                // TBD / For discussion:
+                // Here we are removing duplicate sample data points.
+                // This might be a bad idea, depending on how the data is being used.
+                // this will result in a sparser data set that might require
+                // consumer side interpolation to be useful in some cases.
+                const length = sensorRecording.data.length;
+                if (length === 0) {
+                    sensorRecording.data = [...sensorRecording.data, [time, value]];
+                    dataChanged = true;
+                }
+                else {
+                    const lastValue = sensorRecording.data[sensorRecording.data.length - 1][1];
+                    if (value != lastValue) {
+                        sensorRecording.data = [...sensorRecording.data, [time, value]];
+                        dataChanged = true;
+                    }
+                }
               }
             });
-            this.notifyListeners();
+            if (dataChanged) {
+                this.notifyListeners();
+            }
         }
     }
 
