@@ -2,7 +2,6 @@ import * as React from "react";
 import Dygraph from "dygraphs";
 import { Format } from "../utils/format";
 import { PredictionState } from "./types";
-
 import "./dygraph.css";
 
 export interface GraphProps {
@@ -95,14 +94,21 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     };
 
     series() {
-        const result: Record<string,{color:string}> = {};
+        const result: Record<string,{color:string, plotter: any}> = {};
         const labels = this.labels();
         for (let label of labels) {
             if (label == "x") { continue; }
+            // TODO: We need better heuristics for a prediction graph:
             if (label == "y2" || label == "prediction") {
-                result[label] ={color: PREDICTION_LINE_COLOR};
+                result[label] ={
+                    color: PREDICTION_LINE_COLOR,
+                    plotter:  Dygraph.Plotters.linePlotter //TODO: smoothPlotter
+                };
             } else {
-                result[label] ={color: GRAPH1_LINE_COLOR};
+                result[label] ={
+                    color: GRAPH1_LINE_COLOR,
+                    plotter: Dygraph.Plotters.linePlotter
+                };
             }
         }
         return result;
