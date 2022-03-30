@@ -16,7 +16,9 @@ const SENSOR_HEARTBEAT_INTERVAL = HEARTBEAT_INTERVAL_MS / 2;
 
 // According to Vernier, the maximum sampling frequency got GDX-MD is 50hz
 // see: https://www.vernier.com/til/5
-const READ_DATA_INTERVAL = 50;
+// But we are only seeing updates at 10hz. For now we are going to use 10hz
+// see: https://www.pivotaltracker.com/story/show/181528803
+const READ_DATA_INTERVAL = 1000 / 10;
 
 export class SensorGDXManager extends SensorManager {
     supportsDualCollection = true;
