@@ -265,7 +265,10 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     addPrediction = (p: number[]) => {
-        this.setState({prediction: [...this.state.prediction, p]});
+        const { prediction } = this.state;
+        const sortFunc = (a: number[], b: number[]) => a[0] - b[0];
+        const nextPrediction = [...prediction, p].sort(sortFunc);
+        this.setState({prediction: nextPrediction});
     }
 
     componentDidMount() {
@@ -1237,7 +1240,9 @@ export class App extends React.Component<AppProps, AppState> {
             this.setState({predictionState: "completed"});
         }
         const clearPrediction = () => {
-            this.setState({predictionState: "pending"});
+            this.setState({
+                prediction: [],
+            });
         }
         return (
             <div className="app-container">
