@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SensorRecording } from "../interactive/types";
 import { Sensor } from "../models/sensor";
-import { mergeTimeSeriesData } from "../utils/merge-timeseries-data";
+import { mergeTimeSeriesData, timeSeriesData } from "../utils/merge-timeseries-data";
 import { Graph } from "./graph";
 import { PredictionState } from "./types";
 
@@ -86,34 +86,28 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     renderGraph(graphWidth:number|null) {
         const { sensorRecording, preRecording, prediction } = this.props;
         const { yMin, yMax } = this.state;
-        const source = sensorRecording || preRecording;
+        const source = sensorRecording || preRecording
         const plotYMin = yMin != null ? yMin : (source?.min != null ? source.min : 0);
         const plotYMax = yMax != null ? yMax : (source?.max != null ? source.max : 10);
 
-        let data:number[][] = [];
         const hasSensorData = sensorRecording && sensorRecording.data.length > 0;
         const hasPredictionData = prediction && prediction.length > 0;
-        // Dygraph requires each row of data to have the same number of columns.
-        // If we have both the sensor and pre-recording data, plot both.
-
-        if(preRecording?.data && preRecording.data.length > 0) {
-            data = [...preRecording.data];
-        }
+        const hasPreRecording = preRecording && preRecording.data.length > 0;
+        const sources:timeSeriesData[] = [];
 
         if(hasPredictionData) {
-            if(data.length > 0) {
-                data = mergeTimeSeriesData(data, prediction);
-            } else {
-                data = prediction;
-            }
+            sources.push({name: 'prediction', data: prediction});
         }
-        if(hasSensorData && sensorRecording.data.length > 0) {
-            if(data.length > 0) {
-                data = mergeTimeSeriesData(data, sensorRecording.data);
-            } else {
-                data = [...sensorRecording.data];
-            }
+        if(hasPreRecording) {
+            sources.push({name: 'preRecording', data: preRecording.data});
         }
+        if(hasSensorData) {
+            sources.push({name: 'sensorRecording', data: sensorRecording.data});
+        }
+
+        // Dygraph requires each row of data to have the same number of columns.
+        // If we have both the sensor and pre-recording data, plot both.
+        const data = mergeTimeSeriesData(sources);
 
         return (
             <div className="sensor-graph">
