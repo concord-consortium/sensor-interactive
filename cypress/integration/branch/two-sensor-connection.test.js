@@ -2,14 +2,14 @@ import Workspace from "../../support/elements/workspace";
 
 const workspace = new Workspace
 
-before(()=>{
-    cy.visit('/examples/fake-sensor.html')
-    // See cypress.json for viewport size
-    cy.viewport(1400,1280)
-    workspace.getSensorTypeButton('Wired').click()
-    workspace.getAddSensorButton().click();
-})
 context('Add second sensor',()=>{
+    before(()=>{
+        // See cypress.json for viewport size
+        cy.viewport(1400,1280)
+        cy.visit('/examples/fake-sensor.html')
+        workspace.getSensorTypeButton('Wired').click()
+        workspace.getAddSensorButton().click();
+    })
     describe('sensor control panel',()=>{
         it('verify status message shows connection',()=>{
             workspace.getStatusIcon().should('be.visible').and ('have.class','connected')

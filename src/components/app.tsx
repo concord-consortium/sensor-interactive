@@ -238,14 +238,15 @@ export class App extends React.Component<AppProps, AppState> {
         sensorRecordingStore.listenForNewData((sensorRecordings) => this.setState({sensorRecordings}));
     }
 
-    enableHeartbeat(enabled: boolean) {
-        this.setState({pauseHeartbeat: !enabled});
-        this.state.sensorManager?.requestHeartbeat(enabled);
-    }
-
     togglePauseHeartbeat() {
-        // If we are paused, enable the heartbeat when pressed (unpausing)
-        this.enableHeartbeat(this.state.pauseHeartbeat);
+        const nextPause = !this.state.pauseHeartbeat;
+        this.setState({pauseHeartbeat: nextPause},
+            () => {
+                if (this.state.sensorManager) {
+                    this.state.sensorManager.requestHeartbeat(!nextPause);
+                }
+            }
+        );
     }
 
     passedSensorManager = () => {
@@ -560,23 +561,25 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     onSensorCollectionStopped() {
-        const { enablePause } = this.props;
-        this.setState({
-            collecting: false,
-            statusMessage: this.messages["data_collection_stopped"]
-        });
-        this.saveInteractiveState();
-        const { sensorManager } = this.state;
-        if (sensorManager) {
-            sensorManager!.removeListener('onSensorCollectionStopped',
-            this.onSensorCollectionStopped);
-        }
-        if(!enablePause) {
-            // If we don't have a pause button, then we need to start the
-            // heartbeat monitor again, as the student has no way of doing
-            // it themselves.
-            this.enableHeartbeat(true);
-        }
+        const saveCallback = () => {
+            const { sensorManager } = this.state;
+            if (sensorManager) {
+                sensorManager.removeListener(
+                    'onSensorCollectionStopped',
+                    this.onSensorCollectionStopped
+                );
+                sensorManager.requestHeartbeat(true);
+            }
+        };
+
+        this.setState(
+            {
+                collecting: false,
+                pauseHeartbeat: false, // resume heartbeat after collection is stopped
+                statusMessage: this.messages["data_collection_stopped"]
+            },
+            () =>  this.saveInteractiveState(saveCallback)
+        );
     }
 
     // This should only be called while we are collecting
@@ -788,15 +791,16 @@ export class App extends React.Component<AppProps, AppState> {
         this.setState({ dataChanged: false });
     }
 
-    saveInteractiveState() {
+    saveInteractiveState(afterSave?: () => void) {
         if (this.props.setInteractiveState) {
             this.props.setInteractiveState({
                 version: 1,
                 sensorRecordings: this.state.sensorRecordings,
                 runLength: this.props.singleReads ? DEFAULT_RUN_LENGTH : this.state.runLength,
             });
-            this.setState({dataChanged: false});
+            this.setState({dataChanged: false}, afterSave);
         }
+
     }
 
     checkNewData() {
