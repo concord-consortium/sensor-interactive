@@ -564,7 +564,7 @@ export class App extends React.Component<AppProps, AppState> {
         const saveCallback = () => {
             const { sensorManager } = this.state;
             if (sensorManager) {
-                sensorManager!.removeListener(
+                sensorManager.removeListener(
                     'onSensorCollectionStopped',
                     this.onSensorCollectionStopped
                 );
