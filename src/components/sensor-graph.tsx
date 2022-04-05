@@ -75,8 +75,8 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
 
     yLabel() {
-        const { sensorRecording, preRecording } = this.props;
-        const source = sensorRecording || preRecording;
+        const { sensorRecording, preRecording} = this.props;
+        const source = sensorRecording || preRecording
         // label the data (if any) or the current sensor (if no data)
         return source?.name
                 ? `${source.name} (${source.unit})`
@@ -84,7 +84,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
 
     renderGraph(graphWidth:number|null) {
-        const { sensorRecording, preRecording, prediction } = this.props;
+        const { sensorRecording, preRecording, prediction, collecting } = this.props;
         const { yMin, yMax } = this.state;
         const source = sensorRecording || preRecording
         const plotYMin = yMin != null ? yMin : (source?.min != null ? source.min : 0);
@@ -94,20 +94,26 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         const hasPredictionData = prediction && prediction.length > 0;
         const hasPreRecording = preRecording && preRecording.data.length > 0;
         const sources:timeSeriesData[] = [];
+        const labels = [] as string[];
 
-        if(hasPredictionData) {
+        if(hasPredictionData && !collecting) {
             sources.push({name: 'prediction', data: prediction});
+            labels.push('prediction');
         }
-        if(hasPreRecording) {
+        if(hasPreRecording && !collecting) {
             sources.push({name: 'preRecording', data: preRecording.data});
+            labels.push('recording');
         }
         if(hasSensorData) {
             sources.push({name: 'sensorRecording', data: sensorRecording.data});
+            labels.push(this.yLabel());
         }
 
         // Dygraph requires each row of data to have the same number of columns.
         // If we have both the sensor and pre-recording data, plot both.
-        const data = mergeTimeSeriesData(sources);
+        const data = collecting
+         ? sensorRecording?.data || []
+         : mergeTimeSeriesData(sources);
 
         return (
             <div className="sensor-graph">
@@ -125,6 +131,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 valuePrecision={sensorRecording?.precision || 2}
                 xLabel={this.xLabel()}
                 yLabel={this.yLabel()}
+                yLabels={labels}
                 assetsPath={this.props.assetsPath}
                 singleReads={this.props.singleReads}
                 predictionState={this.props.predictionState}

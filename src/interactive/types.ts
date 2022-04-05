@@ -26,6 +26,7 @@ export interface IInteractiveState {
   version: 1;
   sensorRecordings: SensorRecording[];
   runLength: number;
+  prediction: number[][];
 };
 
 export interface IInteractiveSensorData {

@@ -46,29 +46,3 @@ test('when one of the data arrays is zero length', () => {
   mergedData = mergeTimeSeriesData([dataA, dataB]);
   expect(mergedData.length).toBe(0);
 });
-
-test('limit the time to a particular data sets max time', () => {
-  let dataA = {
-    name: "dataA",
-    data: [
-      [1, 1],
-      [2, 2],
-      [3, 3]
-    ]
-  };
-  let dataB: timeSeriesData = {
-    name: "dataB",
-    data:[
-      [1, 1],
-      [2, 2]
-    ]
-  };
-  let mergedData = mergeTimeSeriesData([dataA, dataB], 1);
-  expect(mergedData.length).toBe(2);
-  mergedData = mergeTimeSeriesData([dataA, dataB], 0);
-  expect(mergedData.length).toBe(3);
-  dataA.data = [[1, 1], [2, 2], [3, 3]];
-  dataB.data = [[1, 1]];
-  mergedData = mergeTimeSeriesData([dataA, dataB], 1);
-  expect(mergedData.length).toBe(1);
-})

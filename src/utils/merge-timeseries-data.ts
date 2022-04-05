@@ -35,22 +35,11 @@ const lerpForTime = (source: timeSeriesData, time: number) => {
 // Given an array of time-series data, merge them into a single array
 // assumptions: each array is sorted by time, and each array has two columns
 // returns: an array of time-series data, with the first column being the time
-// ?? Maybe the first row has the series names....
-// The result will only have time index values less than the max time in the final
-// time-series source. Sources with zero length are ignored for interpolation.
-
-export const mergeTimeSeriesData = (inputSources: timeSeriesData[], limitingIndex?: number) => {
+// Sources with zero length are ignored for interpolation.
+export const mergeTimeSeriesData = (inputSources: timeSeriesData[]) => {
   const sources = inputSources.filter(source => source.data != null && source.data.length > 0);
   if (sources.length === 0) {
     return [];
-  }
-
-  let timeLimit: number | null = null;
-
-  // limiting index here means the source that defines the time-limit.
-  if(limitingIndex !== undefined) {
-    const lastSource = sources[limitingIndex];
-    timeLimit = lastSource.data[lastSource.data.length - 1][0];
   }
 
   let times: number[] = [];
@@ -69,9 +58,6 @@ export const mergeTimeSeriesData = (inputSources: timeSeriesData[], limitingInde
   const values: number[][] = [];
   let time = uniqueTimes[0];
   for(time of uniqueTimes) {
-    if (timeLimit && time > timeLimit) {
-      break;
-    }
     // For each time, find the value at that time in each source.
     const valuesForTime: number[] = [];
     valuesForTime.push(time);

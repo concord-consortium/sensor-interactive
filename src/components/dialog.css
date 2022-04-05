@@ -16,8 +16,8 @@
   width: 320px;
   bottom: auto;
   border-radius: 10px;
-  border: solid 1px var(--sage-dark-5);
-  background-color: var(--sage-light-3);
+  border: solid 1px var(--cc-teal-dark-2);
+  background-color: var(--cc-teal-light-6);
   overflow: auto;
   outline: none;
   padding: 4px;
@@ -49,6 +49,7 @@
   margin: 0px 4px 0px 4px;
   min-width: 90px;
   border-radius: 5px;
+  background-color: var(--cc-teal-light-7);
   user-select: none;
 }
 
@@ -56,10 +57,10 @@
   width: 100%;
   height: 22px;
   border-radius: 7px 7px 0px 0px;
-  background-color: var(--sage-light-1);
+  background-color: var(--cc-teal-dark-2);
   font-weight: bold;
   text-align: center;
-  color: var(--sage-text);
+  color: var(--cc-teal-light-7);
   display: flex;
   justify-content: center;
   align-items: center;

@@ -815,6 +815,7 @@ export class App extends React.Component<AppProps, AppState> {
                 version: 1,
                 sensorRecordings: this.state.sensorRecordings,
                 runLength: this.props.singleReads ? DEFAULT_RUN_LENGTH : this.state.runLength,
+                prediction: this.state.prediction,
             });
             this.setState({dataChanged: false}, afterSave);
         }
@@ -1212,14 +1213,48 @@ export class App extends React.Component<AppProps, AppState> {
         );
     }
 
+    renderLegendItem(className:string, label:string) {
+        return (
+            <>
+                <div className={`bar ${className}`} />
+                <div className={`name ${className}`}>
+                    {label}
+                </div>
+            </>
+        );
+    }
+
+    renderPrimaryLegend() {
+        const label = this.state.sensorSlots[0].sensor.definition.measurementName;
+        return this.renderLegendItem("primary", label)
+    }
+
+    renderSecondaryLegend() {
+        const label = this.state.sensorSlots[1].sensor.definition.measurementName;
+        if (this.state.secondGraph) {
+            return this.renderLegendItem("secondary", label)
+        }
+        return null;
+    }
+
+    renderPredictionLegend() {
+        const {predictionState} = this.state;
+        if (predictionState !== 'not-required') {
+            return this.renderLegendItem("prediction", "Prediction");
+        }
+        return null;
+    }
+
+
     renderLegend() {
         if (this.connectedSensorCount() > 0) {
-            return <div className="bottom-legend">
-                <div className="bar primary" />
-                <div className="name primary">{this.state.sensorSlots[0].sensor.definition.measurementName}</div>
-                {this.state.secondGraph ? <div className="bar secondary" /> : null }
-                {this.state.secondGraph ? <div className="name secondary">{this.state.sensorSlots[1].sensor.definition.measurementName}</div> : null }
-            </div>
+            return(
+                <div className="bottom-legend">
+                    { this.renderPrimaryLegend() }
+                    { this.renderSecondaryLegend() }
+                    { this.renderPredictionLegend() }
+                </div>
+            );
         } else {
             return null;
         }

@@ -19,6 +19,7 @@ export interface GraphProps {
     valuePrecision:number;
     xLabel:string|undefined;
     yLabel:string|undefined;
+    yLabels:string[];
     [key:string]: any;
     assetsPath: string;
     singleReads?: boolean;
@@ -86,25 +87,31 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     labels():string[] {
-        const numColumns = this.state.data[0] ? this.state.data[0].length : 0;
-        if (numColumns > 2){
-            return ["x", "y", "y2"];
-        }
-        return [this.state.xLabel || "x", this.state.yLabel || "y"];
+        const yLabels = this.props.yLabels.length < 1
+            ? ["y"]
+            : this.props.yLabels;
+        return [this.state.xLabel || "x", ...yLabels];
     };
 
     series() {
         const result: Record<string,{color:string, plotter: any}> = {};
         const labels = this.labels();
         for (let label of labels) {
-            if (label == "x") { continue; }
+            if (label == "x" || label == this.state.xLabel) { continue; }
             // TODO: We need better heuristics for a prediction graph:
-            if (label == "y2" || label == "prediction") {
+            if (label == "prediction") {
                 result[label] ={
                     color: PREDICTION_LINE_COLOR,
                     plotter:  Dygraph.Plotters.linePlotter //TODO: smoothPlotter
                 };
-            } else {
+            }
+            else if (label == "recording") {
+                result[label] ={
+                    color: AUTHORED_LINE_COLOR,
+                    plotter:  Dygraph.Plotters.linePlotter //TODO: smoothPlotter
+                };
+            }
+            else {
                 result[label] ={
                     color: GRAPH1_LINE_COLOR,
                     plotter: Dygraph.Plotters.linePlotter
@@ -115,6 +122,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     update():void {
+        // TODO: Something faster than this?
         this.makeDygraph();
         type FResize = (width?:number, height?:number) => void;
         (this.dygraph.resize as FResize)();

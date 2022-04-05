@@ -24,6 +24,7 @@
     --sensor-green-dark: #5ec100;
     --graph-line-blue: #007fcf;
     --graph-line-orange: #da5d1d;
+    --graph-line-green: #008a00;
     --app-content-unusable-vertical-height: 58px;
 
     --cc-charcoal: #3f3f3f;
@@ -489,6 +490,9 @@ button:disabled:hover {
     background-color: var(--graph-line-blue);
 }
 .bottom-legend .bar.secondary {
+    background-color: var(--graph-line-green);
+}
+.bottom-legend .bar.prediction {
     background-color: var(--graph-line-orange);
 }
 .bottom-legend .name {
