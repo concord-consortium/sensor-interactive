@@ -2,12 +2,12 @@ import Workspace from "../../support/elements/workspace";
 
 const workspace = new Workspace
 
-before(()=>{
-    cy.visit('')
-    // See cypress.json for viewport size
-    cy.viewport(1400,1280)
-})
 context('Connection UI',()=>{
+    before(()=>{
+        // See cypress.json for viewport size
+        cy.viewport(1400,1280)
+        cy.visit('')
+    })
     describe('Wired with SensorConnector',()=>{
         it('verify SensorConnector launch',()=>{
             // cy.stub('window:alert',)

@@ -2,12 +2,12 @@ import Workspace from "../../support/elements/workspace";
 
 const workspace = new Workspace
 
-before(()=>{
-    cy.visit('/examples/fake-sensor.html')
-    // See cypress.json for viewport size
-    cy.viewport(1400,1280)
-})
 context('Connecting a wired sensor',()=>{
+    before(()=>{
+        // See cypress.json for viewport size
+        cy.viewport(1400,1280)
+        cy.visit('/examples/fake-sensor.html')
+    })
     it('verify status message shows connection',()=>{
         workspace.getSensorTypeButton('Wired').click()
         workspace.getStatusIcon().should('be.visible').and ('have.class','connected')

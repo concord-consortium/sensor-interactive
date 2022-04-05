@@ -798,8 +798,9 @@ export class App extends React.Component<AppProps, AppState> {
                 sensorRecordings: this.state.sensorRecordings,
                 runLength: this.props.singleReads ? DEFAULT_RUN_LENGTH : this.state.runLength,
             });
+            this.setState({dataChanged: false}, afterSave);
         }
-        this.setState({dataChanged: false}, afterSave);
+
     }
 
     checkNewData() {
