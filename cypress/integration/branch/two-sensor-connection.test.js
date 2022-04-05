@@ -74,7 +74,6 @@ context('Collecting Data from 2 sensor',()=>{
     })
     it('verify both graph is cleared when data is discarded',()=>{
         workspace.getNewRunButton().click();
-        workspace.discardData();
         cy.wait(500)
         cy.matchImageSnapshot("cleared_2graph")
     })
