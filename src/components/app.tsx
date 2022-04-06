@@ -275,12 +275,23 @@ export class App extends React.Component<AppProps, AppState> {
         SmartFocusHighlight.enableFocusHighlightOnKeyDown();
 
         const {initialInteractiveState} = this.props;
+        
         if (initialInteractiveState) {
             if (initialInteractiveState.version === 1) {
-                const {sensorRecordings} = initialInteractiveState;
+                let predictionState = this.state.predictionState;
+                const {sensorRecordings, prediction} = initialInteractiveState;
                 const runLength = this.props.singleReads ? DEFAULT_RUN_LENGTH : (initialInteractiveState.runLength || DEFAULT_RUN_LENGTH);
                 sensorRecordingStore.setRecordings(sensorRecordings);
-                this.setState({runLength, xEnd: runLength + 0.01, hasData: true});
+                if (prediction && prediction.length > 0) {
+                    predictionState = "completed"
+                }
+                this.setState({
+                    runLength,
+                    xEnd: runLength + 0.01,
+                    hasData: true,
+                    prediction,
+                    predictionState
+                });
             } else {
                 console.error(`Unknown interactive state version: ${initialInteractiveState.version}`, {initialInteractiveState});
             }
