@@ -5,7 +5,7 @@ const workspace = new Workspace
 context('Connection UI',()=>{
     before(()=>{
         // See cypress.json for viewport size
-        cy.viewport(1280,720)
+        cy.viewport(1400,1280)
         cy.visit('')
     })
     describe('Wired with SensorConnector',()=>{

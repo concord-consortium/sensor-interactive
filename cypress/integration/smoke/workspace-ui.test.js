@@ -5,7 +5,7 @@ const workspace = new Workspace
 before(()=>{
     cy.visit('')
     // See cypress.json for viewport size
-    cy.viewport(1280,720)
+    cy.viewport(1400,1280)
 })
 context('UI verification',()=>{
     it('verify all ui elements are visible',()=>{
