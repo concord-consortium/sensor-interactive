@@ -23,11 +23,12 @@
     "test:cypress:ci": "cypress run --config-file cypress.json --env testEnv=local --record",
     "test:cypress:smoke": "cypress run --spec 'cypress/integration/smoke/*' --config video=false,defaultCommandTimeout=10000 --env testEnv=local",
     "test:cypress:branch": "cypress run --spec 'cypress/integration/branch/**/*' --config video=false,defaultCommandTimeout=10000 --env testEnv=local",
+    "test:cypress:updateSnaps": "cypress run --spec 'cypress/integration/branch/**/*' --config video=false,defaultCommandTimeout=10000 --env testEnv=local --env updateSnapshots=true",
     "test:cypress:staging": "cypress run --config video=false,defaultCommandTimeout=10000 --env testEnv=staging,failOnSnapshotDiff=false",
     "test:production": "cypress open --config video=false --env testEnv=production,failOnSnapshotDiff=false",
     "test:staging": "cypress open --config video=false --env testEnv=staging,failOnSnapshotDiff=false",
     "test:branch": "cypress open --config video=false --env testEnv=branch,failOnSnapshotDiff=false",
-    "test:local": "cypress open --config video=false --env testEnv=local,failOnSnapshotDiff=false",
+    "test:local": "cypress open --config video=false --env testEnv=local,failOnSnapshotDiff=true",
     "test:jest": "jest src/**/*.test.ts",
     "test:jest:watch": "jest --watch src/**/*.test.ts"
   },
