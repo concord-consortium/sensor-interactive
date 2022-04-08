@@ -29,6 +29,7 @@ export interface GraphState {
     width:number|null;
     height:number|null;
     data:number[][];
+    predictionState: PredictionState;
     dataLength:number;
     xMin:number;
     xMax:number;
@@ -70,6 +71,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             width: this.props.width,
             height: this.props.height,
             data: this.props.data || [],
+            predictionState: this.props.predictionState,
             dataLength: this.props.data ? this.props.data.length : 0,
             xMin: this.props.xMin,
             xMax: this.props.xMax,
@@ -122,8 +124,33 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     update():void {
-        // TODO: Something faster than this?
-        this.makeDygraph();
+        if(!this.dygraph) {
+            return;
+        }
+        const { data, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
+
+        const singleReadOptions: Partial<dygraphs.Options> = this.props.singleReads
+            ? {drawPoints: true, strokeWidth: 0, pointSize: 10}
+            : {};
+        const predictionOptions: Partial<dygraphs.Options> = this.state.predictionState == "started"
+            ? {
+                pointSize: 6,
+                drawPoints: true,
+            }
+            : {
+                drawPoints: false
+            };
+        this.dygraph.updateOptions({
+            file: dyGraphData(data, this.props.singleReads),
+            dateWindow: [xMin, xMax],
+            valueRange: [yMin, yMax],
+            labels: this.labels(),
+            series: this.series(),
+            xlabel: xLabel,
+            ylabel: yLabel,
+            ...singleReadOptions,
+            ...predictionOptions
+        });
         type FResize = (width?:number, height?:number) => void;
         (this.dygraph.resize as FResize)();
     }
@@ -171,11 +198,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         const singleReadOptions: Partial<dygraphs.Options> = this.props.singleReads
             ? {drawPoints: true, strokeWidth: 0, pointSize: 10}
             : {};
-        const predictionOptions: Partial<dygraphs.Options> = this.props.predictionState == "started"
+        const predictionOptions: Partial<dygraphs.Options> = this.state.predictionState == "started"
             ? {
-                interactionModel: {
-                    mouseup: this.drawPredictionLineMouseUp
-                },
                 pointSize: 6,
                 drawPoints: true,
             }
@@ -188,6 +212,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             dateWindow: [0, this.state.xMax],
             valueRange: [this.state.yMin, this.state.yMax],
             zoomCallback: this.onRescale,
+            interactionModel: {
+                mouseup: this.drawPredictionLineMouseUp,
+                ...Dygraph.defaultInteractionModel
+            },
             axes: {
                 x: {
                     valueFormatter: (val:number) => {
@@ -233,9 +261,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     drawPredictionLineMouseUp = (event:any, g:Dygraph, context:any[]) => {
-        const graphPos = g.eventToDomCoords(event);
-        const xy = g.toDataCoords(graphPos[0], graphPos[1]);
-        this.props.onAddPrediction(xy);
+        if(this.state.predictionState == "started") {
+            const graphPos = g.eventToDomCoords(event);
+            const xy = g.toDataCoords(graphPos[0], graphPos[1]);
+            this.props.onAddPrediction(xy);
+        } else {
+            // console.log(Dygraph.defaultInteractionModel);
+            // Dygraph.defaultInteractionModel.mouseup(event, g, context);
+        }
     };
 
     componentWillReceiveProps(nextProps:GraphProps) {
@@ -267,6 +300,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
     shouldComponentUpdate(nextProps:GraphProps, nextState:GraphState):boolean {
         return (nextState.data !== this.state.data) ||
+                (nextState.data[0].length !== this.state.data[0].length) ||
                 (nextState.dataLength !== this.state.dataLength) ||
                 this.dyUpdateProps.some((prop) => nextState[prop] !== this.state[prop]);
     }
