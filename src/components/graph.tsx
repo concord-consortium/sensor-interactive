@@ -299,10 +299,16 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     shouldComponentUpdate(nextProps:GraphProps, nextState:GraphState):boolean {
-        return (nextState.data !== this.state.data) ||
-                (nextState.data[0].length !== this.state.data[0].length) ||
-                (nextState.dataLength !== this.state.dataLength) ||
-                this.dyUpdateProps.some((prop) => nextState[prop] !== this.state[prop]);
+        if(nextState.data !== this.state.data) {
+            return true
+        }
+        if(nextState.dataLength !== this.state.dataLength) {
+            return true
+        }
+        if(nextState.data?.length > 0 && this.state.data?.length > 0) {
+            return (nextState.data[0].length !== this.state.data[0].length)
+        }
+        return this.dyUpdateProps.some((p) => nextState[p] !== this.state[p]);
     }
 
     componentDidUpdate(prevProps:GraphProps, prevState:GraphState) {
