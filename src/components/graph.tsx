@@ -265,10 +265,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             const graphPos = g.eventToDomCoords(event);
             const xy = g.toDataCoords(graphPos[0], graphPos[1]);
             this.props.onAddPrediction(xy);
-        } else {
-            // console.log(Dygraph.defaultInteractionModel);
-            // Dygraph.defaultInteractionModel.mouseup(event, g, context);
-        }
+        } 
     };
 
     componentWillReceiveProps(nextProps:GraphProps) {
