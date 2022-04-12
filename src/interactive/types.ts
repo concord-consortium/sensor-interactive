@@ -16,6 +16,7 @@ export interface IAuthoredState {
   singleReads: boolean;
   enablePause: boolean;
   usePrediction: boolean;
+  useAuthoredData: boolean;
   prompt: string;
   hint: string;
   sensorUnit?: Unit;
@@ -40,6 +41,7 @@ export const defaultAuthoredState: IAuthoredState = {
   singleReads: false,
   enablePause: false,
   usePrediction: false,
+  useAuthoredData: false,
   prompt: "",
   hint: "",
   sensorUnit: undefined

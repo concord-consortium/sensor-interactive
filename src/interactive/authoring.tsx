@@ -5,6 +5,7 @@ import { defaultAuthoredState, IAuthoredState, SensorRecording } from "./types";
 import { SensorDefinitions } from "../models/sensor-definitions";
 
 import "./authoring.css";
+import { InfoIcon } from "../components/info-icon";
 
 interface Props {
   initMessage: IAuthoringInitInteractive<IAuthoredState>;
@@ -14,7 +15,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
   const {authoredState, setAuthoredState} = useAuthoredState<IAuthoredState>();
   const {
     singleReads, enablePause, useFakeSensor, prompt, hint, sensorUnit,
-    recordedData, usePrediction
+    recordedData, usePrediction, useAuthoredData
   } = authoredState || defaultAuthoredState;
 
   const [parseError, setParseError] = React.useState<boolean>(false);
@@ -25,6 +26,8 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
 
   const handleUsePrediction = (e: React.ChangeEvent<HTMLInputElement>) =>
   updateAuthoredState({usePrediction: e.target.checked});
+
+  const handleUseAuthoredData = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({useAuthoredData: e.target.checked});
 
   const updateAuthoredState = (newState: Partial<IAuthoredState>) => {
     setAuthoredState( prev => {
@@ -84,29 +87,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
     }
   };
 
-  const displayConfig = () => {
-    const unit = authoredState?.sensorUnit as string;
-    const definition = SensorDefinitions[unit];
-    if(definition) {
-      return (
-        <fieldset>
-          <legend>Graph Config</legend>
-            <dl>
-              <dt>Unit:</dt>
-                <dd>{unit}</dd>
-              <dt>Measurement Name:</dt>
-                <dd>{definition.measurementName}</dd>
-              <dt>Sensor Name:</dt>
-                <dd>{definition.sensorName}</dd>
-              <dt>Max:</dt>
-                <dd>{definition.maxReading}</dd>
-              <dt>Min:</dt>
-                <dd>{definition.minReading}</dd>
-            </dl>
-        </fieldset>
-      )
-    }
-  }
+
 
   const textWidgetBlur = (id: string, value: string) => {
     if(id === "prompt") { updateAuthoredState({prompt: value}); }
@@ -128,7 +109,18 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
     });
   };
 
-  const options = unitSelectOptions().map(option => {
+  const disableUnits = !(usePrediction || useAuthoredData);
+  const options = disableUnits
+   ? [
+        <option
+          key="none"
+          value="none"
+          disabled={true}>
+          none
+        </option>
+      ]
+   : unitSelectOptions().map(option => {
+
     return(
       <option value={option.unit}>
         {option.name} { option.unit != '' ? `(${option.unit})` : ''}
@@ -153,13 +145,27 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
       const data = recordedData && recordedData.data?.map(row => row.join(',')).join('\n');
       return (
         <fieldset>
-          <legend>Data</legend>
-            <textarea name="recordedData" onChange={handleRecordedDataChange} defaultValue={data}/>
-          {renderErrorParseError()}
+          <legend>Preload Data</legend>
+            <div className={
+                useAuthoredData
+                ? "prerecorded-text"
+                : "prerecord-text disabled"}
+              >
+              <textarea
+                name="recordedData"
+                onChange={handleRecordedDataChange}
+                disabled={!useAuthoredData}
+                defaultValue={useAuthoredData ? data : "x1,y1\nx2,y2"}/>
+              {renderErrorParseError()}
+            </div>
         </fieldset>
       );
     }
   }
+
+  // TODO: Fixme
+  const handleUseSensors = () => null;
+  const useSensors = true;
 
   return (
     <div className="authoring">
@@ -174,23 +180,83 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
       </fieldset>
 
       <fieldset>
-        <legend>Sensor Types</legend>
-        <select value={sensorUnit} onChange={handleUnitChange}>
-          {options}
+        <legend>Data Acquisition and Display type(s)</legend>
+        <select value="Line Graphs">
+          <option value="Line Graphs">Line Graphs</option>
+          <option value="Bar Graphs">Bar Graphs</option>
+          <option value="Tables (TBD)">Tables (TBD)</option>
         </select>
         <br/>
-        <input type="checkbox" checked={useFakeSensor} onChange={handleFakeSensor} /> Use fake sensor
-      </fieldset>
-      <fieldset>
-        <legend>Data Acquisition</legend>
-        <input type="checkbox" checked={singleReads} onChange={handlesingleReads} /> Single reads
-        <br />
-        <input type="checkbox" checked={enablePause} onChange={handleEnablePause} /> Enable Pause
-        <br />
-        <input type="checkbox" checked={usePrediction} onChange={handleUsePrediction} /> Get prediction first
+
+        <input
+          type="checkbox"
+          checked={useSensors}
+          onChange={handleUseSensors}/>
+          Acquire Data with Sensors
+        <br/>
+
+        <input
+          type="checkbox"
+          checked={useFakeSensor}
+          onChange={handleFakeSensor}/>
+          Use fake sensor
+        <br/>
+
+        <input
+          type="checkbox"
+          checked={singleReads}
+          onChange={handlesingleReads}/>
+          Individual Data Acquisition on Demand
+        <br/>
+
+        <input
+          type="checkbox"
+          checked={enablePause}
+          onChange={handleEnablePause}/>
+          Enable Pause
+        <br/>
 
       </fieldset>
-      { displayConfig() }
+      <fieldset>
+        <legend>Preloaded and Predicted Data</legend>
+        <div className="info">
+          <InfoIcon size={16} color="black" />&nbsp;
+          Preloaded/Predicted data requires a specific
+          quantity and unit to be selected for the y axis.
+        </div>
+        <br/>
+
+        <input
+          type="checkbox"
+          checked={useAuthoredData}
+          onChange={handleUseAuthoredData}/>
+          Preload Data
+        <br/>
+
+        <input
+          type="checkbox"
+          checked={usePrediction}
+          onChange={handleUsePrediction}/>
+          Predict Data
+        <br/>
+
+        <div className={
+          (usePrediction || useAuthoredData)
+          ? "sensor-select-section"
+          : "sensor-select-section disabled"}>
+          <label>
+            Y Axis/Column and Sensor
+          </label><br/>
+          <select
+            value={disableUnits ? "none" : sensorUnit}
+            onChange={handleUnitChange}>
+            disabled={useAuthoredData || usePrediction}
+            {options}
+          </select>
+        </div>
+        <br/>
+
+      </fieldset>
       { renderPrerecordedText() }
     </div>
   );
