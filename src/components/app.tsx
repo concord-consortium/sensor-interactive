@@ -1080,21 +1080,31 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     renderSensorControls() {
-        const { sensorManager } = this.state;
+        const { sensorManager, predictionState } = this.state;
+        const { useSensors, fakeSensor } = this.props;
         const wirelessConnected = sensorManager && sensorManager.isWirelessDevice();
         const wiredConnected = sensorManager && !sensorManager.isWirelessDevice();
+        const sensorConnected = wirelessConnected || wiredConnected;
+        const notConnected = !sensorConnected;
+        const displaySensorControls = useSensors || fakeSensor
+            && (predictionState === 'not-required' || predictionState === 'completed');
+
         return (
             <div className="sensor-controls-holder">
-                {!wiredConnected && !wirelessConnected ?
-                    <div className="connect-message-holder">
-                        <div className="connect-message">{this.messages["connection_message"]}</div>
-                        <div className="connect-sub-message">{this.messages["connection_sub_message"]}</div>
-                    </div>
-                    : null
+                { displaySensorControls && notConnected
+                        ?
+                            <div className="connect-message-holder">
+                                <div className="connect-message">{this.messages["connection_message"]}</div>
+                                <div className="connect-sub-message">{this.messages["connection_sub_message"]}</div>
+                            </div>
+                        : null
                 }
-                <div className="sensor-buttons">
-                    {this.renderConnectionButtons()}
-                </div>
+                { displaySensorControls &&
+                    <div className="sensor-buttons">
+                        {this.renderConnectionButtons()}
+                    </div>
+                }
+
                 {this.renderGraphTopPanels()}
             </div>
         );
@@ -1185,7 +1195,7 @@ export class App extends React.Component<AppProps, AppState> {
         const { enablePause } = this.props;
         const isConnected = this.connectedSensorCount() > 0;
 
-        const showPredictionButton = isConnected && predictionState !== 'not-required';
+        const showPredictionButton = predictionState !== 'not-required';
         const diasablePredictionButton =
             predictionState === "started" || predictionState === "completed";
 
@@ -1272,6 +1282,7 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     render() {
+        var { interactiveHost, useSensors, requirePrediction, fakeSensor } = this.props;
         var { sensorConfig, sensorManager, sensorRecordings } = this.state,
             codapURL = window.self === window.top
                         ? "http://codap.concord.org/releases/latest?di=" + window.location.href
@@ -1279,8 +1290,8 @@ export class App extends React.Component<AppProps, AppState> {
             interfaceType = (sensorConfig && sensorConfig.interface) || "";
         const isConnectorAwake = sensorManager ? sensorManager.isAwake() : true;
         const showControls =
-            this.props.interactiveHost !== "report"
-            && this.props.fakeSensor || this.props.useSensors;
+            interactiveHost !== "report"
+            && (fakeSensor || useSensors || requirePrediction);
 
         const singleReads = !!this.props.singleReads;
         const preRecordings = this.props.preRecordings ? [...this.props.preRecordings]: [];
@@ -1361,13 +1372,22 @@ export class App extends React.Component<AppProps, AppState> {
                         <button onClick={this.closeAboutModal}>Ok</button>
                     </div>
                 </ReactModal>
-                { this.props.prompt && <div className="prompt" dangerouslySetInnerHTML={{ __html: this.props.prompt}} /> }
+                { this.props.prompt &&
+                    <div
+                        className="prompt"
+                        dangerouslySetInnerHTML={{ __html: this.props.prompt}}
+                    />
+                }
                 <div className="app-content">
-                    {showControls && <div className="app-top-bar">
-                        {this.renderStatusMessage()}
-                        {this.renderSensorControls()}
-                        {this.renderTopRightButtons()}
-                    </div>}
+                    <div className="app-top-bar">
+                        { showControls &&
+                            <>
+                                {this.renderStatusMessage()}
+                                {this.renderSensorControls()}
+                            </>
+                        }
+                        { this.renderTopRightButtons() }
+                    </div>
                     <GraphsPanel
                         sensorRecordings={sensorRecordings}
                         preRecordings={preRecordings}

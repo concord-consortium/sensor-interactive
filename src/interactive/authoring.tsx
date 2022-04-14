@@ -52,7 +52,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
 
     const changes: Partial<IAuthoredState>  = {sensorUnit: unit};
     if (recordedData) {
-      changes.recordedData = {...recordedData, min, max, name};
+      changes.recordedData = {...recordedData, min, max, name, unit};
     }
 
     updateAuthoredState(changes);
