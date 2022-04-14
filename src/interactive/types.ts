@@ -13,6 +13,7 @@ export interface SensorRecording {
 
 export interface IAuthoredState {
   useFakeSensor: boolean;
+  useSensors: boolean;
   singleReads: boolean;
   enablePause: boolean;
   usePrediction: boolean;
@@ -38,6 +39,7 @@ export interface IInteractiveSensorData {
 
 export const defaultAuthoredState: IAuthoredState = {
   useFakeSensor: false,
+  useSensors: false,
   singleReads: false,
   enablePause: false,
   usePrediction: false,

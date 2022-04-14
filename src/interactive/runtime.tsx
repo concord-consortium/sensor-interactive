@@ -22,6 +22,7 @@ export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
         prompt={prompt}
         interactiveHost="runtime"
         fakeSensor={authoredState.useFakeSensor}
+        useSensors={authoredState.useSensors}
         singleReads={authoredState.singleReads}
         enablePause={authoredState.enablePause}
         maxGraphHeight={625}

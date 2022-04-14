@@ -46,6 +46,7 @@ export type InteractiveHost = "codap" | "runtime" | "report";
 export interface AppProps {
     sensorManager?: SensorManager;
     fakeSensor?: boolean;
+    useSensors?: boolean;
     singleReads?: boolean;
     interactiveHost?: InteractiveHost;
     maxGraphHeight?: number;
@@ -256,7 +257,6 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     startPrediction() {
-        console.log("start prediction");
         this.setState({predictionState:"started"});
     }
 
@@ -1278,7 +1278,10 @@ export class App extends React.Component<AppProps, AppState> {
                         : "",
             interfaceType = (sensorConfig && sensorConfig.interface) || "";
         const isConnectorAwake = sensorManager ? sensorManager.isAwake() : true;
-        const showControls = this.props.interactiveHost !== "report";
+        const showControls =
+            this.props.interactiveHost !== "report"
+            && this.props.fakeSensor || this.props.useSensors;
+
         const singleReads = !!this.props.singleReads;
         const preRecordings = this.props.preRecordings ? [...this.props.preRecordings]: [];
 

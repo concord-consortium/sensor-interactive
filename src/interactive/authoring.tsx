@@ -15,7 +15,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
   const {authoredState, setAuthoredState} = useAuthoredState<IAuthoredState>();
   const {
     singleReads, enablePause, useFakeSensor, prompt, hint, sensorUnit,
-    recordedData, usePrediction, useAuthoredData
+    recordedData, usePrediction, useAuthoredData, useSensors,
   } = authoredState || defaultAuthoredState;
 
   const [parseError, setParseError] = React.useState<boolean>(false);
@@ -40,18 +40,38 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
     updateAuthoredState({useFakeSensor: e.target.checked, sensorUnit: ''});
   };
 
+  const handleUseSensors = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateAuthoredState({useSensors: e.target.checked, sensorUnit: ''});
+  };
+
 
   const handleUnitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    updateAuthoredState({sensorUnit: e.target.value});
+    const unit = e.target.value;
+    const definition = SensorDefinitions[unit];
+    const {minReading: min, maxReading: max, measurementName: name} = definition;
+
+    const changes: Partial<IAuthoredState>  = {sensorUnit: unit};
+    if (recordedData) {
+      changes.recordedData = {...recordedData, min, max, name};
+    }
+
+    updateAuthoredState(changes);
   };
 
 
   const handleRecordedDataChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
-    setParseError(false)
+    setParseError(false);
+
     if(authoredState?.sensorUnit) {
       let data = [] as number[][];
+      let min = Number.MAX_SAFE_INTEGER;
+      let max = Number.MIN_SAFE_INTEGER;
       let rows = [];
+      const unit = authoredState.sensorUnit as string;
+      const definition = SensorDefinitions[unit];
+      min = definition.minReading;
+      max = definition.maxReading;
 
       rows = value.split('\n');
       for (let row of rows) {
@@ -63,11 +83,11 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
         }
         else {
           data.push([x, y]);
+          min = Math.min(min, y);
+          max = Math.max(max, y);
         }
       }
 
-      const unit = authoredState.sensorUnit as string;
-      const definition = SensorDefinitions[unit];
       const precision = 2;
       const columnID = "110";
       const sensorPosition = 0;
@@ -79,16 +99,13 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
         sensorPosition,
         tareValue,
         unit,
-        min: definition.maxReading,
-        max: definition.minReading,
+        min: min,
+        max: max,
         name: definition.measurementName,
       };
       updateAuthoredState({recordedData: a});
     }
   };
-
-
-
   const textWidgetBlur = (id: string, value: string) => {
     if(id === "prompt") { updateAuthoredState({prompt: value}); }
     if(id === "hint") { updateAuthoredState({hint: value}); }
@@ -110,7 +127,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
   };
 
   const disableUnits = !(usePrediction || useAuthoredData);
-  const options = disableUnits
+  const unitOptionTags = disableUnits
    ? [
         <option
           key="none"
@@ -120,13 +137,12 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
         </option>
       ]
    : unitSelectOptions().map(option => {
-
-    return(
-      <option value={option.unit}>
-        {option.name} { option.unit != '' ? `(${option.unit})` : ''}
-      </option>
-    );
-  });
+      return(
+        <option value={option.unit} key={option.unit}>
+          {option.name} { option.unit != '' ? `(${option.unit})` : ''}
+        </option>
+      );
+   });
 
   const renderErrorParseError = () => {
     if(parseError) {
@@ -163,9 +179,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
     }
   }
 
-  // TODO: Fixme
-  const handleUseSensors = () => null;
-  const useSensors = true;
+
 
   return (
     <div className="authoring">
@@ -250,8 +264,8 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
           <select
             value={disableUnits ? "none" : sensorUnit}
             onChange={handleUnitChange}>
-            disabled={useAuthoredData || usePrediction}
-            {options}
+            disabled={!(useAuthoredData || usePrediction)}
+            {unitOptionTags}
           </select>
         </div>
         <br/>
