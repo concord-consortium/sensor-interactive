@@ -7,6 +7,7 @@ const appElt = document.getElementById("app");
 ReactModal.setAppElement(appElt);
 
 ReactDOM.render(
-  <App/>,
+  // By default we will be using sensors.
+  <App useSensors={true}/>,
   appElt
 );
