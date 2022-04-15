@@ -14,9 +14,9 @@ context('UI verification',()=>{
         workspace.getConnectMessage().should('contain','Connect A Device');
         workspace.getSensorTypeButton('Wireless').should('be.visible');
         workspace.getSensorTypeButton('Wired').should('be.visible');
-        workspace.getReloadButton().should('be.visible')
-        workspace.getBottomControlPanel().should('be.visible').and('have.class','disabled')
-        workspace.getGraphPanel().should('be.visible')
+        workspace.getReloadButton().should('be.visible');
+        workspace.getBottomControlPanel().should('be.visible');
+        workspace.getGraphPanel().should('be.visible');
     })
 
 })
