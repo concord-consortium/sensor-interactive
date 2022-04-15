@@ -1086,9 +1086,8 @@ export class App extends React.Component<AppProps, AppState> {
         const wiredConnected = sensorManager && !sensorManager.isWirelessDevice();
         const sensorConnected = wirelessConnected || wiredConnected;
         const notConnected = !sensorConnected;
-        const displaySensorControls = useSensors || fakeSensor
+        const displaySensorControls = (useSensors || fakeSensor)
             && (predictionState === 'not-required' || predictionState === 'completed');
-
         return (
             <div className="sensor-controls-holder">
                 { displaySensorControls && notConnected
@@ -1282,19 +1281,23 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     render() {
-        var { interactiveHost, useSensors, requirePrediction, fakeSensor } = this.props;
-        var { sensorConfig, sensorManager, sensorRecordings } = this.state,
-            codapURL = window.self === window.top
-                        ? "http://codap.concord.org/releases/latest?di=" + window.location.href
-                        : "",
-            interfaceType = (sensorConfig && sensorConfig.interface) || "";
+        const { interactiveHost, useSensors, requirePrediction, fakeSensor } = this.props;
+        const { sensorConfig, sensorManager, sensorRecordings } = this.state;
+        const codapURL = window.self === window.top
+            ? "http://codap.concord.org/releases/latest?di=" + window.location.href
+            : "";
+
+        const interfaceType = (sensorConfig && sensorConfig.interface) || "";
         const isConnectorAwake = sensorManager ? sensorManager.isAwake() : true;
+
         const showControls =
             interactiveHost !== "report"
             && (fakeSensor || useSensors || requirePrediction);
 
         const singleReads = !!this.props.singleReads;
-        const preRecordings = this.props.preRecordings ? [...this.props.preRecordings]: [];
+        const preRecordings = this.props.preRecordings
+            ? [...this.props.preRecordings]
+            : [];
 
         const savePrediction = () => {
             this.setState({predictionState: "completed"});
@@ -1427,7 +1430,8 @@ export class App extends React.Component<AppProps, AppState> {
                     onSaveData={this.interactiveHost === "codap" ? this.sendData : undefined}
                     onReloadPage={this.reload}
                     onAboutClick={this.showAbout}
-                    isDisabled={sensorManager == null}
+                    isDisabled={false} // TODO: are the controls ever disabled?
+                    // isDisabled={useSensors && sensorManager == null}
                     predictionStatus={this.state.predictionState}
                     onClearPrediction={clearPrediction}
                     onSavePrediction={savePrediction}
