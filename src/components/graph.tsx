@@ -2,6 +2,8 @@ import * as React from "react";
 import Dygraph from "dygraphs";
 import { Format } from "../utils/format";
 import { PredictionState } from "./types";
+import { PredictionGraph } from "./predictionGraph";
+
 import "./dygraph.css";
 
 export interface GraphProps {
@@ -330,6 +332,15 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         return (
             <div style={{position: "relative"}}>
                 <div id={"sensor-graph-" + title} className="graph-box" style={graphStyle}></div>
+                <PredictionGraph
+                    height={height||100}
+                    width={width||100}
+                    parentGraph={this.dygraph}
+                    maxX={this.state.xMax}
+                    maxY={this.state.yMax}
+                    minX={this.state.xMin}
+                    minY={this.state.yMin}
+                    />
                 <div className="graph-rescale-button" onClick={this.autoScale} title="Show all data (autoscale)">
                     <svg className="icon rescale">
                         <use xlinkHref={`${this.props.assetsPath}/images/icons.svg#icon-rescale`} />
