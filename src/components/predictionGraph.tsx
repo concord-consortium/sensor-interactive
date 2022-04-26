@@ -16,6 +16,9 @@ export interface PredictionGraphProps {
     maxY: number;
     show: boolean;
     enableEdit: boolean;
+    setDataF: (prediction: number[][]) => void;
+    data: number[][];
+    color: string;
 }
 
 export interface PredictionGraphState {
@@ -25,13 +28,24 @@ export interface PredictionGraphState {
 }
 
 // Zeplin specs:  https://zpl.io/09kdQlE
-const PREDICTION_LINE_COLOR = "#ff8415";
+const DEFAULT_LINE_COLOR = "#ff8415";
 const ACTIVE_POINT_COLOR = "#0081ff";
 
+const dataToPoints = (data: number[][]) => {
+    return data.map((point) => {
+        return {  x: point[0], y: point[1] };
+    });
+};
+
+const pointsToData = (points: Point2D[]) => {
+    return points.map((point) => {
+        return [point.x, point.y];
+    });
+};
 
 export class PredictionGraph extends React.Component<PredictionGraphProps, PredictionGraphState> {
     canvasRef: HTMLCanvasElement|null;
-
+    updateTimeout: number | null = null;
     constructor(props: PredictionGraphProps) {
         super(props);
         this.canvasRef = null;
@@ -49,17 +63,27 @@ export class PredictionGraph extends React.Component<PredictionGraphProps, Predi
     }
 
     componentDidMount() {
+      this.setState({points: dataToPoints(this.props.data)});
       this.updateCanvas();
     }
-    // componentDidUpdate() {
-    //   this.updateCanvas();
-    // }
+
     componentDidUpdate(prevProps: PredictionGraphProps) {
+      const { data, minX, minY, maxX, maxY } = this.props;
       if(prevProps.enableEdit !== this.props.enableEdit) {
         this.setState({active: null, selected: null});
       }
+      if(
+        prevProps.data !== data ||
+        prevProps.minX!== minX ||
+        prevProps.maxX!== maxX ||
+        prevProps.minY!== minY ||
+        prevProps.maxY!== maxY
+        ) {
+        this.setState({points: dataToPoints(data)});
+      }
       this.updateCanvas();
     }
+
     drawPoint(ctx: CanvasRenderingContext2D, x: number, y: number) {
       const rad = 5;
       if(ctx) {
@@ -67,6 +91,30 @@ export class PredictionGraph extends React.Component<PredictionGraphProps, Predi
         ctx.ellipse(x, y, rad, rad, 0, 0, Math.PI * 2);
         ctx.fill();
       }
+    }
+
+    toCanvasPoint(dataPoint: Point2D) {
+      const { parentGraph } = this.props;
+      if(parentGraph) {
+        return {
+          x: parentGraph.toDomXCoord(dataPoint.x),
+          y: parentGraph.toDomYCoord(dataPoint.y)
+        };
+      }
+      // Assume that there is not transform required
+      return { ...dataPoint };
+    }
+
+    toDataPoint(canvasPoint: Point2D) {
+      const { parentGraph } = this.props;
+      if(parentGraph) {
+        return {
+          x: parentGraph.toDataXCoord(canvasPoint.x),
+          y: parentGraph.toDataYCoord(canvasPoint.y)
+        };
+      }
+      // Assume that there is not transform required
+      return { ...canvasPoint };
     }
 
     clear() {
@@ -81,53 +129,55 @@ export class PredictionGraph extends React.Component<PredictionGraphProps, Predi
     updateCanvas() {
       this.clear();
       const { points, selected } = this.state;
+      const { color, minX } = this.props;
       if(this.canvasRef) {
         const ctx = this.canvasRef.getContext('2d');
-        let lastPoint: Point2D | null = null;
+        let lastCanvasPoint: Point2D | null = null;
         if(ctx) {
           for(let i = 0; i < points.length; i++) {
-            const point = points[i];
-
-            if(lastPoint) {
-              ctx.strokeStyle = PREDICTION_LINE_COLOR;
-              ctx.lineWidth = 2;
-              ctx.fillStyle = "none";
-              ctx.beginPath();
-              ctx.moveTo(lastPoint.x, lastPoint.y);
-              ctx.lineTo(point.x, point.y);
-              ctx.stroke();
+            const canvasPoint = this.toCanvasPoint(points[i]);
+            if (points[i].x > minX) {
+              if(lastCanvasPoint) {
+                ctx.strokeStyle = color || DEFAULT_LINE_COLOR;
+                ctx.lineWidth = 2;
+                ctx.fillStyle = "none";
+                ctx.beginPath();
+                ctx.moveTo(lastCanvasPoint.x, lastCanvasPoint.y);
+                ctx.lineTo(canvasPoint.x, canvasPoint.y);
+                ctx.stroke();
+              }
+              if(selected === points[i]) {
+                ctx.fillStyle = ACTIVE_POINT_COLOR;
+              } else {
+                ctx.fillStyle = color || DEFAULT_LINE_COLOR;
+              }
+              this.drawPoint(ctx, canvasPoint.x, canvasPoint.y);
+              lastCanvasPoint = canvasPoint;
             }
-            if(selected === point) {
-              ctx.fillStyle = ACTIVE_POINT_COLOR;
-            } else {
-              ctx.fillStyle = PREDICTION_LINE_COLOR;
+            else {
+              lastCanvasPoint = this.toCanvasPoint({x: minX, y: points[i].y});
             }
-            this.drawPoint(ctx, point.x, point.y);
-            lastPoint = point;
           }
         }
       }
     }
 
-    pointInRange(point: Point2D) {
-      const { minX, maxX, minY, maxY, parentGraph } = this.props;
-      if(parentGraph) {
-        const dataPoints = parentGraph.toDataCoords(point.x, point.y);
-        const x = dataPoints[0];
-        const y = dataPoints[0];
-        return x >= minX && x <= maxX && y >= minY && y <= maxY;
-      }
-      return false;
+    // Use the point value, not canvas location
+    pointInRange(canvasPoint: Point2D) {
+      const { minX, maxX, minY, maxY } = this.props;
+      const dataPoint = this.toDataPoint(canvasPoint);
+      const {x, y} = dataPoint;
+      return x >= minX && x <= maxX && y >= minY && y <= maxY;
     }
 
 
     findNearPoint(x: number, y: number, nearDistance: number) {
       const { points } = this.state;
       for(let i = 0; i < points.length; i++) {
-        const point = points[i];
-        const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2));
+        const canvasPoint = this.toCanvasPoint(points[i]);
+        const distance = Math.sqrt(Math.pow(canvasPoint.x - x, 2) + Math.pow(canvasPoint.y - y, 2));
         if(distance < nearDistance) {
-          return point;
+          return points[i];
         }
       }
       return null;
@@ -143,29 +193,44 @@ export class PredictionGraph extends React.Component<PredictionGraphProps, Predi
         };
       }
       return { x: 0, y: 0 };
+
+    }
+
+    updatePoints(changes:{selected?: Point2D, active?: Point2D}) {
+      const { points, active, selected } = this.state;
+      const { setDataF } = this.props;
+      const nextPoints = points.sort((a, b) => a.x - b.x);
+      this.setState({
+        points: nextPoints,
+        active: changes.active === undefined ? active : changes.active,
+        selected: changes.selected === undefined ? selected : changes.selected
+      });
+      setDataF(pointsToData(points));
+    }
+
+    addPoint(x: number, y: number) {
+      if(this.pointInRange({x, y})) {
+        const { points } = this.state;
+        const { parentGraph } = this.props;
+        const dataPoint = parentGraph
+          ? parentGraph.toDataCoords(x, y)
+          : [x, y];
+        const newPoint = {x: dataPoint[0], y: dataPoint[1]};
+        points.push(newPoint);
+        this.updatePoints({selected: newPoint, active: newPoint});
+      }
     }
 
     handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
       const { enableEdit } = this.props;
       if(!enableEdit) { return; }
-      const { points } = this.state;
-
       if(this.canvasRef) {
         const {x, y} = this.toCanvasCoords(e);
         const point = this.findNearPoint(x, y, 10);
         if(point) {
           this.setState({selected: point, active: point});
         } else {
-          if(this.pointInRange({x, y})) {
-            const newPoint = {x, y};
-            points.push(newPoint);
-            this.setState(
-              {
-                points: [...points.sort((a, b) => a.x - b.x)],
-                selected: newPoint,
-                active: newPoint
-              });
-          }
+          this.addPoint(x, y);
         }
       }
     }
@@ -179,9 +244,10 @@ export class PredictionGraph extends React.Component<PredictionGraphProps, Predi
         if(this.canvasRef) {
           const {x, y} = this.toCanvasCoords(e);
           if(this.pointInRange({x, y})) {
-            active.x = x;
-            active.y = y;
-            this.setState({points: [...this.state.points]});
+            const {x: dataX, y: dataY} = this.toDataPoint({x, y});
+            active.x = dataX;
+            active.y = dataY;
+            this.updatePoints({active});
           }
         }
       }
@@ -218,7 +284,7 @@ export class PredictionGraph extends React.Component<PredictionGraphProps, Predi
             left: "0px",
             width: width + "px",
             height: height + "px",
-            zIndex: 10,
+            zIndex: 1,
             pointerEvents: enableEdit ? "auto" : "none"
         };
         return (

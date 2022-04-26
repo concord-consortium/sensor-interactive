@@ -9,20 +9,24 @@ interface Props {
 }
 
 
-const getRecordings = (recordedData?: SensorRecording): SensorRecording[] => {
+const getRecordings = (useAuthoredData: boolean, recordedData?: SensorRecording): SensorRecording[] => {
   if (!recordedData) {
     return [];
   }
   const recording = {...recordedData};
   // remove the data from the recording if we are just specifying the the sensor
-  // names, units, min/max values, etc.
-  recording.data = [];
+  // names, units, min/max values, etc. The authored data might include data
+  // from a previous save, we retain that, but we don't want to show it.
+  if (!useAuthoredData) {
+    recording.data = [];
+  } else {
+    recording.max = recording.data.reduce((max, point) => Math.max(max, point[1]), recording.max);
+  }
   return [recording];
 }
 
 export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
   const authoredState = initMessage.authoredState || defaultAuthoredState;
-
   // NOTE: we only use the interactive state from startup, the sensor app maintains its own state during runtime.
   // The interactive state is saved to display at runtime startup and the report and report-item interactive views.
   const initialInteractiveState = initMessage.interactiveState;
@@ -31,7 +35,7 @@ export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
   // The authored data, or presence of prediction means that we should try to set
   // units, name, and max/min values for the sensor:
   const recordings = usePrediction || useAuthoredData
-    ? getRecordings(recordedData)
+    ? getRecordings(useAuthoredData, recordedData)
     : [];
   if(hint) { setHint(hint) };
   return (

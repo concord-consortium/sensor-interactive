@@ -25,6 +25,7 @@
     --graph-line-blue: #007fcf;
     --graph-line-orange: #da5d1d;
     --graph-line-green: #008a00;
+    --graph-line-purple: #d100d1;
     --app-content-unusable-vertical-height: 58px;
 
     --cc-charcoal: #3f3f3f;
@@ -469,11 +470,8 @@ button:disabled:hover {
 /* Graph Legend */
 .bottom-legend {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
-    position: absolute;
-    right: 14px;
-    bottom: 46px;
     height: 20px;
     font-family: Arial;
     font-size: 12px;
@@ -495,13 +493,16 @@ button:disabled:hover {
 .bottom-legend .bar.prediction {
     background-color: var(--graph-line-orange);
 }
+.bottom-legend .bar.prerecording {
+    background-color: var(--graph-line-purple);
+}
 .bottom-legend .name {
     margin: 0px 2px 0px 6px;
 }
 
 /* Bottom Control Panel */
 .control-panel {
-    z-index: 1;
+    z-index: 2;
     display: flex;
     justify-content: center;
     align-items: center;

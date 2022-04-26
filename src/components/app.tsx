@@ -222,7 +222,7 @@ export class App extends React.Component<AppProps, AppState> {
             this.state.sensorManager.startPolling();
         }
 
-        this.onTimeSelect = this.onTimeSelect.bind(this);
+        this.setXZoomState = this.setXZoomState.bind(this);
         this.onGraphZoom = this.onGraphZoom.bind(this);
         this.startSensor = this.startSensor.bind(this);
         this.stopSensor = this.stopSensor.bind(this);
@@ -264,18 +264,14 @@ export class App extends React.Component<AppProps, AppState> {
         return (typeof this.props.sensorManager !== "undefined" ? this.props.sensorManager : null);
     }
 
-    addPrediction = (p: number[]) => {
-        const { prediction } = this.state;
-        const sortFunc = (a: number[], b: number[]) => a[0] - b[0];
-        const nextPrediction = [...prediction, p].sort(sortFunc);
-        this.setState({prediction: nextPrediction});
+    setPrediction = (p: number[][]) => {
+        this.setState({prediction: p});
     }
 
     componentDidMount() {
         SmartFocusHighlight.enableFocusHighlightOnKeyDown();
 
         const {initialInteractiveState} = this.props;
-        
         if (initialInteractiveState) {
             if (initialInteractiveState.version === 1) {
                 let predictionState = this.state.predictionState;
@@ -826,7 +822,7 @@ export class App extends React.Component<AppProps, AppState> {
                 version: 1,
                 sensorRecordings: this.state.sensorRecordings,
                 runLength: this.props.singleReads ? DEFAULT_RUN_LENGTH : this.state.runLength,
-                prediction: this.state.prediction,
+                prediction: this.state.prediction
             });
             this.setState({dataChanged: false}, afterSave);
         }
@@ -852,24 +848,18 @@ export class App extends React.Component<AppProps, AppState> {
             sensorSlots,
             runLength
         }, () => {
-            this.saveInteractiveState();
+            this.setXZoomState(runLength);
         });
-        this.setXZoomState(runLength);
     }
 
-    setXZoomState(runLength:number) {
+    setXZoomState(newTime:number) {
         this.setState({
-            xStart: 0,
-            // without the .01, last tick number sometimes fails to display
-            xEnd: runLength + 0.01
-        });
-    }
-
-    onTimeSelect(newTime:number) {
-        this.setState({ runLength: newTime }, () => {
-            this.saveInteractiveState()
-        });
-        this.setXZoomState(newTime);
+                xStart: 0,
+                runLength: newTime,
+                // without the .01, last tick number sometimes fails to display
+                xEnd: newTime + 0.01
+            }, () => this.saveInteractiveState()
+        );
         this.codap?.updateInteractiveState({ runLength: newTime });
     }
 
@@ -1265,6 +1255,15 @@ export class App extends React.Component<AppProps, AppState> {
         return null;
     }
 
+    renderPreRecordedLegend() {
+        const {preRecordings} = this.props;
+        if ( preRecordings &&
+            preRecordings?.length > 0 && preRecordings[0].data.length > 0) {
+            return this.renderLegendItem("prerecording", "Recorded");
+        }
+        return null;
+    }
+
 
     renderLegend() {
         if (this.connectedSensorCount() > 0) {
@@ -1273,6 +1272,7 @@ export class App extends React.Component<AppProps, AppState> {
                     { this.renderPrimaryLegend() }
                     { this.renderSecondaryLegend() }
                     { this.renderPredictionLegend() }
+                    { this.renderPreRecordedLegend() }
                 </div>
             );
         } else {
@@ -1301,6 +1301,7 @@ export class App extends React.Component<AppProps, AppState> {
 
         const savePrediction = () => {
             this.setState({predictionState: "completed"});
+            this.saveInteractiveState();
         }
         const clearPrediction = () => {
             this.setState({
@@ -1396,7 +1397,7 @@ export class App extends React.Component<AppProps, AppState> {
                         preRecordings={preRecordings}
                         predictionState={this.state.predictionState}
                         prediction={this.state.prediction}
-                        onAddPrediction={this.addPrediction}
+                        setPredictionF={this.setPrediction}
                         onGraphZoom={this.onGraphZoom}
                         onSensorSelect={this.handleSensorSelect}
                         xStart={this.state.xStart}
@@ -1422,7 +1423,7 @@ export class App extends React.Component<AppProps, AppState> {
                     duration={this.state.runLength} durationUnit="s"
                     durationOptions={[1, 5, 10, 15, 20, 30, 45, 60, 300, 600, 900, 1200, 1800]}
                     embedInCodapUrl={codapURL}
-                    onDurationChange={this.onTimeSelect}
+                    onDurationChange={this.setXZoomState}
                     onStartConnecting={this.startConnecting}
                     onStartCollecting={this.startSensor}
                     onStopCollecting={this.stopSensor}
