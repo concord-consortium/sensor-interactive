@@ -335,6 +335,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                 <PredictionGraph
                     height={height||100}
                     width={width||100}
+                    show={true}
+                    enableEdit={this.state.predictionState == "started"}
                     parentGraph={this.dygraph}
                     maxX={this.state.xMax}
                     maxY={this.state.yMax}

@@ -14,6 +14,8 @@ export interface PredictionGraphProps {
     maxX: number;
     minY: number;
     maxY: number;
+    show: boolean;
+    enableEdit: boolean;
 }
 
 export interface PredictionGraphState {
@@ -24,7 +26,7 @@ export interface PredictionGraphState {
 
 // Zeplin specs:  https://zpl.io/09kdQlE
 const PREDICTION_LINE_COLOR = "#ff8415";
-const AUTHORED_LINE_COLOR = "#d100d1";
+const ACTIVE_POINT_COLOR = "#0081ff";
 
 
 export class PredictionGraph extends React.Component<PredictionGraphProps, PredictionGraphState> {
@@ -49,10 +51,15 @@ export class PredictionGraph extends React.Component<PredictionGraphProps, Predi
     componentDidMount() {
       this.updateCanvas();
     }
-    componentDidUpdate() {
+    // componentDidUpdate() {
+    //   this.updateCanvas();
+    // }
+    componentDidUpdate(prevProps: PredictionGraphProps) {
+      if(prevProps.enableEdit !== this.props.enableEdit) {
+        this.setState({active: null, selected: null});
+      }
       this.updateCanvas();
     }
-
     drawPoint(ctx: CanvasRenderingContext2D, x: number, y: number) {
       const rad = 5;
       if(ctx) {
@@ -83,6 +90,7 @@ export class PredictionGraph extends React.Component<PredictionGraphProps, Predi
 
             if(lastPoint) {
               ctx.strokeStyle = PREDICTION_LINE_COLOR;
+              ctx.lineWidth = 2;
               ctx.fillStyle = "none";
               ctx.beginPath();
               ctx.moveTo(lastPoint.x, lastPoint.y);
@@ -90,7 +98,7 @@ export class PredictionGraph extends React.Component<PredictionGraphProps, Predi
               ctx.stroke();
             }
             if(selected === point) {
-              ctx.fillStyle = AUTHORED_LINE_COLOR;
+              ctx.fillStyle = ACTIVE_POINT_COLOR;
             } else {
               ctx.fillStyle = PREDICTION_LINE_COLOR;
             }
@@ -138,6 +146,8 @@ export class PredictionGraph extends React.Component<PredictionGraphProps, Predi
     }
 
     handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const { enableEdit } = this.props;
+      if(!enableEdit) { return; }
       const { points } = this.state;
 
       if(this.canvasRef) {
@@ -161,18 +171,25 @@ export class PredictionGraph extends React.Component<PredictionGraphProps, Predi
     }
 
     handleMouseDrag = (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const { enableEdit } = this.props;
+      if(!enableEdit) { return; }
       const { active } = this.state;
+
       if(active) {
         if(this.canvasRef) {
           const {x, y} = this.toCanvasCoords(e);
-          active.x = x;
-          active.y = y;
-          this.setState({points: [...this.state.points]});
+          if(this.pointInRange({x, y})) {
+            active.x = x;
+            active.y = y;
+            this.setState({points: [...this.state.points]});
+          }
         }
       }
     }
 
     handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+      const { enableEdit } = this.props;
+      if(!enableEdit) { return; }
       const { selected } = this.state;
       if(selected) {
         if(e.key === "Backspace") {
@@ -188,33 +205,35 @@ export class PredictionGraph extends React.Component<PredictionGraphProps, Predi
     }
 
     handleMouseUp = (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const { enableEdit } = this.props;
+      if(!enableEdit) { return; }
       this.setState({active: null});
     }
 
     render() {
-        const { width, height } = this.props;
+        const { width, height, show, enableEdit } = this.props;
         const canvasStyle: React.CSSProperties = {
             position: "absolute",
             top: "0px",
             left: "0px",
             width: width + "px",
             height: height + "px",
-            zIndex: 1000,
-            border: "1px solid red"
+            zIndex: 10,
+            pointerEvents: enableEdit ? "auto" : "none"
         };
         return (
-          <div onKeyUp={this.handleKeyDown} tabIndex={0}>
-            <canvas
-              onMouseDown={this.handleMouseDown}
-              onMouseMove={this.handleMouseDrag}
-              onMouseUp={this.handleMouseUp}
-              onMouseLeave={this.handleMouseUp}
-              width={width}
-              height={height}
-              style={canvasStyle}
-              ref={(r) => this.setCanvasRef(r!)} />
-          </div>
-
+          show &&
+            <div onKeyUp={this.handleKeyDown} tabIndex={0}>
+              <canvas
+                onMouseDown={this.handleMouseDown}
+                onMouseMove={this.handleMouseDrag}
+                onMouseUp={this.handleMouseUp}
+                onMouseLeave={this.handleMouseUp}
+                width={width}
+                height={height}
+                style={canvasStyle}
+                ref={(r) => this.setCanvasRef(r!)} />
+            </div>
         );
     }
 }
