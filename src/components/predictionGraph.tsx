@@ -73,7 +73,6 @@ export class PredictionGraph extends React.Component<PredictionGraphProps, Predi
         this.setState({active: null, selected: null});
       }
       if(
-        prevProps.data !== data ||
         prevProps.minX!== minX ||
         prevProps.maxX!== maxX ||
         prevProps.minY!== minY ||
