@@ -6,7 +6,7 @@ interface Point2D {
     y: number;
 }
 
-export interface PredictionGraphProps {
+export interface OverlayGraphProps {
     width: number;
     height: number;
     parentGraph?: Dygraph;
@@ -16,12 +16,12 @@ export interface PredictionGraphProps {
     maxY: number;
     show: boolean;
     enableEdit: boolean;
-    setDataF: (prediction: number[][]) => void;
+    setDataF: (data: number[][]) => void;
     data: number[][];
     color: string;
 }
 
-export interface PredictionGraphState {
+export interface OverlayGraphState {
   points: Point2D[];
   selected: Point2D | null;
   active: Point2D | null;
@@ -43,10 +43,10 @@ const pointsToData = (points: Point2D[]) => {
     });
 };
 
-export class PredictionGraph extends React.Component<PredictionGraphProps, PredictionGraphState> {
+export class OverlayGraph extends React.Component<OverlayGraphProps, OverlayGraphState> {
     canvasRef: HTMLCanvasElement|null;
     updateTimeout: number | null = null;
-    constructor(props: PredictionGraphProps) {
+    constructor(props: OverlayGraphProps) {
         super(props);
         this.canvasRef = null;
         this.state = {
@@ -67,7 +67,7 @@ export class PredictionGraph extends React.Component<PredictionGraphProps, Predi
       this.updateCanvas();
     }
 
-    componentDidUpdate(prevProps: PredictionGraphProps) {
+    componentDidUpdate(prevProps: OverlayGraphProps) {
       const { data, minX, minY, maxX, maxY } = this.props;
       if(prevProps.enableEdit !== this.props.enableEdit) {
         this.setState({active: null, selected: null});

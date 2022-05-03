@@ -74,16 +74,6 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
             if (yMax == null || y > yMax) {
                 yMax = y;
             }
-
-            // TODO: Do we want to scale the X axis based on data?
-            // For now we just use the default range.
-            // if (xMin == null || x < xMin) {
-            //     xMin = x;
-            // }
-
-            // if (xMax == null || x > xMax) {
-            //     xMax = x;
-            // }
         }
         this.setState({
             yMin,

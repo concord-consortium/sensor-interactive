@@ -2,7 +2,7 @@ import * as React from "react";
 import Dygraph from "dygraphs";
 import { Format } from "../utils/format";
 import { PredictionState } from "./types";
-import { PredictionGraph } from "./predictionGraph";
+import { OverlayGraph } from "./overlay-graph";
 
 import "./dygraph.css";
 
@@ -317,7 +317,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             <div style={{position: "relative"}}>
                 <div id={"sensor-graph-" + title} className="graph-box" style={graphStyle}></div>
 
-                <PredictionGraph
+                <OverlayGraph
                     height={height||100}
                     width={width||100}
                     show={true}
@@ -334,7 +334,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                 />
 
                 { preRecording &&
-                    <PredictionGraph
+                    <OverlayGraph
                         height={height||100}
                         width={width||100}
                         show={true}
