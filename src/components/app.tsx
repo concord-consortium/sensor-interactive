@@ -1235,8 +1235,11 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     renderPrimaryLegend() {
-        const label = this.state.sensorSlots[0].sensor.definition.measurementName;
-        return this.renderLegendItem("primary", label)
+        if (this.connectedSensorCount() > 0) {
+            const label = this.state.sensorSlots[0].sensor.definition.measurementName;
+            return this.renderLegendItem("primary", label)
+        }
+        return null;
     }
 
     renderSecondaryLegend() {
@@ -1266,18 +1269,14 @@ export class App extends React.Component<AppProps, AppState> {
 
 
     renderLegend() {
-        if (this.connectedSensorCount() > 0) {
-            return(
-                <div className="bottom-legend">
-                    { this.renderPrimaryLegend() }
-                    { this.renderSecondaryLegend() }
-                    { this.renderPredictionLegend() }
-                    { this.renderPreRecordedLegend() }
-                </div>
-            );
-        } else {
-            return null;
-        }
+        return(
+            <div className="bottom-legend">
+                { this.renderPrimaryLegend() }
+                { this.renderSecondaryLegend() }
+                { this.renderPredictionLegend() }
+                { this.renderPreRecordedLegend() }
+            </div>
+        );
     }
 
     render() {
