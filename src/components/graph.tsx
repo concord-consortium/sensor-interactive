@@ -103,17 +103,16 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         const labels = this.labels();
         for (let label of labels) {
             if (label == "x" || label == this.state.xLabel) { continue; }
-            // TODO: We need better heuristics for a prediction graph:
             if (label == "prediction") {
                 result[label] ={
                     color: PREDICTION_LINE_COLOR,
-                    plotter:  Dygraph.Plotters.linePlotter //TODO: smoothPlotter
+                    plotter:  Dygraph.Plotters.linePlotter
                 };
             }
             else if (label == "recording") {
                 result[label] ={
                     color: AUTHORED_LINE_COLOR,
-                    plotter:  Dygraph.Plotters.linePlotter //TODO: smoothPlotter
+                    plotter:  Dygraph.Plotters.linePlotter
                 };
             }
             else {

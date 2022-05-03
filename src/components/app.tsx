@@ -1185,7 +1185,7 @@ export class App extends React.Component<AppProps, AppState> {
         const isConnected = this.connectedSensorCount() > 0;
 
         const showPredictionButton = predictionState !== 'not-required';
-        const diasablePredictionButton =
+        const disablePredictionButton =
             predictionState === "started" || predictionState === "completed";
 
         const showPauseButton = sensorManager
@@ -1215,7 +1215,7 @@ export class App extends React.Component<AppProps, AppState> {
                     <Button
                         className="prediction-button"
                         onClick={this.startPrediction}
-                        disabled={diasablePredictionButton}>
+                        disabled={disablePredictionButton}>
                         Predict
                     </Button>
                 }
@@ -1283,7 +1283,7 @@ export class App extends React.Component<AppProps, AppState> {
         const { interactiveHost, useSensors, requirePrediction, fakeSensor } = this.props;
         const { sensorConfig, sensorManager, sensorRecordings } = this.state;
         const codapURL = window.self === window.top
-            ? "http://codap.concord.org/releases/latest?di=" + window.location.href
+            ? "//codap.concord.org/releases/latest?di=" + window.location.href
             : "";
 
         const interfaceType = (sensorConfig && sensorConfig.interface) || "";
