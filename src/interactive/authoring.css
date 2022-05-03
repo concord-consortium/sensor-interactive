@@ -1,26 +1,15 @@
 .authoring {
   font-size: 10pt;
+  margin-left: 2em;
 }
 
-.authoring dl {
+.authoring .prerecorded-text {
   display: flex;
-  flex-flow: row wrap;
-}
-
-.authoring dt {
-  padding: 2px 4px;
-  text-align: right;
-  font-weight: bold;
-}
-
-.authoring dd {
-  flex-grow: 2;
-  margin: 0;
-  padding: 2px 4px;
+  flex-direction: row;
 }
 
 .authoring textarea {
-  width: 80%;
+  width: 30%;
   min-height: 100px;
   font-family: monospace;
   font-size: medium;
@@ -29,8 +18,44 @@
 .authoring .parse-error {
   color: red;
   font-weight: bold;
+  margin-left: 2em;
 }
 .authoring select {
   font-size: medium;
   color: black;
+}
+.authoring .info svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: baseline;
+  fill: purple;
+}
+.authoring .info {
+  font-size: 14px;
+  font-style: italic;
+  color: purple;
+  margin-left: 0.5em;
+}
+
+.authoring .sensor-select-section {
+  margin-top: 1em;
+  margin-bottom: 1.5em;
+}
+
+.authoring legend {
+  font-size: 1.5em;
+}
+
+.authoring label {
+  font-size: 1.25em;
+}
+
+.authoring legend {
+  margin-left: -1em;
+}
+
+.authoring .disabled {
+  user-select: none;
+  cursor: not-allowed;
+  opacity: 0.5;
 }

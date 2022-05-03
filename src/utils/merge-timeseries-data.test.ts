@@ -1,9 +1,15 @@
-import { mergeTimeSeriesData } from './merge-timeseries-data';
+import { mergeTimeSeriesData, timeSeriesData } from './merge-timeseries-data';
 
 test('merges dataA and dataB time series', () => {
-  const dataA = [[1, 3], [3, 4], [5, 6]];
-  const dataB = [[1, 1], [2, 2]];
-  const mergedData = mergeTimeSeriesData(dataA,dataB);
+  const dataA = {
+    name: "dataA",
+    data: [[1, 3], [3, 4], [5, 6]]
+  }
+  const dataB = {
+    name: "dataB",
+    data: [[1, 1], [2, 2]]
+  };
+  const mergedData = mergeTimeSeriesData([dataA, dataB]);
   expect(mergedData.length).toBe(4);
 
   // First time series row:
@@ -24,16 +30,19 @@ test('merges dataA and dataB time series', () => {
 });
 
 test('when one of the data arrays is zero length', () => {
-  let dataA = [[1, 1]];
-  let dataB: number[][] = [];
-  let mergedData = mergeTimeSeriesData(dataA, dataB);
+  let dataA = {
+    name: "dataA",
+    data: [[1, 1]]
+  };
+  let dataB: timeSeriesData = {name: "dataB", data:[]};
+  let mergedData = mergeTimeSeriesData([dataA, dataB]);
   expect(mergedData.length).toBe(1);
-  dataA = [];
-  dataB = [[1, 1]];
-  mergedData = mergeTimeSeriesData(dataA, dataB);
+  dataA.data = [];
+  dataB.data = [[1, 1]];
+  mergedData = mergeTimeSeriesData([dataA, dataB]);
   expect(mergedData.length).toBe(1);
-  dataB = [];
-  dataA = [];
-  mergedData = mergeTimeSeriesData(dataA, dataB);
+  dataB.data = [];
+  dataA.data = [];
+  mergedData = mergeTimeSeriesData([dataA, dataB]);
   expect(mergedData.length).toBe(0);
-})
+});

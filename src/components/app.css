@@ -1,15 +1,15 @@
 /* Color palette */
 :root {
-    --sage-light-3: #f1f6ed;
-    --sage-light-2: #e4ecdb;
-    --sage-light-1: #d7e3c9;
+    --cc-teal-light-6: #f1f6ed;
+    --cc-teal-light-4: #e4ecdb;
+    --cc-teal-light-4: #d7e3c9;
     --sage: #c9dab7;
-    --sage-dark-1: #b3ca9d;
-    --sage-dark-2: #9eba83;
-    --sage-dark-3: #85a667;
-    --sage-dark-4: #6a8e4a;
-    --sage-dark-5: #547935;
-    --sage-text: #2e5f02;
+    --cc-teal: #b3ca9d;
+    --cc-teal: #9eba83;
+    --cc-teal: #85a667;
+    --cc-teal: #6a8e4a;
+    --cc-teal: #547935;
+    --cc-teal: #2e5f02;
     --inner-shadow: rgba(0, 0, 0, 0.5);
     --white: #ffffff;
     --graph-text: #242424;
@@ -24,7 +24,28 @@
     --sensor-green-dark: #5ec100;
     --graph-line-blue: #007fcf;
     --graph-line-orange: #da5d1d;
+    --graph-line-green: #008a00;
     --app-content-unusable-vertical-height: 58px;
+
+    --cc-charcoal: #3f3f3f;
+    --cc-charcoal-hint: #828282;
+    --cc-charcoal-light-1: #979797;
+    --cc-charcoal-light-2: #dfdfdf;
+    --cc-teal-dark-2: #016082;
+    --cc-teal-dark-1: #0481a0;
+    --cc-teal: #0592af;
+    --cc-teal-light-1: #2ba5c1;
+    --cc-teal-light-2: #6fc6da;
+    --cc-teal-light-3: #93d5e4;
+    --cc-teal-light-4: #b7e2ec;
+    --cc-teal-light-5: #cdebf2;
+    --cc-teal-light-5-b: #d8eff5;
+    --cc-teal-light-6: #e2f4f8;
+    --cc-teal-light-6-b: #f0f9fb;
+    --cc-teal-light-7: #f5fbfc;
+
+    --graph-button-height: 36px;
+    --graph-button-border-rad: 4px;
 }
 
 body {
@@ -35,28 +56,52 @@ body {
     font-style: normal;
     font-stretch: normal;
     letter-spacing: normal;
-    color: var(--sage-text);
+    color: var(--cc-teal);
     margin: 0;
     overflow: hidden;
 }
 
 input, textarea, select, button {
     font-family: Lato, Verdana, Geneva, sans-serif;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: bold;
-    color: var(--sage-text);
+    color: var(--cc-teal);
+}
+
+select {
+    height: 36px;
 }
 
 button {
-    border: solid 1px var(--sage-dark-5);
-    background-color: var(--sage-light-2);
     transition-duration: .25s;
+    border-radius: 4px;
+    height: var(--graph-button-height);
+    /* padding: 8px 10px 9px; */
+    border-radius: var(--graph-button-border-rad);
+    border: solid 1.5px var(--cc-charcoal-light-1);
+    background-color: var(--cc-teal-light-6);
+    color: var(--cc-charcoal);
+    font-family: lato, verdana, geneva, sans-serif;
+    font-size: 14px;
 }
+
 button:hover {
-    background-color: var(--sage);
+    background-color: var(--cc-teal-light-4);
 }
+
 button:active {
-    background-color: var(--sage-dark-2);
+    background-color: var(--cc-teal);
+    color: white;
+    border-color: white;
+}
+
+button:disabled {
+    opacity: 0.5;
+}
+
+button:disabled:hover {
+    opacity: 0.5;
+    background-color: var(--cc-teal-light-6);
 }
 
 .disable-focus-highlight {
@@ -108,7 +153,7 @@ button:active {
     align-items: center;
     width: 18px;
     height: 18px;
-    border: solid 2.5px var(--sage-dark-1);
+    border: solid 2.5px var(--cc-teal);
     border-radius: 50%;
 }
 
@@ -149,17 +194,17 @@ button:active {
 }
 
 /* Connection Buttons */
-.sensor-buttons {
+/* .sensor-buttons {
     display: flex;
     margin: 4px 0px 4px 0px;
-}
+} */
 
-.connect-to-device-button {
+/* .connect-to-device-button {
     width: 106px;
     height: 30px;
     border-radius: 6px;
-    border: solid 3px var(--sage-dark-1);
-    background-color: var(--sage-light-2);
+    border: solid 3px var(--cc-teal);
+    background-color: var(--cc-teal-light-4);
     margin: 0px 4px 0px 4px;
     padding: 0px;
     cursor: pointer;
@@ -169,9 +214,9 @@ button:active {
     background-color: var(--sage);
 }
 .connect-to-device-button:active {
-    border: solid 3px var(--sage-dark-3);
-    background-color: var(--sage-dark-1);
-}
+    border: solid 3px var(--cc-teal);
+    background-color: var(--cc-teal);
+} */
 
 /* Connection Message */
 .connect-message-holder {
@@ -197,9 +242,9 @@ button:active {
 /* Sensor Selection */
 .sensor-select {
     width: 200px;
-    height: 30px;
-    border: solid 3px var(--sage-dark-1);
-    background-color: var(--sage-light-3);
+    height: 36px;
+    border: solid 3px var(--cc-teal);
+    background-color: var(--cc-teal-light-6);
     margin-right: 2px;
     padding-left: 5px;
     border-radius: 5px 0px 0px 5px;
@@ -210,14 +255,14 @@ button:active {
     background: var(--sage) !important;
 }
 .sensor-select:hover {
-    background-color: var(--sage-light-2);
+    background-color: var(--cc-teal-light-4);
 }
 .sensor-select:active {
-    background-color: var(--sage-light-1);
-    border-color: var(--sage-dark-3);
+    background-color: var(--cc-teal-light-4);
+    border-color: var(--cc-teal);
 }
 .sensor-select.single {
-    border: solid 1px var(--sage-dark-5);
+    border: solid 1px var(--cc-teal);
     -moz-appearance: none;
     -webkit-appearance: none;
     padding-left: 9px;
@@ -230,8 +275,9 @@ button:active {
     flex-direction: column;
     align-items: center;
     width: 80px;
-    height: 28px;
-    border: solid 1px var(--sage-dark-5);
+    height: var(--graph-button-height);
+    border-radius: var(--graph-button-border-rad);
+    border: solid 1px var(--cc-teal);
     background-color: var(--graph-background);
     margin: 0px 2px 0px 2px;
 }
@@ -240,7 +286,7 @@ button:active {
     font-size: 9px;
     font-weight: normal;
     font-style: italic;
-    color: var(--sage-text);
+    color: var(--cc-teal);
     margin-top: 1px;
 }
 
@@ -254,13 +300,13 @@ button:active {
 
 /* Zero Sensor */
 .zero-button {
-    width: 52px;
-    height: 30px;
-    border: solid 1px var(--sage-dark-5);
-    background-color: var(--sage-light-2);
+    /* width: 52px;
+    height: 30px; */
+    border: solid 1px var(--cc-teal);
+    background-color: var(--cc-teal-light-4);
     line-height: 0.92;
     text-align: center;
-    color: var(--sage-text);
+    color: var(--cc-teal);
     margin: 0px 2px 0px 2px;
     cursor: pointer;
     transition-duration: .25s;
@@ -269,8 +315,8 @@ button:active {
     background-color: var(--sage);
 }
 .zero-button:active {
-    border: solid 1px var(--sage-dark-3);
-    background-color: var(--sage-dark-1);
+    border: solid 1px var(--cc-teal);
+    background-color: var(--cc-teal);
 }
 .zero-button:disabled {
     opacity: .35;
@@ -278,7 +324,7 @@ button:active {
 }
 
 /* Remove Sensor */
-.remove-sensor-button {
+/* .remove-sensor-button {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -286,8 +332,8 @@ button:active {
     height: 30px;
     margin: 0px 2px 0px 2px;
     border-radius: 0px 5px 5px 0px;
-    border: solid 1px var(--sage-dark-5);
-    background-color: var(--sage-light-2);
+    border: solid 1px var(--cc-teal);
+    background-color: var(--cc-teal-light-4);
     cursor: pointer;
     transition-duration: .25s;
 }
@@ -295,9 +341,9 @@ button:active {
     background-color: var(--sage);
 }
 .remove-sensor-button:active {
-    border: solid 1px var(--sage-dark-3);
-    background-color: var(--sage-dark-1);
-}
+    border: solid 1px var(--cc-teal);
+    background-color: var(--cc-teal);
+} */
 
 /* Add Sensor */
 .top-bar-right-controls {
@@ -307,13 +353,13 @@ button:active {
     margin-right: 11px;
     width: 200px;
 }
-
+/* 
 .add-sensor-button {
     width: 106px;
     height: 30px;
     border-radius: 6px;
-    border: solid 3px var(--sage-dark-1);
-    background-color: var(--sage-light-2);
+    border: solid 3px var(--cc-teal);
+    background-color: var(--cc-teal-light-4);
     cursor: pointer;
     transition-duration: .25s;
 }
@@ -321,16 +367,16 @@ button:active {
     background-color: var(--sage);
 }
 .add-sensor-button:active {
-    border: solid 3px var(--sage-dark-3);
-    background-color: var(--sage-dark-1);
+    border: solid 3px var(--cc-teal);
+    background-color: var(--cc-teal);
 }
 
 .pause-heartbeat-button {
     width: 106px;
     height: 30px;
     border-radius: 6px;
-    border: solid 2px var(--sage-dark-1);
-    background-color: var(--sage-light-2);
+    border: solid 2px var(--cc-teal);
+    background-color: var(--cc-teal-light-4);
     cursor: pointer;
     transition-duration: .25s;
     margin-left: 10px;
@@ -339,13 +385,13 @@ button:active {
     background-color: var(--sage);
 }
 .pause-heartbeat-button:active {
-    border: solid 2px var(--sage-dark-3);
-    background-color: var(--sage-dark-1);
+    border: solid 2px var(--cc-teal);
+    background-color: var(--cc-teal);
 }
 .pause-heartbeat-button:disabled {
     opacity: .35;
     pointer-events: none;
-}
+} */
 
 
 /* Graphs */
@@ -444,6 +490,9 @@ button:active {
     background-color: var(--graph-line-blue);
 }
 .bottom-legend .bar.secondary {
+    background-color: var(--graph-line-green);
+}
+.bottom-legend .bar.prediction {
     background-color: var(--graph-line-orange);
 }
 .bottom-legend .name {
@@ -457,13 +506,15 @@ button:active {
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: 38px;
-    margin-top: 6px;   /* affects .app-content:max-height */
-    background-color: var(--sage);
+    height: 60px;
+    /* margin: 21px 0 0; */
+    color: white;
+    background-color: var(--cc-teal-dark-1);
     user-select: none;
 }
+
 .control-panel.disabled {
-    background-color: rgba(201, 218, 183, 0.35);
+    opacity: 0.5;
 }
 
 .control-panel .duration-label {
@@ -476,18 +527,18 @@ button:active {
 
 .control-panel .duration-select {
     margin-right: 16px;
-    border: solid 1px var(--sage-dark-5);
-    background-color: var(--sage-light-3);
+    border: solid 1px var(--cc-teal);
+    background-color: var(--cc-teal-light-6);
     border-radius: 5px 0px 0px 5px;
     margin: 0px 4px 0px 4px;
     cursor: pointer;
     transition-duration: .25s;
 }
 .control-panel .duration-select:hover {
-    background-color: var(--sage-light-2);
+    background-color: var(--cc-teal-light-4);
 }
 .control-panel .duration-select:active {
-    background-color: var(--sage-light-1);
+    background-color: var(--cc-teal-light-4);
 }
 .control-panel .duration-select:disabled {
     opacity: .35;
@@ -497,17 +548,11 @@ button:active {
     background: var(--sage) !important;
 }
 
-.control-panel-select {
-    height: 24px;
-    background-color: #eee;
-}
-
-.control-panel-button {
+/* .control-panel-button {
     width: 50px;
-    height: 22px;
     border-radius: 5px;
-    border: solid 1px var(--sage-dark-5);
-    background-color: var(--sage-light-2);
+    border: solid 1px var(--cc-teal);
+    background-color: var(--cc-teal-light-4);
     margin: 0px 4px 0px 4px;
     cursor: pointer;
     transition-duration: .25s;
@@ -516,31 +561,35 @@ button:active {
     background-color: var(--sage);
 }
 .control-panel-button:active {
-    background-color: var(--sage-dark-2);
+    background-color: var(--cc-teal);
 }
 .control-panel-button:disabled {
     opacity: .35;
     pointer-events: none;
+} */
+
+.control-panel button {
+    margin: 0 14px 0 0;
 }
 
-.send-data {
-    width: 75px;
-}
-.new-data {
-    width: 70px;
-}
-.record-sensor {
-    width: 70px;
+.control-panel .send-data, .new-data, .record-sensor {
+    width: 87px;
+    font-size: 14px;
 }
 
 .control-panel .left-controls {
-    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
 }
-
+.control-panel .left-controls button {
+    margin: 0 0 0 14px;
+}
 .control-panel .right-controls {
     flex-grow: 1;
     display: flex;
     justify-content: flex-end;
+    margin-right: 20px
 }
 
 .embed-codap-link {
@@ -559,16 +608,16 @@ button:active {
     transition-duration: .25s;
 }
 .icon-container:hover {
-    background-color: var(--sage-dark-1);
+    background-color: var(--cc-teal);
 }
 .icon-container:active {
-    background-color: var(--sage-dark-1);
+    background-color: var(--cc-teal);
 }
 .icon-container:hover .icon {
-    fill: var(--sage-dark-4);
+    fill: var(--cc-teal);
 }
 .icon-container:active .icon {
-    fill: var(--sage-dark-5);
+    fill: var(--cc-teal);
 }
 .icon-container:hover .icon.about {
     filter: saturate(1.07);
@@ -587,12 +636,14 @@ button:active {
 .icon {
     width: 16px;
     height: 16px;
-    fill: var(--sage-dark-3);
+    fill: var(--cc-teal);
     transition-duration: .25s;
 }
 .icon.reload, .icon.about {
     width: 18px;
     height: 18px;
+    stroke: none;
+    fill: white;
 }
 
 .icon.rescale {

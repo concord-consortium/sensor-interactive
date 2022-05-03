@@ -5,7 +5,7 @@ import { SensorDefinitions } from "../models/sensor-definitions";
 import { SensorConfigColumnInfo } from "@concord-consortium/sensor-connector-interface";
 import Button from "./smart-highlight-button";
 import Select from "./smart-highlight-select";
-
+import {DeleteIcon} from "./delete-icon";
 interface IGraphTopPanelProps {
   sensorSlot:SensorSlot;
   sensorColumns:SensorConfigColumnInfo[];
@@ -98,9 +98,7 @@ export const GraphTopPanel: React.FC<IGraphTopPanelProps> = (props) => {
       {props.showRemoveSensor ?
         <Button className="remove-sensor-button"
                 onClick={handleRemoveSensor}>
-          <svg className="icon remove">
-            <use xlinkHref={`${props.assetsPath}/images/icons.svg#icon-remove`} />
-          </svg>
+          <DeleteIcon />
         </Button>
         : null }
     </div>

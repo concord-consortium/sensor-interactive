@@ -1,26 +1,30 @@
-type timeSeriesData = number[][];
+export type timeSeriesData = {
+  name: string,
+  data: number[][]
+}
 
 const lerp = (a: number, b: number, t: number) => a * (1 - t) + b * t;
 
-const lerpForTime = (array: timeSeriesData, time: number) => {
-  const firstTime =array[0][0];
-  const finalTime = array[array.length - 1][0];
+const lerpForTime = (source: timeSeriesData, time: number) => {
+  const {data} = source;
+  const firstTime =data[0][0];
+  const finalTime = data[data.length - 1][0];
   if(time < firstTime) {
-    return array[0][1];
+    return data[0][1];
   }
   if(time > finalTime) {
-    return array[array.length - 1][1];
+    return data[data.length - 1][1];
   }
   let lastValue = 0;
   let lastTime = 0;
   let index = 0
-  while(array[index][0] < time) {
-    lastValue = array[index][1];
-    lastTime = array[index][0];
+  while(data[index][0] < time) {
+    lastValue = data[index][1];
+    lastTime = data[index][0];
     index++;
   }
-  const nextValue = array[index][1];
-  const nextTime = array[index][0];
+  const nextValue = data[index][1];
+  const nextTime = data[index][0];
   if (nextTime === time) {
     return nextValue;
   }
@@ -28,37 +32,39 @@ const lerpForTime = (array: timeSeriesData, time: number) => {
   return lerp(lastValue, nextValue, t);
 }
 
-// Given two input arrays of time series data, merge them into a single array
-// where each element is a triplet of  numbers representing a time value of a and b.
-export const mergeTimeSeriesData = (dataA: timeSeriesData, dataB:timeSeriesData) => {
-  // check for zero length data arrays. TBD: should we throw an error?
-  if(dataA.length === 0) {
-    console.error('mergeTimeSeriesData: dataA is zero length');
-    if(dataB.length === 0) {
-      console.error('mergeTimeSeriesData: both dataA and dataB are zero length');
-      return [];
+// Given an array of time-series data, merge them into a single array
+// assumptions: each array is sorted by time, and each array has two columns
+// returns: an array of time-series data, with the first column being the time
+// Sources with zero length are ignored for interpolation.
+export const mergeTimeSeriesData = (inputSources: timeSeriesData[]) => {
+  const sources = inputSources.filter(source => source.data != null && source.data.length > 0);
+  if (sources.length === 0) {
+    return [];
+  }
+
+  let times: number[] = [];
+
+  // get a list of time indexes
+  for(const source of sources) {
+    times = times.concat(source.data.map(d => d[0]));
+  }
+
+  // Ensure the data is sorted by time (ascending)
+  times = times.sort((a, b) => a - b);
+
+  // Now make the timestamps unique:
+  const uniqueTimes = times.filter((item, index) => times.indexOf(item) === index);
+
+  const values: number[][] = [];
+  let time = uniqueTimes[0];
+  for(time of uniqueTimes) {
+    // For each time, find the value at that time in each source.
+    const valuesForTime: number[] = [];
+    valuesForTime.push(time);
+    for(const source of sources) {
+      valuesForTime.push(lerpForTime(source, time));
     }
-    return dataB;
+    values.push(valuesForTime);
   }
-  if(dataB.length === 0) {
-    console.error('mergeTimeSeriesData: dataB is zero length');
-    return dataA;
-  }
-
-  // First just get a list of time indexes:
-  let times = dataA.map(d => d[0]).concat(dataB.map(d => d[0]));
-  times = times.sort((a, b) => a - b); // sort ascending
-  // Now make the data unique:
-  let uniqueTimes = times.filter((item, index) => times.indexOf(item) === index);
-
-
-  let lastDataA = dataA[0][1];
-  let lastDataB = dataB[0][1];
-  const data = uniqueTimes.map(t => {
-    lastDataA = lerpForTime(dataA, t);
-    lastDataB = lerpForTime(dataB, t);
-    return [t, lastDataA, lastDataB];
-  });
-
-  return data;
+  return values;
 };

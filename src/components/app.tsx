@@ -19,6 +19,7 @@ import { SensorTagManager } from "../models/sensor-tag-manager";
 import { SensorGDXManager } from "../models/sensor-gdx-manager";
 import { IInteractiveState, SensorRecording } from "../interactive/types";
 import { SensorRecordingStore } from "../models/recording-store";
+import { PredictionState } from "./types";
 
 import "./dialog.css";
 import "./app.css";
@@ -45,6 +46,7 @@ export type InteractiveHost = "codap" | "runtime" | "report";
 export interface AppProps {
     sensorManager?: SensorManager;
     fakeSensor?: boolean;
+    useSensors?: boolean;
     singleReads?: boolean;
     interactiveHost?: InteractiveHost;
     maxGraphHeight?: number;
@@ -52,6 +54,7 @@ export interface AppProps {
     preRecordings?: SensorRecording[];
     prompt?: string;
     enablePause?: boolean;
+    requirePrediction?: boolean;
     setInteractiveState?: (stateOrUpdateFunc: IInteractiveState | ((prevState: IInteractiveState | null) => IInteractiveState) | null) => void
 }
 
@@ -62,6 +65,8 @@ export interface AppState {
     hasData:boolean;
     dataChanged:boolean;
     dataReset:boolean;
+    predictionState: PredictionState;
+    prediction: number[][];
     collecting:boolean;
     runLength:number;
     timeUnit:string;
@@ -180,6 +185,8 @@ export class App extends React.Component<AppProps, AppState> {
             dataChanged:false,
             dataReset:false,
             collecting:false,
+            predictionState: props.requirePrediction ? "pending" : "not-required",
+            prediction: [],
             runLength:DEFAULT_RUN_LENGTH,
             xStart:0,
             xEnd:DEFAULT_RUN_LENGTH + 0.01, // without the .01, last tick number sometimes fails to display
@@ -234,7 +241,7 @@ export class App extends React.Component<AppProps, AppState> {
         this.showAbout= this.showAbout.bind(this);
         this.saveInteractiveState = this.saveInteractiveState.bind(this);
         this.togglePauseHeartbeat = this.togglePauseHeartbeat.bind(this);
-
+        this.startPrediction = this.startPrediction.bind(this);
         sensorRecordingStore.listenForNewData((sensorRecordings) => this.setState({sensorRecordings}));
     }
 
@@ -249,20 +256,42 @@ export class App extends React.Component<AppProps, AppState> {
         );
     }
 
+    startPrediction() {
+        this.setState({predictionState:"started"});
+    }
+
     passedSensorManager = () => {
         return (typeof this.props.sensorManager !== "undefined" ? this.props.sensorManager : null);
+    }
+
+    addPrediction = (p: number[]) => {
+        const { prediction } = this.state;
+        const sortFunc = (a: number[], b: number[]) => a[0] - b[0];
+        const nextPrediction = [...prediction, p].sort(sortFunc);
+        this.setState({prediction: nextPrediction});
     }
 
     componentDidMount() {
         SmartFocusHighlight.enableFocusHighlightOnKeyDown();
 
         const {initialInteractiveState} = this.props;
+        
         if (initialInteractiveState) {
             if (initialInteractiveState.version === 1) {
-                const {sensorRecordings} = initialInteractiveState;
+                let predictionState = this.state.predictionState;
+                const {sensorRecordings, prediction} = initialInteractiveState;
                 const runLength = this.props.singleReads ? DEFAULT_RUN_LENGTH : (initialInteractiveState.runLength || DEFAULT_RUN_LENGTH);
                 sensorRecordingStore.setRecordings(sensorRecordings);
-                this.setState({runLength, xEnd: runLength + 0.01, hasData: true});
+                if (prediction && prediction.length > 0) {
+                    predictionState = "completed"
+                }
+                this.setState({
+                    runLength,
+                    xEnd: runLength + 0.01,
+                    hasData: true,
+                    prediction,
+                    predictionState
+                });
             } else {
                 console.error(`Unknown interactive state version: ${initialInteractiveState.version}`, {initialInteractiveState});
             }
@@ -797,6 +826,7 @@ export class App extends React.Component<AppProps, AppState> {
                 version: 1,
                 sensorRecordings: this.state.sensorRecordings,
                 runLength: this.props.singleReads ? DEFAULT_RUN_LENGTH : this.state.runLength,
+                prediction: this.state.prediction,
             });
             this.setState({dataChanged: false}, afterSave);
         }
@@ -1050,21 +1080,30 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     renderSensorControls() {
-        const { sensorManager } = this.state;
+        const { sensorManager, predictionState } = this.state;
+        const { useSensors, fakeSensor } = this.props;
         const wirelessConnected = sensorManager && sensorManager.isWirelessDevice();
         const wiredConnected = sensorManager && !sensorManager.isWirelessDevice();
+        const sensorConnected = wirelessConnected || wiredConnected;
+        const notConnected = !sensorConnected;
+        const displaySensorControls = (useSensors || fakeSensor)
+            && (predictionState === 'not-required' || predictionState === 'completed');
         return (
             <div className="sensor-controls-holder">
-                {!wiredConnected && !wirelessConnected ?
-                    <div className="connect-message-holder">
-                        <div className="connect-message">{this.messages["connection_message"]}</div>
-                        <div className="connect-sub-message">{this.messages["connection_sub_message"]}</div>
-                    </div>
-                    : null
+                { displaySensorControls && notConnected
+                        ?
+                            <div className="connect-message-holder">
+                                <div className="connect-message">{this.messages["connection_message"]}</div>
+                                <div className="connect-sub-message">{this.messages["connection_sub_message"]}</div>
+                            </div>
+                        : null
                 }
-                <div className="sensor-buttons">
-                    {this.renderConnectionButtons()}
-                </div>
+                { displaySensorControls &&
+                    <div className="sensor-buttons">
+                        {this.renderConnectionButtons()}
+                    </div>
+                }
+
                 {this.renderGraphTopPanels()}
             </div>
         );
@@ -1148,23 +1187,32 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     renderTopRightButtons() {
-        const { sensorManager, pauseHeartbeat } = this.state;
+        const { sensorManager, pauseHeartbeat, predictionState } = this.state;
         const pauseLabel = `${pauseHeartbeat ? "Start" : "Pause"} Reading`
         const pauseDisabled = this.state.collecting;
         const pauseClassName = `pause-heartbeat-button ${pauseDisabled ? "disabled" : ""}`;
         const { enablePause } = this.props;
+        const isConnected = this.connectedSensorCount() > 0;
+
+        const showPredictionButton = predictionState !== 'not-required';
+        const diasablePredictionButton =
+            predictionState === "started" || predictionState === "completed";
 
         const showPauseButton = sensorManager
             && sensorManager.supportsHeartbeat
-            && this.connectedSensorCount() > 0
+            && isConnected
             && enablePause;
 
         return (
             <div className="top-bar-right-controls">
                 {sensorManager && sensorManager.supportsDualCollection &&
-                 !this.state.secondGraph &&
-                 this.connectedSensorCount() > 1 ?
-                 <Button className="add-sensor-button" onClick={this.addGraph}>+ Add A Sensor</Button>
+                    !this.state.secondGraph &&
+                    this.connectedSensorCount() > 1 ?
+                    <Button
+                        className="add-sensor-button"
+                        onClick={this.addGraph}>
+                        + Add A Sensor
+                    </Button>
                  : null
                 }
                 {showPauseButton &&
@@ -1173,33 +1221,92 @@ export class App extends React.Component<AppProps, AppState> {
                     onClick={this.togglePauseHeartbeat}
                     disabled={pauseDisabled}>{pauseLabel}</Button>
                 }
+                {showPredictionButton &&
+                    <Button
+                        className="prediction-button"
+                        onClick={this.startPrediction}
+                        disabled={diasablePredictionButton}>
+                        Predict
+                    </Button>
+                }
             </div>
         );
     }
 
+    renderLegendItem(className:string, label:string) {
+        return (
+            <>
+                <div className={`bar ${className}`} />
+                <div className={`name ${className}`}>
+                    {label}
+                </div>
+            </>
+        );
+    }
+
+    renderPrimaryLegend() {
+        const label = this.state.sensorSlots[0].sensor.definition.measurementName;
+        return this.renderLegendItem("primary", label)
+    }
+
+    renderSecondaryLegend() {
+        const label = this.state.sensorSlots[1].sensor.definition.measurementName;
+        if (this.state.secondGraph) {
+            return this.renderLegendItem("secondary", label)
+        }
+        return null;
+    }
+
+    renderPredictionLegend() {
+        const {predictionState} = this.state;
+        if (predictionState !== 'not-required') {
+            return this.renderLegendItem("prediction", "Prediction");
+        }
+        return null;
+    }
+
+
     renderLegend() {
         if (this.connectedSensorCount() > 0) {
-            return <div className="bottom-legend">
-                <div className="bar primary" />
-                <div className="name primary">{this.state.sensorSlots[0].sensor.definition.measurementName}</div>
-                {this.state.secondGraph ? <div className="bar secondary" /> : null }
-                {this.state.secondGraph ? <div className="name secondary">{this.state.sensorSlots[1].sensor.definition.measurementName}</div> : null }
-            </div>
+            return(
+                <div className="bottom-legend">
+                    { this.renderPrimaryLegend() }
+                    { this.renderSecondaryLegend() }
+                    { this.renderPredictionLegend() }
+                </div>
+            );
         } else {
             return null;
         }
     }
 
     render() {
-        var { sensorConfig, sensorManager, sensorRecordings } = this.state,
-            codapURL = window.self === window.top
-                        ? "http://codap.concord.org/releases/latest?di=" + window.location.href
-                        : "",
-            interfaceType = (sensorConfig && sensorConfig.interface) || "";
+        const { interactiveHost, useSensors, requirePrediction, fakeSensor } = this.props;
+        const { sensorConfig, sensorManager, sensorRecordings } = this.state;
+        const codapURL = window.self === window.top
+            ? "http://codap.concord.org/releases/latest?di=" + window.location.href
+            : "";
+
+        const interfaceType = (sensorConfig && sensorConfig.interface) || "";
         const isConnectorAwake = sensorManager ? sensorManager.isAwake() : true;
-        const showControls = this.props.interactiveHost !== "report";
+
+        const showControls =
+            interactiveHost !== "report"
+            && (fakeSensor || useSensors || requirePrediction);
+
         const singleReads = !!this.props.singleReads;
-        const preRecordings = this.props.preRecordings ? [...this.props.preRecordings] : [];
+        const preRecordings = this.props.preRecordings
+            ? [...this.props.preRecordings]
+            : [];
+
+        const savePrediction = () => {
+            this.setState({predictionState: "completed"});
+        }
+        const clearPrediction = () => {
+            this.setState({
+                prediction: [],
+            });
+        }
         return (
             <div className="app-container">
                 <ReactModal className="sensor-dialog-content"
@@ -1268,16 +1375,28 @@ export class App extends React.Component<AppProps, AppState> {
                         <button onClick={this.closeAboutModal}>Ok</button>
                     </div>
                 </ReactModal>
-                { this.props.prompt && <div className="prompt" dangerouslySetInnerHTML={{ __html: this.props.prompt}} /> }
+                { this.props.prompt &&
+                    <div
+                        className="prompt"
+                        dangerouslySetInnerHTML={{ __html: this.props.prompt}}
+                    />
+                }
                 <div className="app-content">
-                    {showControls && <div className="app-top-bar">
-                        {this.renderStatusMessage()}
-                        {this.renderSensorControls()}
-                        {this.renderTopRightButtons()}
-                    </div>}
+                    <div className="app-top-bar">
+                        { showControls &&
+                            <>
+                                {this.renderStatusMessage()}
+                                {this.renderSensorControls()}
+                            </>
+                        }
+                        { this.renderTopRightButtons() }
+                    </div>
                     <GraphsPanel
                         sensorRecordings={sensorRecordings}
                         preRecordings={preRecordings}
+                        predictionState={this.state.predictionState}
+                        prediction={this.state.prediction}
+                        onAddPrediction={this.addPrediction}
                         onGraphZoom={this.onGraphZoom}
                         onSensorSelect={this.handleSensorSelect}
                         xStart={this.state.xStart}
@@ -1311,7 +1430,11 @@ export class App extends React.Component<AppProps, AppState> {
                     onSaveData={this.interactiveHost === "codap" ? this.sendData : undefined}
                     onReloadPage={this.reload}
                     onAboutClick={this.showAbout}
-                    isDisabled={sensorManager == null}
+                    isDisabled={false} // TODO: are the controls ever disabled?
+                    // isDisabled={useSensors && sensorManager == null}
+                    predictionStatus={this.state.predictionState}
+                    onClearPrediction={clearPrediction}
+                    onSavePrediction={savePrediction}
                     assetsPath={this.assetsPath}
                     singleReads={singleReads}
                 />}

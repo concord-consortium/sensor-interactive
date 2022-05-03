@@ -1,0 +1,9 @@
+
+Designs are in Zeplin
+
+- workflow
+  - when predictions are enables, must predict first.
+- ui
+  - Buttons: when predictions are enabled, UI shows different buttons
+  - Dialog: for ending predictions
+- actual prediction graph work.
