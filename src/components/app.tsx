@@ -1144,11 +1144,13 @@ export class App extends React.Component<AppProps, AppState> {
         const { sensorManager, sensorSlots, pauseHeartbeat } = this.state;
         const connected = sensorManager != null;
         const sensorColumns = (this.state.sensorConfig && this.state.sensorConfig.dataColumns) || [];
+        const sensorUnit = this.props.preRecordings ? this.props.preRecordings[0].unit : null;
         return (
             <div className="graph-top-panel-holder">
                 {connected ?
                     <GraphTopPanel
                     sensorSlot={sensorSlots && sensorSlots[0]}
+                    sensorUnit={sensorUnit}
                     sensorColumns={sensorColumns}
                     sensorPrecision={sensorSlots[0].sensor ? sensorSlots[0].sensor.sensorPrecision() : 2}
                     onSensorSelect={this.handleSensorSelect}
@@ -1162,6 +1164,7 @@ export class App extends React.Component<AppProps, AppState> {
                 {connected && this.state.secondGraph ?
                     <GraphTopPanel
                     sensorSlot={sensorSlots && sensorSlots[1]}
+                    sensorUnit={sensorUnit}
                     sensorColumns={sensorColumns}
                     sensorPrecision={sensorSlots[1].sensor ? sensorSlots[1].sensor.sensorPrecision() : 2}
                     onSensorSelect={this.handleSensorSelect}
