@@ -95,9 +95,8 @@ function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo) {
 }
 
 function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:SensorConfigColumnInfo[]|null) {
-    let matched:(Sensor|null)[] = [null, null],
-        columns = dataColumns && dataColumns.slice() || [];
-
+    let matched:(Sensor|null)[] = [null, null];
+    let columns = dataColumns && dataColumns.slice() || [];
     function matchSensors(test: (c:SensorConfigColumnInfo, s:Sensor) => boolean) {
         matched.forEach((sensor:Sensor|null, index) => {
             let found;
@@ -346,10 +345,13 @@ export class App extends React.Component<AppProps, AppState> {
         else {
             this.setStatusInterfaceConnected(interfaceType || "");
 
-            const timeUnit = sensorConfig.timeUnit || "",
-                  dataColumns = sensorConfig.dataColumns;
-
-            sensorSlots = matchSensorsToDataColumns(sensorSlots, dataColumns || null);
+            const timeUnit = sensorConfig.timeUnit || "";
+            const filterUnits = this.preferredUnits();
+            const dataColumns = filterUnits
+                ? sensorConfig.dataColumns?.filter(dc => filterUnits === dc.units)
+                : sensorConfig.dataColumns;
+            console.log(dataColumns);
+                sensorSlots = matchSensorsToDataColumns(sensorSlots, dataColumns || null);
 
             this.setState({ sensorConfig, sensorSlots, timeUnit }, afterSetState);
         }
@@ -1139,12 +1141,18 @@ export class App extends React.Component<AppProps, AppState> {
             }
         }
     }
+    preferredUnits() {
+        const { preRecordings } = this.props;
+        let units = preRecordings && preRecordings[0] && preRecordings[0].unit;
+        return units || null;
+    }
 
     renderGraphTopPanels() {
         const { sensorManager, sensorSlots, pauseHeartbeat } = this.state;
+
         const connected = sensorManager != null;
         const sensorColumns = (this.state.sensorConfig && this.state.sensorConfig.dataColumns) || [];
-        const sensorUnit = this.props.preRecordings ? this.props.preRecordings[0].unit : null;
+        const sensorUnit = this.preferredUnits();
         return (
             <div className="graph-top-panel-holder">
                 {connected ?

@@ -58,15 +58,21 @@ export const GraphTopPanel: React.FC<IGraphTopPanelProps> = (props) => {
 
   const sensorSelectOptions = (sensorColumns:SensorConfigColumnInfo[]) => {
     const columns = sensorColumns || [];
+    const {sensorUnit} = props;
     // if no sensor slot or not enough sensors, there are no options
     if ((sensorSlot.slotIndex == null) || (sensorSlot.slotIndex >= columns.length)) return null;
 
     const viableColumns = columns.filter((column:SensorConfigColumnInfo) => {
-      const {sensorUnit} = props;
       if(sensorUnit === null) return true;
       const units = column && column.units;
       return (units == sensorUnit);
     });
+    // If there are no matching columns, there are no options, display an error:
+    if(viableColumns.length === 0) {
+      console.warn("No matching columns found for sensor unit:", sensorUnit);
+      const message = `No sensors available for ${sensorUnit}`;
+      return ([<option key="no-sensor-units" value={message}>{message}</option>]);
+    }
 
     return viableColumns.map((column:SensorConfigColumnInfo, index:number) => {
       const units = column && column.units,

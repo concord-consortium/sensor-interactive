@@ -52,8 +52,8 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
 
     scaleToData() {
         const { sensorRecording, preRecording, prediction } = this.props;
-        let yMin = null;
-        let yMax = null;
+        let yMin = sensorRecording?.min || preRecording?.min || null;
+        let yMax = sensorRecording?.max || preRecording?.max || null;
         let data :number[][] = [];
         if (sensorRecording && sensorRecording.data.length > 0) {
             data = data.concat(sensorRecording.data);
