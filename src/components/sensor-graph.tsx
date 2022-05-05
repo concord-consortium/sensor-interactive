@@ -1,7 +1,6 @@
 import * as React from "react";
 import { SensorRecording } from "../interactive/types";
 import { Sensor } from "../models/sensor";
-// import { mergeTimeSeriesData, timeSeriesData } from "../utils/merge-timeseries-data";
 import { Graph } from "./graph";
 import { PredictionState } from "./types";
 
