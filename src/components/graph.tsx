@@ -154,6 +154,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
     autoScale = () => {
         if(this.props.resetScaleF) {
+            this.dygraph.resetZoom();
             this.props.resetScaleF();
         }
         else {

@@ -54,6 +54,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         const { sensorRecording, preRecording, prediction } = this.props;
         let yMin = sensorRecording?.min || preRecording?.min || null;
         let yMax = sensorRecording?.max || preRecording?.max || null;
+
         let data :number[][] = [];
         if (sensorRecording && sensorRecording.data.length > 0) {
             data = data.concat(sensorRecording.data);
@@ -75,6 +76,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 yMax = y;
             }
         }
+
         this.setState({
             yMin,
             yMax
@@ -115,7 +117,6 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 xMax: nextProps.xEnd
             });
         }
-        this.scaleToData();
     }
 
     xLabel() {
