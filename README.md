@@ -29,6 +29,18 @@ the `.certs` directory should be ignored by `.gitignore`
 - interactive/index.html - AP/LARA embeddable interactive
 - interactive/report-item.html - Portal dashboard report item interactive
 
+
+## Cypress Snapshot tests
+If you change the UI enough, you might have to update the recoded snapshots
+for the Cypress tests. There is a NPM task you can run that does half the work
+for you defined in `package.json`.
+
+You can run `npm run test:cypress:updateSnaps` to generate or update  snapshots
+in the `cypress/snapshots/branch` folder. However, this isn't where Cypress looks
+for them when run in CI.  You may have to move updated files into
+`cypress/snapshots/All Integration Specs/`
+
+
 ## Available Sensors
 
 The system defines two classes of sensors: wireless and wired.  In both cases one or more
