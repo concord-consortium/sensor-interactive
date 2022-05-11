@@ -103,6 +103,6 @@ context('Connecting a wired sensor',()=>{
     it('verify graph rescale',()=>{
         workspace.getRescaleButton().click();
         workspace.getXAxisMaxValue().should('contain','5')
-        cy.matchImageSnapshot('rescaled_graph')
+        // cy.matchImageSnapshot('rescaled_graph')
     })
 })
