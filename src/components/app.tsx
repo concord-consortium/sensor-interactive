@@ -350,7 +350,7 @@ export class App extends React.Component<AppProps, AppState> {
             const dataColumns = filterUnits
                 ? sensorConfig.dataColumns?.filter(dc => filterUnits === dc.units)
                 : sensorConfig.dataColumns;
-            console.log(dataColumns);
+
                 sensorSlots = matchSensorsToDataColumns(sensorSlots, dataColumns || null);
 
             this.setState({ sensorConfig, sensorSlots, timeUnit }, afterSetState);
