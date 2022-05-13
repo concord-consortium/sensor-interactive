@@ -24,10 +24,19 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
 
   const handleEnablePause = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({enablePause: e.target.checked});
 
-  const handleUsePrediction = (e: React.ChangeEvent<HTMLInputElement>) =>
-  updateAuthoredState({usePrediction: e.target.checked});
+  // When we unset prediction, we may need to erase units/min/max
+  const handleUsePrediction = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const nextUsePrediction = e.target.checked;
+    const changes: Partial<IAuthoredState>  = {usePrediction: nextUsePrediction};
+    updateAuthoredState(changes);
+  }
 
-  const handleUseAuthoredData = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({useAuthoredData: e.target.checked});
+  // When we unset authoredData, we may need to erase units/min/max
+  const handleUseAuthoredData = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const nextAuthoredData = e.target.checked;
+    const changes: Partial<IAuthoredState>  = {useAuthoredData: nextAuthoredData};
+    updateAuthoredState(changes);
+  }
 
   const updateAuthoredState = (newState: Partial<IAuthoredState>) => {
     setAuthoredState( prev => {
@@ -77,14 +86,16 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
       for (let row of rows) {
         let cols = row.split(',');
         let [x, y] = cols.map(Number);
-        if(isNaN(x) || isNaN(y) || x === undefined || cols.length !== 2) {
-          console.error('cant parse data', e);
-          setParseError(true)
-        }
-        else {
-          data.push([x, y]);
-          min = Math.min(min, y);
-          max = Math.max(max, y);
+        if(cols.length == 2) {
+          if(isNaN(x) || isNaN(y) || x === undefined || y === undefined) {
+            console.error('cant parse data', e);
+            setParseError(true)
+          }
+          else {
+            data.push([x, y]);
+            min = Math.min(min, y);
+            max = Math.max(max, y);
+          }
         }
       }
 

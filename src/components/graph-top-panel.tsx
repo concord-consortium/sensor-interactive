@@ -10,6 +10,7 @@ interface IGraphTopPanelProps {
   sensorSlot:SensorSlot;
   sensorColumns:SensorConfigColumnInfo[];
   sensorPrecision:number;
+  sensorUnit:string|null;
   onSensorSelect?:(sensorIndex:number, columnID:string) => void;
   onZeroSensor?:() => void;
   onRemoveSensor?:() => void;
@@ -57,9 +58,23 @@ export const GraphTopPanel: React.FC<IGraphTopPanelProps> = (props) => {
 
   const sensorSelectOptions = (sensorColumns:SensorConfigColumnInfo[]) => {
     const columns = sensorColumns || [];
+    const {sensorUnit} = props;
     // if no sensor slot or not enough sensors, there are no options
     if ((sensorSlot.slotIndex == null) || (sensorSlot.slotIndex >= columns.length)) return null;
-    return columns.map((column:SensorConfigColumnInfo, index:number) => {
+
+    const viableColumns = columns.filter((column:SensorConfigColumnInfo) => {
+      if(sensorUnit === null) return true;
+      const units = column && column.units;
+      return (units == sensorUnit);
+    });
+    // If there are no matching columns, there are no options, display an error:
+    if(viableColumns.length === 0) {
+      console.warn("No matching columns found for sensor unit:", sensorUnit);
+      const message = `No sensors available for ${sensorUnit}`;
+      return ([<option key="no-sensor-units" value={message}>{message}</option>]);
+    }
+
+    return viableColumns.map((column:SensorConfigColumnInfo, index:number) => {
       const units = column && column.units,
             columnID = column && column.id,
             sensorDef = units && SensorDefinitions[units],
@@ -73,11 +88,16 @@ export const GraphTopPanel: React.FC<IGraphTopPanelProps> = (props) => {
     });
   };
 
-  const sensorOptions = sensorSelectOptions(props.sensorColumns),
-        enableSensorSelect = sensorOptions && (sensorOptions.length > 1) && props.onSensorSelect,
-        sensorDefinition = sensor && sensor.definition,
-        enableZeroSensor = sensorDefinition && sensorDefinition.tareable && props.onZeroSensor,
-        selectClass = "sensor-select " + (sensorOptions && sensorOptions.length <=1 ? "single" : null);
+  const sensorOptions = sensorSelectOptions(props.sensorColumns);
+  const enableSensorSelect =
+    sensorOptions && (sensorOptions.length > 1) && props.onSensorSelect;
+  const sensorDefinition = sensor && sensor.definition;
+  const enableZeroSensor =
+    sensorDefinition && sensorDefinition.tareable && props.onZeroSensor;
+  const selectClass =
+    "sensor-select " + (sensorOptions && sensorOptions.length <=1 ? "single" : null);
+
+
   return (
     <div className="graph-top-panel">
       <Select className={selectClass}

@@ -95,9 +95,8 @@ function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo) {
 }
 
 function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:SensorConfigColumnInfo[]|null) {
-    let matched:(Sensor|null)[] = [null, null],
-        columns = dataColumns && dataColumns.slice() || [];
-
+    let matched:(Sensor|null)[] = [null, null];
+    let columns = dataColumns && dataColumns.slice() || [];
     function matchSensors(test: (c:SensorConfigColumnInfo, s:Sensor) => boolean) {
         matched.forEach((sensor:Sensor|null, index) => {
             let found;
@@ -222,7 +221,7 @@ export class App extends React.Component<AppProps, AppState> {
             this.state.sensorManager.startPolling();
         }
 
-        this.onTimeSelect = this.onTimeSelect.bind(this);
+        this.setXZoomState = this.setXZoomState.bind(this);
         this.onGraphZoom = this.onGraphZoom.bind(this);
         this.startSensor = this.startSensor.bind(this);
         this.stopSensor = this.stopSensor.bind(this);
@@ -264,18 +263,14 @@ export class App extends React.Component<AppProps, AppState> {
         return (typeof this.props.sensorManager !== "undefined" ? this.props.sensorManager : null);
     }
 
-    addPrediction = (p: number[]) => {
-        const { prediction } = this.state;
-        const sortFunc = (a: number[], b: number[]) => a[0] - b[0];
-        const nextPrediction = [...prediction, p].sort(sortFunc);
-        this.setState({prediction: nextPrediction});
+    setPrediction = (p: number[][]) => {
+        this.setState({prediction: p});
     }
 
     componentDidMount() {
         SmartFocusHighlight.enableFocusHighlightOnKeyDown();
 
         const {initialInteractiveState} = this.props;
-        
         if (initialInteractiveState) {
             if (initialInteractiveState.version === 1) {
                 let predictionState = this.state.predictionState;
@@ -350,10 +345,13 @@ export class App extends React.Component<AppProps, AppState> {
         else {
             this.setStatusInterfaceConnected(interfaceType || "");
 
-            const timeUnit = sensorConfig.timeUnit || "",
-                  dataColumns = sensorConfig.dataColumns;
+            const timeUnit = sensorConfig.timeUnit || "";
+            const filterUnits = this.preferredUnits();
+            const dataColumns = filterUnits
+                ? sensorConfig.dataColumns?.filter(dc => filterUnits === dc.units)
+                : sensorConfig.dataColumns;
 
-            sensorSlots = matchSensorsToDataColumns(sensorSlots, dataColumns || null);
+                sensorSlots = matchSensorsToDataColumns(sensorSlots, dataColumns || null);
 
             this.setState({ sensorConfig, sensorSlots, timeUnit }, afterSetState);
         }
@@ -826,7 +824,7 @@ export class App extends React.Component<AppProps, AppState> {
                 version: 1,
                 sensorRecordings: this.state.sensorRecordings,
                 runLength: this.props.singleReads ? DEFAULT_RUN_LENGTH : this.state.runLength,
-                prediction: this.state.prediction,
+                prediction: this.state.prediction
             });
             this.setState({dataChanged: false}, afterSave);
         }
@@ -852,24 +850,18 @@ export class App extends React.Component<AppProps, AppState> {
             sensorSlots,
             runLength
         }, () => {
-            this.saveInteractiveState();
+            this.setXZoomState(runLength);
         });
-        this.setXZoomState(runLength);
     }
 
-    setXZoomState(runLength:number) {
+    setXZoomState(newTime:number) {
         this.setState({
-            xStart: 0,
-            // without the .01, last tick number sometimes fails to display
-            xEnd: runLength + 0.01
-        });
-    }
-
-    onTimeSelect(newTime:number) {
-        this.setState({ runLength: newTime }, () => {
-            this.saveInteractiveState()
-        });
-        this.setXZoomState(newTime);
+                xStart: 0,
+                runLength: newTime,
+                // without the .01, last tick number sometimes fails to display
+                xEnd: newTime + 0.01
+            }, () => this.saveInteractiveState()
+        );
         this.codap?.updateInteractiveState({ runLength: newTime });
     }
 
@@ -1149,16 +1141,24 @@ export class App extends React.Component<AppProps, AppState> {
             }
         }
     }
+    preferredUnits() {
+        const { preRecordings } = this.props;
+        let units = preRecordings && preRecordings[0] && preRecordings[0].unit;
+        return units || null;
+    }
 
     renderGraphTopPanels() {
         const { sensorManager, sensorSlots, pauseHeartbeat } = this.state;
+
         const connected = sensorManager != null;
         const sensorColumns = (this.state.sensorConfig && this.state.sensorConfig.dataColumns) || [];
+        const sensorUnit = this.preferredUnits();
         return (
             <div className="graph-top-panel-holder">
                 {connected ?
                     <GraphTopPanel
                     sensorSlot={sensorSlots && sensorSlots[0]}
+                    sensorUnit={sensorUnit}
                     sensorColumns={sensorColumns}
                     sensorPrecision={sensorSlots[0].sensor ? sensorSlots[0].sensor.sensorPrecision() : 2}
                     onSensorSelect={this.handleSensorSelect}
@@ -1172,6 +1172,7 @@ export class App extends React.Component<AppProps, AppState> {
                 {connected && this.state.secondGraph ?
                     <GraphTopPanel
                     sensorSlot={sensorSlots && sensorSlots[1]}
+                    sensorUnit={sensorUnit}
                     sensorColumns={sensorColumns}
                     sensorPrecision={sensorSlots[1].sensor ? sensorSlots[1].sensor.sensorPrecision() : 2}
                     onSensorSelect={this.handleSensorSelect}
@@ -1195,7 +1196,7 @@ export class App extends React.Component<AppProps, AppState> {
         const isConnected = this.connectedSensorCount() > 0;
 
         const showPredictionButton = predictionState !== 'not-required';
-        const diasablePredictionButton =
+        const disablePredictionButton =
             predictionState === "started" || predictionState === "completed";
 
         const showPauseButton = sensorManager
@@ -1225,7 +1226,7 @@ export class App extends React.Component<AppProps, AppState> {
                     <Button
                         className="prediction-button"
                         onClick={this.startPrediction}
-                        disabled={diasablePredictionButton}>
+                        disabled={disablePredictionButton}>
                         Predict
                     </Button>
                 }
@@ -1245,8 +1246,11 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     renderPrimaryLegend() {
-        const label = this.state.sensorSlots[0].sensor.definition.measurementName;
-        return this.renderLegendItem("primary", label)
+        if (this.connectedSensorCount() > 0) {
+            const label = this.state.sensorSlots[0].sensor.definition.measurementName;
+            return this.renderLegendItem("primary", label)
+        }
+        return null;
     }
 
     renderSecondaryLegend() {
@@ -1265,26 +1269,32 @@ export class App extends React.Component<AppProps, AppState> {
         return null;
     }
 
+    renderPreRecordedLegend() {
+        const {preRecordings} = this.props;
+        if ( preRecordings &&
+            preRecordings?.length > 0 && preRecordings[0].data.length > 0) {
+            return this.renderLegendItem("prerecording", "Recorded");
+        }
+        return null;
+    }
+
 
     renderLegend() {
-        if (this.connectedSensorCount() > 0) {
-            return(
-                <div className="bottom-legend">
-                    { this.renderPrimaryLegend() }
-                    { this.renderSecondaryLegend() }
-                    { this.renderPredictionLegend() }
-                </div>
-            );
-        } else {
-            return null;
-        }
+        return(
+            <div className="bottom-legend">
+                { this.renderPrimaryLegend() }
+                { this.renderSecondaryLegend() }
+                { this.renderPredictionLegend() }
+                { this.renderPreRecordedLegend() }
+            </div>
+        );
     }
 
     render() {
         const { interactiveHost, useSensors, requirePrediction, fakeSensor } = this.props;
         const { sensorConfig, sensorManager, sensorRecordings } = this.state;
         const codapURL = window.self === window.top
-            ? "http://codap.concord.org/releases/latest?di=" + window.location.href
+            ? "//codap.concord.org/releases/latest?di=" + window.location.href
             : "";
 
         const interfaceType = (sensorConfig && sensorConfig.interface) || "";
@@ -1301,6 +1311,7 @@ export class App extends React.Component<AppProps, AppState> {
 
         const savePrediction = () => {
             this.setState({predictionState: "completed"});
+            this.saveInteractiveState();
         }
         const clearPrediction = () => {
             this.setState({
@@ -1396,7 +1407,7 @@ export class App extends React.Component<AppProps, AppState> {
                         preRecordings={preRecordings}
                         predictionState={this.state.predictionState}
                         prediction={this.state.prediction}
-                        onAddPrediction={this.addPrediction}
+                        setPredictionF={this.setPrediction}
                         onGraphZoom={this.onGraphZoom}
                         onSensorSelect={this.handleSensorSelect}
                         xStart={this.state.xStart}
@@ -1422,7 +1433,7 @@ export class App extends React.Component<AppProps, AppState> {
                     duration={this.state.runLength} durationUnit="s"
                     durationOptions={[1, 5, 10, 15, 20, 30, 45, 60, 300, 600, 900, 1200, 1800]}
                     embedInCodapUrl={codapURL}
-                    onDurationChange={this.onTimeSelect}
+                    onDurationChange={this.setXZoomState}
                     onStartConnecting={this.startConnecting}
                     onStartCollecting={this.startSensor}
                     onStopCollecting={this.stopSensor}

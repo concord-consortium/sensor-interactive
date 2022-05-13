@@ -1,7 +1,6 @@
 import * as React from "react";
 import { SensorRecording } from "../interactive/types";
 import { Sensor } from "../models/sensor";
-import { mergeTimeSeriesData, timeSeriesData } from "../utils/merge-timeseries-data";
 import { Graph } from "./graph";
 import { PredictionState } from "./types";
 
@@ -17,7 +16,7 @@ interface SensorGraphProps {
     title:string;
     onGraphZoom:(xStart:number, xEnd:number) => void;
     onSensorSelect:(sensorIndex:number, columnID:string) => void;
-    onAddPrediction:(prediction:number[]) => void;
+    setPredictionF:(prediction:number[][]) => void;
     collecting:boolean;
     hasData:boolean;
     dataReset:boolean;
@@ -33,6 +32,8 @@ interface SensorGraphProps {
 interface SensorGraphState {
     yMin?:number|null;
     yMax?:number|null;
+    xMin:number;
+    xMax:number;
 }
 
 export default class SensorGraph extends React.Component<SensorGraphProps, SensorGraphState> {
@@ -42,30 +43,79 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
 
     constructor(props:SensorGraphProps) {
         super(props);
-        this.state = {};
+        this.state = {
+            xMin: this.props.xStart,
+            xMax: this.props.xEnd
+        };
+    }
+
+    scaleToData() {
+        const { sensorRecording, preRecording, prediction } = this.props;
+        let yMin = sensorRecording?.min || preRecording?.min || null;
+        let yMax = sensorRecording?.max || preRecording?.max || null;
+
+        let data :number[][] = [];
+        if (sensorRecording && sensorRecording.data.length > 0) {
+            data = data.concat(sensorRecording.data);
+        }
+        if(preRecording && preRecording.data.length > 0) {
+            data = data.concat(preRecording.data);
+        }
+        if(prediction && prediction.length > 0) {
+            data = data.concat(prediction);
+        }
+        for(let d of data) {
+            let y = d[1];
+
+            if (yMin == null || y < yMin) {
+                yMin = y;
+            }
+
+            if (yMax == null || y > yMax) {
+                yMax = y;
+            }
+        }
+
+        this.setState({
+            yMin,
+            yMax
+        });
     }
 
     handleRescale = (xRange:number[], yRange:number[]) => {
-        const { yMin, yMax } = this.state;
-        if (yMin !== yRange[0] || yMax !== yRange[1]) {
-            this.setState({ yMin: yRange[0], yMax: yRange[1] });
-        }
+        this.setState({
+            yMin: yRange[0],
+            yMax: yRange[1],
+            xMin: xRange[0],
+            xMax: xRange[1]
+        });
         if (this.props.onGraphZoom) {
             this.props.onGraphZoom(xRange[0], xRange[1]);
         }
     }
 
+    handleResetScale = () => {
+        this.scaleToData();
+    }
+
     componentWillReceiveProps(nextProps:SensorGraphProps) {
-        const { dataReset } = this.props;
+        const { dataReset, xStart, xEnd, sensorRecording } = this.props;
         if (!dataReset && nextProps.dataReset) {
             this.lastDataIndex = 0;
 
-            // if sensor type changes, revert to default axis range for sensor
-            const { sensorRecording } = this.props,
-                  nextSensorRecording = nextProps.sensorRecording;
-            if (sensorRecording?.unit !== nextSensorRecording?.unit) {
-                this.setState({ yMin: null, yMax: null });
-            }
+        }
+        const stateChanges = {} as SensorGraphState;
+        // if sensor type changes, revert to default axis range for sensor
+        if (sensorRecording?.unit !== nextProps.sensorRecording?.unit) {
+            stateChanges.yMin =  nextProps.sensorRecording?.min;
+            stateChanges.yMax = nextProps.sensorRecording?.max;
+        }
+        if (nextProps.xEnd !== xEnd || nextProps.xStart !== xStart) {
+            stateChanges.xMin = nextProps.xStart;
+            stateChanges.xMax = nextProps.xEnd;
+        }
+        if (Object.keys(stateChanges).length > 0) {
+            this.setState(stateChanges);
         }
     }
 
@@ -84,37 +134,14 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
 
     renderGraph(graphWidth:number|null) {
-        const { sensorRecording, preRecording, prediction, collecting } = this.props;
-        const { yMin, yMax } = this.state;
-        const source = sensorRecording || preRecording
-        const plotYMin = yMin != null ? yMin : (source?.min != null ? source.min : 0);
-        const plotYMax = yMax != null ? yMax : (source?.max != null ? source.max : 10);
+        const { sensorRecording } = this.props;
+        const { yMin, yMax, xMin, xMax } = this.state;
 
-        const hasSensorData = sensorRecording && sensorRecording.data.length > 0;
-        const hasPredictionData = prediction && prediction.length > 0;
-        const hasPreRecording = preRecording && preRecording.data.length > 0;
-        const sources:timeSeriesData[] = [];
         const labels = [] as string[];
-
-        if(hasPredictionData && !collecting) {
-            sources.push({name: 'prediction', data: prediction});
-            labels.push('prediction');
-        }
-        if(hasPreRecording && !collecting) {
-            sources.push({name: 'preRecording', data: preRecording.data});
-            labels.push('recording');
-        }
-        if(hasSensorData) {
-            sources.push({name: 'sensorRecording', data: sensorRecording.data});
-            labels.push(this.yLabel());
-        }
 
         // Dygraph requires each row of data to have the same number of columns.
         // If we have both the sensor and pre-recording data, plot both.
-        const data = collecting
-         ? sensorRecording?.data || []
-         : mergeTimeSeriesData(sources);
-
+        const data = sensorRecording?.data || []
         return (
             <div className="sensor-graph">
               <Graph
@@ -123,10 +150,11 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 height={this.props.height}
                 data={data}
                 onRescale={this.handleRescale}
-                xMin={this.props.xStart}
-                xMax={this.props.xEnd}
-                yMin={plotYMin}
-                yMax={plotYMax}
+                resetScaleF={this.handleResetScale}
+                xMin={xMin}
+                xMax={xMax}
+                yMin={yMin || 0}
+                yMax={yMax || 100}
                 // TODO: figure out default precision
                 valuePrecision={sensorRecording?.precision || 2}
                 xLabel={this.xLabel()}
@@ -135,7 +163,9 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 assetsPath={this.props.assetsPath}
                 singleReads={this.props.singleReads}
                 predictionState={this.props.predictionState}
-                onAddPrediction={this.props.onAddPrediction}
+                prediction={this.props.prediction}
+                preRecording={this.props.preRecording?.data || []}
+                setPredictionF={this.props.setPredictionF}
               />
             </div>
         );

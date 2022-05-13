@@ -15,7 +15,7 @@ interface IGraphsPanelProps {
   preRecordings:SensorRecording[];
   predictionState: PredictionState;
   prediction: number[][];
-  onAddPrediction: (prediction:number[]) => void;
+  setPredictionF: (prediction:number[][]) => void;
   onGraphZoom:(xStart:number, xEnd:number) => void;
   onSensorSelect:(sensorIndex:number, columnID:string) => void;
   xStart:number;
@@ -68,7 +68,7 @@ const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
                         singleReads={props.singleReads}
                         predictionState={props.predictionState}
                         prediction={props.prediction}
-                        onAddPrediction={props.onAddPrediction}
+                        setPredictionF={props.setPredictionF}
             />;
 
   }
