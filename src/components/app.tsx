@@ -20,6 +20,7 @@ import { SensorGDXManager } from "../models/sensor-gdx-manager";
 import { IInteractiveState, SensorRecording } from "../interactive/types";
 import { SensorRecordingStore } from "../models/recording-store";
 import { PredictionState } from "./types";
+import { enableShutterbug, disableShutterbug } from "../js/shutterbug-support";
 
 import "./dialog.css";
 import "./app.css";
@@ -291,6 +292,11 @@ export class App extends React.Component<AppProps, AppState> {
                 console.error(`Unknown interactive state version: ${initialInteractiveState.version}`, {initialInteractiveState});
             }
         }
+        enableShutterbug("app-container");
+    }
+
+    componentWillUnmount() {
+        disableShutterbug();
     }
 
     connectCodap() {
