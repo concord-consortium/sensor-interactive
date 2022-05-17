@@ -241,19 +241,24 @@ export class App extends React.Component<AppProps, AppState> {
         this.showAbout= this.showAbout.bind(this);
         this.saveInteractiveState = this.saveInteractiveState.bind(this);
         this.togglePauseHeartbeat = this.togglePauseHeartbeat.bind(this);
+        this.enableHeartBeat = this.enableHeartBeat.bind(this);
         this.startPrediction = this.startPrediction.bind(this);
         sensorRecordingStore.listenForNewData((sensorRecordings) => this.setState({sensorRecordings}));
     }
 
-    togglePauseHeartbeat() {
-        const nextPause = !this.state.pauseHeartbeat;
-        this.setState({pauseHeartbeat: nextPause},
+    enableHeartBeat(enabled: boolean) {
+        this.setState({pauseHeartbeat: !enabled},
             () => {
                 if (this.state.sensorManager) {
-                    this.state.sensorManager.requestHeartbeat(!nextPause);
+                    this.state.sensorManager.requestHeartbeat(enabled);
                 }
-            }
-        );
+        });
+    }
+
+    togglePauseHeartbeat() {
+        // Excuse the double negative:
+        // If we are currently paused, we want to enable heartbeats.
+        this.enableHeartBeat(this.state.pauseHeartbeat);
     }
 
     startPrediction() {
@@ -601,18 +606,17 @@ export class App extends React.Component<AppProps, AppState> {
                     'onSensorCollectionStopped',
                     this.onSensorCollectionStopped
                 );
-                sensorManager.requestHeartbeat(true);
             }
         };
 
         this.setState(
             {
                 collecting: false,
-                pauseHeartbeat: false, // resume heartbeat after collection is stopped
                 statusMessage: this.messages["data_collection_stopped"]
             },
             () =>  this.saveInteractiveState(saveCallback)
         );
+        this.enableHeartBeat(true);
     }
 
     // This should only be called while we are collecting
