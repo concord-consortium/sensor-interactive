@@ -1,16 +1,8 @@
 import * as React from "react";
 import SensorGraph from "./sensor-graph";
-import { withSize }  from "react-sizeme";
 import { SensorRecording } from "../interactive/types";
 import { PredictionState } from "./types";
-
-interface ISizeMeSize {
-  width:number|null;
-  height:number|null;
-}
-
 interface IGraphsPanelProps {
-  size:ISizeMeSize;
   sensorRecordings:SensorRecording[];
   preRecordings:SensorRecording[];
   predictionState: PredictionState;
@@ -26,11 +18,12 @@ interface IGraphsPanelProps {
   dataReset:boolean;
   assetsPath: string;
   secondGraph:boolean;
-  maxHeight?: number;
+  maxHeight: number;
+  width: number;
   singleReads?: boolean;
 }
 
-const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
+export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
 
   function renderGraph(options: {
     sensorRecording?:SensorRecording,
@@ -39,13 +32,12 @@ const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
     isSingletonGraph:boolean,
     isLastGraph:boolean}) {
     const {sensorRecording, preRecording, title, isSingletonGraph, isLastGraph} = options,
-          height = props.maxHeight || props.size.height,
-          availableHeight = height && (height - 20),
-          singleGraphHeight = availableHeight && (availableHeight + 8),
-          graphBaseHeight = availableHeight && Math.floor((availableHeight - 18) / 2),
+          availableHeight = props.maxHeight - 36,
+          singleGraphHeight = availableHeight + 8,
+          graphBaseHeight = Math.floor((availableHeight - 18) / 2),
           firstGraphHeight = graphBaseHeight,
-          secondGraphHeight = availableHeight && graphBaseHeight && (availableHeight - graphBaseHeight),
-          graphWidth = props.size.width && (props.size.width - 16),
+          secondGraphHeight = availableHeight - graphBaseHeight,
+          graphWidth = props.width - 16,
           graphHeight = isSingletonGraph
                           ? singleGraphHeight
                           : isLastGraph ? secondGraphHeight : firstGraphHeight;
@@ -101,13 +93,5 @@ const GraphsPanelImp: React.FC<IGraphsPanelProps> = (props) => {
       </div>
     );
 };
-
-const sizeMeConfig = {
-  monitorWidth: true,
-  monitorHeight: true,
-  noPlaceholder: true
-};
-
-const GraphsPanel: React.FC<Omit<IGraphsPanelProps, "size">> = withSize(sizeMeConfig)(GraphsPanelImp);
 
 export default GraphsPanel;
