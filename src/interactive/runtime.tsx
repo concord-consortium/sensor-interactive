@@ -2,7 +2,7 @@ import * as React from "react";
 import { IRuntimeInitInteractive, useInteractiveState, setHint } from "@concord-consortium/lara-interactive-api";
 
 import { defaultAuthoredState, IAuthoredState, IInteractiveState, SensorRecording } from "./types";
-import { App } from "../components/app";
+import App from "../components/app";
 
 interface Props {
   initMessage: IRuntimeInitInteractive<IInteractiveState, IAuthoredState>;
@@ -46,7 +46,6 @@ export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
         useSensors={authoredState.useSensors}
         singleReads={authoredState.singleReads}
         enablePause={authoredState.enablePause}
-        maxGraphHeight={625}
         initialInteractiveState={initialInteractiveState}
         preRecordings ={recordings}
         requirePrediction={usePrediction}

@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { App } from "../components/app";
+import App from "../components/app";
 import { SensorRecording } from "../interactive/types";
 
 const recording: SensorRecording = {

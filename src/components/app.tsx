@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as ReactModal from "react-modal";
+import { withSize }  from "react-sizeme";
 import { Sensor } from "../models/sensor";
 import { SensorSlot } from "../models/sensor-slot";
 import { SensorConfiguration, gNullSensorConfig } from "../models/sensor-configuration";
@@ -43,14 +44,17 @@ const DEFAULT_RUN_LENGTH = 5;
 const sensorRecordingStore = new SensorRecordingStore();
 
 export type InteractiveHost = "codap" | "runtime" | "report";
-
+interface ISizeMeSize {
+  width:number;
+  height:number;
+}
 export interface AppProps {
+    size:ISizeMeSize;
     sensorManager?: SensorManager;
     fakeSensor?: boolean;
     useSensors?: boolean;
     singleReads?: boolean;
     interactiveHost?: InteractiveHost;
-    maxGraphHeight?: number;
     initialInteractiveState?: IInteractiveState | null;
     preRecordings?: SensorRecording[];
     prompt?: string;
@@ -84,6 +88,8 @@ export interface AppState {
     aboutModal:boolean;
     sensorRecordings: SensorRecording[];
     pauseHeartbeat: boolean;
+    promptHeight: number;
+    topBarHeight: number;
 }
 
 function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo) {
@@ -157,7 +163,7 @@ const SLEEP_WAKE_DELAY_SEC = 3;
 const DOWN_SAMPLE_THRESHOLD_SECS = 60;
 const DOWN_SAMPLE_THRESHOLD_COUNT = 601;
 
-export class App extends React.Component<AppProps, AppState> {
+class AppContainer extends React.Component<AppProps, AppState> {
 
     private assetsPath:string;
     private messages:IStringMap;
@@ -167,6 +173,8 @@ export class App extends React.Component<AppProps, AppState> {
     private isReloading:boolean = false;
     private columnInfoCache: { [columnID: string]: SensorConfigColumnInfo[]; } = {};
     private interactiveHost: InteractiveHost;
+    private promptRef: React.RefObject<HTMLInputElement>;
+    private topBarRef: React.RefObject<HTMLInputElement>;
 
     constructor(props: AppProps) {
         super(props);
@@ -176,6 +184,9 @@ export class App extends React.Component<AppProps, AppState> {
         this.assetsPath = /\/examples|interactive\//.test(window.location.pathname)
                             ? "../assets" : "./assets";
         this.messages = SensorStrings.messages as IStringMap;
+
+        this.promptRef = React.createRef();
+        this.topBarRef = React.createRef();
 
         this.state = {
             sensorManager:this.passedSensorManager(),
@@ -201,7 +212,9 @@ export class App extends React.Component<AppProps, AppState> {
             disconnectionWarningModal:false,
             aboutModal:false,
             sensorRecordings:[],
-            pauseHeartbeat: false
+            pauseHeartbeat: false,
+            promptHeight: 0,
+            topBarHeight: 0,
         };
 
         this.onSensorConnect = this.onSensorConnect.bind(this);
@@ -298,6 +311,12 @@ export class App extends React.Component<AppProps, AppState> {
             }
         }
         enableShutterbug("app-container");
+
+        const promptHeight = this.props.prompt ? this.promptRef.current!.clientHeight : 0;
+        this.setState({promptHeight: promptHeight})
+
+        const topBarHeight = this.topBarRef.current!.clientHeight;
+        this.setState({topBarHeight: topBarHeight})
     }
 
     componentWillUnmount() {
@@ -1024,6 +1043,9 @@ export class App extends React.Component<AppProps, AppState> {
         if (!prevState.dataReset && this.state.dataReset) {
             this.setState({ dataReset:false });
         }
+        if (prevProps.size.width !== this.props.size.width) {
+          this.setState({topBarHeight: this.topBarRef.current!.clientHeight})
+        }
     }
 
     connectToDevice = () => {
@@ -1301,7 +1323,7 @@ export class App extends React.Component<AppProps, AppState> {
     }
 
     render() {
-        const { interactiveHost, useSensors, requirePrediction, fakeSensor } = this.props;
+        const { interactiveHost, useSensors, requirePrediction, fakeSensor, size } = this.props;
         const { sensorConfig, sensorManager, sensorRecordings } = this.state;
         const codapURL = window.self === window.top
             ? "//codap.concord.org/releases/latest?di=" + window.location.href
@@ -1328,6 +1350,7 @@ export class App extends React.Component<AppProps, AppState> {
                 prediction: [],
             });
         }
+        const maxGraphHeight = size.height - this.state.promptHeight - this.state.topBarHeight - 60; // 60 is the height of control panel, set in CSS
         return (
             <div className="app-container">
                 <ReactModal className="sensor-dialog-content"
@@ -1399,11 +1422,12 @@ export class App extends React.Component<AppProps, AppState> {
                 { this.props.prompt &&
                     <div
                         className="prompt"
+                        ref={this.promptRef}
                         dangerouslySetInnerHTML={{ __html: this.props.prompt}}
                     />
                 }
                 <div className="app-content">
-                    <div className="app-top-bar">
+                    <div className="app-top-bar" ref={this.topBarRef}>
                         { showControls &&
                             <>
                                 {this.renderStatusMessage()}
@@ -1427,7 +1451,8 @@ export class App extends React.Component<AppProps, AppState> {
                         hasData={this.hasData()}
                         dataReset={this.state.dataReset}
                         assetsPath={this.assetsPath}
-                        maxHeight={this.props.maxGraphHeight}
+                        width={size.width}
+                        maxHeight={maxGraphHeight}
                         singleReads={singleReads}
                         secondGraph={this.state.secondGraph}
                     />
@@ -1463,3 +1488,12 @@ export class App extends React.Component<AppProps, AppState> {
         );
     }
 }
+
+const sizeMeConfig = {
+  monitorWidth: true,
+  monitorHeight: true,
+  noPlaceholder: true
+};
+
+const App: React.ComponentClass<Omit<AppProps, "size">> = withSize(sizeMeConfig)(AppContainer);
+export default App;
