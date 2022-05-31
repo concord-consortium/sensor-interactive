@@ -20,7 +20,18 @@ const getRecordings = (useAuthoredData: boolean, recordedData?: SensorRecording)
   if (!useAuthoredData) {
     recording.data = [];
   } else {
-    recording.max = recording.data.reduce((max, point) => Math.max(max, point[1]), recording.max);
+    let yVals = [];
+
+    for (let i = 0; i < recording.data.length; i++){
+      let currentYValue = recording.data[i][1];
+      yVals.push(currentYValue);
+    }
+
+    const positiveYValues = yVals.filter((yVal) => yVal > 0);
+    const smallestPositiveYValue = Math.min(...positiveYValues);
+
+    // We want the max to be set to the next nearest tick after the greatest value.
+    recording.max = recording.data.reduce((max, point) => Math.max(max, point[1] + smallestPositiveYValue), recording.max);
   }
   return [recording];
 }

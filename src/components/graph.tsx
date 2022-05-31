@@ -253,8 +253,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     componentWillReceiveProps(nextProps:GraphProps) {
+        const { preRecording } = this.props;
         var data = nextProps.data || [];
         var newState:any = {};
+
         this.dyUpdateProps.forEach((prop)=> {
             if(nextProps[prop] !== this.props[prop]) {
                 newState[prop] = nextProps[prop];
@@ -263,6 +265,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
         newState.data = data;
         newState.dataLength = data.length;
+
+        if (preRecording && newState.yMin > this.props.yMin) {
+          newState.yMin = this.props.yMin;
+        }
+
+        if (preRecording && newState.yMax < this.props.yMax) {
+          newState.yMax = this.props.yMax;
+        }
 
         if((newState.yMin != null) || (newState.yMax != null)) {
             const yMin = newState.yMin != null ? newState.yMin : this.state.yMin,
@@ -274,7 +284,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                   xMax = newState.xMax != null ? newState.xMax : this.state.xMax;
             newState.xAxisFix = Format.getAxisFix('x', xMax - xMin, nextProps.width);
         }
-
         this.setState(newState);
     }
 
