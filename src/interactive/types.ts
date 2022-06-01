@@ -1,4 +1,3 @@
-import { Unit } from "../models/sensor-definitions";
 export interface SensorRecording {
   columnID: string;
   unit: string;
@@ -20,7 +19,7 @@ export interface IAuthoredState {
   useAuthoredData: boolean;
   prompt: string;
   hint: string;
-  sensorUnit?: Unit;
+  sensorUnit?: string;
   recordedData?: SensorRecording;
 };
 

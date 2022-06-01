@@ -274,15 +274,15 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
           </label><br/>
           <select
             value={disableUnits ? "none" : sensorUnit}
-            onChange={handleUnitChange}>
-            disabled={!(useAuthoredData || usePrediction)}
+            onChange={handleUnitChange}
+            disabled={!(useAuthoredData || usePrediction)}>
             {unitOptionTags}
           </select>
         </div>
         <br/>
 
       </fieldset>
-      { renderPrerecordedText() }
+      { useAuthoredData && renderPrerecordedText() }
     </div>
   );
 };

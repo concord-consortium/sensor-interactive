@@ -30,7 +30,7 @@ export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
   // NOTE: we only use the interactive state from startup, the sensor app maintains its own state during runtime.
   // The interactive state is saved to display at runtime startup and the report and report-item interactive views.
   const initialInteractiveState = initMessage.interactiveState;
-  const {prompt, hint, recordedData, usePrediction, useAuthoredData} = authoredState;
+  const {prompt, hint, recordedData, usePrediction, useAuthoredData, sensorUnit} = authoredState;
   const { setInteractiveState } = useInteractiveState<IInteractiveState>();
   // The authored data, or presence of prediction means that we should try to set
   // units, name, and max/min values for the sensor:
@@ -49,6 +49,7 @@ export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
         initialInteractiveState={initialInteractiveState}
         preRecordings ={recordings}
         requirePrediction={usePrediction}
+        sensorUnit={sensorUnit}
         setInteractiveState={setInteractiveState}
       />
   );

@@ -60,6 +60,7 @@ export interface AppProps {
     prompt?: string;
     enablePause?: boolean;
     requirePrediction?: boolean;
+    sensorUnit?: string;
     setInteractiveState?: (stateOrUpdateFunc: IInteractiveState | ((prevState: IInteractiveState | null) => IInteractiveState) | null) => void
 }
 
@@ -1184,7 +1185,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
 
         const connected = sensorManager != null;
         const sensorColumns = (this.state.sensorConfig && this.state.sensorConfig.dataColumns) || [];
-        const sensorUnit = this.preferredUnits();
+        const sensorUnit = this.props.sensorUnit?.length? this.props.sensorUnit : this.preferredUnits();
         return (
             <div className="graph-top-panel-holder">
                 {connected ?
@@ -1455,6 +1456,8 @@ class AppContainer extends React.Component<AppProps, AppState> {
                         maxHeight={maxGraphHeight}
                         singleReads={singleReads}
                         secondGraph={this.state.secondGraph}
+                        sensorUnit={this.props.sensorUnit}
+                        usePrediction={this.props.requirePrediction}
                     />
                     {this.renderLegend()}
                 </div>
