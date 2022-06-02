@@ -46,8 +46,8 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         this.state = {
             xMin: this.props.xStart,
             xMax: this.props.xEnd,
-            yMin: this.props.preRecording ? this.props.preRecording.min : 0,
-            yMax: this.props.preRecording ? this.props.preRecording.max : 100,
+            yMin: this.props.preRecording?.min ?? 0,
+            yMax: this.props.preRecording?.max ?? 100,
         };
     }
 
