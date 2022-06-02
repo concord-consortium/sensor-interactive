@@ -1343,13 +1343,18 @@ class AppContainer extends React.Component<AppProps, AppState> {
             : [];
 
         const savePrediction = () => {
-            this.setState({predictionState: "completed"});
-            this.saveInteractiveState();
+            if (confirm("Are you sure you want to save your prediction? Once you have saved your prediction you can't change it.")) {
+              this.setState({predictionState: "completed"});
+              this.saveInteractiveState();
+            }
         }
         const clearPrediction = () => {
+          const currentPrediction = this.state.prediction;
+          if (currentPrediction.length && confirm("Are you sure you want to clear your prediction? This will erase your selected data points.")) {
             this.setState({
                 prediction: [],
             });
+          }
         }
         const maxGraphHeight = size.height - this.state.promptHeight - this.state.topBarHeight - 60; // 60 is the height of control panel, set in CSS
         return (
