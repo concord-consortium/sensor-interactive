@@ -3,6 +3,7 @@ import { SensorRecording } from "../interactive/types";
 import { Sensor } from "../models/sensor";
 import { Graph } from "./graph";
 import { PredictionState } from "./types";
+import { SensorDefinitions } from "../models/sensor-definitions";
 
 const kSidePanelWidth = 20;
 
@@ -17,6 +18,7 @@ interface SensorGraphProps {
     onGraphZoom:(xStart:number, xEnd:number) => void;
     onSensorSelect:(sensorIndex:number, columnID:string) => void;
     setPredictionF:(prediction:number[][]) => void;
+    usePrediction:boolean|undefined;
     collecting:boolean;
     hasData:boolean;
     dataReset:boolean;
@@ -27,6 +29,7 @@ interface SensorGraphProps {
     isLastGraph:boolean;
     assetsPath: string;
     singleReads?: boolean;
+    sensorUnit:any;
 }
 
 interface SensorGraphState {
@@ -130,6 +133,12 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
 
     yLabel() {
+        const { usePrediction, sensorUnit } = this.props;
+        if (usePrediction && sensorUnit) {
+          const measurementName = SensorDefinitions[sensorUnit].measurementName;
+          return `${measurementName} (${sensorUnit})`
+        }
+
         const { sensorRecording, preRecording} = this.props;
         const source = sensorRecording || preRecording
         // label the data (if any) or the current sensor (if no data)
