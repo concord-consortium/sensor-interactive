@@ -30,8 +30,8 @@ interface SensorGraphProps {
 }
 
 interface SensorGraphState {
-    yMin?:number|null;
-    yMax?:number|null;
+    yMin:number;
+    yMax:number;
     xMin:number;
     xMax:number;
 }
@@ -45,14 +45,17 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         super(props);
         this.state = {
             xMin: this.props.xStart,
-            xMax: this.props.xEnd
+            xMax: this.props.xEnd,
+            yMin: this.props.preRecording?.min ?? 0,
+            yMax: this.props.preRecording?.max ?? 100,
         };
     }
 
     scaleToData() {
         const { sensorRecording, preRecording, prediction } = this.props;
-        let yMin = sensorRecording?.min || preRecording?.min || null;
-        let yMax = sensorRecording?.max || preRecording?.max || null;
+
+        let yMin = sensorRecording?.min ?? preRecording?.min ?? 0;
+        let yMax = sensorRecording?.max ?? preRecording?.max ?? 100;
 
         let data :number[][] = [];
         if (sensorRecording && sensorRecording.data.length > 0) {
@@ -100,15 +103,17 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
 
     componentWillReceiveProps(nextProps:SensorGraphProps) {
         const { dataReset, xStart, xEnd, sensorRecording } = this.props;
+
         if (!dataReset && nextProps.dataReset) {
             this.lastDataIndex = 0;
 
         }
+
         const stateChanges = {} as SensorGraphState;
         // if sensor type changes, revert to default axis range for sensor
         if (sensorRecording?.unit !== nextProps.sensorRecording?.unit) {
-            stateChanges.yMin =  nextProps.sensorRecording?.min;
-            stateChanges.yMax = nextProps.sensorRecording?.max;
+            stateChanges.yMin =  nextProps.sensorRecording?.min ?? 0;
+            stateChanges.yMax = nextProps.sensorRecording?.max ?? 100;
         }
         if (nextProps.xEnd !== xEnd || nextProps.xStart !== xStart) {
             stateChanges.xMin = nextProps.xStart;
@@ -153,8 +158,8 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 resetScaleF={this.handleResetScale}
                 xMin={xMin}
                 xMax={xMax}
-                yMin={yMin || 0}
-                yMax={yMax || 100}
+                yMin={yMin}
+                yMax={yMax}
                 // TODO: figure out default precision
                 valuePrecision={sensorRecording?.precision || 2}
                 xLabel={this.xLabel()}

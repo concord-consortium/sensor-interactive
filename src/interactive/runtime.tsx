@@ -20,7 +20,8 @@ const getRecordings = (useAuthoredData: boolean, recordedData?: SensorRecording)
   if (!useAuthoredData) {
     recording.data = [];
   } else {
-    recording.max = recording.data.reduce((max, point) => Math.max(max, point[1]), recording.max);
+    // We want the max to be set to the next nearest tick after the greatest value.
+    recording.max = recording.data.reduce((max, point) => Math.max(max, point[1] + 1), recording.max);
   }
   return [recording];
 }
