@@ -112,8 +112,8 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         const stateChanges = {} as SensorGraphState;
         // if sensor type changes, revert to default axis range for sensor
         if (sensorRecording?.unit !== nextProps.sensorRecording?.unit) {
-            stateChanges.yMin =  nextProps.sensorRecording?.min || 0;
-            stateChanges.yMax = nextProps.sensorRecording?.max || 100;
+            stateChanges.yMin =  nextProps.sensorRecording?.min ?? 0;
+            stateChanges.yMax = nextProps.sensorRecording?.max ?? 100;
         }
         if (nextProps.xEnd !== xEnd || nextProps.xStart !== xStart) {
             stateChanges.xMin = nextProps.xStart;
