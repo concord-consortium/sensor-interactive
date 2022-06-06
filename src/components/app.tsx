@@ -862,7 +862,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
     }
 
     checkNewData() {
-        if (this.state.dataChanged && !this.disableWarning) {
+        if (!this.disableWarning) {
             this.setState({ warnNewModal: true });
         } else {
             this.newData();
