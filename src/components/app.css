@@ -22,10 +22,10 @@
     --sensor-yellow-dark: #a9b000;
     --sensor-green: #7afa00;
     --sensor-green-dark: #5ec100;
-    --graph-line-blue: #007fcf;
-    --graph-line-orange: #da5d1d;
-    --graph-line-green: #008a00;
-    --graph-line-purple: #d100d1;
+    --graph-line-color: #0081ff;
+    --prediction-line-color: #ff8415;
+    --graph2-line-color: #008a00;
+    --authored-line-color: #d100d1;
     --app-content-unusable-vertical-height: 58px;
 
     --cc-charcoal: #3f3f3f;
@@ -354,7 +354,7 @@ button:disabled:hover {
     margin-right: 11px;
     width: 200px;
 }
-/* 
+/*
 .add-sensor-button {
     width: 106px;
     height: 30px;
@@ -485,16 +485,16 @@ button:disabled:hover {
     margin: 0px 2px 0px 2px;
 }
 .bottom-legend .bar.primary {
-    background-color: var(--graph-line-blue);
+    background-color: var(--graph-line-color);
 }
 .bottom-legend .bar.secondary {
-    background-color: var(--graph-line-green);
+    background-color: var(--graph2-line-color);
 }
 .bottom-legend .bar.prediction {
-    background-color: var(--graph-line-orange);
+    background-color: var(--prediction-line-color);
 }
 .bottom-legend .bar.prerecording {
-    background-color: var(--graph-line-purple);
+    background-color: var(--authored-line-color);
 }
 .bottom-legend .name {
     margin: 0px 2px 0px 6px;
