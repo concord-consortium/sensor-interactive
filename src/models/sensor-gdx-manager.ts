@@ -1,6 +1,7 @@
 import { SensorConfiguration } from "./sensor-configuration";
 import { SensorManager, NewSensorData, HEARTBEAT_INTERVAL_MS } from "./sensor-manager";
 import { SensorConfig } from "@concord-consortium/sensor-connector-interface";
+import { getSensorUnits } from "./sensor-definitions";
 import godirect from "@vernier/godirect"
 import { cloneDeep } from "lodash";
 
@@ -231,7 +232,7 @@ export class SensorGDXManager extends SensorManager {
           setID: cNum.toString(),
           position: (index + 1),
           name: sensor.name,
-          units: sensor.unit,
+          units: getSensorUnits(sensor),
           liveValue: "NaN",
           liveValueTimeStamp: new Date(),
           valueCount: 0,

@@ -10,6 +10,18 @@ export interface ISensorStrings {
   [key:string]: string|IStringMap;
 }
 
+export const SpecialMeasurementUnits: IStringMap = {
+  "Wind Speed": "m/s_WS",
+  "Wind Direction": "°_WD",
+  "Wind Chill": "°C_WC",
+  "Heat Index": "°C_HI",
+  "Dew Point": "°C_DP",
+  "Relative Humidity": "%_RH",
+  "Station Pressure": "mbar_SP",
+  "Barometric Pressure": "mbar_BP",
+  "Altitude": "m_AL"
+}
+
 /* eslint-disable max-len */
 
 export const SensorStrings:ISensorStrings = {
@@ -113,7 +125,15 @@ export const SensorStrings:ISensorStrings = {
       "pH": "pH",
       "acidity": "Acidity",
       "O2_concentration": "O₂ Concentration",
-      "angular_velocity": "Angular Velocity"
+      "angular_velocity": "Angular Velocity",
+      "wind_speed": "Wind Speed",
+      "wind_direction": "Wind Direction",
+      "wind_chill": "Wind Chill",
+      "heat_index": "Heat Index",
+      "dew_point": "Dew Point",
+      "absolute_humidity": "Absolute Humidity",
+      "station_pressure": "Station Pressure",
+      "barometric_pressure": "Barometric Pressure"
     },
     "names": {
       "sensor": "sensor",
@@ -161,7 +181,15 @@ export const SensorStrings:ISensorStrings = {
       "labQuestPH": "LabQuest pH Sensor",
       "labQuestCO2": "LabQuest CO₂ sensor",
       "labQuestO2": "LabQuest O₂ sensor",
-      "angularvelocity": "Angular Velocity"
+      "angularvelocity": "Angular Velocity",
+      "wind_speed": "Wind Speed",
+      "wind_direction": "Wind Direction",
+      "wind_chill": "Wind Chill",
+      "heat_index": "Heat Index",
+      "dew_point": "Dew Point",
+      "absolute_humidity": "Absolute Humidity",
+      "station_pressure": "Station Pressure",
+      "barometric_pressure": "Barometric Pressure"
     }
 };
 
@@ -347,7 +375,7 @@ export const SensorDefinitions:ISensorDefinitions = {
     "minReading": 0.0,
     "maxReading": 0.5
   },
-  "%RH": {
+  "%_RH": {
     "sensorName": i18n.t("sensor.names.relative_humidity"),
     "measurementName": i18n.t("sensor.measurements.relative_humidity"),
     "measurementType": "relative humidity",
@@ -531,6 +559,14 @@ export const SensorDefinitions:ISensorDefinitions = {
     "minReading": -1000.0,
     "maxReading": 1000.0
   },
+  "°WD": {
+    "sensorName": i18n.t("sensor.names.wind_direction"),
+    "measurementName": i18n.t("sensor.measurements.wind_direction"),
+    "measurementType": "angle",
+    "tareable": true,
+    "minReading": -1000.0,
+    "maxReading": 1000.0
+  },
   "cm": {
     "sensorName": i18n.t("sensor.names.linear_position_sensor"),
     "measurementName": i18n.t("sensor.measurements.position"),
@@ -658,5 +694,94 @@ export const SensorDefinitions:ISensorDefinitions = {
     "tareable": false,
     "minReading": -35.0,
     "maxReading": 35.0
+  },
+  "g/m³" : {
+    "sensorName": i18n.t("sensor.names.absolute_humidity"),
+    "measurementName": i18n.t("sensor.measurements.absolute_humidity"),
+    "measurementType": "absolute humidity",
+    "tareable": false,
+    "minReading": 0,
+    "maxReading": 100,
+  },
+  "m/s_WS" : {
+    "sensorName": i18n.t("sensor.names.wind_speed"),
+    "measurementName": i18n.t("sensor.measurements.wind_speed"),
+    "measurementType": "wind speed",
+    "tareable": false,
+    "minReading": 0,
+    "maxReading": 100,
+  },
+  "°_WD" : {
+    "sensorName": i18n.t("sensor.names.wind_direction"),
+    "measurementName": i18n.t("sensor.measurements.wind_direction"),
+    "measurementType": "wind direction",
+    "tareable": false,
+    "minReading": 0,
+    "maxReading": 360,
+  },
+  "°C_WC" : {
+    "sensorName": i18n.t("sensor.names.wind_chilll"),
+    "measurementName": i18n.t("sensor.measurements.wind_chilll"),
+    "measurementType": "wind chill",
+    "tareable": false,
+    "minReading": -40,
+    "maxReading":  125,
+  },
+  "°C_HI" : {
+    "sensorName": i18n.t("sensor.names.heat_index"),
+    "measurementName": i18n.t("sensor.measurements.heat_index"),
+    "measurementType": "heat index",
+    "tareable": false,
+    "minReading": -40,
+    "maxReading":  125,
+  },
+  "°C_DP" : {
+    "sensorName": i18n.t("sensor.names.dew_point"),
+    "measurementName": i18n.t("sensor.measurements.dew_point"),
+    "measurementType": "dew_point",
+    "tareable": false,
+    "minReading": -40,
+    "maxReading":  125,
+  },
+  "mbar_SP": {
+    "sensorName": i18n.t("sensor.names.station_pressure"),
+    "measurementName": i18n.t("sensor.measurements.station_pressure"),
+    "measurementType": "station pressure",
+    "tareable": false,
+    "minReading": 0,
+    "maxReading":  1500
+  },
+  "mbar_BP": {
+    "sensorName": i18n.t("sensor.names.barometric_pressure"),
+    "measurementName": i18n.t("sensor.measurements.barometric_pressure"),
+    "measurementType": "barometric pressure",
+    "tareable": false,
+    "minReading": 0,
+    "maxReading":  1500
+  },
+  "m_AL": {
+    "sensorName": i18n.t("sensor.names.altitude"),
+    "measurementName": i18n.t("sensor.measurements.altitude"),
+    "measurementType": "altitude",
+    "tareable": false,
+    "minReading": -300,
+    "maxReading":  10000
   }
 } as const;
+
+export const getSensorUnits = (sensor: any) => {
+  if (Object.keys(SpecialMeasurementUnits).includes(sensor.name)){
+    return SpecialMeasurementUnits[sensor.name];
+  } else {
+    return sensor.unit;
+  }
+}
+
+export const getFormattedSensorUnits = (units: string) => {
+  if (Object.values(SpecialMeasurementUnits).includes(units)){
+    let indexOfUnderscore = units.indexOf("_");
+    return units.slice(0, indexOfUnderscore);
+  } else {
+    return units;
+  }
+}

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Format } from "../utils/format";
 import { SensorSlot } from "../models/sensor-slot";
-import { SensorDefinitions } from "../models/sensor-definitions";
+import { SensorDefinitions, getFormattedSensorUnits } from "../models/sensor-definitions";
 import { SensorConfigColumnInfo } from "@concord-consortium/sensor-connector-interface";
 import Button from "./smart-highlight-button";
 import Select from "./smart-highlight-select";
@@ -81,9 +81,15 @@ export const GraphTopPanel: React.FC<IGraphTopPanelProps> = (props) => {
             measurementName = sensorDef && sensorDef.measurementName;
       if (!measurementName) return null;
 
-      const measurementNameWithUnits = units
-                                        ? `${measurementName} (${units}) [${index+1}]`
-                                        : measurementName;
+
+      let measurementNameWithUnits;
+      if (units) {
+        const formattedUnits = getFormattedSensorUnits(units);
+        measurementNameWithUnits = `${measurementName} (${formattedUnits}) [${index+1}]`;
+      } else {
+        measurementNameWithUnits = measurementName;
+      }
+
       return (<option key={units+String(index)} value={columnID}>{measurementNameWithUnits}</option>);
     });
   };
