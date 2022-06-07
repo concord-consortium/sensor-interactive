@@ -91,6 +91,8 @@ export interface AppState {
     pauseHeartbeat: boolean;
     promptHeight: number;
     topBarHeight: number;
+    warnClearPrediction: boolean;
+    warnSavePrediction: boolean;
 }
 
 function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo) {
@@ -216,6 +218,8 @@ class AppContainer extends React.Component<AppProps, AppState> {
             pauseHeartbeat: false,
             promptHeight: 0,
             topBarHeight: 0,
+            warnClearPrediction: false,
+            warnSavePrediction: false
         };
 
         this.onSensorConnect = this.onSensorConnect.bind(this);
@@ -257,6 +261,12 @@ class AppContainer extends React.Component<AppProps, AppState> {
         this.togglePauseHeartbeat = this.togglePauseHeartbeat.bind(this);
         this.enableHeartBeat = this.enableHeartBeat.bind(this);
         this.startPrediction = this.startPrediction.bind(this);
+        this.handleClearPrediction = this.handleClearPrediction.bind(this);
+        this.handleSavePrediction = this.handleSavePrediction.bind(this);
+        this.closeWarnSavePrediction = this.closeWarnSavePrediction.bind(this);
+        this.closeWarnClearPrediction = this.closeWarnClearPrediction.bind(this);
+        this.savePrediction = this.savePrediction.bind(this);
+        this.discardPrediction = this.discardPrediction.bind(this);
         sensorRecordingStore.listenForNewData((sensorRecordings) => this.setState({sensorRecordings}));
     }
 
@@ -957,6 +967,14 @@ class AppContainer extends React.Component<AppProps, AppState> {
         this.setState({ warnNewModal: false });
     }
 
+    closeWarnClearPrediction(){
+      this.setState({warnClearPrediction: false});
+    }
+
+    closeWarnSavePrediction () {
+      this.setState({warnSavePrediction: false});
+    }
+
     closeBluetoothErrorModal() {
         this.setState({ bluetoothErrorModal: false });
         this.onSensorDisconnect(false);
@@ -973,6 +991,17 @@ class AppContainer extends React.Component<AppProps, AppState> {
     discardData() {
         this.closeWarnNewModal();
         this.newData();
+    }
+
+    discardPrediction() {
+      this.closeWarnClearPrediction();
+      this.setState({prediction: []});
+    }
+
+    savePrediction() {
+      this.closeWarnSavePrediction();
+      this.setState({predictionState: "completed"});
+      this.saveInteractiveState();
     }
 
     tryReconnectModal() {
@@ -1323,6 +1352,14 @@ class AppContainer extends React.Component<AppProps, AppState> {
         );
     }
 
+    handleSavePrediction () {
+      this.setState({warnSavePrediction: true});
+    }
+
+    handleClearPrediction () {
+      this.setState({warnClearPrediction: true});
+    }
+
     render() {
         const { interactiveHost, useSensors, requirePrediction, fakeSensor, size } = this.props;
         const { sensorConfig, sensorManager, sensorRecordings } = this.state;
@@ -1342,15 +1379,6 @@ class AppContainer extends React.Component<AppProps, AppState> {
             ? [...this.props.preRecordings]
             : [];
 
-        const savePrediction = () => {
-            this.setState({predictionState: "completed"});
-            this.saveInteractiveState();
-        }
-        const clearPrediction = () => {
-            this.setState({
-                prediction: [],
-            });
-        }
         const maxGraphHeight = size.height - this.state.promptHeight - this.state.topBarHeight - 60; // 60 is the height of control panel, set in CSS
         return (
             <div className="app-container">
@@ -1378,6 +1406,28 @@ class AppContainer extends React.Component<AppProps, AppState> {
                     <div className="sensor-dialog-buttons">
                         <button onClick={this.closeWarnNewModal}>Preserve Data</button>
                         <button onClick={this.discardData}>Discard Data</button>
+                    </div>
+                </ReactModal>
+                <ReactModal className="sensor-dialog-content"
+                            overlayClassName="sensor-dialog-overlay"
+                            contentLabel="Clear prediction"
+                            isOpen={this.state.warnClearPrediction} >
+                    <div className="sensor-dialog-header">Are you sure?</div>
+                    <p>{this.messages["clear_prediction"]}</p>
+                    <div className="sensor-dialog-buttons">
+                        <button onClick={this.closeWarnClearPrediction}>Cancel</button>
+                        <button onClick={this.discardPrediction}>Clear Prediction</button>
+                    </div>
+                </ReactModal>
+                <ReactModal className="sensor-dialog-content"
+                            overlayClassName="sensor-dialog-overlay"
+                            contentLabel="Save prediction?"
+                            isOpen={this.state.warnSavePrediction} >
+                    <div className="sensor-dialog-header">Are you sure?</div>
+                    <p>{this.messages["save_prediction"]}</p>
+                    <div className="sensor-dialog-buttons">
+                        <button onClick={this.closeWarnSavePrediction}>Cancel</button>
+                        <button onClick={this.savePrediction}>Save Prediction</button>
                     </div>
                 </ReactModal>
                 <ReactModal className="sensor-dialog-content"
@@ -1482,8 +1532,8 @@ class AppContainer extends React.Component<AppProps, AppState> {
                     isDisabled={false} // TODO: are the controls ever disabled?
                     // isDisabled={useSensors && sensorManager == null}
                     predictionStatus={this.state.predictionState}
-                    onClearPrediction={clearPrediction}
-                    onSavePrediction={savePrediction}
+                    onClearPrediction={this.handleClearPrediction}
+                    onSavePrediction={this.handleSavePrediction}
                     assetsPath={this.assetsPath}
                     singleReads={singleReads}
                 />}

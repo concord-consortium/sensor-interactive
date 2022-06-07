@@ -80,7 +80,14 @@ export class OverlayGraph extends React.Component<OverlayGraphProps, OverlayGrap
         ) {
         this.setState({points: dataToPoints(data)});
       }
+      if (!data.length && prevProps.data.length){
+        this.clearState();
+      }
       this.updateCanvas();
+    }
+
+    clearState(){
+      this.setState({points: [], selected: null, active: null})
     }
 
     drawPoint(ctx: CanvasRenderingContext2D, x: number, y: number) {
