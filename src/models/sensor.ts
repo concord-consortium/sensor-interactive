@@ -20,7 +20,8 @@ export class Sensor {
             measurementType:"",
             minReading:0,
             maxReading:10,
-            tareable:false
+            tareable:false,
+            displayUnits:""
         };
     }
 
