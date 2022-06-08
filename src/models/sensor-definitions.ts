@@ -10,18 +10,6 @@ export interface ISensorStrings {
   [key:string]: string|IStringMap;
 }
 
-export const SpecialMeasurementUnits: IStringMap = {
-  "Wind Speed": "m/s_WS",
-  "Wind Direction": "°_WD",
-  "Wind Chill": "°C_WC",
-  "Heat Index": "°C_HI",
-  "Dew Point": "°C_DP",
-  "Relative Humidity": "%_RH",
-  "Station Pressure": "mbar_SP",
-  "Barometric Pressure": "mbar_BP",
-  "Altitude": "m_AL"
-}
-
 /* eslint-disable max-len */
 
 export const SensorStrings:ISensorStrings = {
