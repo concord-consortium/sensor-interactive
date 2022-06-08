@@ -375,7 +375,7 @@ export const SensorDefinitions:ISensorDefinitions = {
     "minReading": 0.0,
     "maxReading": 0.5
   },
-  "%_RH": {
+  "%RH": {
     "sensorName": i18n.t("sensor.names.relative_humidity"),
     "measurementName": i18n.t("sensor.measurements.relative_humidity"),
     "measurementType": "relative humidity",
@@ -710,6 +710,7 @@ export const SensorDefinitions:ISensorDefinitions = {
     "tareable": false,
     "minReading": 0,
     "maxReading": 100,
+    "displayUnits": "m/s"
   },
   "°_WD" : {
     "sensorName": i18n.t("sensor.names.wind_direction"),
@@ -718,6 +719,7 @@ export const SensorDefinitions:ISensorDefinitions = {
     "tareable": false,
     "minReading": 0,
     "maxReading": 360,
+    "displayUnits": "°"
   },
   "°C_WC" : {
     "sensorName": i18n.t("sensor.names.wind_chilll"),
@@ -726,6 +728,7 @@ export const SensorDefinitions:ISensorDefinitions = {
     "tareable": false,
     "minReading": -40,
     "maxReading":  125,
+    "displayUnits": "°C"
   },
   "°C_HI" : {
     "sensorName": i18n.t("sensor.names.heat_index"),
@@ -734,6 +737,7 @@ export const SensorDefinitions:ISensorDefinitions = {
     "tareable": false,
     "minReading": -40,
     "maxReading":  125,
+    "displayUnits": "°C"
   },
   "°C_DP" : {
     "sensorName": i18n.t("sensor.names.dew_point"),
@@ -742,6 +746,7 @@ export const SensorDefinitions:ISensorDefinitions = {
     "tareable": false,
     "minReading": -40,
     "maxReading":  125,
+    "displayUnits": "°C"
   },
   "mbar_SP": {
     "sensorName": i18n.t("sensor.names.station_pressure"),
@@ -749,7 +754,8 @@ export const SensorDefinitions:ISensorDefinitions = {
     "measurementType": "station pressure",
     "tareable": false,
     "minReading": 0,
-    "maxReading":  1500
+    "maxReading":  1500,
+    "displayUnits": "mbar"
   },
   "mbar_BP": {
     "sensorName": i18n.t("sensor.names.barometric_pressure"),
@@ -757,7 +763,8 @@ export const SensorDefinitions:ISensorDefinitions = {
     "measurementType": "barometric pressure",
     "tareable": false,
     "minReading": 0,
-    "maxReading":  1500
+    "maxReading":  1500,
+    "displayUnits": "mbar"
   },
   "m_AL": {
     "sensorName": i18n.t("sensor.names.altitude"),
@@ -765,23 +772,16 @@ export const SensorDefinitions:ISensorDefinitions = {
     "measurementType": "altitude",
     "tareable": false,
     "minReading": -300,
-    "maxReading":  10000
-  }
+    "maxReading":  10000,
+    "displayUnits": "m"
+  },
+  "%_RH": {
+    "sensorName": i18n.t("sensor.names.relative_humidity"),
+    "measurementName": i18n.t("sensor.measurements.relative_humidity"),
+    "measurementType": "relative humidity",
+    "tareable": false,
+    "minReading": 0.0,
+    "maxReading": 100.0,
+    "displayUnits": "%"
+  },
 } as const;
-
-export const getSensorUnits = (sensor: any) => {
-  if (Object.keys(SpecialMeasurementUnits).includes(sensor.name)){
-    return SpecialMeasurementUnits[sensor.name];
-  } else {
-    return sensor.unit;
-  }
-}
-
-export const getFormattedSensorUnits = (units: string) => {
-  if (Object.values(SpecialMeasurementUnits).includes(units)){
-    let indexOfUnderscore = units.indexOf("_");
-    return units.slice(0, indexOfUnderscore);
-  } else {
-    return units;
-  }
-}

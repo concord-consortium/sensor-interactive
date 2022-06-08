@@ -42,6 +42,9 @@ export class SensorRecordingStore {
                         sensorPosition: sensor.sensorPosition || index,
                         data: []
                     };
+                    if (sensorDefinition.displayUnits) {
+                      sensorRecording.displayUnits = sensorDefinition.displayUnits;
+                    }
                 }
                 sensorRecordings.push(sensorRecording);
                 this.sensorSlotMap.set(sensorSlot, sensorRecording);

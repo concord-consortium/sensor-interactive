@@ -1,7 +1,7 @@
 import { SensorConfiguration } from "./sensor-configuration";
 import { SensorManager, NewSensorData, HEARTBEAT_INTERVAL_MS } from "./sensor-manager";
 import { SensorConfig } from "@concord-consortium/sensor-connector-interface";
-import { getSensorUnits } from "./sensor-definitions";
+import { IStringMap } from "./sensor-definitions";
 import godirect from "@vernier/godirect"
 import { cloneDeep } from "lodash";
 
@@ -20,6 +20,18 @@ const SENSOR_HEARTBEAT_INTERVAL = HEARTBEAT_INTERVAL_MS / 2;
 // But we are only seeing updates at 10hz. For now we are going to use 10hz
 // see: https://www.pivotaltracker.com/story/show/181528803
 const READ_DATA_INTERVAL = 1000 / 10;
+
+export const SpecialMeasurementUnits: IStringMap = {
+  "Wind Speed": "m/s_WS",
+  "Wind Direction": "°_WD",
+  "Wind Chill": "°C_WC",
+  "Heat Index": "°C_HI",
+  "Dew Point": "°C_DP",
+  "Relative Humidity": "%_RH",
+  "Station Pressure": "mbar_SP",
+  "Barometric Pressure": "mbar_BP",
+  "Altitude": "m_AL"
+}
 
 export class SensorGDXManager extends SensorManager {
     supportsDualCollection = true;
@@ -180,6 +192,14 @@ export class SensorGDXManager extends SensorManager {
       return batteryLevel;
     }
 
+    getSensorUnits(sensor: any){
+      if (Object.keys(SpecialMeasurementUnits).includes(sensor.name)){
+        return SpecialMeasurementUnits[sensor.name];
+      } else {
+        return sensor.unit;
+      }
+    }
+
     async connectToDevice(device?: any): Promise<boolean> {
       this.gdxDevice = await godirect.createDevice(device, { open: true, startMeasurements: false });
 
@@ -232,7 +252,7 @@ export class SensorGDXManager extends SensorManager {
           setID: cNum.toString(),
           position: (index + 1),
           name: sensor.name,
-          units: getSensorUnits(sensor),
+          units: this.getSensorUnits(sensor),
           liveValue: "NaN",
           liveValueTimeStamp: new Date(),
           valueCount: 0,

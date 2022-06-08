@@ -5,6 +5,7 @@ export interface ISensorDefinition {
   tareable:boolean;
   minReading:number;
   maxReading:number;
+  displayUnits?:string;
 }
 
 export interface ISensorConnectorDataset {

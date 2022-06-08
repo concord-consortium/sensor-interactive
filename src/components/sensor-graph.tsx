@@ -3,7 +3,7 @@ import { SensorRecording } from "../interactive/types";
 import { Sensor } from "../models/sensor";
 import { Graph } from "./graph";
 import { PredictionState } from "./types";
-import { SensorDefinitions, getFormattedSensorUnits } from "../models/sensor-definitions";
+import { SensorDefinitions } from "../models/sensor-definitions";
 
 const kSidePanelWidth = 20;
 
@@ -135,16 +135,17 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     yLabel() {
         const { usePrediction, sensorUnit } = this.props;
         if (usePrediction && sensorUnit) {
-          const formattedUnits = getFormattedSensorUnits(sensorUnit);
           const measurementName = SensorDefinitions[sensorUnit].measurementName;
-          return `${measurementName} (${formattedUnits})`
+          const displayUnits =  SensorDefinitions[sensorUnit].displayUnits;
+          const units = displayUnits ? displayUnits : sensorUnit;
+          return `${measurementName} (${units})`
         }
 
         const { sensorRecording, preRecording} = this.props;
         const source = sensorRecording || preRecording
         // label the data (if any) or the current sensor (if no data)
         return source?.name
-                ? `${source.name} (${getFormattedSensorUnits(source.unit)})`
+                ? `${source.name} (${source.displayUnits ? source.displayUnits : source.unit})`
                 : "Sensor Reading (-)";
     }
 
