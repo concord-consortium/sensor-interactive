@@ -559,14 +559,6 @@ export const SensorDefinitions:ISensorDefinitions = {
     "minReading": -1000.0,
     "maxReading": 1000.0
   },
-  "°WD": {
-    "sensorName": i18n.t("sensor.names.wind_direction"),
-    "measurementName": i18n.t("sensor.measurements.wind_direction"),
-    "measurementType": "angle",
-    "tareable": true,
-    "minReading": -1000.0,
-    "maxReading": 1000.0
-  },
   "cm": {
     "sensorName": i18n.t("sensor.names.linear_position_sensor"),
     "measurementName": i18n.t("sensor.measurements.position"),
