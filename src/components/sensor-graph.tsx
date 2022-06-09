@@ -137,7 +137,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         if (usePrediction && sensorUnit) {
           const measurementName = SensorDefinitions[sensorUnit].measurementName;
           const displayUnits =  SensorDefinitions[sensorUnit].displayUnits;
-          const units = displayUnits ? displayUnits : sensorUnit;
+          const units = displayUnits || sensorUnit;
           return `${measurementName} (${units})`
         }
 
