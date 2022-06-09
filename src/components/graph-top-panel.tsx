@@ -85,7 +85,7 @@ export const GraphTopPanel: React.FC<IGraphTopPanelProps> = (props) => {
 
       let measurementNameWithUnits;
       if (units) {
-        measurementNameWithUnits = `${measurementName} (${displayUnits ? displayUnits : units}) [${index+1}]`;
+        measurementNameWithUnits = `${measurementName} (${displayUnits || units}) [${index+1}]`;
       } else {
         measurementNameWithUnits = measurementName;
       }
