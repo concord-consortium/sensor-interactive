@@ -145,7 +145,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         const source = sensorRecording || preRecording
         // label the data (if any) or the current sensor (if no data)
         return source?.name
-                ? `${source.name} (${source.displayUnits ? source.displayUnits : source.unit})`
+                ? `${source.name} (${source.displayUnits || source.unit})`
                 : "Sensor Reading (-)";
     }
 
