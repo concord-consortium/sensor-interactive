@@ -1,6 +1,12 @@
-// from concord-consortium/lab
-
-import { SensorDefinition } from "@concord-consortium/sensor-connector-interface";
+export interface ISensorDefinition {
+  sensorName:string|null;
+  measurementName:string;
+  measurementType:string;
+  tareable:boolean;
+  minReading:number;
+  maxReading:number;
+  displayUnits?:string;
+}
 
 export interface IStringMap {
   [key:string]: string;
@@ -191,7 +197,7 @@ export class i18n { // eslint-disable-line @typescript-eslint/naming-convention
 }
 
 export interface ISensorDefinitions {
-  [key:string]: SensorDefinition;
+  [key:string]: ISensorDefinition;
 }
 
 export const SensorDefinitions:ISensorDefinitions = {
