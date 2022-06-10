@@ -75,17 +75,17 @@ export const GraphTopPanel: React.FC<IGraphTopPanelProps> = (props) => {
     }
 
     return viableColumns.map((column:SensorConfigColumnInfo, index:number) => {
-      const units = column && column.units,
-            columnID = column && column.id,
+      const units = column?.units,
+            columnID = column?.id,
             sensorDef = units && SensorDefinitions[units],
-            displayUnits = sensorDef && sensorDef.displayUnits,
+            displayUnits = sensorDef?.displayUnits,
             measurementName = sensorDef && sensorDef.measurementName;
       if (!measurementName) return null;
 
 
       let measurementNameWithUnits;
       if (units) {
-        measurementNameWithUnits = `${measurementName} (${displayUnits ? displayUnits : units}) [${index+1}]`;
+        measurementNameWithUnits = `${measurementName} (${displayUnits || units}) [${index+1}]`;
       } else {
         measurementNameWithUnits = measurementName;
       }
