@@ -1,4 +1,4 @@
-import { SensorDefinition } from "@concord-consortium/sensor-connector-interface";
+import { ISensorDefinition } from "./sensor-definitions";
 import { Format } from "../utils/format";
 
 export class Sensor {
@@ -10,7 +10,7 @@ export class Sensor {
     tareValue:number;
     timeUnit:string;
     valueUnit:string;
-    definition:SensorDefinition;
+    definition:ISensorDefinition;
 
     constructor() {
         this.tareValue = 0;
