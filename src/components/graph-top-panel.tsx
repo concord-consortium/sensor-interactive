@@ -78,7 +78,7 @@ export const GraphTopPanel: React.FC<IGraphTopPanelProps> = (props) => {
       const units = column?.units,
             columnID = column?.id,
             sensorDef = units && SensorDefinitions[units],
-            displayUnits = sensorDef?.displayUnits,
+            displayUnits = sensorDef && sensorDef.displayUnits,
             measurementName = sensorDef && sensorDef.measurementName;
       if (!measurementName) return null;
 
