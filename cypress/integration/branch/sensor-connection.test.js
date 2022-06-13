@@ -37,8 +37,8 @@ context('Connecting a wired sensor',()=>{
         workspace.getSaveDataButton().should('have.attr','disabled')
         workspace.getNewRunButton().should('have.attr','disabled')
     })
-})    
- context('Collecting Data from 1 sensor',()=>{  
+})
+ context('Collecting Data from 1 sensor',()=>{
     it('verify graph shows data',()=>{
         let duration="1";
         workspace.selectDuration(duration)
@@ -85,6 +85,7 @@ context('Connecting a wired sensor',()=>{
     it('verify Start button is disabled when data collection is started',()=>{
         let duration="30";
         workspace.getNewRunButton().click()
+        workspace.discardData()
         workspace.selectDuration(duration)
         workspace.getXAxisMaxValue().should('contain',duration)
         workspace.getStartButton().click();
