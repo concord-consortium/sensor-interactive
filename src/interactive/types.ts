@@ -8,6 +8,7 @@ export interface SensorRecording {
   tareValue: number;
   sensorPosition: number;
   data: number[][];
+  displayUnits?: string;
 }
 
 export interface IAuthoredState {

@@ -136,14 +136,16 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         const { usePrediction, sensorUnit } = this.props;
         if (usePrediction && sensorUnit) {
           const measurementName = SensorDefinitions[sensorUnit].measurementName;
-          return `${measurementName} (${sensorUnit})`
+          const displayUnits =  SensorDefinitions[sensorUnit].displayUnits;
+          const units = displayUnits || sensorUnit;
+          return `${measurementName} (${units})`
         }
 
         const { sensorRecording, preRecording} = this.props;
         const source = sensorRecording || preRecording
         // label the data (if any) or the current sensor (if no data)
         return source?.name
-                ? `${source.name} (${source.unit})`
+                ? `${source.name} (${source.displayUnits || source.unit})`
                 : "Sensor Reading (-)";
     }
 

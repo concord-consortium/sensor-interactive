@@ -266,11 +266,11 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         newState.data = data;
         newState.dataLength = data.length;
 
-        if (preRecording && newState.yMin > this.props.yMin) {
+        if (preRecording?.length && newState.yMin > this.props.yMin) {
           newState.yMin = this.props.yMin;
         }
 
-        if (preRecording && newState.yMax < this.props.yMax) {
+        if (preRecording?.length && newState.yMax < this.props.yMax) {
           newState.yMax = this.props.yMax;
         }
 
