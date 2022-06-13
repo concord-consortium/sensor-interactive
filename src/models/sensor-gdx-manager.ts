@@ -27,7 +27,7 @@ export const SpecialMeasurementUnits: IStringMap = {
   "Wind Chill": "°C_WC",
   "Heat Index": "°C_HI",
   "Dew Point": "°C_DP",
-  "Relative Humidity": "%_RH",
+  "Relative Humidity": "%RH",
   "Station Pressure": "mbar_SP",
   "Barometric Pressure": "mbar_BP",
   "Altitude": "m_AL"

@@ -760,14 +760,5 @@ export const SensorDefinitions:ISensorDefinitions = {
     "minReading": -300,
     "maxReading":  10000,
     "displayUnits": "m"
-  },
-  "%_RH": {
-    "sensorName": i18n.t("sensor.names.relative_humidity"),
-    "measurementName": i18n.t("sensor.measurements.relative_humidity"),
-    "measurementType": "relative humidity",
-    "tareable": false,
-    "minReading": 0.0,
-    "maxReading": 100.0,
-    "displayUnits": "%"
-  },
+  }
 } as const;
