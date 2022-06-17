@@ -182,7 +182,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
                 name="recordedData"
                 onChange={handleRecordedDataChange}
                 disabled={!useAuthoredData}
-                defaultValue={useAuthoredData ? data : "x1,y1\nx2,y2"}/>
+                defaultValue={data ? data : "x1,y1\nx2,y2"}/>
               {renderErrorParseError()}
             </div>
         </fieldset>
