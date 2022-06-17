@@ -54,11 +54,30 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         };
     }
 
+    componentDidMount(){
+      const { yMin, yMax } = this.getSensorUnitMinAndMax();
+      this.setState({yMin, yMax});
+    }
+
+    getSensorUnitMinAndMax(){
+      const {usePrediction, sensorUnit} = this.props;
+
+      let yMin = 0;
+      let yMax = 100;
+
+      if (usePrediction && sensorUnit){
+        yMin = SensorDefinitions[sensorUnit].minReading;
+        yMax = SensorDefinitions[sensorUnit].maxReading;
+      }
+
+      return {yMin, yMax}
+    }
+
     scaleToData() {
         const { sensorRecording, preRecording, prediction } = this.props;
 
-        let yMin = sensorRecording?.min ?? preRecording?.min ?? 0;
-        let yMax = sensorRecording?.max ?? preRecording?.max ?? 100;
+        let yMin = sensorRecording?.min ?? preRecording?.min ?? this.getSensorUnitMinAndMax().yMin;
+        let yMax = sensorRecording?.max ?? preRecording?.max ?? this.getSensorUnitMinAndMax().yMax;
 
         let data :number[][] = [];
         if (sensorRecording && sensorRecording.data.length > 0) {
