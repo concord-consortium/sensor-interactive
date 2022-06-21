@@ -15,10 +15,36 @@ export class SensorRecordingStore {
         return this.sensorSlotMap.get(sensorSlot);
     }
 
-    configure(sensorSlots: SensorSlot[], numSensors: number) {
+    configure(sensorSlots: SensorSlot[], numSensors: number, requirePrediction?: boolean, sensorUnit?: string) {
         const sensorRecordings: SensorRecording[] = [];
 
         this.sensorSlotMap = new WeakMap();
+
+        if (requirePrediction && sensorUnit) {
+          let sensorRecording: SensorRecording;
+          const sensorSlot = sensorSlots.filter(sensorSlot => sensorSlot.sensor.valueUnit === sensorUnit)[0];
+          const sensor = sensorSlot.sensor;
+          const columnID = sensor.columnID!;
+          const sensorDefinition = sensor.definition;
+          sensorRecording = {
+            columnID,
+            unit: sensor.valueUnit,
+            precision: sensor.sensorPrecision(),
+            name: sensorDefinition.measurementName,
+            min: sensorDefinition.minReading,
+            max: sensorDefinition.maxReading,
+            tareValue: sensor.tareValue,
+            sensorPosition: sensor.sensorPosition || 1,
+            data: []
+        };
+        if (sensorDefinition.displayUnits) {
+          sensorRecording.displayUnits = sensorDefinition.displayUnits;
+        }
+
+        sensorRecordings.push(sensorRecording);
+        this.sensorSlotMap.set(sensorSlot, sensorRecording);
+
+        } else {
         sensorSlots.forEach((sensorSlot, index) => {
             if (index < numSensors) {
                 let sensorRecording: SensorRecording;
@@ -50,6 +76,7 @@ export class SensorRecordingStore {
                 this.sensorSlotMap.set(sensorSlot, sensorRecording);
             }
         });
+      }
 
         this.sensorRecordings = sensorRecordings;
         this.numRequestedDataPoints = 0;
