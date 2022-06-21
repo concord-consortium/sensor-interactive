@@ -55,21 +55,18 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
 
     componentDidMount(){
-      const { yMin, yMax } = this.getSensorUnitMinAndMax();
-      this.setState({yMin, yMax});
+      const {usePrediction, sensorUnit} = this.props;
+      if (usePrediction && sensorUnit) {
+        const { yMin, yMax } = this.getSensorUnitMinAndMax();
+        this.setState({yMin, yMax});
+      }
     }
 
     getSensorUnitMinAndMax(){
-      const {usePrediction, sensorUnit} = this.props;
+      const {sensorUnit} = this.props;
 
-      let yMin = 0;
-      let yMax = 100;
-
-      if (usePrediction && sensorUnit){
-        yMin = SensorDefinitions[sensorUnit].minReading;
-        yMax = SensorDefinitions[sensorUnit].maxReading;
-      }
-
+      let yMin = SensorDefinitions[sensorUnit].minReading;
+      let yMax = SensorDefinitions[sensorUnit].maxReading;
       return {yMin, yMax}
     }
 
