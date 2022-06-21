@@ -1,5 +1,6 @@
 import { cloneDeep } from "lodash";
 import { SensorRecording } from "../interactive/types";
+import { Sensor } from "./sensor";
 import { SensorSlot } from "./sensor-slot";
 
 export type SensorRecordingStoreListener = (recordings: SensorRecording[]) => void;
@@ -15,35 +16,43 @@ export class SensorRecordingStore {
         return this.sensorSlotMap.get(sensorSlot);
     }
 
+    createSensorRecording(sensor: Sensor) {
+      const sensorDefinition = sensor.definition;
+      const columnID = sensor.columnID!;
+
+      let sensorRecording:  SensorRecording = {
+        columnID,
+        unit: sensor.valueUnit,
+        precision: sensor.sensorPrecision(),
+        name: sensorDefinition.measurementName,
+        min: sensorDefinition.minReading,
+        max: sensorDefinition.maxReading,
+        tareValue: sensor.tareValue,
+        sensorPosition: sensor.sensorPosition || 1,
+        data: []
+      };
+
+      if (sensorDefinition.displayUnits) {
+        sensorRecording.displayUnits = sensorDefinition.displayUnits;
+      }
+
+      return sensorRecording;
+    }
+
     configure(sensorSlots: SensorSlot[], numSensors: number, requirePrediction?: boolean, sensorUnit?: string) {
         const sensorRecordings: SensorRecording[] = [];
-
         this.sensorSlotMap = new WeakMap();
 
         if (requirePrediction && sensorUnit) {
           let sensorRecording: SensorRecording;
+
           const sensorSlot = sensorSlots.filter(sensorSlot => sensorSlot.sensor.valueUnit === sensorUnit)[0];
           const sensor = sensorSlot.sensor;
-          const columnID = sensor.columnID!;
-          const sensorDefinition = sensor.definition;
-          sensorRecording = {
-            columnID,
-            unit: sensor.valueUnit,
-            precision: sensor.sensorPrecision(),
-            name: sensorDefinition.measurementName,
-            min: sensorDefinition.minReading,
-            max: sensorDefinition.maxReading,
-            tareValue: sensor.tareValue,
-            sensorPosition: sensor.sensorPosition || 1,
-            data: []
-        };
-        if (sensorDefinition.displayUnits) {
-          sensorRecording.displayUnits = sensorDefinition.displayUnits;
-        }
 
-        sensorRecordings.push(sensorRecording);
-        this.sensorSlotMap.set(sensorSlot, sensorRecording);
+          sensorRecording = this.createSensorRecording(sensor);
 
+          sensorRecordings.push(sensorRecording);
+          this.sensorSlotMap.set(sensorSlot, sensorRecording);
         } else {
         sensorSlots.forEach((sensorSlot, index) => {
             if (index < numSensors) {
@@ -56,21 +65,7 @@ export class SensorRecordingStore {
                     // remove sensor recording to guard against adding the same object twice to the array when two sensor slots have the same column id
                     this.sensorRecordings.splice(index, 1);
                 } else {
-                    const sensorDefinition = sensor.definition;
-                    sensorRecording = {
-                        columnID,
-                        unit: sensor.valueUnit,
-                        precision: sensor.sensorPrecision(),
-                        name: sensorDefinition.measurementName,
-                        min: sensorDefinition.minReading,
-                        max: sensorDefinition.maxReading,
-                        tareValue: sensor.tareValue,
-                        sensorPosition: sensor.sensorPosition || index,
-                        data: []
-                    };
-                    if (sensorDefinition.displayUnits) {
-                      sensorRecording.displayUnits = sensorDefinition.displayUnits;
-                    }
+                    sensorRecording = this.createSensorRecording(sensor);
                 }
                 sensorRecordings.push(sensorRecording);
                 this.sensorSlotMap.set(sensorSlot, sensorRecording);
