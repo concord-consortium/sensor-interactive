@@ -367,11 +367,12 @@ class AppContainer extends React.Component<AppProps, AppState> {
     onSensorConnect(sensorConfig:SensorConfiguration, callback?: () => void) {
         const interfaceType = sensorConfig.interface;
         let sensorSlots = this.state.sensorSlots;
+        const {requirePrediction, sensorUnit} = this.props;
 
         if (this.isReloading) { return; }
 
         const afterSetState = () => {
-            sensorRecordingStore.configure(sensorSlots, this.HACK_numSensors());
+            sensorRecordingStore.configure(sensorSlots, this.HACK_numSensors(), requirePrediction, sensorUnit);
             callback?.();
         };
 
@@ -1018,8 +1019,9 @@ class AppContainer extends React.Component<AppProps, AppState> {
 
     addGraph() {
         const secondGraph = true;
+        const {requirePrediction, sensorUnit} = this.props;
         this.setState({ secondGraph }, () => {
-            sensorRecordingStore.configure(this.state.sensorSlots, this.HACK_numSensors());
+            sensorRecordingStore.configure(this.state.sensorSlots, this.HACK_numSensors(), requirePrediction, sensorUnit);
             this.saveInteractiveState()
         });
         this.codap?.updateInteractiveState({ secondGraph });
@@ -1028,6 +1030,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
 
     removeGraph = (slotNum: number) => () => {
         let { secondGraph, sensorManager, sensorSlots } = this.state;
+        const { requirePrediction, sensorUnit } = this.props;
         if (secondGraph) {
             // remove a graph
             // could be the first or second one
@@ -1040,7 +1043,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
                 sensorSlots: sensorSlots,
                 secondGraph: secondGraph
             }, () => {
-                sensorRecordingStore.configure(sensorSlots, this.HACK_numSensors());
+                sensorRecordingStore.configure(sensorSlots, this.HACK_numSensors(), requirePrediction, sensorUnit);
                 this.saveInteractiveState()
             });
             this.codap?.updateInteractiveState({ secondGraph });

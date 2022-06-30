@@ -35,9 +35,7 @@ export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
   const { setInteractiveState } = useInteractiveState<IInteractiveState>();
   // The authored data, or presence of prediction means that we should try to set
   // units, name, and max/min values for the sensor:
-  const recordings = usePrediction || useAuthoredData
-    ? getRecordings(useAuthoredData, recordedData)
-    : [];
+  const recordings = useAuthoredData ? getRecordings(useAuthoredData, recordedData) : [];
   if(hint) { setHint(hint) };
   return (
       <App
