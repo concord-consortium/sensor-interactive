@@ -3,6 +3,7 @@ import Dygraph from "dygraphs";
 import { Format } from "../utils/format";
 import { PredictionState } from "./types";
 import { OverlayGraph } from "./overlay-graph";
+import { barChartPlotter } from "../utils/bar-chart-plotter";
 
 import "./dygraph.css";
 
@@ -28,6 +29,7 @@ export interface GraphProps {
     [key:string]: any;
     assetsPath: string;
     singleReads?: boolean;
+    type?: "line" | "bar";
 }
 
 export interface GraphState {
@@ -101,24 +103,27 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     series() {
         const result: Record<string,{color:string, plotter: any}> = {};
         const labels = this.labels();
+        // Not sure if there's a better way to integrate barChartPlotter with Dygraph
+        // instead of having it be a completely separate entity. 
+        const plotter = this.props.type === "bar" ? barChartPlotter : Dygraph.Plotters.linePlotter;
         for (let label of labels) {
             if (label == "x" || label == this.state.xLabel) { continue; }
             if (label == "prediction") {
                 result[label] ={
                     color: PREDICTION_LINE_COLOR,
-                    plotter:  Dygraph.Plotters.linePlotter
+                    plotter: plotter
                 };
             }
             else if (label == "recording") {
                 result[label] ={
                     color: AUTHORED_LINE_COLOR,
-                    plotter:  Dygraph.Plotters.linePlotter
+                    plotter: plotter
                 };
             }
             else {
                 result[label] ={
                     color: GRAPH1_LINE_COLOR,
-                    plotter: Dygraph.Plotters.linePlotter
+                    plotter: plotter
                 };
             }
         }

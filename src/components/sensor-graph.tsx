@@ -198,6 +198,8 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 prediction={this.props.prediction}
                 preRecording={this.props.preRecording?.data || []}
                 setPredictionF={this.props.setPredictionF}
+                // this value should be dynamically set to whatever is specified in authoring
+                type="bar"
               />
             </div>
         );
