@@ -50,6 +50,7 @@ export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
         requirePrediction={usePrediction}
         sensorUnit={sensorUnit}
         setInteractiveState={setInteractiveState}
+        displayType={authoredState.displayType}
       />
   );
 };

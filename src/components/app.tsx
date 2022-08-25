@@ -61,6 +61,7 @@ export interface AppProps {
     enablePause?: boolean;
     requirePrediction?: boolean;
     sensorUnit?: string;
+    displayType: string;
     setInteractiveState?: (stateOrUpdateFunc: IInteractiveState | ((prevState: IInteractiveState | null) => IInteractiveState) | null) => void
 }
 
@@ -1511,6 +1512,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
                         secondGraph={this.state.secondGraph}
                         sensorUnit={this.props.sensorUnit}
                         usePrediction={this.props.requirePrediction}
+                        displayType={this.props.displayType}
                     />
                     {this.renderLegend()}
                 </div>

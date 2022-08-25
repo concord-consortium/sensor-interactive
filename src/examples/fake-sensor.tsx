@@ -5,6 +5,7 @@ import App from "../components/app";
 ReactDOM.render(
     <App
       fakeSensor={true}
+      displayType={"line"}
     />,
     document.getElementById("app")
 );

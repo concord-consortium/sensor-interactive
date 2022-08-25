@@ -29,7 +29,7 @@ export interface GraphProps {
     [key:string]: any;
     assetsPath: string;
     singleReads?: boolean;
-    type?: "line" | "bar";
+    displayType: string;
 }
 
 export interface GraphState {
@@ -103,9 +103,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     series() {
         const result: Record<string,{color:string, plotter: any}> = {};
         const labels = this.labels();
-        // Not sure if there's a better way to integrate barChartPlotter with Dygraph
-        // instead of having it be a completely separate entity. 
-        const plotter = this.props.type === "bar" ? barChartPlotter : Dygraph.Plotters.linePlotter;
+        const plotter = this.props.displayType === "bar" ? barChartPlotter : Dygraph.Plotters.linePlotter;
         for (let label of labels) {
             if (label == "x" || label == this.state.xLabel) { continue; }
             if (label == "prediction") {

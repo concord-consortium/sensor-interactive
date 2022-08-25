@@ -10,11 +10,13 @@ interface Props {
 
 export const ReportComponent: React.FC<Props> = ({initMessage}) => {
   const initialInteractiveState = initMessage.interactiveState;
+  const authoredState = initMessage.authoredState;
 
   return (
     <App
       interactiveHost="report"
       fakeSensor={true}
+      displayType={authoredState.displayType}
       initialInteractiveState={initialInteractiveState}
     />
   );

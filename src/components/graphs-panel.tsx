@@ -23,6 +23,7 @@ interface IGraphsPanelProps {
   singleReads?: boolean;
   sensorUnit?: string|null;
   usePrediction:boolean|undefined;
+  displayType: string;
 }
 
 export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
@@ -65,6 +66,7 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
                         setPredictionF={props.setPredictionF}
                         sensorUnit={props.sensorUnit}
                         usePrediction={props.usePrediction}
+                        displayType={props.displayType}
             />;
 
   }

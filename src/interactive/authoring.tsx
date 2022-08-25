@@ -15,7 +15,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
   const {authoredState, setAuthoredState} = useAuthoredState<IAuthoredState>();
   const {
     singleReads, enablePause, useFakeSensor, prompt, hint, sensorUnit,
-    recordedData, usePrediction, useAuthoredData, useSensors,
+    recordedData, usePrediction, useAuthoredData, useSensors, displayType
   } = authoredState || defaultAuthoredState;
 
   const [parseError, setParseError] = React.useState<boolean>(false);
@@ -66,6 +66,12 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
 
     updateAuthoredState(changes);
   };
+
+  const handleDisplayTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const display = e.target.value;
+    const changes: Partial<IAuthoredState> = {displayType: display};
+    updateAuthoredState(changes);
+  }
 
 
   const handleRecordedDataChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -190,8 +196,6 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
     }
   }
 
-
-
   return (
     <div className="authoring">
       <fieldset>
@@ -206,10 +210,11 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
 
       <fieldset>
         <legend>Data Acquisition and Display type(s)</legend>
-        <select value="Line Graphs">
-          <option value="Line Graphs">Line Graphs</option>
-          <option value="Bar Graphs">Bar Graphs</option>
-          <option value="Tables (TBD)">Tables (TBD)</option>
+        <select value={displayType} onChange={handleDisplayTypeChange}>
+          <option value="line">Line Graphs</option>
+          <option value="bar">Bar Graphs</option>
+          {/* tables are not yet able to be implemented */}
+          <option value="table" disabled>Tables (TBD)</option>
         </select>
         <br/>
 

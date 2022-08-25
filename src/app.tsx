@@ -8,6 +8,6 @@ ReactModal.setAppElement(appElt);
 
 ReactDOM.render(
   // By default we will be using sensors.
-  <App useSensors={true}/>,
+  <App useSensors={true} displayType={"line"}/>,
   appElt
 );

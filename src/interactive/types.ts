@@ -22,6 +22,7 @@ export interface IAuthoredState {
   hint: string;
   sensorUnit?: string;
   recordedData?: SensorRecording;
+  displayType: string;
 };
 
 export interface IInteractiveState {
@@ -46,5 +47,6 @@ export const defaultAuthoredState: IAuthoredState = {
   useAuthoredData: false,
   prompt: "",
   hint: "",
-  sensorUnit: undefined
+  sensorUnit: undefined,
+  displayType: "line"
 };

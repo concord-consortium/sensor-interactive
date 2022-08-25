@@ -8,6 +8,7 @@ let sensorManager = new SensorConnectorManager();
 ReactDOM.render(
     <App
       sensorManager={sensorManager}
+      displayType={"line"}
       />,
     document.getElementById("app")
 );
