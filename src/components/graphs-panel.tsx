@@ -2,6 +2,9 @@ import * as React from "react";
 import SensorGraph from "./sensor-graph";
 import { SensorRecording } from "../interactive/types";
 import { PredictionState } from "./types";
+
+import "./graphs-panel.css";
+
 interface IGraphsPanelProps {
   sensorRecordings:SensorRecording[];
   preRecordings:SensorRecording[];
@@ -40,7 +43,9 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
           graphBaseHeight = Math.floor((availableHeight - 18) / 2),
           firstGraphHeight = graphBaseHeight,
           secondGraphHeight = availableHeight - graphBaseHeight,
-          graphWidth = props.width - 16,
+          graphWidth = showSixGraphs
+                         ? (props.width - 16)/3
+                         : props.width - 16,
           graphHeight = isSingletonGraph
                           ? singleGraphHeight
                           : isLastGraph ? secondGraphHeight : firstGraphHeight;
@@ -71,9 +76,18 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
 
   }
 
+  function renderAdditionalGraphs() {
+    let graphs = [];
+    for (let i = 1; i <= 5; i++) {
+      graphs.push(renderGraph({sensorRecording: sensorRecordings[i], preRecording: preRecordings && preRecordings[i], title: `graph${i+1}`, isSingletonGraph: false, isLastGraph: i === 5 }));
+    }
+    return graphs.map(g => { return g; });
+  }
+
   const { sensorRecordings, preRecordings, secondGraph, predictionState, hasData } = props;
   const hasConnected = sensorRecordings.length > 0;
   const showSecondGraph = secondGraph || (sensorRecordings.length > 1);
+  const showSixGraphs = props.singleReads && props.displayType === "bar";
 
   // The logic of when to "disable" the graph:
   // - We don't disable it if we have connected to sensors.
@@ -87,14 +101,17 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
     || hasData
     || preRecordings.length > 0
   );
-  const classes = `graphs-panel ${showSecondGraph ? 'two-graphs' : ''} ${disabled ? 'disabled' : ''}`;
+  const classes = `graphs-panel ${showSecondGraph ? 'two-graphs' : ''} ${showSixGraphs ? 'six-graphs' : ''} ${disabled ? 'disabled' : ''}`;
   const style = { minHeight: showSecondGraph ? 320 : 170 };
 
   return (
       <div className={classes} style={style}>
-        {renderGraph({sensorRecording: sensorRecordings[0], preRecording: preRecordings && preRecordings[0], title: "graph1", isSingletonGraph: !showSecondGraph, isLastGraph: !showSecondGraph})}
+        {renderGraph({sensorRecording: sensorRecordings[0], preRecording: preRecordings && preRecordings[0], title: "graph1", isSingletonGraph: !showSecondGraph && !showSixGraphs, isLastGraph: !showSecondGraph})}
         {showSecondGraph
             ? renderGraph({sensorRecording: sensorRecordings[1], title: "graph2", isSingletonGraph: false, isLastGraph: true})
+            : null}
+        {showSixGraphs
+            ? renderAdditionalGraphs()
             : null}
       </div>
     );
