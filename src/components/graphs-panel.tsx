@@ -6,51 +6,54 @@ import { PredictionState } from "./types";
 import "./graphs-panel.css";
 
 interface IGraphsPanelProps {
-  sensorRecordings:SensorRecording[];
-  preRecordings:SensorRecording[];
+  sensorRecordings: SensorRecording[];
+  preRecordings: SensorRecording[];
   predictionState: PredictionState;
   prediction: number[][];
   setPredictionF: (prediction:number[][]) => void;
-  onGraphZoom:(xStart:number, xEnd:number) => void;
-  onSensorSelect:(sensorIndex:number, columnID:string) => void;
-  xStart:number;
-  xEnd:number;
-  timeUnit:string;
-  collecting:boolean;
-  hasData:boolean;
-  dataReset:boolean;
+  onGraphZoom: (xStart:number, xEnd:number) => void;
+  onSensorSelect: (sensorIndex:number, columnID:string) => void;
+  xStart: number;
+  xEnd: number;
+  timeUnit: string;
+  collecting: boolean;
+  hasData: boolean;
+  dataReset: boolean;
   assetsPath: string;
-  secondGraph:boolean;
+  secondGraph: boolean;
   maxHeight: number;
   width: number;
   singleReads?: boolean;
   sensorUnit?: string|null;
-  usePrediction:boolean|undefined;
+  usePrediction: boolean|undefined;
   displayType: string;
 }
 
 export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
 
   function renderGraph(options: {
-    sensorRecording?:SensorRecording,
+    graphIndex: number,
+    sensorRecording?: SensorRecording,
     preRecording?: SensorRecording,
-    title:string,
-    isSingletonGraph:boolean,
-    isLastGraph:boolean}) {
-    const {sensorRecording, preRecording, title, isSingletonGraph, isLastGraph} = options,
+    title: string,
+    isSingletonGraph: boolean,
+    isLastGraph: boolean}) {
+    const {graphIndex, sensorRecording, preRecording, title, isSingletonGraph, isLastGraph} = options,
           availableHeight = props.maxHeight - 36,
           singleGraphHeight = availableHeight + 8,
           graphBaseHeight = Math.floor((availableHeight - 18) / 2),
           firstGraphHeight = graphBaseHeight,
           secondGraphHeight = availableHeight - graphBaseHeight,
-          graphWidth = showSixGraphs
+          graphWidth = showSingleReadBarGraphs
                          ? (props.width - 16)/3
                          : props.width - 16,
           graphHeight = isSingletonGraph
                           ? singleGraphHeight
                           : isLastGraph ? secondGraphHeight : firstGraphHeight;
-    return <SensorGraph width={graphWidth}
+    return <SensorGraph key={`sensor-graph-${graphIndex}`}
+                        width={graphWidth}
                         height={graphHeight}
+                        graphIndex={graphIndex}
                         sensorRecording={sensorRecording}
                         preRecording={preRecording}
                         title={title}
@@ -76,18 +79,18 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
 
   }
 
-  function renderAdditionalGraphs() {
+  function renderAdditionalGraphs(graphCount: number) {
     let graphs = [];
-    for (let i = 1; i <= 5; i++) {
-      graphs.push(renderGraph({sensorRecording: sensorRecordings[i], preRecording: preRecordings && preRecordings[i], title: `graph${i+1}`, isSingletonGraph: false, isLastGraph: i === 5 }));
+    for (let i = 1; i <= graphCount; i++) {
+      graphs.push(renderGraph({graphIndex: i, sensorRecording: sensorRecordings[0], preRecording: preRecordings && preRecordings[i], title: `graph${i+1}`, isSingletonGraph: false, isLastGraph: i === graphCount }));
     }
     return graphs.map(g => { return g; });
   }
 
-  const { sensorRecordings, preRecordings, secondGraph, predictionState, hasData } = props;
+  const { displayType, sensorRecordings, preRecordings, secondGraph, singleReads, predictionState, hasData } = props;
   const hasConnected = sensorRecordings.length > 0;
-  const showSecondGraph = secondGraph || (sensorRecordings.length > 1);
-  const showSixGraphs = props.singleReads && props.displayType === "bar";
+  const showSecondSensorGraph = secondGraph || (sensorRecordings.length > 1);
+  const showSingleReadBarGraphs = singleReads && displayType === "bar";
 
   // The logic of when to "disable" the graph:
   // - We don't disable it if we have connected to sensors.
@@ -101,17 +104,17 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
     || hasData
     || preRecordings.length > 0
   );
-  const classes = `graphs-panel ${showSecondGraph ? 'two-graphs' : ''} ${showSixGraphs ? 'six-graphs' : ''} ${disabled ? 'disabled' : ''}`;
-  const style = { minHeight: showSecondGraph ? 320 : 170 };
+  const classes = `graphs-panel ${showSecondSensorGraph ? 'two-graphs' : ''} ${showSingleReadBarGraphs ? 'six-graphs' : ''} ${disabled ? 'disabled' : ''}`;
+  const style = { minHeight: showSecondSensorGraph ? 320 : 170 };
 
   return (
       <div className={classes} style={style}>
-        {renderGraph({sensorRecording: sensorRecordings[0], preRecording: preRecordings && preRecordings[0], title: "graph1", isSingletonGraph: !showSecondGraph && !showSixGraphs, isLastGraph: !showSecondGraph})}
-        {showSecondGraph
-            ? renderGraph({sensorRecording: sensorRecordings[1], title: "graph2", isSingletonGraph: false, isLastGraph: true})
+        {renderGraph({graphIndex: 0, sensorRecording: sensorRecordings[0], preRecording: preRecordings && preRecordings[0], title: "graph1", isSingletonGraph: !showSecondSensorGraph && !showSingleReadBarGraphs, isLastGraph: !showSecondSensorGraph})}
+        {showSecondSensorGraph
+            ? renderGraph({graphIndex: 1, sensorRecording: sensorRecordings[1], title: "graph2", isSingletonGraph: false, isLastGraph: true})
             : null}
-        {showSixGraphs
-            ? renderAdditionalGraphs()
+        {showSingleReadBarGraphs
+            ? renderAdditionalGraphs(5)
             : null}
       </div>
     );

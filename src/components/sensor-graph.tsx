@@ -8,48 +8,49 @@ import { SensorDefinitions } from "../models/sensor-definitions";
 const kSidePanelWidth = 20;
 
 interface SensorGraphProps {
-    width:number|null;
-    height:number|null;
-    sensorRecording?:SensorRecording;
-    preRecording?:SensorRecording;
+    width: number|null;
+    height: number|null;
+    graphIndex: number;
+    sensorRecording?: SensorRecording;
+    preRecording?: SensorRecording;
     prediction: number[][];
     predictionState: PredictionState;
-    title:string;
-    onGraphZoom:(xStart:number, xEnd:number) => void;
-    onSensorSelect:(sensorIndex:number, columnID:string) => void;
-    setPredictionF:(prediction:number[][]) => void;
-    usePrediction:boolean|undefined;
-    collecting:boolean;
-    hasData:boolean;
-    dataReset:boolean;
-    timeUnit:string;
-    xStart:number;
-    xEnd:number;
-    isSingletonGraph:boolean;
-    isLastGraph:boolean;
+    title: string;
+    onGraphZoom: (xStart:number, xEnd:number) => void;
+    onSensorSelect: (sensorIndex:number, columnID:string) => void;
+    setPredictionF: (prediction:number[][]) => void;
+    usePrediction: boolean|undefined;
+    collecting: boolean;
+    hasData: boolean;
+    dataReset: boolean;
+    timeUnit: string;
+    xStart: number;
+    xEnd: number;
+    isSingletonGraph: boolean;
+    isLastGraph: boolean;
     assetsPath: string;
     singleReads?: boolean;
-    sensorUnit:any;
+    sensorUnit: any;
     displayType: string;
 }
 
 interface SensorGraphState {
-    yMin:number;
-    yMax:number;
-    xMin:number;
-    xMax:number;
+    yMin: number;
+    yMax: number;
+    xMin: number;
+    xMax: number;
 }
 
 export default class SensorGraph extends React.Component<SensorGraphProps, SensorGraphState> {
 
-    sensor:Sensor;
-    lastDataIndex:number = 0;
+    sensor: Sensor;
+    lastDataIndex: number = 0;
 
     constructor(props:SensorGraphProps) {
         super(props);
         this.state = {
             xMin: this.props.xStart,
-            xMax: this.props.xEnd,
+            xMax: this.isSingleReadBarGraph() ? 2 : this.props.xEnd,
             yMin: this.props.preRecording?.min ?? 0,
             yMax: this.props.preRecording?.max ?? 100,
         };
@@ -77,7 +78,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         let yMin = sensorRecording?.min ?? preRecording?.min ?? this.getSensorUnitMinAndMax().yMin;
         let yMax = sensorRecording?.max ?? preRecording?.max ?? this.getSensorUnitMinAndMax().yMax;
 
-        let data :number[][] = [];
+        let data: number[][] = [];
         if (sensorRecording && sensorRecording.data.length > 0) {
             data = data.concat(sensorRecording.data);
         }
@@ -105,7 +106,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         });
     }
 
-    handleRescale = (xRange:number[], yRange:number[]) => {
+    handleRescale = (xRange: number[], yRange: number[]) => {
         this.setState({
             yMin: yRange[0],
             yMax: yRange[1],
@@ -121,7 +122,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         this.scaleToData();
     }
 
-    componentWillReceiveProps(nextProps:SensorGraphProps) {
+    componentWillReceiveProps(nextProps: SensorGraphProps) {
         const { dataReset, xStart, xEnd, sensorRecording } = this.props;
 
         if (!dataReset && nextProps.dataReset) {
@@ -135,7 +136,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
             stateChanges.yMin =  nextProps.sensorRecording?.min ?? 0;
             stateChanges.yMax = nextProps.sensorRecording?.max ?? 100;
         }
-        if (nextProps.xEnd !== xEnd || nextProps.xStart !== xStart) {
+        if ((nextProps.xEnd !== xEnd || nextProps.xStart !== xStart) && !this.isSingleReadBarGraph()) {
             stateChanges.xMin = nextProps.xStart;
             stateChanges.xMax = nextProps.xEnd;
         }
@@ -166,21 +167,47 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 : "Sensor Reading (-)";
     }
 
+    isSingleReadBarGraph() {
+      const { singleReads, displayType } = this.props;
+      return singleReads && displayType === "bar";
+    }
+
+    processData() {
+      const { graphIndex, sensorRecording } = this.props;
+
+      // Dygraph requires each row of data to have the same number of columns.
+      // If we have both the sensor and pre-recording data, plot both.
+      const data = sensorRecording?.data || [];
+
+      // Data needs to be modified for single-read bar graphs.
+      if (!this.isSingleReadBarGraph()) {
+        return data;
+      } else {
+        // For single-read bar graphs, we essentially need to return only a single data point
+        // since each single-read bar graph shows only one point of data. There's very possibly 
+        // a better way to filter what's sent to each graph, maybe even before the data gets
+        // passed to the SensorGraph component?
+        return data.length >= graphIndex + 1
+                 // Not sure why the [0,0] is required, but the graphs won't render without it.
+                 ? [[0,0], [1, data[graphIndex][1]]]
+                 : []
+      }
+    }
+
     renderGraph(graphWidth:number|null) {
-        const { sensorRecording } = this.props;
+        const { assetsPath, displayType, height, prediction, predictionState, preRecording, 
+                sensorRecording, setPredictionF, singleReads, title } = this.props;
         const { yMin, yMax, xMin, xMax } = this.state;
 
         const labels = [] as string[];
+        const data = this.processData();
 
-        // Dygraph requires each row of data to have the same number of columns.
-        // If we have both the sensor and pre-recording data, plot both.
-        const data = sensorRecording?.data || []
         return (
             <div className="sensor-graph">
               <Graph
-                title={this.props.title}
+                title={title}
                 width={graphWidth}
-                height={this.props.height}
+                height={height}
                 data={data}
                 onRescale={this.handleRescale}
                 resetScaleF={this.handleResetScale}
@@ -193,13 +220,13 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 xLabel={this.xLabel()}
                 yLabel={this.yLabel()}
                 yLabels={labels}
-                assetsPath={this.props.assetsPath}
-                singleReads={this.props.singleReads}
-                predictionState={this.props.predictionState}
-                prediction={this.props.prediction}
-                preRecording={this.props.preRecording?.data || []}
-                setPredictionF={this.props.setPredictionF}
-                displayType={this.props.displayType}
+                assetsPath={assetsPath}
+                singleReads={singleReads}
+                predictionState={predictionState}
+                prediction={prediction}
+                preRecording={preRecording?.data || []}
+                setPredictionF={setPredictionF}
+                displayType={displayType}
               />
             </div>
         );
