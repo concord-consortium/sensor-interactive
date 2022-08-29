@@ -6,6 +6,7 @@ import { OverlayGraph } from "./overlay-graph";
 import { barChartPlotter } from "../utils/bar-chart-plotter";
 
 import "./dygraph.css";
+import { OverlayBarGraph } from "./overlay-bar-graph";
 
 export interface GraphProps {
     title:string|undefined;
@@ -329,8 +330,26 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         return (
             <div style={{position: "relative"}}>
                 <div id={"sensor-graph-" + title} className="graph-box" style={graphStyle}></div>
-
-                <OverlayGraph
+                { this.props.displayType === "line" &&
+                  <OverlayGraph
+                      height={height||100}
+                      width={width||100}
+                      show={true}
+                      enableEdit={this.state.predictionState == "started"}
+                      parentGraph={this.dygraph}
+                      setDataF={setPredictionF}
+                      data={prediction}
+                      color={PREDICTION_LINE_COLOR}
+                      maxX={this.props.xMax}
+                      maxY={this.props.yMax}
+                      minX={this.props.xMin}
+                      minY={this.props.yMin}
+                      key="prediction"
+                  />
+                }
+                {
+                  this.props.displayType === "bar" &&
+                  <OverlayBarGraph
                     height={height||100}
                     width={width||100}
                     show={true}
@@ -346,6 +365,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                     key="prediction"
                 />
 
+                }
                 { preRecording &&
                     <OverlayGraph
                         height={height||100}
