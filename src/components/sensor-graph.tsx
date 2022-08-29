@@ -184,7 +184,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         return data;
       } else {
         // For single-read bar graphs, we essentially need to return only a single data point
-        // since each single-read bar graph shows only one point of data. There's very possibly 
+        // since each single-read bar graph shows only one point of data. There's very possibly
         // a better way to filter what's sent to each graph, maybe even before the data gets
         // passed to the SensorGraph component?
         return data.length >= graphIndex + 1
@@ -194,8 +194,26 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
       }
     }
 
+    processPredictionData() {
+      const { graphIndex, prediction } = this.props;
+
+      // Data needs to be modified for single-read bar graphs.
+      if (!this.isSingleReadBarGraph()) {
+        return prediction;
+      } else {
+        // For single-read bar graphs, we essentially need to return only a single data point
+        // since each single-read bar graph shows only one point of data. There's very possibly
+        // a better way to filter what's sent to each graph, maybe even before the data gets
+        // passed to the SensorGraph component?
+        return prediction.length >= graphIndex + 1
+                 // Not sure why the [0,0] is required, but the graphs won't render without it.
+                 ? [[0,0], [1, prediction[graphIndex][1]]]
+                 : []
+      }
+    }
+
     renderGraph(graphWidth:number|null) {
-        const { assetsPath, displayType, height, prediction, predictionState, preRecording, 
+        const { assetsPath, displayType, height, predictionState, preRecording,
                 sensorRecording, setPredictionF, singleReads, title } = this.props;
         const { yMin, yMax, xMin, xMax } = this.state;
 
@@ -223,10 +241,11 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 assetsPath={assetsPath}
                 singleReads={singleReads}
                 predictionState={predictionState}
-                prediction={prediction}
+                prediction={this.processPredictionData()}
                 preRecording={preRecording?.data || []}
                 setPredictionF={setPredictionF}
                 displayType={displayType}
+                graphIndex={this.props.graphIndex}
               />
             </div>
         );
