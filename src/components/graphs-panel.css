@@ -1,9 +1,0 @@
-.two-graphs {
-  min-height: 320px;
-}
-
-.six-graphs {
-  display: flex;
-  flex-wrap: wrap;
-  min-height: 320px;
-}

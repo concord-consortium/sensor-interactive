@@ -6,7 +6,6 @@ import { OverlayGraph } from "./overlay-graph";
 import { barChartPlotter } from "../utils/bar-chart-plotter";
 
 import "./dygraph.css";
-import { OverlayBarGraph } from "./overlay-bar-graph";
 
 export interface GraphProps {
     title:string|undefined;
@@ -31,7 +30,6 @@ export interface GraphProps {
     assetsPath: string;
     singleReads?: boolean;
     displayType: string;
-    graphIndex: number;
 }
 
 export interface GraphState {
@@ -331,33 +329,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         return (
             <div style={{position: "relative"}}>
                 <div id={"sensor-graph-" + title} className="graph-box" style={graphStyle}></div>
-                { this.props.displayType === "line" &&
-                  <OverlayGraph
-                      height={height||100}
-                      width={width||100}
-                      show={true}
-                      enableEdit={this.state.predictionState == "started"}
-                      parentGraph={this.dygraph}
-                      setDataF={setPredictionF}
-                      data={prediction}
-                      color={PREDICTION_LINE_COLOR}
-                      maxX={this.props.xMax}
-                      maxY={this.props.yMax}
-                      minX={this.props.xMin}
-                      minY={this.props.yMin}
-                      key="prediction"
-                  />
-                }
-                {
-                  this.props.displayType === "bar" &&
-                  <OverlayBarGraph
+
+                <OverlayGraph
                     height={height||100}
                     width={width||100}
                     show={true}
                     enableEdit={this.state.predictionState == "started"}
                     parentGraph={this.dygraph}
                     setDataF={setPredictionF}
-                    // the data we pass to the overlay bar graph we want to be the value of the distance between steps on the y axis...
                     data={prediction}
                     color={PREDICTION_LINE_COLOR}
                     maxX={this.props.xMax}
@@ -365,10 +344,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                     minX={this.props.xMin}
                     minY={this.props.yMin}
                     key="prediction"
-                    graphIndex={this.props.graphIndex}
                 />
 
-                }
                 { preRecording &&
                     <OverlayGraph
                         height={height||100}

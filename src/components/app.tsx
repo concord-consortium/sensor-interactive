@@ -167,8 +167,6 @@ const SLEEP_WAKE_DELAY_SEC = 3;
 const DOWN_SAMPLE_THRESHOLD_SECS = 60;
 const DOWN_SAMPLE_THRESHOLD_COUNT = 601;
 
-const defaultBarGraphPrediction = new Array(7).fill([1.5, .1]);
-
 class AppContainer extends React.Component<AppProps, AppState> {
 
     private assetsPath:string;
@@ -203,7 +201,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
             dataReset:false,
             collecting:false,
             predictionState: props.requirePrediction ? "pending" : "not-required",
-            prediction: props.displayType === "bar" ? defaultBarGraphPrediction : [],
+            prediction: [],
             runLength:DEFAULT_RUN_LENGTH,
             xStart:0,
             xEnd:DEFAULT_RUN_LENGTH + 0.01, // without the .01, last tick number sometimes fails to display
@@ -296,19 +294,8 @@ class AppContainer extends React.Component<AppProps, AppState> {
         return (typeof this.props.sensorManager !== "undefined" ? this.props.sensorManager : null);
     }
 
-    setPrediction = (p: number[][], graphIndex?: number) => {
-      if (this.props.displayType === "bar") {
-       const newArray = this.state.prediction.map((prediction, index) => {
-        if (index === graphIndex) {
-          return p[0];
-        } else {
-          return prediction;
-        }
-       });
-        this.setState({prediction: newArray})
-      } else {
+    setPrediction = (p: number[][]) => {
         this.setState({prediction: p});
-      }
     }
 
     componentDidMount() {
