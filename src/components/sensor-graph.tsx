@@ -49,7 +49,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         super(props);
         this.state = {
             xMin: this.props.xStart,
-            xMax: this.props.xEnd,
+            xMax: this.isSingleReadBarGraph() ? 7 : this.props.xEnd,
             yMin: this.props.preRecording?.min ?? 0,
             yMax: this.props.preRecording?.max ?? 100,
         };
@@ -137,16 +137,48 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         }
         if (nextProps.xEnd !== xEnd || nextProps.xStart !== xStart) {
             stateChanges.xMin = nextProps.xStart;
-            stateChanges.xMax = nextProps.xEnd;
+            stateChanges.xMax = this.isSingleReadBarGraph() ? 7 : nextProps.xEnd;
         }
         if (Object.keys(stateChanges).length > 0) {
             this.setState(stateChanges);
         }
     }
 
+    isSingleReadBarGraph() {
+      const { singleReads, displayType } = this.props;
+      return singleReads && displayType === "bar";
+    }
+
+    processData() {
+      const { sensorRecording } = this.props;
+  
+      // Dygraph requires each row of data to have the same number of columns.
+      // If we have both the sensor and pre-recording data, plot both.
+      const data = sensorRecording?.data || [];
+  
+      // Data needs to be modified for single-read bar graphs.
+      if (!this.isSingleReadBarGraph()) {
+        return data;
+      } else {
+        // There's very possibly a better way to re-shape this data, maybe even
+        // before the data gets passed to the SensorGraph component?
+        let processedData = [[0,0]];
+        for (let i = 1; i < data.length; i++) {
+          processedData.push([i, data[i][1]]);
+        }
+        return processedData;
+      }
+    }
+
     xLabel() {
         const { isLastGraph, timeUnit } = this.props;
-        return isLastGraph ? `Time (${timeUnit})` : "";
+        let xAxisLabel = "";
+        if (this.isSingleReadBarGraph()) {
+            xAxisLabel = "Tries"; // Not sure about this word. Should the label be nothing?
+        } else if (isLastGraph) {
+            xAxisLabel = `Time (${timeUnit})`;
+        }
+        return xAxisLabel;
     }
 
     yLabel() {
@@ -172,9 +204,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
 
         const labels = [] as string[];
 
-        // Dygraph requires each row of data to have the same number of columns.
-        // If we have both the sensor and pre-recording data, plot both.
-        const data = sensorRecording?.data || []
+        const data = this.processData();
         return (
             <div className="sensor-graph">
               <Graph

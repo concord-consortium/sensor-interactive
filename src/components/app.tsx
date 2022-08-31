@@ -66,34 +66,35 @@ export interface AppProps {
 }
 
 export interface AppState {
-    sensorManager:SensorManager | null,
-    sensorConfig:SensorConfiguration | null;
-    sensorSlots:SensorSlot[];
-    hasData:boolean;
-    dataChanged:boolean;
-    dataReset:boolean;
+    sensorManager: SensorManager | null,
+    sensorConfig: SensorConfiguration | null;
+    sensorSlots: SensorSlot[];
+    hasData: boolean;
+    dataChanged: boolean;
+    dataReset: boolean;
     predictionState: PredictionState;
     prediction: number[][];
-    collecting:boolean;
-    runLength:number;
-    timeUnit:string;
-    notRespondingModal:boolean;
-    suppressNotRespondingModal:boolean;
-    warnNewModal:boolean;
-    reconnectModal:boolean;
-    statusMessage:string|undefined;
-    secondGraph:boolean;
-    xStart:number;
-    xEnd:number;
-    bluetoothErrorModal:boolean;
-    disconnectionWarningModal:boolean;
-    aboutModal:boolean;
+    collecting: boolean;
+    runLength: number;
+    timeUnit: string;
+    notRespondingModal: boolean;
+    suppressNotRespondingModal: boolean;
+    warnNewModal: boolean;
+    reconnectModal: boolean;
+    statusMessage: string|undefined;
+    secondGraph: boolean;
+    xStart: number;
+    xEnd: number;
+    bluetoothErrorModal: boolean;
+    disconnectionWarningModal: boolean;
+    aboutModal: boolean;
     sensorRecordings: SensorRecording[];
     pauseHeartbeat: boolean;
     promptHeight: number;
     topBarHeight: number;
     warnClearPrediction: boolean;
     warnSavePrediction: boolean;
+    isStartDisabled?: boolean;
 }
 
 function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo) {
@@ -606,10 +607,24 @@ class AppContainer extends React.Component<AppProps, AppState> {
         }
     }
 
+    hasReachedRecordingLimit = () => {
+        const { sensorRecordings } = this.state;
+        const { singleReads, displayType } = this.props;
+        const singleReadBarChart = singleReads && displayType === "bar";
+
+        if (singleReadBarChart && sensorRecordings[0].data.length >= 7) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     startSensor() {
         const { sensorManager } = this.state;
-        if (sensorManager) {
-            if (this.props.singleReads) {
+        const { singleReads } = this.props;
+
+        if (sensorManager && !this.hasReachedRecordingLimit()) {
+            if (singleReads) {
                 sensorRecordingStore.requestNewDataPoint();
             } else {
                 sensorRecordingStore.startNewRecordings();
@@ -618,7 +633,8 @@ class AppContainer extends React.Component<AppProps, AppState> {
             sensorManager.requestHeartbeat(false);
             sensorManager.requestStart();
             this.setState({
-                statusMessage: this.messages["starting_data_collection"],pauseHeartbeat: true
+                statusMessage: this.messages["starting_data_collection"],
+                pauseHeartbeat: true
             });
         }
     }
@@ -644,7 +660,8 @@ class AppContainer extends React.Component<AppProps, AppState> {
         this.setState(
             {
                 collecting: false,
-                statusMessage: this.messages["data_collection_stopped"]
+                statusMessage: this.messages["data_collection_stopped"],
+                isStartDisabled: this.hasReachedRecordingLimit()
             },
             () =>  this.saveInteractiveState(saveCallback)
         );
@@ -877,6 +894,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
         if (!this.disableWarning) {
             this.setState({ warnNewModal: true });
         } else {
+            this.setState({  });
             this.newData();
         }
     }
@@ -886,11 +904,12 @@ class AppContainer extends React.Component<AppProps, AppState> {
         const { sensorSlots } = this.state;
         sensorRecordingStore.startNewRecordings();
         this.setState({
-            hasData:false,
-            dataReset:true,
-            dataChanged:false,
+            hasData: false,
+            dataReset: true,
+            dataChanged: false,
             sensorSlots,
-            runLength
+            runLength,
+            isStartDisabled: false
         }, () => {
             this.setXZoomState(runLength);
         });
@@ -1535,6 +1554,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
                     onReloadPage={this.reload}
                     onAboutClick={this.showAbout}
                     isDisabled={false} // TODO: are the controls ever disabled?
+                    isStartDisabled={this.state.isStartDisabled}
                     // isDisabled={useSensors && sensorManager == null}
                     predictionStatus={this.state.predictionState}
                     onClearPrediction={this.handleClearPrediction}
