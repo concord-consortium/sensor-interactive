@@ -23,6 +23,9 @@ class Workspace{
     getStartButton(){
         return cy.get('.start-sensor')
     }
+    getRecordButton(){
+        return cy.get('.record-sensor')
+    }
     getStopButton(){
         return cy.get('.stop-sensor')
     }

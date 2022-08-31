@@ -7,6 +7,7 @@ module.exports = {
     entry: {
         app: "./src/app.tsx",
         "examples/fake-sensor": "./src/examples/fake-sensor.tsx",
+        "examples/fake-sensor-bar-graph": "./src/examples/fake-sensor-bar-graph.tsx",
         "examples/pre-recorded": "./src/examples/pre-recorded.tsx",
         "examples/prediction": "./src/examples/prediction.tsx",
         "examples/sensor-tag": "./src/examples/sensor-tag.tsx",
