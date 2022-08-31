@@ -612,7 +612,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
         const { singleReads, displayType } = this.props;
         const singleReadBarChart = singleReads && displayType === "bar";
 
-        if (singleReadBarChart && sensorRecordings[0].data.length >= 7) {
+        if (singleReadBarChart && sensorRecordings[0].data.length >= 6) {
             return true;
         } else {
             return false;
