@@ -894,7 +894,6 @@ class AppContainer extends React.Component<AppProps, AppState> {
         if (!this.disableWarning) {
             this.setState({ warnNewModal: true });
         } else {
-            this.setState({  });
             this.newData();
         }
     }
@@ -1553,7 +1552,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
                     onSaveData={this.interactiveHost === "codap" ? this.sendData : undefined}
                     onReloadPage={this.reload}
                     onAboutClick={this.showAbout}
-                    isDisabled={false} // TODO: are the controls ever disabled?
+                    isDisabled={false} // TODO: are the controls ever all disabled at the same time?
                     isStartDisabled={this.state.isStartDisabled}
                     // isDisabled={useSensors && sensorManager == null}
                     predictionStatus={this.state.predictionState}

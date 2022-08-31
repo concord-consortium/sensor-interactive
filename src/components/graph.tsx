@@ -132,12 +132,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         if(!this.dygraph) {
             return;
         }
-        const { displayType, singleReads } = this.props;
+        const { singleReads } = this.props;
         const { data, predictionState, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
 
-        const singleReadBarGraphOptions: Partial<dygraphs.Options> = singleReads && displayType === "bar"
-            ? {digitsAfterDecimal: 0} // This isn't working.
-            : {};
         const singleReadOptions: Partial<dygraphs.Options> = singleReads
             ? {drawPoints: true, strokeWidth: 0, pointSize: 10}
             : {};
@@ -152,7 +149,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             series: this.series(),
             xlabel: xLabel,
             ylabel: yLabel,
-            ...singleReadBarGraphOptions,
             ...singleReadOptions,
             ...predictionOptions
         });

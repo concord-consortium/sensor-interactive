@@ -160,7 +160,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
       if (!this.isSingleReadBarGraph()) {
         return data;
       } else {
-        // There's very possibly a better way to re-shape this data, maybe even
+        // There's very possibly a better way to re-format this data, maybe even
         // before the data gets passed to the SensorGraph component?
         let processedData = [[0, 0]];
         for (let i = 0; i < data.length; i++) {
@@ -174,7 +174,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         const { isLastGraph, timeUnit } = this.props;
         let xAxisLabel = "";
         if (this.isSingleReadBarGraph()) {
-            xAxisLabel = "Tries"; // Not sure about this word. Should the label be nothing?
+            xAxisLabel = "Tries"; // TODO: Find out what this word should be. "Tries" is a placeholder.
         } else if (isLastGraph) {
             xAxisLabel = `Time (${timeUnit})`;
         }

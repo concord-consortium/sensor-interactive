@@ -41,7 +41,7 @@ export const ControlPanel: React.FC<IControlPanelProps> = (props) => {
     &&  predictionStatus !== "pending";
 
   const disableClearPrediction = predictionStatus !== "started";
-  const disableSavePredction = predictionStatus !== "started";
+  const disableSavePrediction = predictionStatus !== "started";
 
   const disableStartCollecting =
       (props.isConnectorAwake && !props.interfaceType)
@@ -63,7 +63,7 @@ export const ControlPanel: React.FC<IControlPanelProps> = (props) => {
                             return <option key={d} value={d}>{dFormatted}</option>;
                           });
 
-  const disableRecord = props.isStartDisabled;
+  const disableRecord = props.isDisabled || props.isStartDisabled;
   const controlPanelClass = props.isDisabled
     ? "control-panel disabled"
     : "control-panel";
@@ -93,7 +93,7 @@ export const ControlPanel: React.FC<IControlPanelProps> = (props) => {
   const savePredictionButton = (
     <Button className="start-sensor control-panel-button"
             onClick={onSavePrediction}
-            disabled={disableSavePredction}>
+            disabled={disableSavePrediction}>
       Save Prediction
     </Button>
   );
