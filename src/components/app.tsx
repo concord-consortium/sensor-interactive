@@ -1332,7 +1332,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
     renderPrimaryLegend() {
         if (this.connectedSensorCount() > 0) {
             const label = this.state.sensorSlots[0].sensor.definition.measurementName;
-            return this.renderLegendItem("primary", label)
+            return this.renderLegendItem("primary",  `Sensor ${label}`);
         }
         return null;
     }
@@ -1340,36 +1340,39 @@ class AppContainer extends React.Component<AppProps, AppState> {
     renderSecondaryLegend() {
         const label = this.state.sensorSlots[1].sensor.definition.measurementName;
         if (this.state.secondGraph) {
-            return this.renderLegendItem("secondary", label)
+            return this.renderLegendItem("secondary",  `Sensor 2 ${label}`);
         }
         return null;
     }
 
     renderPredictionLegend() {
         const {predictionState} = this.state;
+        const label = this.state.sensorSlots[1].sensor.definition.measurementName;
         if (predictionState !== 'not-required') {
-            return this.renderLegendItem("prediction", "Prediction");
+            return this.renderLegendItem("prediction", `Predicted ${label}`);
         }
         return null;
     }
 
     renderPreRecordedLegend() {
         const {preRecordings} = this.props;
+        const label = this.state.sensorSlots[1].sensor.definition.measurementName;
         if ( preRecordings &&
             preRecordings?.length > 0 && preRecordings[0].data.length > 0) {
-            return this.renderLegendItem("prerecording", "Recorded");
+            return this.renderLegendItem("prerecording", `Sample ${label}`);
         }
         return null;
     }
 
 
     renderLegend() {
+        const { displayType, singleReads } = this.props;
         return(
-            <div className="bottom-legend">
-                { this.renderPrimaryLegend() }
-                { this.renderSecondaryLegend() }
+            <div className={`bottom-legend ${displayType}Graph ${singleReads ? "singleReads" : ""}`}>
                 { this.renderPredictionLegend() }
                 { this.renderPreRecordedLegend() }
+                { this.renderPrimaryLegend() }
+                { this.renderSecondaryLegend() }
             </div>
         );
     }

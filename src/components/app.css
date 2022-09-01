@@ -464,7 +464,7 @@ button:disabled:hover {
     display: flex;
     flex-direction: row;
     user-select: none;
-    margin: 4px 0px 4px 0px;
+    margin: 4px 0;
 }
 
 /* Graph Legend */
@@ -481,23 +481,61 @@ button:disabled:hover {
 }
 .bottom-legend .bar {
     height: 3px;
-    width: 18px;
-    margin: 0px 2px 0px 2px;
+    width: 20px;
+    margin: 0;
+    position: relative;
 }
-.bottom-legend .bar.primary {
-    background-color: var(--graph-line-color);
+.bottom-legend.lineGraph.singleReads .bar {
+    background: transparent;
+    width: 15px
 }
-.bottom-legend .bar.secondary {
-    background-color: var(--graph2-line-color);
+.bottom-legend .bar:before {
+    background-color: #ccc;
+    content: " ";
+    display: inline-block;
+    height: 10px;
+    left: 5px;
+    position: absolute;
+    top: -3.3px;
+    width: 10px;
 }
-.bottom-legend .bar.prediction {
-    background-color: var(--prediction-line-color);
+.bottom-legend.lineGraph .bar:before {
+    border-radius: 50%;
 }
-.bottom-legend .bar.prerecording {
-    background-color: var(--authored-line-color);
+.bottom-legend .bar.primary,
+.bottom-legend .bar.primary:before {
+    background: var(--graph-line-color);
+}
+.bottom-legend .bar.secondary,
+.bottom-legend .bar.secondary:before {
+    background: var(--graph2-line-color);
+}
+.bottom-legend .bar.prediction,
+.bottom-legend .bar.prediction:before {
+    background: var(--prediction-line-color);
+}
+.bottom-legend .bar.prerecording,
+.bottom-legend .bar.prerecording:before {
+    background: var(--authored-line-color);
+}
+.bottom-legend.lineGraph:not(.singleReads) .bar.primary:before,
+.bottom-legend.lineGraph:not(.singleReads) .bar.bar.secondary:before {
+    background: transparent;
 }
 .bottom-legend .name {
-    margin: 0px 2px 0px 6px;
+    margin: 0 10px 0 7px;
+}
+.bottom-legend .name.primary {
+    color: var(--graph-line-color);
+}
+.bottom-legend .name.secondary {
+    color: var(--graph2-line-color);
+}
+.bottom-legend .name.prediction {
+    color: var(--prediction-line-color);
+}
+.bottom-legend .name.prerecording {
+    color: var(--authored-line-color);
 }
 
 /* Bottom Control Panel */

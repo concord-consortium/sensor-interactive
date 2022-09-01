@@ -314,7 +314,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     render() {
-        const {width, height, title, setPredictionF, prediction, preRecording } = this.props;
+        const {width, height, title, setPredictionF, prediction, preRecording, singleReads } = this.props;
         let graphStyle:{width?:number; height?:number} = {};
         if (width && isFinite(width))
             graphStyle.width = width;
@@ -345,6 +345,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                     minX={this.props.xMin}
                     minY={this.props.yMin}
                     key="prediction"
+                    singleReads={singleReads}
                 />
 
                 { preRecording &&
@@ -362,6 +363,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                         minX={this.state.xMin}
                         minY={this.state.yMin}
                         key="preRecording"
+                        singleReads={singleReads}
                         />
                 }
                 <div className="graph-rescale-button" onClick={this.autoScale} title="Show all data (autoscale)">
