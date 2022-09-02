@@ -269,6 +269,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
         this.closeWarnClearPrediction = this.closeWarnClearPrediction.bind(this);
         this.savePrediction = this.savePrediction.bind(this);
         this.discardPrediction = this.discardPrediction.bind(this);
+        this.getSensorLabel = this.getSensorLabel.bind(this);
         sensorRecordingStore.listenForNewData((sensorRecordings) => this.setState({sensorRecordings}));
     }
 
@@ -1345,21 +1346,25 @@ class AppContainer extends React.Component<AppProps, AppState> {
         return null;
     }
 
+    getSensorLabel(){
+      const {sensorUnit} = this.props;
+      const sensorLabel = sensorUnit ? SensorDefinitions[sensorUnit].measurementName : "";
+      return sensorLabel;
+    }
+
     renderPredictionLegend() {
         const {predictionState} = this.state;
-        const label = this.state.sensorSlots[1].sensor.definition.measurementName;
         if (predictionState !== 'not-required') {
-            return this.renderLegendItem("prediction", `Predicted ${label}`);
+            return this.renderLegendItem("prediction", `Predicted ${this.getSensorLabel()}`);
         }
         return null;
     }
 
     renderPreRecordedLegend() {
         const {preRecordings} = this.props;
-        const label = this.state.sensorSlots[1].sensor.definition.measurementName;
         if ( preRecordings &&
             preRecordings?.length > 0 && preRecordings[0].data.length > 0) {
-            return this.renderLegendItem("prerecording", `Sample ${label}`);
+            return this.renderLegendItem("prerecording", `Sample ${this.getSensorLabel()}`);
         }
         return null;
     }
