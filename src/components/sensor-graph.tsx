@@ -30,6 +30,7 @@ interface SensorGraphProps {
     assetsPath: string;
     singleReads?: boolean;
     sensorUnit:any;
+    displayType: string;
 }
 
 interface SensorGraphState {
@@ -143,9 +144,41 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         }
     }
 
+    isSingleReadBarGraph() {
+      const { singleReads, displayType } = this.props;
+      return singleReads && displayType === "bar";
+    }
+
+    processData() {
+      const { sensorRecording } = this.props;
+
+      // Dygraph requires each row of data to have the same number of columns.
+      // If we have both the sensor and pre-recording data, plot both.
+      const data = sensorRecording?.data || [];
+
+      // Data needs to be modified for single-read bar graphs.
+      if (!this.isSingleReadBarGraph()) {
+        return data;
+      } else {
+        // There's very possibly a better way to re-format this data, maybe even
+        // before the data gets passed to the SensorGraph component?
+        let processedData = [[0, 0]];
+        for (let i = 0; i < data.length; i++) {
+          processedData.push([i + 1, data[i][1]]);
+        }
+        return processedData;
+      }
+    }
+
     xLabel() {
         const { isLastGraph, timeUnit } = this.props;
-        return isLastGraph ? `Time (${timeUnit})` : "";
+        let xAxisLabel = "";
+        if (this.isSingleReadBarGraph()) {
+            xAxisLabel = "Trials";
+        } else if (isLastGraph) {
+            xAxisLabel = `Time (${timeUnit})`;
+        }
+        return xAxisLabel;
     }
 
     yLabel() {
@@ -171,9 +204,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
 
         const labels = [] as string[];
 
-        // Dygraph requires each row of data to have the same number of columns.
-        // If we have both the sensor and pre-recording data, plot both.
-        const data = sensorRecording?.data || []
+        const data = this.processData();
         return (
             <div className="sensor-graph">
               <Graph
@@ -198,6 +229,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 prediction={this.props.prediction}
                 preRecording={this.props.preRecording?.data || []}
                 setPredictionF={this.props.setPredictionF}
+                displayType={this.props.displayType}
               />
             </div>
         );

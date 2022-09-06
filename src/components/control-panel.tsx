@@ -4,18 +4,19 @@ import Select from "./smart-highlight-select";
 import { PredictionState } from "./types";
 
 interface IControlPanelProps {
-  isConnectorAwake:boolean;
-  isDisabled:boolean,
+  isConnectorAwake: boolean;
+  isDisabled: boolean;
+  isStartDisabled?: boolean;
   predictionStatus: PredictionState,
-  interfaceType:string;
-  sensorCount:number;
-  collecting:boolean;
-  hasData:boolean;
-  dataChanged:boolean;
-  duration:number;
-  durationUnit:string;
-  durationOptions:number[];
-  embedInCodapUrl:string|null;
+  interfaceType: string;
+  sensorCount: number;
+  collecting: boolean;
+  hasData: boolean;
+  dataChanged: boolean;
+  duration: number;
+  durationUnit: string;
+  durationOptions: number[];
+  embedInCodapUrl: string|null;
   onDurationChange:(duration:number) => void;
   onStartConnecting: () => void;
   onStartCollecting: () => void;
@@ -39,8 +40,8 @@ export const ControlPanel: React.FC<IControlPanelProps> = (props) => {
         predictionStatus !== "not-required"
     &&  predictionStatus !== "pending";
 
-  const disableClearPrediciton = predictionStatus !== "started";
-  const diableSavePredciton = predictionStatus !== "started";
+  const disableClearPrediction = predictionStatus !== "started";
+  const disableSavePrediction = predictionStatus !== "started";
 
   const disableStartCollecting =
       (props.isConnectorAwake && !props.interfaceType)
@@ -62,7 +63,7 @@ export const ControlPanel: React.FC<IControlPanelProps> = (props) => {
                             return <option key={d} value={d}>{dFormatted}</option>;
                           });
 
-  const disableRecord = props.isDisabled;
+  const disableRecord = props.isDisabled || props.isStartDisabled;
   const controlPanelClass = props.isDisabled
     ? "control-panel disabled"
     : "control-panel";
@@ -84,7 +85,7 @@ export const ControlPanel: React.FC<IControlPanelProps> = (props) => {
   const clearPredictionButton = (
     <Button className="start-sensor control-panel-button"
             onClick={onClearPrediction}
-            disabled={disableClearPrediciton}>
+            disabled={disableClearPrediction}>
       Clear Prediction
     </Button>
   );
@@ -92,7 +93,7 @@ export const ControlPanel: React.FC<IControlPanelProps> = (props) => {
   const savePredictionButton = (
     <Button className="start-sensor control-panel-button"
             onClick={onSavePrediction}
-            disabled={diableSavePredciton}>
+            disabled={disableSavePrediction}>
       Save Prediction
     </Button>
   );

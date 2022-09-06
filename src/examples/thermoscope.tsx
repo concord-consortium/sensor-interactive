@@ -10,6 +10,7 @@ let sensorManager = new ThermoscopeManager();
 ReactDOM.render(
     <App
       sensorManager={sensorManager}
+      displayType={"line"}
     />,
     document.getElementById("app")
 );

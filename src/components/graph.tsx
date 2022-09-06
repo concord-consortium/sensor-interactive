@@ -3,6 +3,7 @@ import Dygraph from "dygraphs";
 import { Format } from "../utils/format";
 import { PredictionState } from "./types";
 import { OverlayGraph } from "./overlay-graph";
+import { barChartPlotter } from "../utils/bar-chart-plotter";
 
 import "./dygraph.css";
 
@@ -28,6 +29,7 @@ export interface GraphProps {
     [key:string]: any;
     assetsPath: string;
     singleReads?: boolean;
+    displayType: string;
 }
 
 export interface GraphState {
@@ -101,24 +103,25 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     series() {
         const result: Record<string,{color:string, plotter: any}> = {};
         const labels = this.labels();
+        const plotter = this.props.displayType === "bar" ? barChartPlotter : Dygraph.Plotters.linePlotter;
         for (let label of labels) {
             if (label == "x" || label == this.state.xLabel) { continue; }
             if (label == "prediction") {
                 result[label] ={
                     color: PREDICTION_LINE_COLOR,
-                    plotter:  Dygraph.Plotters.linePlotter
+                    plotter: plotter
                 };
             }
             else if (label == "recording") {
                 result[label] ={
                     color: AUTHORED_LINE_COLOR,
-                    plotter:  Dygraph.Plotters.linePlotter
+                    plotter: plotter
                 };
             }
             else {
                 result[label] ={
                     color: GRAPH1_LINE_COLOR,
-                    plotter: Dygraph.Plotters.linePlotter
+                    plotter: plotter
                 };
             }
         }
@@ -129,16 +132,17 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         if(!this.dygraph) {
             return;
         }
-        const { data, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
+        const { singleReads } = this.props;
+        const { data, predictionState, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
 
-        const singleReadOptions: Partial<dygraphs.Options> = this.props.singleReads
+        const singleReadOptions: Partial<dygraphs.Options> = singleReads
             ? {drawPoints: true, strokeWidth: 0, pointSize: 10}
             : {};
-        const predictionOptions: Partial<dygraphs.Options> = this.state.predictionState == "started"
+        const predictionOptions: Partial<dygraphs.Options> = predictionState == "started"
             ? { width: 0 }
             : {};
         this.dygraph.updateOptions({
-            file: dyGraphData(data, this.props.singleReads),
+            file: dyGraphData(data, singleReads),
             dateWindow: [xMin, xMax],
             valueRange: [yMin, yMax],
             labels: this.labels(),

@@ -6,6 +6,7 @@ ReactDOM.render(
     <App
       requirePrediction={true}
       fakeSensor={true}
+      displayType={"line"}
     />,
     document.getElementById("app")
 );

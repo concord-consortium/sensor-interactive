@@ -27,6 +27,7 @@ ReactDOM.render(
     <App
       preRecordings={preRecordedData}
       fakeSensor={true}
+      displayType={"line"}
     />,
     document.getElementById("app")
 );

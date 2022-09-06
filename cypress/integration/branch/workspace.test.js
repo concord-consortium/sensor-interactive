@@ -67,3 +67,26 @@ context('Connection UI',()=>{
         })
     })
 })
+
+context('Graph controls',()=>{
+    before(()=>{
+        // See cypress.json for viewport size
+        cy.viewport(1400,1280)
+    })
+    it ('shows Start, Stop, and New Run buttons for a line graph', ()=> {
+      cy.visit('/examples/fake-sensor.html')
+      workspace.getBottomControlPanel().should('be.visible')
+      workspace.getStartButton().should('be.visible')
+      workspace.getRecordButton().should('not.exist')
+      workspace.getStopButton().should('be.visible')
+      workspace.getNewRunButton().should('be.visible')
+    })
+    it ('shows Record and New Run buttons for a single-read bar graph', ()=> {
+      cy.visit('/examples/fake-sensor-bar-graph.html')
+      workspace.getBottomControlPanel().should('be.visible')
+      workspace.getStartButton().should('not.exist')
+      workspace.getStopButton().should('not.exist')
+      workspace.getRecordButton().should('be.visible')
+      workspace.getNewRunButton().should('be.visible')
+    })
+})
