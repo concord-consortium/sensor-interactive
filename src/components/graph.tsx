@@ -31,7 +31,7 @@ export interface GraphProps {
     assetsPath: string;
     singleReads?: boolean;
     displayType: string;
-    useAuthredData?: boolean;
+    useAuthoredData?: boolean;
 }
 
 export interface GraphState {
@@ -100,13 +100,24 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     useMultiBar() {
-      return this.props.preRecording && this.props.displayType === "bar" || this.props.prediction && this.props.displayType === "bar";
+      if (this.props.displayType === "bar") {
+        if (this.props.useAuthoredData || this.props.usePrediction){
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
     }
 
     dataForMultiBar() {
       const {useAuthoredData, preRecording, usePrediction, prediction} = this.props;
 ;     const {data} = this.state;
       const joinedData = [];
+
+      const beginningPoint = preRecording && usePrediction ? [0, 0, 0, 0] : [0, 0, 0];
+      joinedData.push(beginningPoint);
 
       for (let i = 0; i < 6; i++){
         const dataPoint = data.length > i + 1 ? data[i + 1][1] : 0;
@@ -274,6 +285,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                 canvas.fillRect(area.x, area.y, area.w, area.h);
             },
             plotter: this.getPlotterType(),
+            labels: this.labels(),
+            series: this.series(),
         };
 
         if (this.props.displayType !== "bar"){
@@ -298,8 +311,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                     axisLabelWidth: AXIS_LABEL_WIDTH
                 }
             };
-            dygraphOptions.labels = this.labels();
-            dygraphOptions.series = this.series();
             dygraphOptions = {...dygraphOptions, ...singleReadOptions};
         }
 
