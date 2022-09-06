@@ -27,6 +27,7 @@ import "./dialog.css";
 import "./app.css";
 
 const DEFAULT_RUN_LENGTH = 5;
+const MAX_BAR_CHART_SAMPLES = 6;
 
 /*
     SensorRecordingStore Design Notes & Future Work
@@ -193,6 +194,10 @@ class AppContainer extends React.Component<AppProps, AppState> {
         this.promptRef = React.createRef();
         this.topBarRef = React.createRef();
 
+        const xEnd = this.isSingleReadBarGraph()
+                       ? MAX_BAR_CHART_SAMPLES + 1
+                       : DEFAULT_RUN_LENGTH + 0.01; // without the .01, last tick number sometimes fails to display
+
         this.state = {
             sensorManager:this.passedSensorManager(),
             sensorConfig:null,
@@ -205,7 +210,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
             prediction: [],
             runLength:DEFAULT_RUN_LENGTH,
             xStart:0,
-            xEnd:DEFAULT_RUN_LENGTH + 0.01, // without the .01, last tick number sometimes fails to display
+            xEnd,
             timeUnit:"",
             notRespondingModal:false,
             suppressNotRespondingModal:false,
@@ -302,19 +307,19 @@ class AppContainer extends React.Component<AppProps, AppState> {
     componentDidMount() {
         SmartFocusHighlight.enableFocusHighlightOnKeyDown();
 
-        const {initialInteractiveState} = this.props;
+        const {initialInteractiveState, prompt, singleReads} = this.props;
         if (initialInteractiveState) {
             if (initialInteractiveState.version === 1) {
                 let predictionState = this.state.predictionState;
                 const {sensorRecordings, prediction} = initialInteractiveState;
-                const runLength = this.props.singleReads ? DEFAULT_RUN_LENGTH : (initialInteractiveState.runLength || DEFAULT_RUN_LENGTH);
+                const runLength = singleReads ? DEFAULT_RUN_LENGTH : (initialInteractiveState.runLength || DEFAULT_RUN_LENGTH);
                 sensorRecordingStore.setRecordings(sensorRecordings);
                 if (prediction && prediction.length > 0) {
                     predictionState = "completed"
                 }
                 this.setState({
                     runLength,
-                    xEnd: runLength + 0.01,
+                    xEnd: this.isSingleReadBarGraph() ? MAX_BAR_CHART_SAMPLES + 1 : runLength + 0.01,
                     hasData: true,
                     prediction,
                     predictionState
@@ -325,7 +330,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
         }
         enableShutterbug("app-container");
 
-        const promptHeight = this.props.prompt ? this.promptRef.current!.clientHeight : 0;
+        const promptHeight = prompt ? this.promptRef.current!.clientHeight : 0;
         this.setState({promptHeight: promptHeight})
 
         const topBarHeight = this.topBarRef.current!.clientHeight;
@@ -609,14 +614,16 @@ class AppContainer extends React.Component<AppProps, AppState> {
 
     hasReachedRecordingLimit = () => {
         const { sensorRecordings } = this.state;
-        const { singleReads, displayType } = this.props;
-        const singleReadBarChart = singleReads && displayType === "bar";
-
-        if (singleReadBarChart && sensorRecordings[0].data.length >= 6) {
+        if (this.isSingleReadBarGraph() && sensorRecordings[0].data.length >= MAX_BAR_CHART_SAMPLES) {
             return true;
         } else {
             return false;
         }
+    }
+
+    isSingleReadBarGraph() {
+      const { singleReads, displayType } = this.props;
+      return singleReads && displayType === "bar";
     }
 
     startSensor() {
@@ -670,9 +677,10 @@ class AppContainer extends React.Component<AppProps, AppState> {
 
     // This should only be called while we are collecting
     onSensorData(newSensorData: NewSensorData) {
-        const { sensorSlots } = this.state;
+        const { singleReads } = this.props;
+        const { collecting, sensorSlots } = this.state;
 
-        if (!this.state.collecting) {
+        if (!collecting) {
             this.setState({
                 hasData: true,
                 dataChanged: true,
@@ -685,7 +693,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
             }
         }
 
-        if (this.props.singleReads) {
+        if (singleReads) {
             let haveAllData = true;
             let xEnd = 0;
             sensorSlots.forEach((sensorSlot) => {
@@ -701,7 +709,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
             }
             this.saveInteractiveState();
             // allow for some padding on the right side
-            xEnd = Math.max(DEFAULT_RUN_LENGTH, xEnd + 1) + 0.01;
+            xEnd = this.isSingleReadBarGraph() ? MAX_BAR_CHART_SAMPLES + 1 : Math.max(DEFAULT_RUN_LENGTH, xEnd + 1) + 0.01;
             this.setState({xEnd, sensorSlots, hasData: true});
             return;
         }

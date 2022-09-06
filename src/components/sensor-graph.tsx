@@ -49,7 +49,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         super(props);
         this.state = {
             xMin: this.props.xStart,
-            xMax: this.isSingleReadBarGraph() ? 7 : this.props.xEnd,
+            xMax: this.props.xEnd,
             yMin: this.props.preRecording?.min ?? 0,
             yMax: this.props.preRecording?.max ?? 100,
         };
@@ -137,7 +137,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         }
         if (nextProps.xEnd !== xEnd || nextProps.xStart !== xStart) {
             stateChanges.xMin = nextProps.xStart;
-            stateChanges.xMax = this.isSingleReadBarGraph() ? 7 : nextProps.xEnd;
+            stateChanges.xMax = nextProps.xEnd;
         }
         if (Object.keys(stateChanges).length > 0) {
             this.setState(stateChanges);
@@ -174,7 +174,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         const { isLastGraph, timeUnit } = this.props;
         let xAxisLabel = "";
         if (this.isSingleReadBarGraph()) {
-            xAxisLabel = "Tries"; // TODO: Find out what this word should be. "Tries" is a placeholder.
+            xAxisLabel = "Trials";
         } else if (isLastGraph) {
             xAxisLabel = `Time (${timeUnit})`;
         }
