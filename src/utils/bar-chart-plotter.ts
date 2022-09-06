@@ -1,10 +1,12 @@
+import { PREDICTION_LINE_COLOR, AUTHORED_LINE_COLOR, GRAPH1_LINE_COLOR } from "../components/graph";
+
 // Original function was taken from https://dygraphs.com/tests/plotters.html
 export const barChartPlotter = (e: any) => {
   const ctx = e.drawingContext;
   const points = e.points;
   const y_bottom = e.dygraph.toDomYCoord(0);
 
-  ctx.fillStyle = e.color;
+  ctx.fillStyle = GRAPH1_LINE_COLOR;
 
   let min_sep = Infinity;
   for (let i = 1; i < points.length; i++) {
@@ -51,7 +53,14 @@ export const multiColumnBarPlotter = (e: any) => {
 
       var fillColors = [];
       var strokeColors = g.getColors();
-      var otherColors = ["rgb(247, 153, 110)", "rgb(76, 76, 157)"];
+      const otherColors = [];
+
+      if (sets.length === 3) {
+        otherColors.push(PREDICTION_LINE_COLOR, GRAPH1_LINE_COLOR, AUTHORED_LINE_COLOR)
+      } else if (sets.length === 2) {
+        otherColors.push(GRAPH1_LINE_COLOR, AUTHORED_LINE_COLOR);
+      };
+
       for (var i = 0; i < strokeColors.length; i++) {
         fillColors.push(otherColors[i]);
       }

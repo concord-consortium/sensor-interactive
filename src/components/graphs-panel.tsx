@@ -24,6 +24,7 @@ interface IGraphsPanelProps {
   sensorUnit?: string|null;
   usePrediction:boolean|undefined;
   displayType: string;
+  useAuthoredData?: boolean;
 }
 
 export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
@@ -67,6 +68,7 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
                         sensorUnit={props.sensorUnit}
                         usePrediction={props.usePrediction}
                         displayType={props.displayType}
+                        useAuthoredData={props.useAuthoredData}
             />;
 
   }

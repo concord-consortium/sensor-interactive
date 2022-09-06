@@ -62,6 +62,7 @@ export interface AppProps {
     requirePrediction?: boolean;
     sensorUnit?: string;
     displayType: string;
+    useAuthoredData?: boolean;
     setInteractiveState?: (stateOrUpdateFunc: IInteractiveState | ((prevState: IInteractiveState | null) => IInteractiveState) | null) => void
 }
 
@@ -95,7 +96,7 @@ export interface AppState {
     warnClearPrediction: boolean;
     warnSavePrediction: boolean;
     isStartDisabled?: boolean;
-}
+  }
 
 function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo) {
     let newSensor = new Sensor();
@@ -1531,6 +1532,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
                         sensorUnit={this.props.sensorUnit}
                         usePrediction={this.props.requirePrediction}
                         displayType={this.props.displayType}
+                        useAuthoredData={this.props.useAuthoredData}
                     />
                     {this.renderLegend()}
                 </div>
