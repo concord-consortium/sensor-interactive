@@ -206,7 +206,6 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         const labels = [] as string[];
 
         const data = this.processData();
-        console.log("this.yLabel()", this.yLabel());
         return (
             <div className="sensor-graph">
               <Graph

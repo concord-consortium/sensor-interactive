@@ -107,8 +107,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
       const {useAuthoredData, preRecording, usePrediction, prediction} = this.props;
 ;     const {data} = this.state;
       const joinedData = [];
-      const beginningPoint = preRecording && usePrediction ? [0, 0, 0, 0] : [0, 0, 0];
-      joinedData.push(beginningPoint);
 
       for (let i = 0; i < 6; i++){
         const dataPoint = data.length > i + 1 ? data[i + 1][1] : 0;
@@ -124,7 +122,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         }
       }
 
-      console.log("joinedData", joinedData)
       return joinedData;
     }
 
@@ -178,33 +175,36 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         if(!this.dygraph) {
             return;
         }
-        // const { singleReads } = this.props;
-        // const { predictionState } = this.state;
+        const { singleReads } = this.props;
+        const { predictionState } = this.state;
         const { data, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
 
-        console.log("data in update", data);
-        console.log("data for multi bar", this.dataForMultiBar());
-        const dataForGraph = this.useMultiBar() ? this.dataForMultiBar() : dyGraphData(this.state.data, this.props.singleReads);
+        const dataForGraph = this.useMultiBar() ? this.dataForMultiBar() : dyGraphData(data, singleReads);
 
+        const singleReadOptions: Partial<dygraphs.Options> = singleReads
+            ? {drawPoints: true, strokeWidth: 0, pointSize: 10}
+            : {};
+        const predictionOptions: Partial<dygraphs.Options> = predictionState == "started"
+            ? { width: 0 }
+            : {};
 
-        // const singleReadOptions: Partial<dygraphs.Options> = singleReads
-        //     ? {drawPoints: true, strokeWidth: 0, pointSize: 10}
-        //     : {};
-        // const predictionOptions: Partial<dygraphs.Options> = predictionState == "started"
-        //     ? { width: 0 }
-        //     : {};
         this.dygraph.updateOptions({
             file: dataForGraph,
             dateWindow: [xMin, xMax],
             valueRange: [yMin, yMax],
             plotter: this.getPlotterType(),
-            // labels: this.labels(),
-            // series: this.series(),
             xlabel: xLabel,
             ylabel: yLabel,
-            // ...singleReadOptions,
-            // ...predictionOptions
         });
+
+        if (this.props.displayType !== "bar") {
+          this.dygraph.updateOptions({
+            labels: this.labels(),
+            series: this.series(),
+            ...singleReadOptions,
+            ...predictionOptions
+          })
+        }
         type FResize = (width?:number, height?:number) => void;
         (this.dygraph.resize as FResize)();
     }
@@ -280,7 +280,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             dygraphOptions.axes = {
                 x: {
                     valueFormatter: (val:number) => {
-                        console.log("val", val);
                         return Format.formatFixedValue(val, this.state.xAxisFix);
                     },
                     axisLabelFormatter: (val:number) => {
@@ -303,10 +302,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             dygraphOptions.series = this.series();
             dygraphOptions = {...dygraphOptions, ...singleReadOptions};
         }
-
-        console.log("this.state.data", this.state.data);
-        console.log("dyGraphData", dyGraphData(this.state.data, this.props.singleReads));
-        console.log("data for multi bar", this.dataForMultiBar());
 
         const dataForGraph = this.useMultiBar() ? this.dataForMultiBar() : dyGraphData(this.state.data, this.props.singleReads);
 

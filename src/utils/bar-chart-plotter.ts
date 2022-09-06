@@ -35,8 +35,6 @@ export const multiColumnBarPlotter = (e: any) => {
       var g = e.dygraph;
       var ctx = e.drawingContext;
       var sets = e.allSeriesPoints;
-      console.log("e", e);
-      console.log("sets", sets);
       var y_bottom = e.dygraph.toDomYCoord(0);
 
       // Find the minimum separation between x-values.
@@ -68,7 +66,7 @@ export const multiColumnBarPlotter = (e: any) => {
 
       for (var j = 0; j < sets.length; j++) {
         ctx.fillStyle = fillColors[j];
-        ctx.strokeStyle = strokeColors[j];
+        ctx.strokeStyle = fillColors[j];
         for (var i = 0; i < sets[j].length; i++) {
           var p = sets[j][i];
           var center_x = p.canvasx;
