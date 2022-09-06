@@ -285,8 +285,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                 canvas.fillRect(area.x, area.y, area.w, area.h);
             },
             plotter: this.getPlotterType(),
-            labels: this.labels(),
-            series: this.series(),
         };
 
         if (this.props.displayType !== "bar"){
@@ -311,6 +309,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                     axisLabelWidth: AXIS_LABEL_WIDTH
                 }
             };
+            dygraphOptions.labels = this.labels(),
+            dygraphOptions.series = this.series(),
             dygraphOptions = {...dygraphOptions, ...singleReadOptions};
         }
 
