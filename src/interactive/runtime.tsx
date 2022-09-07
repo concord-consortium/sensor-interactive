@@ -46,6 +46,7 @@ export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
         singleReads={authoredState.singleReads}
         enablePause={authoredState.enablePause}
         initialInteractiveState={initialInteractiveState}
+        useAuthoredData={useAuthoredData}
         preRecordings ={recordings}
         requirePrediction={usePrediction}
         sensorUnit={sensorUnit}
