@@ -100,20 +100,13 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     useMultiBar() {
-      if (this.props.displayType === "bar") {
-        if (this.props.useAuthoredData || this.props.usePrediction){
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
-      }
+      const { displayType, useAuthoredData, usePrediction } = this.props;
+      return displayType === "bar" && (useAuthoredData || usePrediction);
     }
 
     dataForMultiBar() {
       const {useAuthoredData, preRecording, usePrediction, prediction} = this.props;
-;     const {data} = this.state;
+      const {data} = this.state;
       const joinedData = [];
 
       const beginningPoint = preRecording && usePrediction ? [0, 0, 0, 0] : [0, 0, 0];
