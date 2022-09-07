@@ -35,11 +35,10 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
     isSingletonGraph:boolean,
     isLastGraph:boolean}) {
     const {sensorRecording, preRecording, title, isSingletonGraph, isLastGraph} = options,
-          availableHeight = props.maxHeight - 36,
-          singleGraphHeight = availableHeight + 8,
-          graphBaseHeight = Math.floor((availableHeight - 18) / 2),
-          firstGraphHeight = graphBaseHeight,
-          secondGraphHeight = availableHeight - graphBaseHeight,
+          availableHeight = isSingletonGraph ? props.maxHeight - 46 : props.maxHeight - 92,
+          singleGraphHeight = availableHeight,
+          firstGraphHeight = Math.floor(availableHeight / 2),
+          secondGraphHeight = availableHeight - firstGraphHeight,
           graphWidth = props.width - 16,
           graphHeight = isSingletonGraph
                           ? singleGraphHeight
