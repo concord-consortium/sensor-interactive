@@ -2,6 +2,9 @@ import * as React from "react";
 import SensorGraph from "./sensor-graph";
 import { SensorRecording } from "../interactive/types";
 import { PredictionState } from "./types";
+
+
+
 interface IGraphsPanelProps {
   sensorRecordings:SensorRecording[];
   preRecordings:SensorRecording[];
