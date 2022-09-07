@@ -49,7 +49,7 @@ context('Add second sensor',()=>{
         })
         it('verify changing sensor in top dropdown changes sensor in bottom dropdown',()=>{
         //Can't verify using the dropdown text so verifying using the graph axis label which should
-        //match the order    
+        //match the order
             workspace.selectSensor('102',0)
             workspace.getYAxisLabel().eq(0).should('contain', sensor1)
             workspace.getYAxisLabel().eq(1).should('contain', sensor0)
@@ -59,8 +59,8 @@ context('Add second sensor',()=>{
             workspace.getGraphLegend().find('.name').eq(1).should('contain', sensor0)
         })
     })
-})    
-context('Collecting Data from 2 sensor',()=>{  
+})
+context('Collecting Data from 2 sensor',()=>{
     it('verify graph shows data',()=>{
         let duration="1";
         workspace.selectDuration(duration)
@@ -82,20 +82,20 @@ context('Collecting Data from 2 sensor',()=>{
         let duration="30";
         workspace.selectDuration(duration)
         workspace.getStartButton().click();
-        cy.wait(5000);
+        cy.wait(5100);
         workspace.getStopButton().click();
         workspace.getRescaleButton().eq(1).click();
-        workspace.getXAxisMaxValue().should('contain','5')
+        workspace.getXAxisMaxValue().should('contain','5.0')
         cy.matchImageSnapshot('2rescaled_2graph')
 
         workspace.getNewRunButton().click();
         workspace.discardData();
         workspace.selectDuration(duration)
         workspace.getStartButton().click();
-        cy.wait(5000);
+        cy.wait(5100);
         workspace.getStopButton().click();
         workspace.getRescaleButton().eq(0).click();
-        workspace.getXAxisMaxValue().should('contain','5')
+        workspace.getXAxisMaxValue().should('contain','5.0')
         cy.matchImageSnapshot('rescaled_2graph')
     })
     after('clean-up',()=>{
