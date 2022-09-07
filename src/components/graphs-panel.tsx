@@ -2,6 +2,9 @@ import * as React from "react";
 import SensorGraph from "./sensor-graph";
 import { SensorRecording } from "../interactive/types";
 import { PredictionState } from "./types";
+
+
+
 interface IGraphsPanelProps {
   sensorRecordings:SensorRecording[];
   preRecordings:SensorRecording[];
@@ -35,11 +38,11 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
     isSingletonGraph:boolean,
     isLastGraph:boolean}) {
     const {sensorRecording, preRecording, title, isSingletonGraph, isLastGraph} = options,
-          availableHeight = props.maxHeight - 36,
-          singleGraphHeight = availableHeight + 8,
-          graphBaseHeight = Math.floor((availableHeight - 18) / 2),
-          firstGraphHeight = graphBaseHeight,
-          secondGraphHeight = availableHeight - graphBaseHeight,
+          // if single graph, subtract height of top bar; otherwise top bar is doubled, subtract two times
+          availableHeight = isSingletonGraph ? props.maxHeight - 46 : props.maxHeight - 92,
+          singleGraphHeight = availableHeight,
+          firstGraphHeight = Math.floor(availableHeight / 2),
+          secondGraphHeight = availableHeight - firstGraphHeight,
           graphWidth = props.width - 16,
           graphHeight = isSingletonGraph
                           ? singleGraphHeight
