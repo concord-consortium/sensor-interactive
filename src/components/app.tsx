@@ -614,7 +614,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
 
     hasReachedRecordingLimit = () => {
         const { sensorRecordings } = this.state;
-        if (this.isSingleReadBarGraph() && sensorRecordings[0].data.length >= MAX_BAR_CHART_SAMPLES) {
+        if (this.isSingleReadBarGraph() && sensorRecordings[0]?.data.length >= MAX_BAR_CHART_SAMPLES) {
             return true;
         } else {
             return false;
@@ -927,7 +927,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
                 xStart: 0,
                 runLength: newTime,
                 // without the .01, last tick number sometimes fails to display
-                xEnd: newTime + 0.01
+                xEnd: this.isSingleReadBarGraph() ? MAX_BAR_CHART_SAMPLES + 1 : newTime + 0.01
             }, () => this.saveInteractiveState()
         );
         this.codap?.updateInteractiveState({ runLength: newTime });

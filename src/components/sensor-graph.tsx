@@ -160,11 +160,12 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
       if (!this.isSingleReadBarGraph()) {
         return data;
       } else {
-        // There's very possibly a better way to re-format this data, maybe even
-        // before the data gets passed to the SensorGraph component?
         let processedData = [[0, 0]];
         for (let i = 0; i < data.length; i++) {
-          processedData.push([i + 1, data[i][1]]);
+          // Single read bar graphs need to include values for time elapsed 
+          // since last read which will be shown in the x-axis labels.
+          const timeSinceLastRead = i > 0 ? data[i][0] - data[i-1][0] : 0;
+          processedData.push([i + 1, data[i][1], timeSinceLastRead]);
         }
         return processedData;
       }
