@@ -77,12 +77,8 @@ context('Collecting Data from 2 sensor',()=>{
         workspace.discardData();
         cy.wait(500)
         cy.matchImageSnapshot("cleared_2graph")
-        workspace.selectDuration("30")
-        workspace.getStartButton().click();
-        cy.wait(5100);
-        workspace.getStopButton().click();
     })
-    it.skip('verify graph rescale happens to both graphs regardless of which rescale button is clicked',()=>{
+    it('verify graph rescale happens to both graphs regardless of which rescale button is clicked',()=>{
         let duration="30";
         workspace.selectDuration(duration)
         workspace.getStartButton().click();
