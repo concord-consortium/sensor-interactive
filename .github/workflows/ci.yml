@@ -37,6 +37,7 @@ jobs:
           config: video=true,videoUploadOnPasses=false,pageLoadTimeout=100000,baseUrl=http://localhost:8080
           config-file: cypress.json
           browser: chrome
+          env: updateSnapshots=true
         env:
           # pass the Dashboard record key as an environment variable
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -47,7 +48,6 @@ jobs:
           # but there has been work on building code coverage into node itself, which
           # should be much faster
           CODE_COVERAGE: true
-          updateSnapshots: true
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
