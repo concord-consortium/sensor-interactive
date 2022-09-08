@@ -24,6 +24,7 @@ interface IGraphsPanelProps {
   sensorUnit?: string|null;
   usePrediction:boolean|undefined;
   displayType: string;
+  useAuthoredData?: boolean;
 }
 
 export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
@@ -35,11 +36,11 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
     isSingletonGraph:boolean,
     isLastGraph:boolean}) {
     const {sensorRecording, preRecording, title, isSingletonGraph, isLastGraph} = options,
-          availableHeight = props.maxHeight - 36,
-          singleGraphHeight = availableHeight + 8,
-          graphBaseHeight = Math.floor((availableHeight - 18) / 2),
-          firstGraphHeight = graphBaseHeight,
-          secondGraphHeight = availableHeight - graphBaseHeight,
+          // if single graph, subtract height of top bar; otherwise top bar is doubled, subtract two times
+          availableHeight = isSingletonGraph ? props.maxHeight - 46 : props.maxHeight - 92,
+          singleGraphHeight = availableHeight,
+          firstGraphHeight = Math.floor(availableHeight / 2),
+          secondGraphHeight = availableHeight - firstGraphHeight,
           graphWidth = props.width - 16,
           graphHeight = isSingletonGraph
                           ? singleGraphHeight
@@ -67,6 +68,7 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
                         sensorUnit={props.sensorUnit}
                         usePrediction={props.usePrediction}
                         displayType={props.displayType}
+                        useAuthoredData={props.useAuthoredData}
             />;
 
   }

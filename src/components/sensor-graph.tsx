@@ -31,6 +31,7 @@ interface SensorGraphProps {
     singleReads?: boolean;
     sensorUnit:any;
     displayType: string;
+    useAuthoredData?: boolean;
 }
 
 interface SensorGraphState {
@@ -228,9 +229,11 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 singleReads={this.props.singleReads}
                 predictionState={this.props.predictionState}
                 prediction={this.props.prediction}
+                usePrediction={this.props.usePrediction}
                 preRecording={this.props.preRecording?.data || []}
                 setPredictionF={this.props.setPredictionF}
                 displayType={this.props.displayType}
+                useAuthoredData={this.props.useAuthoredData}
               />
             </div>
         );
