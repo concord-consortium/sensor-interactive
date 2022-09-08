@@ -121,7 +121,7 @@ context('Collecting data with a single-read bar graph',()=>{
     })
     it ('records a single reading', () => {
         workspace.getSensorTypeButton('Wired').should('be.visible').click()
-        cy.wait(1000) // Is there a better way to make sure the record button is clickable?
+        cy.wait(1000)
         workspace.getRecordButton().should('be.visible').click()
         cy.get('.dygraph-axis-label-x').first().should('be.visible').and('contain', '0 sec')
     })
