@@ -19,7 +19,6 @@ export interface OverlayGraphProps {
     setDataF: (data: number[][]) => void;
     data: number[][];
     color: string;
-    singleReads?: boolean;
 }
 
 export interface OverlayGraphState {
@@ -136,7 +135,7 @@ export class OverlayGraph extends React.Component<OverlayGraphProps, OverlayGrap
     updateCanvas() {
       this.clear();
       const { points, selected } = this.state;
-      const { color, minX, singleReads } = this.props;
+      const { color, minX } = this.props;
       if(this.canvasRef) {
         const ctx = this.canvasRef.getContext('2d');
         let lastCanvasPoint: Point2D | null = null;
@@ -144,7 +143,7 @@ export class OverlayGraph extends React.Component<OverlayGraphProps, OverlayGrap
           for(let i = 0; i < points.length; i++) {
             const canvasPoint = this.toCanvasPoint(points[i]);
             if (points[i].x > minX) {
-              if(lastCanvasPoint && !singleReads) {
+              if(lastCanvasPoint) {
                 ctx.strokeStyle = color || DEFAULT_LINE_COLOR;
                 ctx.lineWidth = 2;
                 ctx.fillStyle = "none";

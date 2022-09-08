@@ -3,7 +3,7 @@ import Dygraph from "dygraphs";
 import { Format } from "../utils/format";
 import { PredictionState } from "./types";
 import { OverlayGraph } from "./overlay-graph";
-import { barChartPlotter } from "../utils/bar-chart-plotter";
+import { barChartPlotter, multiColumnBarPlotter } from "../utils/bar-chart-plotter";
 
 import "./dygraph.css";
 
@@ -17,6 +17,7 @@ export interface GraphProps {
     resetScaleF:() => void;
     setPredictionF: (data: number[][]) => void;
     prediction: number[][];
+    usePrediction: boolean|undefined;
     preRecording?: number[][];
     xMin:number;
     xMax:number;
@@ -30,6 +31,7 @@ export interface GraphProps {
     assetsPath: string;
     singleReads?: boolean;
     displayType: string;
+    useAuthoredData?: boolean;
 }
 
 export interface GraphState {
@@ -51,10 +53,10 @@ export interface GraphState {
 }
 
 // Zeplin specs:  https://zpl.io/09kdQlE
-const GRAPH1_LINE_COLOR = "#0081ff";
-const GRAPH2_LINE_COLOR = "#008a00";
-const PREDICTION_LINE_COLOR = "#ff8415";
-const AUTHORED_LINE_COLOR = "#d100d1";
+export const GRAPH1_LINE_COLOR = "#0081ff";
+export const GRAPH2_LINE_COLOR = "#008a00";
+export const PREDICTION_LINE_COLOR = "#ff8415";
+export const AUTHORED_LINE_COLOR = "#d100d1";
 
 const AXIS_LABEL_WIDTH =  65;
 const CANVAS_FILL_COLOR = "#ffffff";
@@ -89,8 +91,52 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             yAxisFix: Format.getAxisFix('y', this.props.yMax - this.props.yMin, this.props.height)
         };
 
+        this.getPlotterType = this.getPlotterType.bind(this);
+        this.dataForMultiBar = this.dataForMultiBar.bind(this);
+        this.useMultiBar = this.useMultiBar.bind(this);
+        this.makeDygraph = this.makeDygraph.bind(this);
         this.dyUpdateProps = ["width", "height", "xMin", "xMax", "yMin", "yMax",
                                 "valuePrecision", "xLabel", "yLabel", "predictionState"];
+    }
+
+    useMultiBar() {
+      const { displayType, useAuthoredData, usePrediction } = this.props;
+      return displayType === "bar" && (useAuthoredData || usePrediction);
+    }
+
+    dataForMultiBar() {
+      const {useAuthoredData, preRecording, usePrediction, prediction} = this.props;
+      const {data} = this.state;
+      const joinedData = [];
+
+      const beginningPoint = preRecording && usePrediction ? [0, 0, 0, 0] : [0, 0, 0];
+      joinedData.push(beginningPoint);
+
+      for (let i = 0; i < 6; i++){
+        const dataPoint = data.length > i + 1 ? data[i + 1][1] : 0;
+        const predictionPoint = prediction && prediction.length > i ? prediction[i][1] : 0;
+        const preRecordingPoint = preRecording && preRecording.length > i ? preRecording[i][1] : 0;
+
+        if (usePrediction && useAuthoredData) {
+          joinedData.push([i + 1, predictionPoint, dataPoint, preRecordingPoint]);
+        } else if (usePrediction && !useAuthoredData) {
+          joinedData.push(([i + 1, predictionPoint, dataPoint]))
+        } else if (!usePrediction && useAuthoredData) {
+          joinedData.push([i + 1, dataPoint, preRecordingPoint]);
+        }
+      }
+
+      return joinedData;
+    }
+
+    getPlotterType() {
+      if (this.useMultiBar()){
+        return multiColumnBarPlotter;
+      } else if (this.props.displayType === "bar") {
+        return barChartPlotter;
+      } else {
+        return Dygraph.Plotters.linePlotter;
+      }
     }
 
     labels():string[] {
@@ -103,7 +149,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     series() {
         const result: Record<string,{color:string, plotter: any}> = {};
         const labels = this.labels();
-        const plotter = this.props.displayType === "bar" ? barChartPlotter : Dygraph.Plotters.linePlotter;
+        const plotter = this.getPlotterType();
+
         for (let label of labels) {
             if (label == "x" || label == this.state.xLabel) { continue; }
             if (label == "prediction") {
@@ -133,7 +180,10 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             return;
         }
         const { singleReads } = this.props;
-        const { data, predictionState, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
+        const { predictionState } = this.state;
+        const { data, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
+
+        const dataForGraph = this.useMultiBar() ? this.dataForMultiBar() : dyGraphData(data, singleReads);
 
         const singleReadOptions: Partial<dygraphs.Options> = singleReads
             ? {drawPoints: true, strokeWidth: 0, pointSize: 10}
@@ -141,17 +191,24 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         const predictionOptions: Partial<dygraphs.Options> = predictionState == "started"
             ? { width: 0 }
             : {};
+
         this.dygraph.updateOptions({
-            file: dyGraphData(data, singleReads),
+            file: dataForGraph,
             dateWindow: [xMin, xMax],
             valueRange: [yMin, yMax],
-            labels: this.labels(),
-            series: this.series(),
+            plotter: this.getPlotterType(),
             xlabel: xLabel,
             ylabel: yLabel,
+        });
+
+        if (this.props.displayType !== "bar") {
+          this.dygraph.updateOptions({
+            labels: this.labels(),
+            series: this.series(),
             ...singleReadOptions,
             ...predictionOptions
-        });
+          })
+        }
         type FResize = (width?:number, height?:number) => void;
         (this.dygraph.resize as FResize)();
     }
@@ -206,14 +263,25 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             ? {drawPoints: true, strokeWidth: 0, pointSize: 10}
             : {};
 
-        const dygraphOptions:dygraphs.Options = {
+        let dygraphOptions:dygraphs.Options = {
             color: color,
             strokeWidth,
             drawPoints: false,
             dateWindow: [0, this.state.xMax],
             valueRange: [this.state.yMin, this.state.yMax],
             zoomCallback: this.onRescale,
-            axes: {
+            xlabel: this.state.xLabel,
+            ylabel: this.state.yLabel,
+            legend: "follow",
+            underlayCallback: function(canvas:any, area:any, g:any) {
+                canvas.fillStyle = CANVAS_FILL_COLOR;
+                canvas.fillRect(area.x, area.y, area.w, area.h);
+            },
+            plotter: this.getPlotterType(),
+        };
+
+        if (this.props.displayType !== "bar"){
+            dygraphOptions.axes = {
                 x: {
                     valueFormatter: (val:number) => {
                         return Format.formatFixedValue(val, this.state.xAxisFix);
@@ -233,22 +301,17 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                     },
                     axisLabelWidth: AXIS_LABEL_WIDTH
                 }
-            },
-            labels: this.labels(),
-            series: this.series(),
-            xlabel: this.state.xLabel,
-            ylabel: this.state.yLabel,
-            legend: "follow",
-            underlayCallback: function(canvas:any, area:any, g:any) {
-                canvas.fillStyle = CANVAS_FILL_COLOR;
-                canvas.fillRect(area.x, area.y, area.w, area.h);
-            },
-            ...singleReadOptions
-        };
+            };
+            dygraphOptions.labels = this.labels(),
+            dygraphOptions.series = this.series(),
+            dygraphOptions = {...dygraphOptions, ...singleReadOptions};
+        }
+
+        const dataForGraph = this.useMultiBar() ? this.dataForMultiBar() : dyGraphData(this.state.data, this.props.singleReads);
 
         this.dygraph = new Dygraph(
             "sensor-graph-" + this.props.title,
-            dyGraphData(this.state.data, this.props.singleReads),
+            dataForGraph,
             dygraphOptions
         );
     }
@@ -314,7 +377,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     render() {
-        const {width, height, title, setPredictionF, prediction, preRecording, singleReads } = this.props;
+        const {width, height, title, setPredictionF, prediction, preRecording } = this.props;
         let graphStyle:{width?:number; height?:number} = {};
         if (width && isFinite(width))
             graphStyle.width = width;
@@ -323,6 +386,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
         // don't show the rescale button if there's no data to scale
         const { data } = this.state;
+        const isBarGraph = this.props.displayType === "bar";
+
         let buttonStyle:{display?:string} = {},
             hasData = data && (data.length > 1);
         if (!hasData)
@@ -331,7 +396,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             <div style={{position: "relative"}}>
                 <div id={"sensor-graph-" + title} className="graph-box" style={graphStyle}></div>
 
-                <OverlayGraph
+                { !isBarGraph &&
+                  <OverlayGraph
                     height={height||100}
                     width={width||100}
                     show={true}
@@ -345,27 +411,26 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                     minX={this.props.xMin}
                     minY={this.props.yMin}
                     key="prediction"
-                    singleReads={singleReads}
-                />
-
-                { preRecording &&
-                    <OverlayGraph
-                        height={height||100}
-                        width={width||100}
-                        show={true}
-                        enableEdit={false}
-                        parentGraph={this.dygraph}
-                        setDataF={ ()=> null}
-                        data={preRecording}
-                        color={AUTHORED_LINE_COLOR}
-                        maxX={this.state.xMax}
-                        maxY={this.state.yMax}
-                        minX={this.state.xMin}
-                        minY={this.state.yMin}
-                        key="preRecording"
-                        singleReads={singleReads}
-                        />
+                  />
                 }
+                { preRecording && !isBarGraph &&
+                    <OverlayGraph
+                      height={height||100}
+                      width={width||100}
+                      show={true}
+                      enableEdit={false}
+                      parentGraph={this.dygraph}
+                      setDataF={ ()=> null}
+                      data={preRecording}
+                      color={AUTHORED_LINE_COLOR}
+                      maxX={this.state.xMax}
+                      maxY={this.state.yMax}
+                      minX={this.state.xMin}
+                      minY={this.state.yMin}
+                      key="preRecording"
+                    />
+                }
+
                 <div className="graph-rescale-button" onClick={this.autoScale} title="Show all data (autoscale)">
                     <svg className="icon rescale">
                         <use xlinkHref={`${this.props.assetsPath}/images/icons.svg#icon-rescale`} />

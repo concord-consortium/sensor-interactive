@@ -2,9 +2,6 @@ import * as React from "react";
 import SensorGraph from "./sensor-graph";
 import { SensorRecording } from "../interactive/types";
 import { PredictionState } from "./types";
-
-
-
 interface IGraphsPanelProps {
   sensorRecordings:SensorRecording[];
   preRecordings:SensorRecording[];
@@ -27,6 +24,7 @@ interface IGraphsPanelProps {
   sensorUnit?: string|null;
   usePrediction:boolean|undefined;
   displayType: string;
+  useAuthoredData?: boolean;
 }
 
 export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
@@ -70,6 +68,7 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
                         sensorUnit={props.sensorUnit}
                         usePrediction={props.usePrediction}
                         displayType={props.displayType}
+                        useAuthoredData={props.useAuthoredData}
             />;
 
   }
