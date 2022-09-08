@@ -38,6 +38,7 @@ jobs:
           config-file: cypress.json
           browser: chrome
           headless: true
+          env: updateSnapshots=true
         env:
           # pass the Dashboard record key as an environment variable
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
@@ -48,9 +49,6 @@ jobs:
           # but there has been work on building code coverage into node itself, which
           # should be much faster
           CODE_COVERAGE: true
-          # update snapshots used for testing since snapshots generated in dev environments
-          # may differ in subtle ways from those generated here during test runs
-          updateSnapshots: true
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
