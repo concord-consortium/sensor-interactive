@@ -115,7 +115,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
       for (let i = 0; i < 6; i++){
         const dataPoint = data.length > i + 1 ? data[i + 1][1] : 0;
-        const predictionPoint = prediction && prediction.length > i ? prediction[i][1] : .25;
+        const predictionPoint = prediction && prediction.length > i ? prediction[i][1] : 0;
         const preRecordingPoint = preRecording && preRecording.length > i ? preRecording[i][1] : 0;
 
         if (usePrediction && useAuthoredData) {

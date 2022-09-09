@@ -140,8 +140,8 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
       const { points } = this.state;
       for(let i = 0; i < points.length; i++) {
         const canvasPoint = this.toCanvasPoint(points[i]);
-        const distance = Math.sqrt(Math.pow(canvasPoint.x - x, 2) + Math.pow(canvasPoint.y - y, 2));
-        if(distance < nearDistance) {
+        const distance = canvasPoint.x - x;
+        if(distance > 0 && distance < nearDistance) {
           return points[i];
         }
       }
@@ -173,30 +173,32 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
       setDataF(pointsToData(points));
     }
 
-    addPoint(x: number, y: number) {
-      if(this.pointInRange({x, y})) {
-        const { points } = this.state;
-        const { parentGraph } = this.props;
-        const dataPoint = parentGraph
-          ? parentGraph.toDataCoords(x, y)
-          : [x, y];
-        const newPoint = {x: dataPoint[0], y: dataPoint[1]};
-        points.push(newPoint);
-        this.updatePoints({selected: newPoint, active: newPoint});
-      }
+    updatePoint(x: number, y: number){
+      const { points } = this.state;
+      const { parentGraph, setDataF } = this.props;
+      const dataPoint = parentGraph
+        ? parentGraph.toDataCoords(x, y)
+        : [x, y];
+        const newPoint = {x, y: dataPoint[1]};
+        const newPoints = points.map((el) => {
+          if (el.x === newPoint.x){
+            return newPoint;
+          } else {
+            return el;
+          }
+        })
+        this.setState({points: newPoints});
+        setDataF(pointsToData(newPoints));
     }
-
     handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
       const { enableEdit } = this.props;
-      console.log("I am mouse down happening");
       if(!enableEdit) { return; }
       if(this.canvasRef) {
         const {x, y} = this.toCanvasCoords(e);
-        const point = this.findNearPoint(x, y, 10);
+        const point = this.findNearPoint(x, y, 50);
         if(point) {
+          this.updatePoint(point.x, y);
           this.setState({selected: point, active: point});
-        } else {
-          this.addPoint(x, y);
         }
       }
     }
