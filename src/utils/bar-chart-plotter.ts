@@ -70,13 +70,18 @@ export const multiColumnBarPlotter = (e: any) => {
         for (var i = 0; i < sets[j].length; i++) {
           var p = sets[j][i];
           var center_x = p.canvasx;
-          var x_left = center_x - (bar_width / 2) * (1 - j/(sets.length-1));
-
+          let x_left = center_x;
+          if (j === 0){
+            x_left -= (bar_width/sets.length) + 1;
+          }
+          if (j === 2){
+            x_left += (bar_width/sets.length) + 1;
+          }
           ctx.fillRect(x_left, p.canvasy,
-              bar_width/sets.length, y_bottom - p.canvasy);
+              ((bar_width/sets.length)), y_bottom - p.canvasy);
 
           ctx.strokeRect(x_left, p.canvasy,
-              bar_width/sets.length, y_bottom - p.canvasy);
+              ((bar_width/sets.length)), y_bottom - p.canvasy);
         }
       }
     }
