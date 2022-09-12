@@ -74,6 +74,7 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
 
     componentDidUpdate(prevProps: OverlayGraphProps) {
       const { data, minX, minY, maxX, maxY } = this.props;
+      const needNewPoints = prevProps.data.filter((dataPoint, i) => dataPoint[1] !== this.props.data[i][1]);
       if(prevProps.enableEdit !== this.props.enableEdit) {
         this.setState({active: null, selected: null});
       }
@@ -87,6 +88,9 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
       }
       if (!data.length && prevProps.data.length){
         this.clearState();
+      }
+      if (needNewPoints.length) {
+        this.setState({points: dataToPoints(this.props.data)});
       }
       this.updateCanvas();
     }
@@ -236,6 +240,8 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
 
     render() {
         const { width, height, show, enableEdit } = this.props;
+        console.log("this.props.data", this.props.data);
+        console.log("this.state.points", this.state.points);
         const canvasStyle: React.CSSProperties = {
             position: "absolute",
             top: "0px",
