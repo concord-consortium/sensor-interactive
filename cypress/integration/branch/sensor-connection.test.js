@@ -38,7 +38,8 @@ context('Connecting a wired sensor',()=>{
         workspace.getNewRunButton().should('have.attr','disabled')
     })
 })
- context('Collecting Data from 1 sensor',()=>{
+
+context('Collecting Data from 1 sensor',()=>{
     it('verify graph shows data',()=>{
         let duration="1";
         workspace.selectDuration(duration)
@@ -105,5 +106,27 @@ context('Connecting a wired sensor',()=>{
         workspace.getRescaleButton().click();
         workspace.getXAxisMaxValue().should('contain','5')
         // cy.matchImageSnapshot('rescaled_graph')
+    })
+})
+
+context('Collecting data with a single-read bar graph',()=>{
+    before(()=>{
+        // See cypress.json for viewport size
+        cy.viewport(1400,1280)
+        cy.visit('/examples/fake-sensor-bar-graph.html')
+    })
+    it ('has labels in the format "Trial n"', ()=> {
+        workspace.getXAxisMinValue().should('be.visible').and('contain', 'Trial 1')
+        workspace.getXAxisMaxValue().should('be.visible').and('contain', 'Trial 6')
+    })
+    it ('records a single reading', () => {
+        workspace.getSensorTypeButton('Wired').should('be.visible').click()
+        cy.wait(1000)
+        workspace.getRecordButton().should('be.visible').click()
+        cy.get('.dygraph-axis-label-x').first().should('be.visible').and('contain', '0 sec')
+    })
+    it ('allows you to record only six single readings', () => {
+        workspace.getRecordButton().click().click().click().click().click()
+        workspace.getRecordButton().should('have.attr','disabled')
     })
 })

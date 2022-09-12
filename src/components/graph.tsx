@@ -180,8 +180,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             return;
         }
         const { singleReads } = this.props;
-        const { predictionState } = this.state;
-        const { data, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
+        const { data, predictionState, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
 
         const dataForGraph = this.useMultiBar() ? this.dataForMultiBar() : dyGraphData(data, singleReads);
 
@@ -280,32 +279,33 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             plotter: this.getPlotterType(),
         };
 
-        if (this.props.displayType !== "bar"){
-            dygraphOptions.axes = {
-                x: {
-                    valueFormatter: (val:number) => {
-                        return Format.formatFixedValue(val, this.state.xAxisFix);
-                    },
-                    axisLabelFormatter: (val:number) => {
-                        return this.props.xLabel
+        dygraphOptions.axes = {
+            x: {
+                valueFormatter: (val:number) => {
+                    return Format.formatFixedValue(val, this.state.xAxisFix);
+                },
+                axisLabelFormatter: (val:number) => {
+                    const { data, displayType, singleReads, xLabel } = this.props;
+                    return displayType === "bar" && singleReads
+                            ? Format.formatSingleReadBarLabel(val, data)
+                            : xLabel
                                 ? Format.formatFixedValue(val, this.state.xAxisFix)
                                 : "";
-                    }
-                },
-                y: {
-                    valueFormatter: (val:number) => {
-                        return Format.formatFixedValue(val, this.state.valuePrecision);
-                    },
-                    axisLabelFormatter: (val:number) => {
-                        return Format.formatFixedValue(val, this.state.yAxisFix, "", true);
-                    },
-                    axisLabelWidth: AXIS_LABEL_WIDTH
                 }
-            };
-            dygraphOptions.labels = this.labels(),
-            dygraphOptions.series = this.series(),
-            dygraphOptions = {...dygraphOptions, ...singleReadOptions};
-        }
+            },
+            y: {
+                valueFormatter: (val:number) => {
+                    return Format.formatFixedValue(val, this.state.valuePrecision);
+                },
+                axisLabelFormatter: (val:number) => {
+                    return Format.formatFixedValue(val, this.state.yAxisFix, "", true);
+                },
+                axisLabelWidth: AXIS_LABEL_WIDTH
+            }
+        };
+        dygraphOptions.labels = this.labels(),
+        dygraphOptions.series = this.series(),
+        dygraphOptions = {...dygraphOptions, ...singleReadOptions};
 
         const dataForGraph = this.useMultiBar() ? this.dataForMultiBar() : dyGraphData(this.state.data, this.props.singleReads);
 
