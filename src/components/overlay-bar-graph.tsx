@@ -1,7 +1,8 @@
 import * as React from "react";
 import Dygraph from "dygraphs";
+import { SliderIcons } from "./slider-icon-overlay";
 
-interface Point2D {
+export interface Point2D {
     x: number;
     y: number;
 }
@@ -54,6 +55,10 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
             selected: null,
             active: null
         };
+        this.handleKeyDown = this.handleKeyDown.bind(this);
+        this.handleMouseDown = this.handleMouseDown.bind(this);
+        this.handleMouseDrag = this.handleMouseDrag.bind(this);
+        this.handleMouseUp = this.handleMouseUp.bind(this);
     }
 
     setCanvasRef(canvas: HTMLCanvasElement) {
@@ -148,7 +153,7 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
       return null;
     }
 
-    toCanvasCoords(e: React.MouseEvent<HTMLCanvasElement>) {
+    toCanvasCoords(e: React.MouseEvent<HTMLCanvasElement|HTMLDivElement>) {
       const { clientX, clientY } = e;
       if(this.canvasRef) {
         const rect = this.canvasRef.getBoundingClientRect();
@@ -158,19 +163,6 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
         };
       }
       return { x: 0, y: 0 };
-
-    }
-
-    updatePoints(changes:{selected?: Point2D, active?: Point2D}) {
-      const { points, active, selected } = this.state;
-      const { setDataF } = this.props;
-      const nextPoints = points.sort((a, b) => a.x - b.x);
-      this.setState({
-        points: nextPoints,
-        active: changes.active === undefined ? active : changes.active,
-        selected: changes.selected === undefined ? selected : changes.selected
-      });
-      setDataF(pointsToData(points));
     }
 
     updatePoint(x: number, y: number){
@@ -191,7 +183,7 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
         setDataF(pointsToData(newPoints));
     }
 
-    handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement|HTMLDivElement>) => {
       const { enableEdit } = this.props;
       if(!enableEdit) { return; }
       if(this.canvasRef) {
@@ -204,7 +196,7 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
       }
     }
 
-    handleMouseDrag = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    handleMouseDrag = (e: React.MouseEvent<HTMLCanvasElement|HTMLDivElement>) => {
       const { enableEdit } = this.props;
       if(!enableEdit) { return; }
       const { active } = this.state;
@@ -236,7 +228,7 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
       }
     }
 
-    handleMouseUp = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    handleMouseUp = (e: React.MouseEvent<HTMLCanvasElement|HTMLDivElement>) => {
       const { enableEdit } = this.props;
       if(!enableEdit) { return; }
       this.setState({active: null});
@@ -258,13 +250,21 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
             <div onKeyUp={this.handleKeyDown} tabIndex={0}>
               <canvas
                 onMouseDown={this.handleMouseDown}
-                onMouseMove={this.handleMouseDrag}
+                // onMouseMove={this.handleMouseDrag}
                 onMouseUp={this.handleMouseUp}
                 onMouseLeave={this.handleMouseUp}
                 width={width}
                 height={height}
                 style={canvasStyle}
                 ref={(r) => this.setCanvasRef(r!)} />
+              <SliderIcons
+                width={width}
+                height={height}
+                onMouseDown={this.handleMouseDown}
+                onMouseMove={this.handleMouseDrag}
+                onMouseUp={this.handleMouseUp}
+                points={this.state.points.map((p) => this.toCanvasPoint(p))}
+              />
             </div>
         );
     }
