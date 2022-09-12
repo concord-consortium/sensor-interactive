@@ -190,6 +190,7 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
         this.setState({points: newPoints});
         setDataF(pointsToData(newPoints));
     }
+
     handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
       const { enableEdit } = this.props;
       if(!enableEdit) { return; }
@@ -212,10 +213,7 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
         if(this.canvasRef) {
           const {x, y} = this.toCanvasCoords(e);
           if(this.pointInRange({x, y})) {
-            const {x: dataX, y: dataY} = this.toDataPoint({x, y});
-            active.x = dataX;
-            active.y = dataY;
-            this.updatePoints({active});
+            this.updatePoint(active.x, y);
           }
         }
       }
