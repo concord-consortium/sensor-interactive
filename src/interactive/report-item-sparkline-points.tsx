@@ -19,7 +19,7 @@ const SparklinesPoints = (props: Props) => {
   const fillStyle: React.SVGAttributes<React.ReactSVGElement>['style'] = {
     stroke: style?.stroke || 'none',
     strokeWidth: '0',
-    fillOpacity: style?.fillOpacity || '.1',
+    fillOpacity: style?.fillOpacity || '1',
     fill: style?.fill || color || 'slategray',
     pointerEvents: 'auto',
   };

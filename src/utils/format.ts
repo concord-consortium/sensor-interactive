@@ -23,7 +23,7 @@ export class Format {
     }
 
     static formatSingleReadBarLabel(readNum: number, data: number[][]) {
-      if (readNum < 1) {
+      if (readNum < 1 || readNum % 1 !== 0) {
         return;
       }
       const secondsSinceLastRead = data[readNum] ? Math.round(data[readNum][2] * 10) / 10 : 0;

@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { addGetReportItemAnswerListener, getClient, IReportItemInitInteractive,
+import { addGetReportItemAnswerListener, getClient, IReportItemInitInteractive, IReportItemAnswerItem, 
          sendReportItemAnswer, useAutoSetHeight, useInitMessage } from "@concord-consortium/lara-interactive-api";
 import { useEffect } from "react";
 import { ReportItemMetricsLegendComponent, reportItemMetricsHtml } from "./report-item-metrics";
@@ -20,11 +20,22 @@ export const ReportItemComponent = () => {
       addGetReportItemAnswerListener((request) => {
         // TODO: update lara interactive api to change addGetReportItemAnswerListener to a generic with <IInteractiveState, IAuthoredState>
         // and remove the `any` after request
-        const {type, platformUserId, interactiveState, authoredState} = request as any;
+        const { type, platformUserId, interactiveState, authoredState, version } = request as any;
         switch (type) {
           case "html":
             const html = reportItemMetricsHtml({interactiveState, authoredState, platformUserId, interactiveItemId});
-            sendReportItemAnswer({type: "html", platformUserId, html});
+            const items: IReportItemAnswerItem[] = [
+              {
+                type: "html",
+                html
+              },
+              {
+                type: "links",
+                hideViewInNewTab: false,
+                hideViewInline: false
+              }
+            ];
+            sendReportItemAnswer({version, platformUserId, items, itemsType: "fullAnswer"});
             break;
         }
       });
@@ -60,4 +71,3 @@ export const ReportItemComponent = () => {
 };
 
 ReactDOM.render(<ReportItemComponent />, document.getElementById("app"));
-

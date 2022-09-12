@@ -2,20 +2,25 @@ import * as React from "react";
 import * as Renderer from "react-dom/server";
 
 import { IAuthoredState, IInteractiveState, SensorRecording } from "./types";
-import { Sparklines, SparklinesLine } from "react-sparklines";
+import { Sparklines, SparklinesLine, SparklinesBars } from "react-sparklines";
 import SparklinesPoints from "./report-item-sparkline-points";
 
-export const ReportItemMetricsLegendComponent = ({view}: {view: "singleAnswer" | "multipleAnswer"}) => {
+export const ReportItemMetricsLegendComponent = ({view}: {view: "singleAnswer" | "multipleAnswer" | "hidden"}) => {
   // TODO: metricsLegend (empty for now)
   return (
     <div className={`metricsLegend ${view}`} />
   );
 };
 
-const SparklineGraph = ({sensorRecording, color, usePoints}: {sensorRecording?: SensorRecording, color: string, usePoints: boolean}) => {
+const SparklineGraph = ({sensorRecording, color, usePoints, useBars}: {sensorRecording?: SensorRecording, color: string, usePoints: boolean, useBars: boolean}) => {
 
   if (!sensorRecording) {
     return null;
+  }
+
+  const roundTo = (n: number, decimalCount: number) => {
+    const d = Math.pow(10, decimalCount);
+    return Math.round(n * d + Number.EPSILON) / d;
   }
 
   let min: number|undefined = undefined;
@@ -32,17 +37,22 @@ const SparklineGraph = ({sensorRecording, color, usePoints}: {sensorRecording?: 
     data.push(value);
   })
 
-  const range = min !== undefined && max !== undefined ? <span>{min} to {max} </span> : "";
+  const range = min !== undefined && max !== undefined ? <span>{roundTo(min, 2)} to {roundTo(max, 2)} </span> : "";
+  const graphNodes = useBars
+                       ? <SparklinesBars />
+                       : usePoints
+                         ? <SparklinesPoints color={color} />
+                         : <SparklinesLine color={color} />
 
   return (
     <>
-      <div>{sensorRecording.name} ({range}{sensorRecording.unit})</div>
+      <div>{sensorRecording.name}<br />({range}{sensorRecording.unit})</div>
       {data.length === 0
         ?
           <div className="no-sensor-data">No sensor data available</div>
         :
           <Sparklines data={data} limit={data.length} width={100} height={20} margin={5}>
-            {usePoints ? <SparklinesPoints color={color} /> : <SparklinesLine color={color} />}
+            {graphNodes}
           </Sparklines>}
     </>
   );
@@ -50,39 +60,24 @@ const SparklineGraph = ({sensorRecording, color, usePoints}: {sensorRecording?: 
 
 export const reportItemMetricsHtml = ({interactiveState, authoredState, platformUserId, interactiveItemId}: {interactiveState: IInteractiveState, authoredState: IAuthoredState, platformUserId: string, interactiveItemId: string}) => {
   const {sensorRecordings} = interactiveState;
-  const usePoints = !!authoredState.singleReads;
+  const usePoints = !!(authoredState.singleReads && authoredState.displayType !== "bar");
+  const useBars = authoredState.displayType === "bar";
 
   const metrics = Renderer.renderToStaticMarkup(
     <>
-      <SparklineGraph sensorRecording={sensorRecordings[0]} color={"#007fcf"} usePoints={usePoints} />
-      <SparklineGraph sensorRecording={sensorRecordings[1]} color={"#da5d1d"} usePoints={usePoints} />
+      <SparklineGraph sensorRecording={sensorRecordings[0]} color={"#007fcf"} usePoints={usePoints} useBars={useBars} />
+      <SparklineGraph sensorRecording={sensorRecordings[1]} color={"#da5d1d"} usePoints={usePoints} useBars={useBars} />
     </>
   );
 
   return `
     <style>
-      .tall {
-        flex-direction: row;
-      }
-      .tall > div,
-      .wide > div {
-        text-align: center;
-      }
-      .wide > div {
-        margin-right: 10px;
-      }
-      .wide svg {
-        max-width: 300px;
-      }
-      .no-sensor-data {
-        margin: 0 10px;
-        font-weight: bold;
+      .sparklines {
+        font-family: lato, arial, helvetica, sans-serif;
+        max-width: 400px;
       }
     </style>
-    <div class="tall">
-      ${metrics}
-    </div>
-    <div class="wide">
+    <div class="sparklines">
       ${metrics}
     </div>`;
 };

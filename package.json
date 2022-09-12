@@ -43,7 +43,7 @@
   },
   "homepage": "https://github.com/concord-consortium/sensor-interactive#readme",
   "dependencies": {
-    "@concord-consortium/lara-interactive-api": "^1.5.0",
+    "@concord-consortium/lara-interactive-api": "^1.7.0",
     "@concord-consortium/sensor-connector-interface": "^0.1.4",
     "@vernier/godirect": "^1.7.1",
     "d3-format": "^1.4.5",
