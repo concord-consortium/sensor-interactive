@@ -26,7 +26,7 @@ export const SliderIcons = (props: IProps) => {
           <div
             key={i}
             className={`slider-${i}`}
-            style={{position:"absolute", top: p.y - 20, left: p.x - 45.25}}>
+            style={{position:"absolute", top: p.y - 15, left: p.x - 30}}>
             <SliderIcon/>
           </div>
         )
