@@ -263,14 +263,14 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
                 height={height}
                 style={canvasStyle}
                 ref={(r) => this.setCanvasRef(r!)} />
-              <SliderIcons
+              {enableEdit && <SliderIcons
                 width={width}
                 height={height}
                 onMouseDown={this.handleMouseDown}
                 onMouseMove={this.handleMouseDrag}
                 onMouseUp={this.handleMouseUp}
                 points={this.state.points.map((p) => this.toCanvasPoint(p))}
-              />
+              />}
             </div>
         );
     }
