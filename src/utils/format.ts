@@ -21,4 +21,24 @@ export class Format {
         }
         return value.toFixed(fix) + " " + unit;
     }
+
+    static formatSingleReadBarLabel(readNum: number, data: number[][]) {
+      if (readNum < 1) {
+        return;
+      }
+      const timeElapsedIndex = data[readNum]?.length - 1;
+      const secondsSinceStart = data[readNum] ? Math.round(data[readNum][timeElapsedIndex] * 10) / 10 : 0;
+      const timeSinceStart = this.formatTimeValue(secondsSinceStart);
+      return data[readNum] ? `Trial ${readNum}<br />${timeSinceStart}` : `Trial ${readNum}`;
+    }
+
+    static formatTimeValue(seconds: number) {
+      if (seconds < 60) {
+        return `${seconds} sec`;
+      } else {
+        const m = Math.floor(seconds % 3600/60).toString();
+        const s = Math.floor(seconds % 60).toString().padStart(2, "0");
+        return `${m}:${s} min`;
+      }
+    }
 }

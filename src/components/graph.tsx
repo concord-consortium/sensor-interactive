@@ -115,15 +115,16 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
       for (let i = 0; i < 6; i++){
         const dataPoint = data.length > i + 1 ? data[i + 1][1] : 0;
+        const dataPointTime = dataPoint > 0 ? data[i + 1][2] : 0;
         const predictionPoint = prediction && prediction.length > i ? prediction[i][1] : 0;
         const preRecordingPoint = preRecording && preRecording.length > i ? preRecording[i][1] : 0;
 
         if (usePrediction && useAuthoredData) {
-          joinedData.push([i + 1, predictionPoint, dataPoint, preRecordingPoint]);
+          joinedData.push([i + 1, preRecordingPoint, predictionPoint, dataPoint, dataPointTime]);
         } else if (usePrediction && !useAuthoredData) {
-          joinedData.push(([i + 1, predictionPoint, dataPoint]))
+          joinedData.push(([i + 1, predictionPoint, dataPoint, dataPointTime]))
         } else if (!usePrediction && useAuthoredData) {
-          joinedData.push([i + 1, dataPoint, preRecordingPoint]);
+          joinedData.push([i + 1, preRecordingPoint, dataPoint, dataPointTime]);
         }
       }
 
@@ -153,21 +154,21 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         const plotter = this.getPlotterType();
 
         for (let label of labels) {
-            if (label == "x" || label == this.state.xLabel) { continue; }
-            if (label == "prediction") {
-                result[label] ={
+            if (label === "x" || label === this.state.xLabel) { continue; }
+            if (label === "prediction") {
+                result[label] = {
                     color: PREDICTION_LINE_COLOR,
                     plotter: plotter
                 };
             }
-            else if (label == "recording") {
-                result[label] ={
+            else if (label === "recording") {
+                result[label] = {
                     color: AUTHORED_LINE_COLOR,
                     plotter: plotter
                 };
             }
             else {
-                result[label] ={
+                result[label] = {
                     color: GRAPH1_LINE_COLOR,
                     plotter: plotter
                 };
@@ -181,15 +182,14 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             return;
         }
         const { singleReads } = this.props;
-        const { predictionState } = this.state;
-        const { data, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
+        const { data, predictionState, xMin, xMax, yMin, yMax, xLabel, yLabel } = this.state;
 
         const dataForGraph = this.useMultiBar() ? this.dataForMultiBar() : dyGraphData(data, singleReads);
 
         const singleReadOptions: Partial<dygraphs.Options> = singleReads
             ? {drawPoints: true, strokeWidth: 0, pointSize: 10}
             : {};
-        const predictionOptions: Partial<dygraphs.Options> = predictionState == "started"
+        const predictionOptions: Partial<dygraphs.Options> = predictionState === "started"
             ? { width: 0 }
             : {};
 
@@ -210,6 +210,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             ...predictionOptions
           })
         }
+
         type FResize = (width?:number, height?:number) => void;
         (this.dygraph.resize as FResize)();
     }
@@ -281,31 +282,36 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             plotter: this.getPlotterType(),
         };
 
-        if (this.props.displayType !== "bar"){
-            dygraphOptions.axes = {
-                x: {
-                    valueFormatter: (val:number) => {
-                        return Format.formatFixedValue(val, this.state.xAxisFix);
-                    },
-                    axisLabelFormatter: (val:number) => {
-                        return this.props.xLabel
+        dygraphOptions.axes = {
+            x: {
+                valueFormatter: (val:number) => {
+                    return Format.formatFixedValue(val, this.state.xAxisFix);
+                },
+                axisLabelFormatter: (val:number) => {
+                    const { data, displayType, singleReads, xLabel } = this.props;
+                    const dataForLabels = this.useMultiBar() ? this.dataForMultiBar() : data;
+                    return displayType === "bar" && singleReads
+                            ? Format.formatSingleReadBarLabel(val, dataForLabels)
+                            : xLabel
                                 ? Format.formatFixedValue(val, this.state.xAxisFix)
                                 : "";
-                    }
-                },
-                y: {
-                    valueFormatter: (val:number) => {
-                        return Format.formatFixedValue(val, this.state.valuePrecision);
-                    },
-                    axisLabelFormatter: (val:number) => {
-                        return Format.formatFixedValue(val, this.state.yAxisFix, "", true);
-                    },
-                    axisLabelWidth: AXIS_LABEL_WIDTH
                 }
-            };
-            dygraphOptions.labels = this.labels(),
-            dygraphOptions.series = this.series(),
-            dygraphOptions = {...dygraphOptions, ...singleReadOptions};
+            },
+            y: {
+                valueFormatter: (val:number) => {
+                    return Format.formatFixedValue(val, this.state.valuePrecision);
+                },
+                axisLabelFormatter: (val:number) => {
+                    return Format.formatFixedValue(val, this.state.yAxisFix, "", true);
+                },
+                axisLabelWidth: AXIS_LABEL_WIDTH
+            }
+        };
+
+        if (this.props.displayType !== "bar") {
+          dygraphOptions.labels = this.labels(),
+          dygraphOptions.series = this.series(),
+          dygraphOptions = {...dygraphOptions, ...singleReadOptions};
         }
 
         const dataForGraph = this.useMultiBar() ? this.dataForMultiBar() : dyGraphData(this.state.data, this.props.singleReads);

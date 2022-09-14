@@ -179,18 +179,24 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
       return (
         <fieldset>
           <legend>Preload Data</legend>
-            <div className={
-                useAuthoredData
-                ? "prerecorded-text"
-                : "prerecord-text disabled"}
-              >
-              <textarea
-                name="recordedData"
-                onChange={handleRecordedDataChange}
-                disabled={!useAuthoredData}
-                defaultValue={data ? data : "x1,y1\nx2,y2"}/>
-              {renderErrorParseError()}
-            </div>
+          <div className="info">
+            <InfoIcon size={16} color="black" />&nbsp;
+            For each data point, enter a pair of comma-separated
+            values on a separate line. Data must contain only 
+            numbers (e.g., 1,10).
+          </div>
+          <div className={
+              useAuthoredData
+              ? "prerecorded-text"
+              : "prerecord-text disabled"}
+            >
+            <textarea
+              name="recordedData"
+              onChange={handleRecordedDataChange}
+              disabled={!useAuthoredData}
+              defaultValue={data ? data : "x1,y1\nx2,y2"}/>
+            {renderErrorParseError()}
+          </div>
         </fieldset>
       );
     }

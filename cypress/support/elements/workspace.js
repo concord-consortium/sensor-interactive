@@ -94,6 +94,9 @@ class Workspace{
     getGraphLegend(){
         return cy.get('.bottom-legend')
     }
+    getXAxisMinValue(){
+        return cy.get('.dygraph-axis-label-x').first()
+    }
     getXAxisMaxValue(){
         return cy.get('.dygraph-axis-label-x').last()
     }
