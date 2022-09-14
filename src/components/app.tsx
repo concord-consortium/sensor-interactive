@@ -275,6 +275,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
         this.closeWarnClearPrediction = this.closeWarnClearPrediction.bind(this);
         this.savePrediction = this.savePrediction.bind(this);
         this.discardPrediction = this.discardPrediction.bind(this);
+        this.getSensorLabel = this.getSensorLabel.bind(this);
         sensorRecordingStore.listenForNewData((sensorRecordings) => this.setState({sensorRecordings}));
     }
 
@@ -1341,7 +1342,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
     renderPrimaryLegend() {
         if (this.connectedSensorCount() > 0) {
             const label = this.state.sensorSlots[0].sensor.definition.measurementName;
-            return this.renderLegendItem("primary", label)
+            return this.renderLegendItem("primary", `Sensor ${label}`)
         }
         return null;
     }
@@ -1349,15 +1350,21 @@ class AppContainer extends React.Component<AppProps, AppState> {
     renderSecondaryLegend() {
         const label = this.state.sensorSlots[1].sensor.definition.measurementName;
         if (this.state.secondGraph) {
-            return this.renderLegendItem("secondary", label)
+            return this.renderLegendItem("secondary", `Sensor 2 ${label}`)
         }
         return null;
     }
 
+    getSensorLabel(){
+        const {sensorUnit} = this.props;
+        const sensorLabel = sensorUnit ? SensorDefinitions[sensorUnit].measurementName : "";
+        return sensorLabel;
+      }
+
     renderPredictionLegend() {
         const {predictionState} = this.state;
         if (predictionState !== 'not-required') {
-            return this.renderLegendItem("prediction", "Prediction");
+            return this.renderLegendItem("prediction", `Predicted ${this.getSensorLabel()}`);
         }
         return null;
     }
@@ -1366,19 +1373,20 @@ class AppContainer extends React.Component<AppProps, AppState> {
         const {preRecordings} = this.props;
         if ( preRecordings &&
             preRecordings?.length > 0 && preRecordings[0].data.length > 0) {
-            return this.renderLegendItem("prerecording", "Recorded");
+            return this.renderLegendItem("prerecording", `Sample ${this.getSensorLabel()}`);
         }
         return null;
     }
 
 
     renderLegend() {
+        const { displayType, singleReads } = this.props;
         return(
-            <div className="bottom-legend">
+            <div className={`bottom-legend ${displayType}Graph ${singleReads ? "singleReads" : ""}`}>
+                { this.renderPreRecordedLegend() }
+                { this.renderPredictionLegend() }
                 { this.renderPrimaryLegend() }
                 { this.renderSecondaryLegend() }
-                { this.renderPredictionLegend() }
-                { this.renderPreRecordedLegend() }
             </div>
         );
     }
