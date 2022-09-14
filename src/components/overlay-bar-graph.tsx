@@ -20,6 +20,7 @@ export interface OverlayGraphProps {
     setDataF: (data: number[][]) => void;
     data: number[][];
     color: string;
+    multiBarCount?: number;
 }
 
 export interface OverlayGraphState {
@@ -146,11 +147,13 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
 
 
     findNearPoint(x: number, y: number, nearDistance: number) {
+      const { multiBarCount } = this.props;
       const { points } = this.state;
-      for(let i = 0; i < points.length; i++) {
+      const xOffset = multiBarCount && multiBarCount > 2 ? 30 : 0
+      for (let i = 0; i < points.length; i++) {
         const canvasPoint = this.toCanvasPoint(points[i]);
-        const distance = canvasPoint.x - x;
-        if(distance > 0 && distance < nearDistance) {
+        const distance = (canvasPoint.x + xOffset) - x;
+        if (distance > 0 && distance < nearDistance) {
           return points[i];
         }
       }
@@ -159,7 +162,7 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
 
     toCanvasCoords(e: React.MouseEvent<HTMLCanvasElement|HTMLDivElement>) {
       const { clientX, clientY } = e;
-      if(this.canvasRef) {
+      if (this.canvasRef) {
         const rect = this.canvasRef.getBoundingClientRect();
         return {
           x: clientX - rect.left,
@@ -189,11 +192,11 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
 
     handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement|HTMLDivElement>) => {
       const { enableEdit } = this.props;
-      if(!enableEdit) { return; }
-      if(this.canvasRef) {
+      if (!enableEdit) { return; }
+      if (this.canvasRef) {
         const {x, y} = this.toCanvasCoords(e);
         const point = this.findNearPoint(x, y, 50);
-        if(point) {
+        if (point) {
           this.updatePoint(point.x, y);
           this.setState({selected: point, active: point});
         }
@@ -202,13 +205,13 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
 
     handleMouseDrag = (e: React.MouseEvent<HTMLCanvasElement|HTMLDivElement>) => {
       const { enableEdit } = this.props;
-      if(!enableEdit) { return; }
+      if (!enableEdit) { return; }
       const { active } = this.state;
 
-      if(active) {
-        if(this.canvasRef) {
+      if (active) {
+        if (this.canvasRef) {
           const {x, y} = this.toCanvasCoords(e);
-          if(this.pointInRange({x, y})) {
+          if (this.pointInRange({x, y})) {
             this.updatePoint(active.x, y);
           }
         }
@@ -217,10 +220,10 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
 
     handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
       const { enableEdit } = this.props;
-      if(!enableEdit) { return; }
+      if (!enableEdit) { return; }
       const { selected } = this.state;
-      if(selected) {
-        if(e.key === "Backspace") {
+      if (selected) {
+        if (e.key === "Backspace") {
           const { points } = this.state;
           const newPoints = points.filter(point => point !== selected);
           this.setState({
@@ -234,14 +237,14 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
 
     handleMouseUp = (e: React.MouseEvent<HTMLCanvasElement|HTMLDivElement>) => {
       const { enableEdit } = this.props;
-      if(!enableEdit) { return; }
+      if (!enableEdit) { return; }
       this.setState({active: null});
     }
 
     render() {
-        const { width, height, show, enableEdit } = this.props;
-        console.log("this.props.data", this.props.data);
-        console.log("this.state.points", this.state.points);
+        const { width, height, show, enableEdit, multiBarCount } = this.props;
+        // console.log("this.props.data", this.props.data);
+        // console.log("this.state.points", this.state.points);
         const canvasStyle: React.CSSProperties = {
             position: "absolute",
             top: "0px",
@@ -256,7 +259,6 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
             <div onKeyUp={this.handleKeyDown} tabIndex={0}>
               <canvas
                 onMouseDown={this.handleMouseDown}
-                // onMouseMove={this.handleMouseDrag}
                 onMouseUp={this.handleMouseUp}
                 onMouseLeave={this.handleMouseUp}
                 width={width}
@@ -270,6 +272,7 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
                 onMouseMove={this.handleMouseDrag}
                 onMouseUp={this.handleMouseUp}
                 points={this.state.points.map((p) => this.toCanvasPoint(p))}
+                multiBarCount={multiBarCount}
               />}
             </div>
         );

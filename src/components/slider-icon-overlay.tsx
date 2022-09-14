@@ -6,13 +6,16 @@ interface IProps {
   width: number,
   height: number,
   points: Array<Point2D>,
+  multiBarCount?: number;
   onMouseMove: (e: React.MouseEvent<HTMLDivElement>) => void;
   onMouseDown: (e: React.MouseEvent<HTMLDivElement>) => void;
   onMouseUp: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 export const SliderIcons = (props: IProps) => {
-  const {width, height, points, onMouseMove, onMouseDown, onMouseUp} = props;
+  const {width, height, points, multiBarCount, onMouseMove, onMouseDown, onMouseUp} = props;
+  const xOffset = multiBarCount && multiBarCount > 2 ? 0 : 30;
+
   return (
     <div
       onMouseDown={onMouseDown}
@@ -26,7 +29,7 @@ export const SliderIcons = (props: IProps) => {
           <div
             key={i}
             className={`slider-${i}`}
-            style={{position:"absolute", top: p.y - 15, left: p.x - 30}}>
+            style={{position:"absolute", top: p.y - 15, left: p.x - xOffset}}>
             <SliderIcon/>
           </div>
         )
