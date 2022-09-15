@@ -1,8 +1,9 @@
 import * as React from "react";
+import { useEffect } from "react";
 import * as ReactDOM from "react-dom";
+import * as semver from "semver";
 import { addGetReportItemAnswerListener, getClient, IReportItemInitInteractive, IReportItemAnswerItem, 
          sendReportItemAnswer, useAutoSetHeight, useInitMessage } from "@concord-consortium/lara-interactive-api";
-import { useEffect } from "react";
 import { ReportItemMetricsLegendComponent, reportItemMetricsHtml } from "./report-item-metrics";
 import { IAuthoredState, IInteractiveState } from "./types";
 
@@ -20,23 +21,27 @@ export const ReportItemComponent = () => {
       addGetReportItemAnswerListener((request) => {
         // TODO: update lara interactive api to change addGetReportItemAnswerListener to a generic with <IInteractiveState, IAuthoredState>
         // and remove the `any` after request
-        const { type, platformUserId, interactiveState, authoredState, version } = request as any;
-        switch (type) {
-          case "html":
-            const html = reportItemMetricsHtml({interactiveState, authoredState, platformUserId, interactiveItemId});
-            const items: IReportItemAnswerItem[] = [
-              {
-                type: "html",
-                html
-              },
-              {
-                type: "links",
-                hideViewInNewTab: false,
-                hideViewInline: false
-              }
-            ];
-            sendReportItemAnswer({version, platformUserId, items, itemsType: "fullAnswer"});
-            break;
+        const { platformUserId, interactiveState, authoredState, version } = request as any;
+
+        if (!version) {
+          // for hosts sending older, unversioned requests
+          console.error("Missing version in getReportItemAnswer request.");
+        } else if (semver.satisfies(version, "2.x")) {
+          const html = reportItemMetricsHtml({interactiveState, authoredState, platformUserId, interactiveItemId});
+          const items: IReportItemAnswerItem[] = [
+            {
+              type: "html",
+              html
+            },
+            {
+              type: "links",
+              hideViewInNewTab: false,
+              hideViewInline: false
+            }
+          ];
+          sendReportItemAnswer({version, platformUserId, items, itemsType: "fullAnswer"});
+        } else {
+          console.error("Unsupported version in getReportItemAnswer request:", version);
         }
       });
       getClient().post("reportItemClientReady");
