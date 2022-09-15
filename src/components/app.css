@@ -627,6 +627,7 @@ button:disabled:hover {
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
+    margin-left: 20px;
 }
 .control-panel .left-controls button {
     margin: 0 0 0 14px;
@@ -659,12 +660,12 @@ button:disabled:hover {
 .icon-container:active {
     background-color: var(--cc-teal);
 }
-.icon-container:hover .icon {
+/* .icon-container:hover .icon {
     fill: var(--cc-teal);
 }
 .icon-container:active .icon {
     fill: var(--cc-teal);
-}
+} */
 .icon-container:hover .icon.about {
     filter: saturate(1.07);
     filter: brightness(1.07);
