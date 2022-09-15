@@ -243,8 +243,6 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
 
     render() {
         const { width, height, show, enableEdit, multiBarCount } = this.props;
-        // console.log("this.props.data", this.props.data);
-        // console.log("this.state.points", this.state.points);
         const canvasStyle: React.CSSProperties = {
             position: "absolute",
             top: "0px",

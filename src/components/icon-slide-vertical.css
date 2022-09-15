@@ -4,7 +4,9 @@
 }
 .prediction-slider-thumb:hover {
   box-shadow: 0 0 0 3px rgba(204, 204, 204, 0.5);
+  cursor: pointer;
 }
 .prediction-slider-thumb:active {
   box-shadow: 0 0 0 3px rgba(204, 204, 204, 1);
+  cursor: pointer;
 }
