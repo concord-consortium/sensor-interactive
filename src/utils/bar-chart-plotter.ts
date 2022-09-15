@@ -4,188 +4,123 @@ import { PREDICTION_LINE_COLOR, AUTHORED_LINE_COLOR, GRAPH1_LINE_COLOR } from ".
 export const barChartPlotter = (e: any) => {
   const ctx = e.drawingContext;
   const points = e.points;
-  const y_bottom = e.dygraph.toDomYCoord(0);
+  const yBottom = e.dygraph.toDomYCoord(0);
 
   ctx.fillStyle = GRAPH1_LINE_COLOR;
 
-  let min_sep = Infinity;
+  let minSep = Infinity;
   for (let i = 1; i < points.length; i++) {
     const sep = points[i].canvasx - points[i - 1].canvasx;
-    if (sep < min_sep) min_sep = sep;
+    if (sep < minSep) minSep = sep;
   }
-  const bar_width = Math.floor(2.0 / 3 * min_sep);
+  const barWidth = Math.floor(2.0 / 3 * minSep);
 
   for (let i = 0; i < points.length; i++) {
     const p = points[i];
-    const center_x = p.canvasx;
+    const centerX = p.canvasx;
 
-    ctx.fillRect(center_x - bar_width / 2, p.canvasy,
-        bar_width, y_bottom - p.canvasy);
+    ctx.fillRect(centerX - barWidth / 2, p.canvasy,
+        barWidth, yBottom - p.canvasy);
 
-    ctx.strokeRect(center_x - bar_width / 2, p.canvasy,
-        bar_width, y_bottom - p.canvasy);
+    ctx.strokeRect(centerX - barWidth / 2, p.canvasy,
+        barWidth, yBottom - p.canvasy);
   }
 }
 
-// Two column bar chart for authored/sample data
+// TODO: Consolidate the three plotter functions below into one.
+// The main reason there are three now is for the different colors
+// needed for the different types of data that can be present.
+// There should be a way to specify those colors in the Dygraph
+// options, though we weren't able to make it work. There is also
+// an issue with displaying the correct number of bars that needs 
+// to be worked out. For now we set that explicitly using barCount.
 export const twoColumnBarPlotterAuthored = (e: any) => {
   // We need to handle both series simultaneously.
   if (e.seriesIndex !== 0) return;
-  const g = e.dygraph;
   const ctx = e.drawingContext;
   const sets = e.allSeriesPoints;
-  const y_bottom = e.dygraph.toDomYCoord(0);
-
-  // Find the minimum separation between x-values.
-  // This determines the bar width.
-  let min_sep = Infinity;
-  for (let j = 0; j < 2; j++) {
-    const points = sets[j];
-    for (let i = 1; i < points.length; i++) {
-      let sep = points[i].canvasx - points[i - 1].canvasx;
-      if (sep < min_sep) min_sep = sep;
-    }
-  }
-  const bar_width = Math.floor(2.0 / 3 * min_sep);
-
-  let fillColors = [];
-  const strokeColors = g.getColors();
-  const otherColors = [AUTHORED_LINE_COLOR, GRAPH1_LINE_COLOR];
-
-  for (let i = 0; i < strokeColors.length; i++) {
-    fillColors.push(otherColors[i]);
-  }
-
-  for (let j = 0; j < 2; j++) {
-    ctx.fillStyle = fillColors[j];
-    ctx.strokeStyle = fillColors[j];
-    for (let i = 0; i < sets[j].length; i++) {
-      const p = sets[j][i];
-      const center_x = p.canvasx;
-      let x_left = center_x;
-      if (j === 0) {
-        x_left -= (bar_width/sets.length) + 1;
-      }
-      if (j === 2) {
-        x_left += (bar_width/sets.length) + 1;
-      }
-      ctx.fillRect(x_left, p.canvasy,
-          ((bar_width/sets.length)), y_bottom - p.canvasy);
-
-      ctx.strokeRect(x_left, p.canvasy,
-          ((bar_width/sets.length)), y_bottom - p.canvasy);
-    }
-  }
+  const yBottom = e.dygraph.toDomYCoord(0);
+  const barWidth = getMultiBarWidth(sets);
+  const fillColors = [AUTHORED_LINE_COLOR, GRAPH1_LINE_COLOR];
+  plotMultiBarGraph({
+    ctx,
+    sets,
+    barCount: 2,
+    barWidth,
+    yBottom,
+    fillColors
+  });
 }
 
-// Two column bar chart for prediction data
 export const twoColumnBarPlotterPrediction = (e: any) => {
   // We need to handle all the series simultaneously.
   if (e.seriesIndex !== 0) return;
-  const g = e.dygraph;
   const ctx = e.drawingContext;
   const sets = e.allSeriesPoints;
-  const y_bottom = e.dygraph.toDomYCoord(0);
+  const yBottom = e.dygraph.toDomYCoord(0);
+  const barWidth = getMultiBarWidth(sets);
+  const fillColors = [PREDICTION_LINE_COLOR, GRAPH1_LINE_COLOR];
+  plotMultiBarGraph({
+    ctx,
+    sets,
+    barCount: 2,
+    barWidth,
+    yBottom,
+    fillColors
+  });
+}
 
+export const threeColumnBarPlotter = (e: any) => {
+  if (e.seriesIndex !== 0) return;
+  const ctx = e.drawingContext;
+  const sets = e.allSeriesPoints;
+  const yBottom = e.dygraph.toDomYCoord(0);
+  const barWidth = getMultiBarWidth(sets);
+  const fillColors = [AUTHORED_LINE_COLOR, PREDICTION_LINE_COLOR, GRAPH1_LINE_COLOR];
+  plotMultiBarGraph({
+    ctx,
+    sets,
+    barCount: 3,
+    barWidth,
+    yBottom,
+    fillColors
+  });
+}
+
+const getMultiBarWidth = (sets: any) => {
   // Find the minimum separation between x-values.
   // This determines the bar width.
-  let min_sep = Infinity;
-  for (let j = 0; j < 2; j++) {
+  let minSep = Infinity;
+  for (let j = 0; j < sets.length - 1; j++) {
     const points = sets[j];
     for (let i = 1; i < points.length; i++) {
-      let sep = points[i].canvasx - points[i - 1].canvasx;
-      if (sep < min_sep) min_sep = sep;
+      const sep = points[i].canvasx - points[i - 1].canvasx;
+      if (sep < minSep) minSep = sep;
     }
   }
-  const bar_width = Math.floor(2.0 / 3 * min_sep);
+  return Math.floor(2.0 / 3 * minSep);
+}
 
-  let fillColors = [];
-  const strokeColors = g.getColors();
-  const otherColors = [PREDICTION_LINE_COLOR, GRAPH1_LINE_COLOR];
-
-  for (let i = 0; i < strokeColors.length; i++) {
-    fillColors.push(otherColors[i]);
-  }
-
-  for (let j = 0; j < 2; j++) {
+const plotMultiBarGraph = (params: Record<string, any>) => {
+  const { ctx, sets, barCount, barWidth, yBottom, fillColors } = params;
+  for (let j = 0; j < barCount; j++) {
     ctx.fillStyle = fillColors[j];
     ctx.strokeStyle = fillColors[j];
     for (let i = 0; i < sets[j].length; i++) {
       const p = sets[j][i];
-      const center_x = p.canvasx;
-      let x_left = center_x;
+      const centerX = p.canvasx;
+      let xLeft = centerX;
       if (j === 0) {
-        x_left -= (bar_width/sets.length) + 1;
+        xLeft -= (barWidth/sets.length) + 1;
       }
       if (j === 2) {
-        x_left += (bar_width/sets.length) + 1;
+        xLeft += (barWidth/sets.length) + 1;
       }
-      ctx.fillRect(x_left, p.canvasy,
-          ((bar_width/sets.length)), y_bottom - p.canvasy);
+      ctx.fillRect(xLeft, p.canvasy,
+          ((barWidth/sets.length)), yBottom - p.canvasy);
 
-      ctx.strokeRect(x_left, p.canvasy,
-          ((bar_width/sets.length)), y_bottom - p.canvasy);
+      ctx.strokeRect(xLeft, p.canvasy,
+          ((barWidth/sets.length)), yBottom - p.canvasy);
     }
   }
 }
-
-// Multiple column bar chart
-export const multiColumnBarPlotter = (e: any) => {
-      // We need to handle all the series simultaneously.
-      if (e.seriesIndex !== 0) return;
-      const g = e.dygraph;
-      const ctx = e.drawingContext;
-      const sets = e.allSeriesPoints;
-      const y_bottom = e.dygraph.toDomYCoord(0);
-
-      // Find the minimum separation between x-values.
-      // This determines the bar width.
-      let min_sep = Infinity;
-      for (let j = 0; j < sets.length; j++) {
-        const points = sets[j];
-        for (let i = 1; i < points.length; i++) {
-          let sep = points[i].canvasx - points[i - 1].canvasx;
-          if (sep < min_sep) min_sep = sep;
-        }
-      }
-      const bar_width = Math.floor(2.0 / 3 * min_sep);
-
-      let fillColors = [];
-      const strokeColors = g.getColors();
-      const otherColors = [];
-
-      if (sets.length === 3) {
-        otherColors.push(AUTHORED_LINE_COLOR, PREDICTION_LINE_COLOR, GRAPH1_LINE_COLOR)
-      } else if (sets.length === 2) {
-        // TODO: Determine whether authored or prediction data is present
-        // and use color specific for that type of data instead of simply
-        // using authored color. It may be possible to pass the correct
-        // colors in from the Graph component via the Dygraph options.
-        otherColors.push(AUTHORED_LINE_COLOR, GRAPH1_LINE_COLOR);
-      };
-
-      for (let i = 0; i < strokeColors.length; i++) {
-        fillColors.push(otherColors[i]);
-      }
-
-      for (let j = 0; j < sets.length; j++) {
-        ctx.fillStyle = fillColors[j];
-        ctx.strokeStyle = fillColors[j];
-        for (let i = 0; i < sets[j].length; i++) {
-          const p = sets[j][i];
-          const center_x = p.canvasx;
-          let x_left = center_x;
-          if (j === 0){
-            x_left -= (bar_width/sets.length) + 1;
-          }
-          if (j === 2){
-            x_left += (bar_width/sets.length) + 1;
-          }
-          ctx.fillRect(x_left, p.canvasy,
-              ((bar_width/sets.length)), y_bottom - p.canvasy);
-
-          ctx.strokeRect(x_left, p.canvasy,
-              ((bar_width/sets.length)), y_bottom - p.canvasy);
-        }
-      }
-    }

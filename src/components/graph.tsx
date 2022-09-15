@@ -3,7 +3,7 @@ import Dygraph from "dygraphs";
 import { Format } from "../utils/format";
 import { PredictionState } from "./types";
 import { OverlayGraph } from "./overlay-graph";
-import { barChartPlotter, multiColumnBarPlotter, twoColumnBarPlotterAuthored, twoColumnBarPlotterPrediction } from "../utils/bar-chart-plotter";
+import { barChartPlotter, threeColumnBarPlotter, twoColumnBarPlotterAuthored, twoColumnBarPlotterPrediction } from "../utils/bar-chart-plotter";
 
 import "./dygraph.css";
 import { OverlayBarGraph } from "./overlay-bar-graph";
@@ -149,7 +149,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     getPlotterType() {
       const {useAuthoredData, usePrediction} = this.props;
       if (this.useMultiBar() && useAuthoredData && usePrediction) {
-        return multiColumnBarPlotter;
+        return threeColumnBarPlotter;
       } else if (this.useMultiBar() && useAuthoredData) {
         return twoColumnBarPlotterAuthored;
       } else if (this.useMultiBar() && usePrediction) {
