@@ -3,9 +3,10 @@ import Dygraph from "dygraphs";
 import { Format } from "../utils/format";
 import { PredictionState } from "./types";
 import { OverlayGraph } from "./overlay-graph";
-import { barChartPlotter, multiColumnBarPlotter } from "../utils/bar-chart-plotter";
+import { barChartPlotter, threeColumnBarPlotter, twoColumnBarPlotterAuthored, twoColumnBarPlotterPrediction } from "../utils/bar-chart-plotter";
 
 import "./dygraph.css";
+import { OverlayBarGraph } from "./overlay-bar-graph";
 
 export interface GraphProps {
     title:string|undefined;
@@ -35,21 +36,22 @@ export interface GraphProps {
 }
 
 export interface GraphState {
-    width:number|null;
-    height:number|null;
-    data:number[][];
+    width: number|null;
+    height: number|null;
+    data: number[][];
     predictionState: PredictionState;
-    dataLength:number;
-    xMin:number;
-    xMax:number;
-    yMin:number;
-    yMax:number;
-    valuePrecision:number;
-    xLabel:string|undefined;
-    yLabel:string|undefined;
-    xAxisFix:number;
-    yAxisFix:number;
-    [key:string]: any;
+    dataLength: number;
+    xMin: number;
+    xMax: number;
+    yMin: number;
+    yMax: number;
+    valuePrecision: number;
+    xLabel: string|undefined;
+    yLabel: string|undefined;
+    xAxisFix: number;
+    yAxisFix: number;
+    [key: string]: any;
+    multiBarCount: number;
 }
 
 // Zeplin specs:  https://zpl.io/09kdQlE
@@ -88,13 +90,15 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             xLabel: this.props.xLabel,
             yLabel: this.props.yLabel,
             xAxisFix: Format.getAxisFix('x', this.props.xMax - this.props.xMin, this.props.width),
-            yAxisFix: Format.getAxisFix('y', this.props.yMax - this.props.yMin, this.props.height)
+            yAxisFix: Format.getAxisFix('y', this.props.yMax - this.props.yMin, this.props.height),
+            multiBarCount: this.setMultiBarCount()
         };
 
         this.getPlotterType = this.getPlotterType.bind(this);
         this.dataForMultiBar = this.dataForMultiBar.bind(this);
         this.useMultiBar = this.useMultiBar.bind(this);
         this.makeDygraph = this.makeDygraph.bind(this);
+        this.setMultiBarCount = this.setMultiBarCount.bind(this);
         this.dyUpdateProps = ["width", "height", "xMin", "xMax", "yMin", "yMax",
                                 "valuePrecision", "xLabel", "yLabel", "predictionState"];
     }
@@ -102,6 +106,18 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     useMultiBar() {
       const { displayType, useAuthoredData, usePrediction } = this.props;
       return displayType === "bar" && (useAuthoredData || usePrediction);
+    }
+
+    setMultiBarCount() {
+      const { useAuthoredData, usePrediction } = this.props;
+      if (!this.useMultiBar()) {
+        return 0;
+      }
+      if (useAuthoredData && usePrediction) {
+        return 3;
+      } else {
+        return 2;
+      }
     }
 
     dataForMultiBar() {
@@ -131,8 +147,13 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     getPlotterType() {
-      if (this.useMultiBar()){
-        return multiColumnBarPlotter;
+      const {useAuthoredData, usePrediction} = this.props;
+      if (this.useMultiBar() && useAuthoredData && usePrediction) {
+        return threeColumnBarPlotter;
+      } else if (this.useMultiBar() && useAuthoredData) {
+        return twoColumnBarPlotterAuthored;
+      } else if (this.useMultiBar() && usePrediction) {
+        return twoColumnBarPlotterPrediction;
       } else if (this.props.displayType === "bar") {
         return barChartPlotter;
       } else {
@@ -383,7 +404,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
     }
 
     render() {
-        const {width, height, title, setPredictionF, prediction, preRecording } = this.props;
+        const {width, height, title, setPredictionF, prediction, preRecording, usePrediction } = this.props;
         let graphStyle:{width?:number; height?:number} = {};
         if (width && isFinite(width))
             graphStyle.width = width;
@@ -418,6 +439,26 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                     minY={this.props.yMin}
                     key="prediction"
                   />
+                }
+                {
+                  isBarGraph && usePrediction &&
+                  <OverlayBarGraph
+                    height={height||100}
+                    width={width||100}
+                    show={true}
+                    enableEdit={this.state.predictionState == "started"}
+                    parentGraph={this.dygraph}
+                    setDataF={setPredictionF}
+                    data={prediction}
+                    color={PREDICTION_LINE_COLOR}
+                    maxX={this.props.xMax}
+                    maxY={this.props.yMax}
+                    minX={this.props.xMin}
+                    minY={this.props.yMin}
+                    key="prediction"
+                    multiBarCount={this.state.multiBarCount}
+                />
+
                 }
                 { preRecording && !isBarGraph &&
                     <OverlayGraph

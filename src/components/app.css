@@ -474,7 +474,7 @@ button:disabled:hover {
     align-items: center;
     height: 20px;
     font-family: Arial;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: normal;
     font-style: normal;
     color: var(--graph-text);
