@@ -43,7 +43,7 @@
   },
   "homepage": "https://github.com/concord-consortium/sensor-interactive#readme",
   "dependencies": {
-    "@concord-consortium/lara-interactive-api": "^1.5.0",
+    "@concord-consortium/lara-interactive-api": "^1.7.0",
     "@concord-consortium/sensor-connector-interface": "^0.1.4",
     "@vernier/godirect": "^1.7.1",
     "d3-format": "^1.4.5",
@@ -56,6 +56,7 @@
     "react-modal": "^3.14.4",
     "react-sizeme": "^3.0.2",
     "react-sparklines": "^1.7.0",
+    "semver": "^7.3.5",
     "shutterbug": "^1.3.3-pre",
     "text-encoding": "^0.7.0"
   },
@@ -69,6 +70,7 @@
     "@types/react-dom": "^16.9.14",
     "@types/react-modal": "^3.13.1",
     "@types/react-sparklines": "^1.7.2",
+    "@types/semver": "^7.3.9",
     "@types/web-bluetooth": "0.0.12",
     "@typescript-eslint/eslint-plugin": "^5.10.2",
     "@typescript-eslint/parser": "^5.10.2",
