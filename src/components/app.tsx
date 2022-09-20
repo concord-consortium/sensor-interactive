@@ -277,6 +277,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
         this.savePrediction = this.savePrediction.bind(this);
         this.discardPrediction = this.discardPrediction.bind(this);
         this.getSensorLabel = this.getSensorLabel.bind(this);
+        this.beforeHandleSensorSelect = this.beforeHandleSensorSelect.bind(this);
         sensorRecordingStore.listenForNewData((sensorRecordings) => this.setState({sensorRecordings}));
     }
 
@@ -423,9 +424,19 @@ class AppContainer extends React.Component<AppProps, AppState> {
         });
    }
 
+   beforeHandleSensorSelect = (sensorIndex:number, columnID:string) => {
+    if (!this.disableWarning) {
+      this.setState({ warnNewModal: true });
+    } else {
+        this.handleSensorSelect(sensorIndex, columnID);
+    }
+   }
+
     handleSensorSelect = (sensorIndex:number, columnID:string) => {
         let { sensorSlots } = this.state,
             sensors = sensorSlots.map((slot) => slot.sensor);
+        // console.log("sensorSlots inside handleSensorSelect in app.tsx:");
+        // console.log(sensorSlots);
         // if same sensor selected, there's nothing to do
         if (sensorSlots[sensorIndex].sensor.columnID === columnID) return;
         // if the other graphed sensor is selected, just switch them
@@ -443,7 +454,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
             sensorSlots[sensorIndex].setSensor(newSensor);
         }
         this.setState({ sensorSlots });
-
+        this.setState({ hasData: false });
         sensorRecordingStore.configure(sensorSlots, this.HACK_numSensors());
         this.saveInteractiveState();
     }
@@ -1256,7 +1267,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
                     sensorUnit={sensorUnit}
                     sensorColumns={sensorColumns}
                     sensorPrecision={sensorSlots[0].sensor ? sensorSlots[0].sensor.sensorPrecision() : 2}
-                    onSensorSelect={this.handleSensorSelect}
+                    onSensorSelect={this.beforeHandleSensorSelect}
                     onZeroSensor={this.zeroSensor(0)}
                     onRemoveSensor={this.removeGraph(0)}
                     showRemoveSensor={!this.props.sensorManager}

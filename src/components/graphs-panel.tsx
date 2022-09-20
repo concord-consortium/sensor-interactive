@@ -92,6 +92,8 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
   const classes = `graphs-panel ${showSecondGraph ? 'two-graphs' : ''} ${disabled ? 'disabled' : ''}`;
   const style = { minHeight: showSecondGraph ? 320 : 170 };
 
+  console.log("props.hasData inside graphs Panel", props.hasData);
+
   return (
       <div className={classes} style={style}>
         {renderGraph({sensorRecording: sensorRecordings[0], preRecording: preRecordings && preRecordings[0], title: "graph1", isSingletonGraph: !showSecondGraph, isLastGraph: !showSecondGraph})}
