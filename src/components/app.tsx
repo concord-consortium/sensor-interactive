@@ -50,6 +50,11 @@ interface ISizeMeSize {
   width:number;
   height:number;
 }
+
+interface ISensorSelection {
+  sensorIndex: number,
+  columnID: string,
+}
 export interface AppProps {
     size:ISizeMeSize;
     sensorManager?: SensorManager;
@@ -97,7 +102,9 @@ export interface AppState {
     topBarHeight: number;
     warnClearPrediction: boolean;
     warnSavePrediction: boolean;
+    warnSensorSwitch: boolean;
     isStartDisabled?: boolean;
+    newSensorSelection: ISensorSelection | null;
   }
 
 function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo) {
@@ -178,6 +185,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
     private codap:Codap | undefined;
     private selectionRange:{start:number,end:number|undefined} = {start:0,end:undefined};
     private disableWarning:boolean = false;
+    private disableSensorSwitchWarning:boolean = false;
     private isReloading:boolean = false;
     private columnInfoCache: { [columnID: string]: SensorConfigColumnInfo[]; } = {};
     private interactiveHost: InteractiveHost;
@@ -228,7 +236,9 @@ class AppContainer extends React.Component<AppProps, AppState> {
             promptHeight: 0,
             topBarHeight: 0,
             warnClearPrediction: false,
-            warnSavePrediction: false
+            warnSavePrediction: false,
+            warnSensorSwitch: false,
+            newSensorSelection: null,
         };
 
         this.onSensorConnect = this.onSensorConnect.bind(this);
@@ -278,6 +288,10 @@ class AppContainer extends React.Component<AppProps, AppState> {
         this.discardPrediction = this.discardPrediction.bind(this);
         this.getSensorLabel = this.getSensorLabel.bind(this);
         this.beforeHandleSensorSelect = this.beforeHandleSensorSelect.bind(this);
+        this.toggleSensorSwitchWarning = this.toggleSensorSwitchWarning.bind(this);
+        this.closeWarnSensorSwitch = this.closeWarnSensorSwitch.bind(this);
+        this.clearNewSensorSelection = this.clearNewSensorSelection.bind(this);
+        this.continueSensorSwitch = this.continueSensorSwitch.bind(this);
         sensorRecordingStore.listenForNewData((sensorRecordings) => this.setState({sensorRecordings}));
     }
 
@@ -422,21 +436,30 @@ class AppContainer extends React.Component<AppProps, AppState> {
             secondGraph: false,
             disconnectionWarningModal: showWarning
         });
-   }
-
-   beforeHandleSensorSelect = (sensorIndex:number, columnID:string) => {
-    if (!this.disableWarning) {
-      this.setState({ warnNewModal: true });
-    } else {
-        this.handleSensorSelect(sensorIndex, columnID);
     }
-   }
+
+    beforeHandleSensorSelect = (sensorIndex:number, columnID:string) => {
+      if (!this.disableSensorSwitchWarning && this.state.hasData) {
+        this.setState({ newSensorSelection: {sensorIndex, columnID} })
+        this.setState({ warnSensorSwitch: true });
+      } else {
+          this.handleSensorSelect(sensorIndex, columnID);
+      }
+    }
+
+    clearNewSensorSelection() {
+      this.setState({ newSensorSelection: null})
+    }
+
+    continueSensorSwitch() {
+      const {newSensorSelection} = this.state;
+      this.handleSensorSelect(newSensorSelection!.sensorIndex, newSensorSelection!.columnID);
+      this.closeWarnSensorSwitch();
+    }
 
     handleSensorSelect = (sensorIndex:number, columnID:string) => {
         let { sensorSlots } = this.state,
             sensors = sensorSlots.map((slot) => slot.sensor);
-        // console.log("sensorSlots inside handleSensorSelect in app.tsx:");
-        // console.log(sensorSlots);
         // if same sensor selected, there's nothing to do
         if (sensorSlots[sensorIndex].sensor.columnID === columnID) return;
         // if the other graphed sensor is selected, just switch them
@@ -1009,6 +1032,11 @@ class AppContainer extends React.Component<AppProps, AppState> {
         this.setState({ warnNewModal: false });
     }
 
+    closeWarnSensorSwitch() {
+      this.clearNewSensorSelection();
+      this.setState({ warnSensorSwitch: false})
+    }
+
     closeWarnClearPrediction(){
       this.setState({warnClearPrediction: false});
     }
@@ -1057,6 +1085,10 @@ class AppContainer extends React.Component<AppProps, AppState> {
     toggleWarning() {
         this.disableWarning = true;
     }
+
+    toggleSensorSwitchWarning() {
+      this.disableSensorSwitchWarning = !this.disableSensorSwitchWarning;
+    };
 
     addGraph() {
         const secondGraph = true;
@@ -1457,6 +1489,21 @@ class AppContainer extends React.Component<AppProps, AppState> {
                     <div className="sensor-dialog-buttons">
                         <button onClick={this.closeWarnNewModal}>Preserve Data</button>
                         <button onClick={this.discardData}>Discard Data</button>
+                    </div>
+                </ReactModal>
+                <ReactModal className="sensor-dialog-content"
+                            overlayClassName="sensor-dialog-overlay"
+                            contentLabel="Discard data?"
+                            isOpen={this.state.warnSensorSwitch} >
+                    <div className="sensor-dialog-header">Warning</div>
+                    <p>{this.messages["sensor_switch"]}</p>
+                    <label>
+                        <input type="checkbox" onChange={this.toggleSensorSwitchWarning}/>
+                        Don't show this message again
+                    </label>
+                    <div className="sensor-dialog-buttons">
+                        <button onClick={this.closeWarnSensorSwitch}>Cancel</button>
+                        <button onClick={this.continueSensorSwitch}>Continue</button>
                     </div>
                 </ReactModal>
                 <ReactModal className="sensor-dialog-content"
