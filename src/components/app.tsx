@@ -1451,8 +1451,6 @@ class AppContainer extends React.Component<AppProps, AppState> {
             ? "//codap.concord.org/releases/latest?di=" + window.location.href
             : "";
 
-        console.log("this.state.hasData", this.state.hasData);
-
         const interfaceType = (sensorConfig && sensorConfig.interface) || "";
         const isConnectorAwake = sensorManager ? sensorManager.isAwake() : true;
 
