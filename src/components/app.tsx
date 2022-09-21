@@ -28,7 +28,7 @@ import "./app.css";
 
 const DEFAULT_RUN_LENGTH = 5;
 const MAX_BAR_CHART_SAMPLES = 6;
-const defaultBarGraphPrediction = new Array(6).fill([]).map((el, i) => {return [i + 1, .25]});
+const defaultBarGraphPrediction = new Array(6).fill([]).map((el, i) => {return [i + 1, 0]});
 
 /*
     SensorRecordingStore Design Notes & Future Work
