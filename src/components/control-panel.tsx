@@ -43,9 +43,6 @@ export const ControlPanel: React.FC<IControlPanelProps> = (props) => {
   const disableClearPrediction = predictionStatus !== "started";
   const disableSavePrediction = predictionStatus !== "started";
 
-  console.log("props.hasData inside ControlPanel")
-  console.log(props.hasData);
-
   const disableStartCollecting =
       (props.isConnectorAwake && !props.interfaceType)
     ||(props.sensorCount === 0)

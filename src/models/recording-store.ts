@@ -67,8 +67,6 @@ export class SensorRecordingStore {
                 } else {
                     sensorRecording = this.createSensorRecording(sensor);
                 }
-                // console.log("sensorRecording after if/else statements inside forEach inside else statement inside configure in recording-store");
-                // console.log(sensorRecording);
                 sensorRecordings.push(sensorRecording);
                 this.sensorSlotMap.set(sensorSlot, sensorRecording);
             }
@@ -149,10 +147,6 @@ export class SensorRecordingStore {
 
     numDataPoints(sensorSlot: SensorSlot):number {
         const sensorRecording = this.getSensorRecording(sensorSlot);
-        // console.log("sensorSlot inside numDataPoints in recording-store");
-        // console.log(sensorSlot);
-        // console.log("sensorRecording inside numDataPoints in recording-store");
-        // console.log(sensorRecording);
         return sensorRecording?.data.length || 0;
     }
 
