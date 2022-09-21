@@ -83,6 +83,7 @@ export const SensorStrings:ISensorStrings = {
       "connection_message": "Connect A Device:",
       "connection_sub_message": "with one or more sensors",
       "about_message": "Use Sensor Interactive to collect and view data from your sensor devices.",
+      "sensor_switch": "Switching the type of measurement will discard your current data. Do you want to continue?"
     },
     "measurements": {
       "sensor_reading": "Sensor Reading",
