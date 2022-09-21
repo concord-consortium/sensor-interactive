@@ -478,6 +478,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
         }
         this.setState({ sensorSlots });
         this.setState({ hasData: false });
+        this.setState({isStartDisabled: false});
         sensorRecordingStore.configure(sensorSlots, this.HACK_numSensors());
         this.saveInteractiveState();
     }
@@ -1449,6 +1450,8 @@ class AppContainer extends React.Component<AppProps, AppState> {
         const codapURL = window.self === window.top
             ? "//codap.concord.org/releases/latest?di=" + window.location.href
             : "";
+
+        console.log("this.state.hasData", this.state.hasData);
 
         const interfaceType = (sensorConfig && sensorConfig.interface) || "";
         const isConnectorAwake = sensorManager ? sensorManager.isAwake() : true;
