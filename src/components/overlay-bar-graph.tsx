@@ -196,7 +196,7 @@ export class OverlayBarGraph extends React.Component<OverlayGraphProps, OverlayG
       if (this.canvasRef) {
         const {x, y} = this.toCanvasCoords(e);
         const point = this.findNearPoint(x, y, 50);
-        if (point) {
+        if (point && this.pointInRange({x, y})) {
           this.updatePoint(point.x, y);
           this.setState({selected: point, active: point});
         }
