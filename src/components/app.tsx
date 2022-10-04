@@ -217,7 +217,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
             dataReset:false,
             collecting:false,
             predictionState: props.requirePrediction ? "pending" : "not-required",
-            prediction: props.displayType === "bar" ? defaultBarGraphPrediction : [],
+            prediction: props.displayType === "bar" && props.requirePrediction ? defaultBarGraphPrediction : [],
             runLength:DEFAULT_RUN_LENGTH,
             xStart:0,
             xEnd,
