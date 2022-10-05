@@ -1066,7 +1066,11 @@ class AppContainer extends React.Component<AppProps, AppState> {
 
     discardPrediction() {
       this.closeWarnClearPrediction();
-      this.setState({prediction: []});
+      if (this.props.displayType === "bar") {
+        this.setState({prediction: defaultBarGraphPrediction});
+      } else {
+        this.setState({prediction: []})
+      }
     }
 
     savePrediction() {
