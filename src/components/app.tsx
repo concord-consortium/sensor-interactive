@@ -335,10 +335,11 @@ class AppContainer extends React.Component<AppProps, AppState> {
                 if (prediction && prediction.length > 0) {
                     predictionState = "completed"
                 }
+                const recordingsWithData = sensorRecordings.filter((recording) => recording.data.length)
                 this.setState({
                     runLength,
                     xEnd: this.isSingleReadBarGraph() ? MAX_BAR_CHART_SAMPLES + 1 : runLength + 0.01,
-                    hasData: true,
+                    hasData: recordingsWithData.length > 0,
                     prediction,
                     predictionState
                 });
