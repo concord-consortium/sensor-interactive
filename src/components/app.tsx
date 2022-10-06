@@ -335,10 +335,11 @@ class AppContainer extends React.Component<AppProps, AppState> {
                 if (prediction && prediction.length > 0) {
                     predictionState = "completed"
                 }
+                const recordingsWithData = sensorRecordings.filter((recording) => recording.data.length)
                 this.setState({
                     runLength,
                     xEnd: this.isSingleReadBarGraph() ? MAX_BAR_CHART_SAMPLES + 1 : runLength + 0.01,
-                    hasData: true,
+                    hasData: recordingsWithData.length > 0,
                     prediction,
                     predictionState
                 });
@@ -454,6 +455,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
     continueSensorSwitch() {
       const {newSensorSelection} = this.state;
       this.handleSensorSelect(newSensorSelection!.sensorIndex, newSensorSelection!.columnID);
+      this.newData();
       this.closeWarnSensorSwitch();
     }
 
@@ -748,6 +750,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
             this.saveInteractiveState();
             // allow for some padding on the right side
             xEnd = this.isSingleReadBarGraph() ? MAX_BAR_CHART_SAMPLES + 1 : Math.max(DEFAULT_RUN_LENGTH, xEnd + 1) + 0.01;
+            console.log("I am onSensorData");
             this.setState({xEnd, sensorSlots, hasData: true});
             return;
         }
@@ -779,6 +782,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
         });
 
         if (newSensorDataArrived) {
+          console.log("hello");
           this.setState({
               hasData: true,
               dataChanged: true,
@@ -877,6 +881,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
 
     hasData() {
         const { sensorSlots } = this.state;
+        console.log("sensorSlots.some((slot) => sensorRecordingStore.hasData(slot))", sensorSlots.some((slot) => sensorRecordingStore.hasData(slot)));
         return sensorSlots.some((slot) => sensorRecordingStore.hasData(slot));
     }
 
