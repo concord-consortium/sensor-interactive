@@ -750,7 +750,6 @@ class AppContainer extends React.Component<AppProps, AppState> {
             this.saveInteractiveState();
             // allow for some padding on the right side
             xEnd = this.isSingleReadBarGraph() ? MAX_BAR_CHART_SAMPLES + 1 : Math.max(DEFAULT_RUN_LENGTH, xEnd + 1) + 0.01;
-            console.log("I am onSensorData");
             this.setState({xEnd, sensorSlots, hasData: true});
             return;
         }
@@ -782,7 +781,6 @@ class AppContainer extends React.Component<AppProps, AppState> {
         });
 
         if (newSensorDataArrived) {
-          console.log("hello");
           this.setState({
               hasData: true,
               dataChanged: true,
@@ -881,7 +879,6 @@ class AppContainer extends React.Component<AppProps, AppState> {
 
     hasData() {
         const { sensorSlots } = this.state;
-        console.log("sensorSlots.some((slot) => sensorRecordingStore.hasData(slot))", sensorSlots.some((slot) => sensorRecordingStore.hasData(slot)));
         return sensorSlots.some((slot) => sensorRecordingStore.hasData(slot));
     }
 
