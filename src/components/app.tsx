@@ -455,7 +455,6 @@ class AppContainer extends React.Component<AppProps, AppState> {
     continueSensorSwitch() {
       const {newSensorSelection} = this.state;
       this.handleSensorSelect(newSensorSelection!.sensorIndex, newSensorSelection!.columnID);
-      this.newData();
       this.closeWarnSensorSwitch();
     }
 
