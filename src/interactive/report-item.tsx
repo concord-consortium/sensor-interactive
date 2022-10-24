@@ -2,7 +2,7 @@ import * as React from "react";
 import { useEffect } from "react";
 import * as ReactDOM from "react-dom";
 import * as semver from "semver";
-import { addGetReportItemAnswerListener, getClient, IReportItemInitInteractive, IReportItemAnswerItem, 
+import { addGetReportItemAnswerListener, getClient, IReportItemInitInteractive, IReportItemAnswerItem,
          sendReportItemAnswer, useAutoSetHeight, useInitMessage } from "@concord-consortium/lara-interactive-api";
 import { ReportItemMetricsLegendComponent, reportItemMetricsHtml } from "./report-item-metrics";
 import { IAuthoredState, IInteractiveState } from "./types";
