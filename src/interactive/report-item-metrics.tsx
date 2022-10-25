@@ -62,8 +62,8 @@ export const reportItemMetricsHtml = ({interactiveState, authoredState, platform
   const {sensorRecordings} = interactiveState;
   const usePoints = !!(authoredState.singleReads && authoredState.displayType !== "bar");
   const useBars = authoredState.displayType === "bar";
-
   const metrics = Renderer.renderToStaticMarkup(
+    useBars ? <div/> :
     <>
       <SparklineGraph sensorRecording={sensorRecordings[0]} color={"#007fcf"} usePoints={usePoints} useBars={useBars} />
       <SparklineGraph sensorRecording={sensorRecordings[1]} color={"#da5d1d"} usePoints={usePoints} useBars={useBars} />
