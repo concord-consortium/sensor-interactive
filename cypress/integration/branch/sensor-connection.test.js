@@ -113,7 +113,7 @@ context('Collecting data with a single-read bar graph',()=>{
     before(()=>{
         // See cypress.json for viewport size
         cy.viewport(1400,1280)
-        cy.visit('/examples/fake-sensor-bar-graph.html')
+        cy.visit('/examples/fake-sensor-bar-prerecorded-ondemand.html')
     })
     it ('has labels in the format "Trial n"', ()=> {
         workspace.getXAxisMinValue().should('be.visible').and('contain', 'Trial 1')

@@ -82,7 +82,7 @@ context('Graph controls',()=>{
       workspace.getNewRunButton().should('be.visible')
     })
     it ('shows Record and New Run buttons for a single-read bar graph', ()=> {
-      cy.visit('/examples/fake-sensor-bar-graph.html')
+      cy.visit('/examples/fake-sensor-bar-prerecorded-ondemand.html')
       workspace.getBottomControlPanel().should('be.visible')
       workspace.getStartButton().should('not.exist')
       workspace.getStopButton().should('not.exist')

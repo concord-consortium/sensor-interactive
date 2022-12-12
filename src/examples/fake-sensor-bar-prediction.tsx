@@ -4,8 +4,8 @@ import App from "../components/app";
 
 ReactDOM.render(
     <App
+      requirePrediction={true}
       fakeSensor={true}
-      singleReads={true}
       displayType={"bar"}
     />,
     document.getElementById("app")
