@@ -85,7 +85,7 @@ class Workspace{
     getRescaleButton(){
         return cy.get('.graph-rescale-button')
     }
-    getGraphPanel(){
+    getGraphPanelBox(){
         return cy.get('.graph-box')
     }
     getYAxisLabel(){
