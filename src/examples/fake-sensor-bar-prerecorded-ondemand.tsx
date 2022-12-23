@@ -27,8 +27,8 @@ ReactDOM.render(
     <App
       preRecordings={preRecordedData}
       fakeSensor={true}
-      singleReads={true}
       displayType={"bar"}
+      singleReads={true}
     />,
     document.getElementById("app")
 );
