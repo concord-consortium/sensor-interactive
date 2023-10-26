@@ -130,7 +130,10 @@ export const SensorStrings:ISensorStrings = {
       "dew_point": "Dew Point",
       "absolute_humidity": "Absolute Humidity",
       "station_pressure": "Station Pressure",
-      "barometric_pressure": "Barometric Pressure"
+      "barometric_pressure": "Barometric Pressure",
+      "voltage": "Voltage",
+      "EMG": "EMG",
+      "EMGR": "EMG Rectified",
     },
     "names": {
       "sensor": "sensor",
@@ -186,7 +189,9 @@ export const SensorStrings:ISensorStrings = {
       "dew_point": "Dew Point",
       "absolute_humidity": "Absolute Humidity",
       "station_pressure": "Station Pressure",
-      "barometric_pressure": "Barometric Pressure"
+      "barometric_pressure": "Barometric Pressure",
+      "EMG": "EMG",
+      "EMGR": "EMG Rectified"
     }
 };
 
@@ -763,5 +768,32 @@ export const SensorDefinitions:ISensorDefinitions = {
     "minReading": -300,
     "maxReading":  10000,
     "displayUnits": "m"
+  },
+  "mV_EMG": {
+    "sensorName": i18n.t("sensor.names.EMG"),
+    "measurementName": i18n.t("sensor.measurements.EMG"),
+    "measurementType": "EMG",
+    "tareable": false,
+    "minReading": -4,
+    "maxReading":  4,
+    "displayUnits": "mV"
+  },
+  "mV_EMGR": {
+    "sensorName": i18n.t("sensor.names.EMGR"),
+    "measurementName": i18n.t("sensor.measurements.EMGR"),
+    "measurementType": "EMGR",
+    "tareable": false,
+    "minReading": 0,
+    "maxReading":  4,
+    "displayUnits": "mV"
+  },
+  "mV_V": {
+    "sensorName": i18n.t("sensor.names.voltage"),
+    "measurementName": i18n.t("sensor.measurements.voltage"),
+    "measurementType": "voltage",
+    "tareable": false,
+    "minReading": -4,
+    "maxReading":  4,
+    "displayUnits": "mV"
   }
 } as const;

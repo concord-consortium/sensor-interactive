@@ -30,7 +30,10 @@ export const SpecialMeasurementUnits: IStringMap = {
   "Relative Humidity": "%RH",
   "Station Pressure": "mbar_SP",
   "Barometric Pressure": "mbar_BP",
-  "Altitude": "m_AL"
+  "Altitude": "m_AL",
+  "EMG": "mV_EMG",
+  "EMG Rectified": "mV_EMGR",
+  "Voltage": "mV_V",
 }
 
 export class SensorGDXManager extends SensorManager {
@@ -193,6 +196,7 @@ export class SensorGDXManager extends SensorManager {
     }
 
     getSensorUnits(sensor: any){
+      console.log({sensor});
       if (Object.keys(SpecialMeasurementUnits).includes(sensor.name)){
         return SpecialMeasurementUnits[sensor.name];
       } else {

@@ -41,23 +41,6 @@ interface SensorGraphState {
     xMax:number;
 }
 
-
-function getQueryParameterOverride(param: string, sensorUnit?: string): number | null {
-  if (!sensorUnit) {
-    return null;
-  }
-  const urlParams = new URLSearchParams(window.location.search);
-  const key = `${sensorUnit}${param}Override`;
-  const override = urlParams.get(key);
-  if (override != null) {
-    const overrideValue = parseFloat(override);
-    if (!isNaN(overrideValue)) {
-      return overrideValue;
-    }
-  }
-  return null;
-}
-
 export default class SensorGraph extends React.Component<SensorGraphProps, SensorGraphState> {
 
     sensor:Sensor;
@@ -218,19 +201,10 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
 
     renderGraph(graphWidth:number|null) {
-        const { sensorRecording, preRecording } = this.props;
+        const { sensorRecording } = this.props;
         const { yMin, yMax, xMin, xMax } = this.state;
 
         const labels = [] as string[];
-
-        let yMinOverride:number|null = null;
-        let yMaxOverride:number|null = null;
-        if (sensorRecording || preRecording) {
-          const source = sensorRecording || preRecording;
-          const sensorUnit = source?.displayUnits || source?.unit;
-          yMinOverride = getQueryParameterOverride("YMin", sensorUnit);
-          yMaxOverride = getQueryParameterOverride("YMax", sensorUnit);
-        }
 
         const data = this.processData();
         return (
@@ -244,8 +218,8 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 resetScaleF={this.handleResetScale}
                 xMin={xMin}
                 xMax={xMax}
-                yMin={yMinOverride ?? yMin}
-                yMax={yMaxOverride ?? yMax}
+                yMin={yMin}
+                yMax={yMax}
                 // TODO: figure out default precision
                 valuePrecision={sensorRecording?.precision || 2}
                 xLabel={this.xLabel()}
