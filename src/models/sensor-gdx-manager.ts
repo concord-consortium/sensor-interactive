@@ -196,7 +196,6 @@ export class SensorGDXManager extends SensorManager {
     }
 
     getSensorUnits(sensor: any){
-      console.log({sensor});
       if (Object.keys(SpecialMeasurementUnits).includes(sensor.name)){
         return SpecialMeasurementUnits[sensor.name];
       } else {
