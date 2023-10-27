@@ -220,7 +220,7 @@ export class SensorGDXManager extends SensorManager {
 
       // set a new reading interval for live calibration readings
       // can be much slower than capture interval.
-      this.gdxDevice.start(HEARTBEAT_INTERVAL_MS);
+      this.gdxDevice.start(SENSOR_HEARTBEAT_INTERVAL);
 
       // turn on any default sensors
       this.gdxDevice.enableDefaultSensors();
