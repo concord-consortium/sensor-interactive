@@ -132,8 +132,8 @@ export const SensorStrings:ISensorStrings = {
       "station_pressure": "Station Pressure",
       "barometric_pressure": "Barometric Pressure",
       "voltage": "Voltage",
-      "EMG": "EMG",
-      "EMGR": "EMG Rectified",
+      "EKG": "EKG",
+      "heart_rate": "Heart Rate"
     },
     "names": {
       "sensor": "sensor",
@@ -190,8 +190,7 @@ export const SensorStrings:ISensorStrings = {
       "absolute_humidity": "Absolute Humidity",
       "station_pressure": "Station Pressure",
       "barometric_pressure": "Barometric Pressure",
-      "EMG": "EMG",
-      "EMGR": "EMG Rectified"
+      "EKG": "EKG",
     }
 };
 
@@ -769,31 +768,22 @@ export const SensorDefinitions:ISensorDefinitions = {
     "maxReading":  10000,
     "displayUnits": "m"
   },
-  "mV_EMG": {
-    "sensorName": i18n.t("sensor.names.EMG"),
-    "measurementName": i18n.t("sensor.measurements.EMG"),
-    "measurementType": "EMG",
+  "mV_EKG": {
+    "sensorName": i18n.t("sensor.names.EKG"),
+    "measurementName": i18n.t("sensor.measurements.EKG"),
+    "measurementType": "EKG",
     "tareable": false,
-    "minReading": -4,
-    "maxReading":  4,
+    "minReading": -0.4,
+    "maxReading":  1,
     "displayUnits": "mV"
   },
-  "mV_EMGR": {
-    "sensorName": i18n.t("sensor.names.EMGR"),
-    "measurementName": i18n.t("sensor.measurements.EMGR"),
-    "measurementType": "EMGR",
+  "bpm": {
+    "sensorName": i18n.t("sensor.names.heart_rate"),
+    "measurementName": i18n.t("sensor.measurements.heart_rate"),
+    "measurementType": "Heart Rate",
     "tareable": false,
     "minReading": 0,
-    "maxReading":  4,
-    "displayUnits": "mV"
+    "maxReading":  150,
+    "displayUnits": "bpm"
   },
-  "mV_V": {
-    "sensorName": i18n.t("sensor.names.voltage"),
-    "measurementName": i18n.t("sensor.measurements.voltage"),
-    "measurementType": "voltage",
-    "tareable": false,
-    "minReading": -4,
-    "maxReading":  4,
-    "displayUnits": "mV"
-  }
 } as const;

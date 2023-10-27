@@ -15,7 +15,7 @@ const POLLING_INTERVAL = 1000;
 // each heartbeat.
 const SENSOR_HEARTBEAT_INTERVAL = HEARTBEAT_INTERVAL_MS / 2;
 
-// According to Vernier, the maximum sampling frequency got GDX-MD is 50hz
+// According to Vernier, the maximum sampling frequency GDX-MD has is 50hz
 // see: https://www.vernier.com/til/5
 // But we are only seeing updates at 10hz. For now we are going to use 10hz
 // see: https://www.pivotaltracker.com/story/show/181528803
@@ -31,9 +31,7 @@ export const SpecialMeasurementUnits: IStringMap = {
   "Station Pressure": "mbar_SP",
   "Barometric Pressure": "mbar_BP",
   "Altitude": "m_AL",
-  "EMG": "mV_EMG",
-  "EMG Rectified": "mV_EMGR",
-  "Voltage": "mV_V",
+  "EKG": "mV_EKG"
 }
 
 export class SensorGDXManager extends SensorManager {
@@ -145,7 +143,6 @@ export class SensorGDXManager extends SensorManager {
       };
 
       this.timerId = setInterval(readData, READ_DATA_INTERVAL);
-
     }
 
     updateSensorValue(ID:string, time:number, value:number) {
@@ -223,14 +220,25 @@ export class SensorGDXManager extends SensorManager {
 
       // set a new reading interval for live calibration readings
       // can be much slower than capture interval.
-      this.gdxDevice.start(SENSOR_HEARTBEAT_INTERVAL);
+      this.gdxDevice.start(HEARTBEAT_INTERVAL_MS);
 
       // turn on any default sensors
       this.gdxDevice.enableDefaultSensors();
 
+      const gdxDevice = this.gdxDevice;
       // turn on all sensors that we find on the device
       this.gdxDevice.sensors.forEach(function(sensor: any) {
-        sensor.setEnabled(true);
+        // Check if we are using the EKG sensor.
+        // PI's are not interested in EMG/Voltage data, and enabling those options
+        // disables EKG/Heart Rate, so we will only enable EKG + Heart Rate
+        if (gdxDevice.orderCode == "GDX-EKG") {
+          if (sensor.name == "EKG" || sensor.name == "Heart Rate") {
+            sensor.setEnabled(true);
+            return;
+          }
+        } else {
+          sensor.setEnabled(true);
+        }
       });
 
       // get an array of the enabled sensors
