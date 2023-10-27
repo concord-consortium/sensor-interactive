@@ -130,7 +130,10 @@ export const SensorStrings:ISensorStrings = {
       "dew_point": "Dew Point",
       "absolute_humidity": "Absolute Humidity",
       "station_pressure": "Station Pressure",
-      "barometric_pressure": "Barometric Pressure"
+      "barometric_pressure": "Barometric Pressure",
+      "voltage": "Voltage",
+      "EKG": "EKG",
+      "heart_rate": "Heart Rate"
     },
     "names": {
       "sensor": "sensor",
@@ -186,7 +189,8 @@ export const SensorStrings:ISensorStrings = {
       "dew_point": "Dew Point",
       "absolute_humidity": "Absolute Humidity",
       "station_pressure": "Station Pressure",
-      "barometric_pressure": "Barometric Pressure"
+      "barometric_pressure": "Barometric Pressure",
+      "EKG": "EKG",
     }
 };
 
@@ -763,5 +767,23 @@ export const SensorDefinitions:ISensorDefinitions = {
     "minReading": -300,
     "maxReading":  10000,
     "displayUnits": "m"
-  }
+  },
+  "mV_EKG": {
+    "sensorName": i18n.t("sensor.names.EKG"),
+    "measurementName": i18n.t("sensor.measurements.EKG"),
+    "measurementType": "EKG",
+    "tareable": false,
+    "minReading": -0.4,
+    "maxReading":  1,
+    "displayUnits": "mV"
+  },
+  "bpm": {
+    "sensorName": i18n.t("sensor.names.heart_rate"),
+    "measurementName": i18n.t("sensor.measurements.heart_rate"),
+    "measurementType": "Heart Rate",
+    "tareable": false,
+    "minReading": 0,
+    "maxReading":  150,
+    "displayUnits": "bpm"
+  },
 } as const;

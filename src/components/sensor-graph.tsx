@@ -47,13 +47,13 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     lastDataIndex:number = 0;
 
     constructor(props:SensorGraphProps) {
-        super(props);
-        this.state = {
-            xMin: this.props.xStart,
-            xMax: this.props.xEnd,
-            yMin: this.props.preRecording?.min ?? 0,
-            yMax: this.props.preRecording?.max ?? 100,
-        };
+      super(props);
+      this.state = {
+          xMin: this.props.xStart,
+          xMax: this.props.xEnd,
+          yMin: this.props.preRecording?.min ?? 0,
+          yMax: this.props.preRecording?.max ?? 100,
+      };
     }
 
     componentDidMount(){
@@ -163,7 +163,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
       } else {
         let processedData = [[0, 0]];
         for (let i = 0; i < data.length; i++) {
-          // Single read bar graphs need to include values for time elapsed 
+          // Single read bar graphs need to include values for time elapsed
           // which will be shown in the x-axis labels.
           const timeSinceLastRead = i > 0 ? data[i][0] : 0;
           processedData.push([i + 1, data[i][1], timeSinceLastRead]);
