@@ -10,11 +10,6 @@ const goDirectDevicePrefix = "GDX";
 
 const POLLING_INTERVAL = 1000;
 
-// calibration display: We only need to sample at twice heartbeat rate
-// This is the nyquist frequency, and insures we have at least one sample for
-// each heartbeat.
-const SENSOR_HEARTBEAT_INTERVAL = HEARTBEAT_INTERVAL_MS / 2;
-
 // According to Vernier, the maximum sampling frequency GDX-MD has is 50hz
 // see: https://www.vernier.com/til/5
 // But we are only seeing updates at 10hz. For now we are going to use 10hz
@@ -123,10 +118,38 @@ export class SensorGDXManager extends SensorManager {
       return this.hasData;
     }
 
+    // This value gets sent to gdxDevice.start() to set the measurement period.
+    // It gets used when we've actually started the sensor data graphing.
+    getMeasurementPeriod() {
+      // The Heart Rate sensor is only able to collect 1 sample per second.
+      // Currently HEARTBEAT_INTERVAL_MS is set to 1000ms (1 second).
+      // If that changes we'll need to manually return 1000 here.
+      if (this.gdxDevice.orderCode === "GDX-EKG") {
+        return HEARTBEAT_INTERVAL_MS;
+      } else {
+        return this.gdxDevice.minMeasurementPeriod;
+      }
+    }
+
+    // This value also gets sent to gdxDevice.start() to set the measurement period.
+    // It gets used when we're displaying the calibration values, not during collecting / graphing.
+    getHeartbeatInterval() {
+      if (this.gdxDevice.orderCode === "GDX-EKG") {
+        // See notes above in getMeasurementPeriod().
+        return HEARTBEAT_INTERVAL_MS;
+      } else {
+        // We  need to sample at twice heartbeat rate.
+        // This is the nyquist frequency, and insures we have at least one sample for
+        // each heartbeat.
+        return HEARTBEAT_INTERVAL_MS / 2;
+      }
+    }
+
     requestStart() {
       let startCollectionTime = Date.now();
       this.gdxDevice.stop();
-      this.gdxDevice.start(this.gdxDevice.minMeasurementPeriod);
+      const measurementPeriod = this.getMeasurementPeriod();
+      this.gdxDevice.start(measurementPeriod);
       const readData = async () => {
         this.enabledSensors.forEach((sensor: any, index: number) => {
           const cNum = this.initialColumnNum + index;
@@ -166,8 +189,8 @@ export class SensorGDXManager extends SensorManager {
     requestHeartbeat(enabled: boolean): void {
       if(enabled) {
         if(this.gdxDevice) {
-
-          this.gdxDevice.start(SENSOR_HEARTBEAT_INTERVAL);
+          const heartbeatInterval = this.getHeartbeatInterval();
+          this.gdxDevice.start(heartbeatInterval);
         }
       } else {
         if(this.gdxDevice) {
@@ -220,8 +243,8 @@ export class SensorGDXManager extends SensorManager {
 
       // set a new reading interval for live calibration readings
       // can be much slower than capture interval.
-      this.gdxDevice.start(SENSOR_HEARTBEAT_INTERVAL);
-
+      const heartbeatInterval = this.getHeartbeatInterval();
+      this.gdxDevice.start(heartbeatInterval);
       // turn on any default sensors
       this.gdxDevice.enableDefaultSensors();
 
@@ -229,12 +252,14 @@ export class SensorGDXManager extends SensorManager {
       // turn on all sensors that we find on the device
       this.gdxDevice.sensors.forEach(function(sensor: any) {
         // Check if we are using the EKG sensor.
-        // PI's are not interested in EMG/Voltage data, and enabling those options
-        // disables EKG/Heart Rate, so we will only enable EKG + Heart Rate
+        // PI's are not interested in EMG/Voltage data, and enabling those sensors
+        // disables the Heart Rate sensor, so we will only enable Heart Rate.
         if (gdxDevice.orderCode == "GDX-EKG") {
-          if (sensor.name == "EKG" || sensor.name == "Heart Rate") {
+          if (sensor.name == "Heart Rate") {
             sensor.setEnabled(true);
             return;
+          } else {
+            sensor.setEnabled(false);
           }
         } else {
           sensor.setEnabled(true);
