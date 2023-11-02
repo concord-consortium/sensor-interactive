@@ -254,8 +254,8 @@ export class SensorGDXManager extends SensorManager {
         // Check if we are using the EKG sensor.
         // PI's are not interested in EMG/Voltage data, and enabling those sensors
         // disables the Heart Rate sensor, so we will only enable Heart Rate.
-        if (gdxDevice.orderCode == "GDX-EKG") {
-          if (sensor.name == "Heart Rate") {
+        if (gdxDevice.orderCode === "GDX-EKG") {
+          if (sensor.name === "Heart Rate") {
             sensor.setEnabled(true);
             return;
           } else {
@@ -269,7 +269,7 @@ export class SensorGDXManager extends SensorManager {
       // get an array of the enabled sensors
       this.enabledSensors = this.gdxDevice.sensors.filter((s: any) => s.enabled);
 
-      if (this.enabledSensors.length == 0) {
+      if (this.enabledSensors.length === 0) {
         console.log("Could not find any enabled sensors on device");
         return false;
       }
