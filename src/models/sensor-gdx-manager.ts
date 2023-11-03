@@ -9,6 +9,7 @@ const goDirectServiceUUID = "d91714ef-28b9-4f91-ba16-f0d9a604f112";
 const goDirectDevicePrefix = "GDX";
 
 const POLLING_INTERVAL = 1000;
+const MIN_EKG_INTERVAL_MS = 1000;
 
 // According to Vernier, the maximum sampling frequency GDX-MD has is 50hz
 // see: https://www.vernier.com/til/5
@@ -122,10 +123,8 @@ export class SensorGDXManager extends SensorManager {
     // It gets used when we've actually started the sensor data graphing.
     getMeasurementPeriod() {
       // The Heart Rate sensor is only able to collect 1 sample per second.
-      // Currently HEARTBEAT_INTERVAL_MS is set to 1000ms (1 second).
-      // If that changes we'll need to manually return 1000 here.
       if (this.gdxDevice.orderCode === "GDX-EKG") {
-        return HEARTBEAT_INTERVAL_MS;
+        return MIN_EKG_INTERVAL_MS;
       } else {
         return this.gdxDevice.minMeasurementPeriod;
       }
@@ -135,8 +134,7 @@ export class SensorGDXManager extends SensorManager {
     // It gets used when we're displaying the calibration values, not during collecting / graphing.
     getHeartbeatInterval() {
       if (this.gdxDevice.orderCode === "GDX-EKG") {
-        // See notes above in getMeasurementPeriod().
-        return HEARTBEAT_INTERVAL_MS;
+        return MIN_EKG_INTERVAL_MS;
       } else {
         // We  need to sample at twice heartbeat rate.
         // This is the nyquist frequency, and insures we have at least one sample for
