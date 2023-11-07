@@ -782,8 +782,8 @@ export const SensorDefinitions:ISensorDefinitions = {
     "measurementName": i18n.t("sensor.measurements.heart_rate"),
     "measurementType": "Heart Rate",
     "tareable": false,
-    "minReading": 0,
-    "maxReading":  150,
+    "minReading": 30,
+    "maxReading":  100,
     "displayUnits": "bpm"
   },
 } as const;
