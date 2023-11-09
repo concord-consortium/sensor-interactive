@@ -62,7 +62,6 @@
   },
   "devDependencies": {
     "@concord-consortium/slate-editor": "^0.7.3",
-    "@simonsmith/cypress-image-snapshot": "^9.0.1",
     "@types/d3-format": "^1.4.2",
     "@types/dygraphs": "^1.1.13",
     "@types/jest": "^27.4.0",
@@ -78,8 +77,9 @@
     "copy-webpack-plugin": "^10.2.4",
     "cross-env": "^7.0.3",
     "css-loader": "^6.6.0",
-    "cypress": "^10.0.0",
+    "cypress": "^9.4.1",
     "cypress-commands": "^2.0.1",
+    "cypress-image-snapshot": "^4.0.1",
     "eslint": "^8.8.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.25.4",
