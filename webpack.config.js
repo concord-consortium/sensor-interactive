@@ -100,12 +100,14 @@ module.exports = {
           }],
         }),
         new HtmlWebpackPlugin({
+          chunks: ["app"],
           filename: 'index.html',
           template: 'src/index.html',
           favicon: 'src/public/favicon.ico',
           publicPath: '.',
         }),
         ...(DEPLOY_PATH ? [new HtmlWebpackPlugin({
+          chunks: ["app"],
           filename: 'index-top.html',
           template: 'src/index.html',
           favicon: 'src/public/favicon.ico',
