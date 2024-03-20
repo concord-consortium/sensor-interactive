@@ -15,7 +15,8 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
   const {authoredState, setAuthoredState} = useAuthoredState<IAuthoredState>();
   const {
     singleReads, enablePause, useFakeSensor, prompt, hint, sensorUnit,
-    recordedData, usePrediction, useAuthoredData, useSensors, displayType
+    recordedData, usePrediction, useAuthoredData, useSensors, displayType, overrideAxes,
+    authoredXMax, authoredXMin, authoredYMax, authoredYMin
   } = authoredState || defaultAuthoredState;
 
   const [parseError, setParseError] = React.useState<boolean>(false);
@@ -23,6 +24,8 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
   const handlesingleReads = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({singleReads: e.target.checked});
 
   const handleEnablePause = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({enablePause: e.target.checked});
+
+  const handleOverrideAxes = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({overrideAxes: e.target.checked});
 
   // When we unset prediction, we may need to erase units/min/max
   const handleUsePrediction = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,6 +76,12 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
     updateAuthoredState(changes);
   }
 
+  const handleAuthoredAxisChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const id = e.target.id;
+    const changes: Partial<IAuthoredState> = {[id]: value};
+    updateAuthoredState(changes);
+  };
 
   const handleRecordedDataChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -182,7 +191,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
           <div className="info">
             <InfoIcon size={16} color="black" />&nbsp;
             For each data point, enter a pair of comma-separated
-            values on a separate line. Data must contain only 
+            values on a separate line. Data must contain only
             numbers (e.g., 1,10).
           </div>
           <div className={
@@ -251,6 +260,30 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
           onChange={handleEnablePause}/>
           Enable Pause
         <br/>
+
+        <input
+          type="checkbox"
+          checked={overrideAxes}
+          onChange={handleOverrideAxes}
+        />
+          Manually Set Graph Axes
+        <br/>
+        { overrideAxes &&
+          <div className={"sub-axes-options"}>
+            <div className={"x-axis-options"}>
+              <label className={"axis-label"} htmlFor={"authoredXMin"}>X Min:</label>
+              <input type="number" className={"axis-input"} id={"authoredXMin"} placeholder="0" value={authoredXMin} onChange={handleAuthoredAxisChange}/>
+              <label className={"axis-label"} htmlFor={"authoredXMax"}>X Max:</label>
+              <input type="number" className={"axis-input"} id={"authoredXMax"} placeholder="0" value={authoredXMax} onChange={handleAuthoredAxisChange}/>
+            </div>
+            <div className={"y-axis-options"}>
+              <label className={"axis-label"} htmlFor={"authoredYMin"}>Y Min:</label>
+              <input type="number" className={"axis-input"} id={"authoredYMin"} placeholder="0" value={authoredYMin} onChange={handleAuthoredAxisChange}/>
+              <label className={"axis-label"} htmlFor={"authoredYMax"}>Y Max:</label>
+              <input type="number" className={"axis-input"} id={"authoredYMax"} placeholder="0" value={authoredYMax} onChange={handleAuthoredAxisChange}/>
+            </div>
+          </div>
+        }
 
       </fieldset>
       <fieldset>

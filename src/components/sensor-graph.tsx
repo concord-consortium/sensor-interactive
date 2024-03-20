@@ -32,6 +32,8 @@ interface SensorGraphProps {
     sensorUnit:any;
     displayType: string;
     useAuthoredData?: boolean;
+    authoredYMin?: number;
+    authoredYMax?: number;
 }
 
 interface SensorGraphState {
@@ -51,14 +53,17 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
       this.state = {
           xMin: this.props.xStart,
           xMax: this.props.xEnd,
-          yMin: this.props.preRecording?.min ?? 0,
-          yMax: this.props.preRecording?.max ?? 100,
+          yMin: this.props.authoredYMin ?? this.props.preRecording?.min ?? 0,
+          yMax: this.props.authoredYMax ?? this.props.preRecording?.max ?? 100,
       };
     }
 
     componentDidMount(){
-      const {usePrediction, sensorUnit} = this.props;
-      if (usePrediction && sensorUnit) {
+      const {usePrediction, sensorUnit, authoredYMin, authoredYMax} = this.props;
+
+      if (authoredYMin && authoredYMax) {
+        this.setState({yMin: authoredYMin, yMax: authoredYMax});
+      } else if (usePrediction && sensorUnit) {
         const { yMin, yMax } = this.getSensorUnitMinAndMax();
         this.setState({yMin, yMax});
       }
@@ -131,8 +136,13 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         }
 
         const stateChanges = {} as SensorGraphState;
+        if (nextProps.authoredYMin && nextProps.authoredYMax) {
+            stateChanges.yMin = nextProps.authoredYMin;
+            stateChanges.yMax = nextProps.authoredYMax;
+        }
+
         // if sensor type changes, revert to default axis range for sensor
-        if (sensorRecording?.unit !== nextProps.sensorRecording?.unit) {
+        else if (sensorRecording?.unit !== nextProps.sensorRecording?.unit) {
             stateChanges.yMin =  nextProps.sensorRecording?.min ?? 0;
             stateChanges.yMax = nextProps.sensorRecording?.max ?? 100;
         }

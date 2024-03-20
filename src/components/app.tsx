@@ -70,6 +70,9 @@ export interface AppProps {
     sensorUnit?: string;
     displayType: string;
     useAuthoredData?: boolean;
+    overrideAxes?: boolean;
+    authoredYMin?: number;
+    authoredYMax?: number;
     setInteractiveState?: (stateOrUpdateFunc: IInteractiveState | ((prevState: IInteractiveState | null) => IInteractiveState) | null) => void
 }
 
@@ -93,6 +96,8 @@ export interface AppState {
     secondGraph: boolean;
     xStart: number;
     xEnd: number;
+    authoredYMin?: number;
+    authoredYMax?: number;
     bluetoothErrorModal: boolean;
     disconnectionWarningModal: boolean;
     aboutModal: boolean;
@@ -221,6 +226,8 @@ class AppContainer extends React.Component<AppProps, AppState> {
             runLength:DEFAULT_RUN_LENGTH,
             xStart:0,
             xEnd,
+            authoredYMin: props.overrideAxes ? props.authoredYMin : undefined,
+            authoredYMax: props.overrideAxes ? props.authoredYMax : undefined,
             timeUnit:"",
             notRespondingModal:false,
             suppressNotRespondingModal:false,
@@ -1614,6 +1621,8 @@ class AppContainer extends React.Component<AppProps, AppState> {
                         usePrediction={this.props.requirePrediction}
                         displayType={this.props.displayType}
                         useAuthoredData={this.props.useAuthoredData}
+                        authoredYMin={this.props.overrideAxes ? this.props.authoredYMin : undefined}
+                        authoredYMax={this.props.overrideAxes ? this.props.authoredYMax : undefined}
                     />
                     {this.renderLegend()}
                 </div>

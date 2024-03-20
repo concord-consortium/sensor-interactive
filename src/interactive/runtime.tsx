@@ -52,6 +52,9 @@ export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
         sensorUnit={sensorUnit}
         setInteractiveState={setInteractiveState}
         displayType={authoredState.displayType}
+        overrideAxes={authoredState.overrideAxes}
+        authoredYMin={authoredState.authoredYMin}
+        authoredYMax={authoredState.authoredYMax}
       />
   );
 };

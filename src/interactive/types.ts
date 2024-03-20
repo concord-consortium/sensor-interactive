@@ -18,11 +18,16 @@ export interface IAuthoredState {
   enablePause: boolean;
   usePrediction: boolean;
   useAuthoredData: boolean;
+  overrideAxes: boolean;
   prompt: string;
   hint: string;
   sensorUnit?: string;
   recordedData?: SensorRecording;
   displayType: string;
+  authoredXMin?: number;
+  authoredXMax?: number;
+  authoredYMin?: number;
+  authoredYMax?: number;
 };
 
 export interface IInteractiveState {
@@ -45,6 +50,7 @@ export const defaultAuthoredState: IAuthoredState = {
   enablePause: false,
   usePrediction: false,
   useAuthoredData: false,
+  overrideAxes: false,
   prompt: "",
   hint: "",
   sensorUnit: undefined,

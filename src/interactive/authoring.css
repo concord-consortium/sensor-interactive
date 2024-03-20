@@ -58,3 +58,24 @@
   cursor: not-allowed;
   opacity: 0.5;
 }
+
+.authoring .sub-axes-options {
+  margin-top: .5em;
+  margin-left: 1.5em;
+}
+
+.authoring .sub-axes-options .x-axis-options {
+  margin-bottom: .5em;
+}
+
+.authoring label.axis-label {
+  font-size: 1em;
+  margin-right: .25em;
+}
+
+.authoring input.axis-input {
+  width: 3em;
+  font-size: 1em;
+  margin-right: .75em;
+  color: black;
+}
