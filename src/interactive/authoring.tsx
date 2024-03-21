@@ -3,12 +3,17 @@ import { IAuthoringInitInteractive, useAuthoredState } from "@concord-consortium
 import { RichTextWidget } from "../components/rich-text-widget";
 import { defaultAuthoredState, IAuthoredState, SensorRecording } from "./types";
 import { SensorDefinitions } from "../models/sensor-definitions";
+import { InfoIcon } from "../components/info-icon";
 
 import "./authoring.css";
-import { InfoIcon } from "../components/info-icon";
 
 interface Props {
   initMessage: IAuthoringInitInteractive<IAuthoredState>;
+}
+
+interface IYMinMax {
+  yMin: number;
+  yMax: number;
 }
 
 export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
@@ -16,10 +21,20 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
   const {
     singleReads, enablePause, useFakeSensor, prompt, hint, sensorUnit,
     recordedData, usePrediction, useAuthoredData, useSensors, displayType, overrideAxes,
-    authoredXMax, authoredXMin, authoredYMax, authoredYMin
+    authoredYMin, authoredYMax
   } = authoredState || defaultAuthoredState;
 
   const [parseError, setParseError] = React.useState<boolean>(false);
+  const [yMinMax, setYMinMax] = React.useState<IYMinMax>({yMin: 0, yMax: 0});
+
+  React.useEffect(() => {
+    const { yMin, yMax } = yMinMax;
+    const areAxesDefined = authoredYMin !== undefined && authoredYMax !== undefined;
+    const areAxesChanged = authoredYMin !== yMin || authoredYMax !== yMax;
+    if (areAxesDefined && areAxesChanged) {
+      setYMinMax({yMin: authoredYMin, yMax: authoredYMax});
+    }
+  }, [authoredYMin, authoredYMax])
 
   const handlesingleReads = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({singleReads: e.target.checked});
 
@@ -76,11 +91,24 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
     updateAuthoredState(changes);
   }
 
-  const handleAuthoredAxisChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    const id = e.target.id;
-    const changes: Partial<IAuthoredState> = {[id]: value};
+  const handleAuthoredAxisBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    let { yMin, yMax } = yMinMax;
+
+    if (e.target.id === "authoredYMin" && yMin > yMax) {
+      yMin = yMax - .1;
+    } else if (e.target.id === "authoredYMax" && yMax < yMin) {
+      yMax = yMin + .1;
+    }
+
+    setYMinMax({ yMin: yMin, yMax: yMax });
+    const changes: Partial<IAuthoredState> = {authoredYMin: yMin, authoredYMax: yMax};
     updateAuthoredState(changes);
+  };
+
+  const handleAuthoredAxisKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === "Tab") {
+      e.currentTarget.blur();
+    }
   };
 
   const handleRecordedDataChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -270,17 +298,29 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
         <br/>
         { overrideAxes &&
           <div className={"sub-axes-options"}>
-            <div className={"x-axis-options"}>
-              <label className={"axis-label"} htmlFor={"authoredXMin"}>X Min:</label>
-              <input type="number" className={"axis-input"} id={"authoredXMin"} placeholder="0" value={authoredXMin} onChange={handleAuthoredAxisChange}/>
-              <label className={"axis-label"} htmlFor={"authoredXMax"}>X Max:</label>
-              <input type="number" className={"axis-input"} id={"authoredXMax"} placeholder="0" value={authoredXMax} onChange={handleAuthoredAxisChange}/>
-            </div>
             <div className={"y-axis-options"}>
               <label className={"axis-label"} htmlFor={"authoredYMin"}>Y Min:</label>
-              <input type="number" className={"axis-input"} id={"authoredYMin"} placeholder="0" value={authoredYMin} onChange={handleAuthoredAxisChange}/>
+              <input
+                type="number"
+                className={"axis-input"}
+                id={"authoredYMin"}
+                placeholder="0"
+                value={yMinMax.yMin}
+                onChange={(e) => setYMinMax({...yMinMax, yMin: parseFloat(e.target.value)})}
+                onKeyDown={handleAuthoredAxisKeyDown}
+                onBlur={handleAuthoredAxisBlur}
+              />
               <label className={"axis-label"} htmlFor={"authoredYMax"}>Y Max:</label>
-              <input type="number" className={"axis-input"} id={"authoredYMax"} placeholder="0" value={authoredYMax} onChange={handleAuthoredAxisChange}/>
+              <input
+                type="number"
+                className={"axis-input"}
+                id={"authoredYMax"}
+                placeholder="0"
+                value={yMinMax.yMax}
+                onChange={(e) => setYMinMax({...yMinMax, yMax: parseFloat(e.target.value)})}
+                onKeyDown={handleAuthoredAxisKeyDown}
+                onBlur={handleAuthoredAxisBlur}
+              />
             </div>
           </div>
         }
