@@ -32,6 +32,7 @@ interface SensorGraphProps {
     sensorUnit:any;
     displayType: string;
     useAuthoredData?: boolean;
+    overrideAxes?: boolean;
     authoredYMin?: number;
     authoredYMax?: number;
 }
@@ -53,17 +54,25 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
       this.state = {
           xMin: this.props.xStart,
           xMax: this.props.xEnd,
-          yMin: this.props.authoredYMin ?? this.props.preRecording?.min ?? 0,
-          yMax: this.props.authoredYMax ?? this.props.preRecording?.max ?? 100,
+          yMin: this.props.preRecording?.min ?? 0,
+          yMax: this.props.preRecording?.max ?? 100,
       };
     }
 
     componentDidMount(){
-      const {usePrediction, sensorUnit, authoredYMin, authoredYMax} = this.props;
+      const {usePrediction, sensorUnit, authoredYMin, authoredYMax, overrideAxes} = this.props;
 
-      if (authoredYMin && authoredYMax) {
-        this.setState({yMin: authoredYMin, yMax: authoredYMax});
-      } else if (usePrediction && sensorUnit) {
+      if (overrideAxes && authoredYMin !== undefined) {
+        this.setState({yMin: authoredYMin});
+      }
+
+      if (overrideAxes && authoredYMax !== undefined) {
+        this.setState({yMax: authoredYMax});
+      }
+
+      // to-do: what is expected if overrideAxes is true but authoredYMin or authoredYMax is not provided?
+
+      if (!overrideAxes && usePrediction && sensorUnit) {
         const { yMin, yMax } = this.getSensorUnitMinAndMax();
         this.setState({yMin, yMax});
       }
@@ -128,31 +137,28 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
 
     componentWillReceiveProps(nextProps:SensorGraphProps) {
-        const { dataReset, xStart, xEnd, sensorRecording } = this.props;
+      const { dataReset, xStart, xEnd, sensorRecording, overrideAxes } = this.props;
 
-        if (!dataReset && nextProps.dataReset) {
-            this.lastDataIndex = 0;
+      if (!dataReset && nextProps.dataReset) {
+          this.lastDataIndex = 0;
+      }
 
-        }
+      const stateChanges = {} as SensorGraphState;
 
-        const stateChanges = {} as SensorGraphState;
-        if (nextProps.authoredYMin && nextProps.authoredYMax) {
-            stateChanges.yMin = nextProps.authoredYMin;
-            stateChanges.yMax = nextProps.authoredYMax;
-        }
+      // update Y axis to default range if sensor unit changes and overrideAxes is false
+      if (!overrideAxes && sensorRecording?.unit !== nextProps.sensorRecording?.unit) {
+          stateChanges.yMin = nextProps.sensorRecording?.min ?? 0;
+          stateChanges.yMax = nextProps.sensorRecording?.max ?? 100;
+      }
 
-        // if sensor type changes, revert to default axis range for sensor
-        else if (sensorRecording?.unit !== nextProps.sensorRecording?.unit) {
-            stateChanges.yMin =  nextProps.sensorRecording?.min ?? 0;
-            stateChanges.yMax = nextProps.sensorRecording?.max ?? 100;
-        }
-        if (nextProps.xEnd !== xEnd || nextProps.xStart !== xStart) {
-            stateChanges.xMin = nextProps.xStart;
-            stateChanges.xMax = nextProps.xEnd;
-        }
-        if (Object.keys(stateChanges).length > 0) {
-            this.setState(stateChanges);
-        }
+      if (nextProps.xEnd !== xEnd || nextProps.xStart !== xStart) {
+          stateChanges.xMin = nextProps.xStart;
+          stateChanges.xMax = nextProps.xEnd;
+      }
+
+      if (Object.keys(stateChanges).length > 0) {
+          this.setState(stateChanges);
+      }
     }
 
     isSingleReadBarGraph() {

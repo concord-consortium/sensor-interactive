@@ -25,6 +25,7 @@ interface IGraphsPanelProps {
   usePrediction:boolean|undefined;
   displayType: string;
   useAuthoredData?: boolean;
+  overrideAxes?: boolean;
   authoredYMin?: number;
   authoredYMax?: number;
 }
@@ -73,6 +74,7 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
         usePrediction={props.usePrediction}
         displayType={props.displayType}
         useAuthoredData={props.useAuthoredData}
+        overrideAxes={props.overrideAxes}
         authoredYMin={props.authoredYMin}
         authoredYMax={props.authoredYMax}
       />

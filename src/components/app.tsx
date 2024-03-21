@@ -1617,8 +1617,9 @@ class AppContainer extends React.Component<AppProps, AppState> {
                         usePrediction={this.props.requirePrediction}
                         displayType={this.props.displayType}
                         useAuthoredData={this.props.useAuthoredData}
-                        authoredYMin={this.props.overrideAxes ? this.props.authoredYMin : undefined}
-                        authoredYMax={this.props.overrideAxes ? this.props.authoredYMax : undefined}
+                        overrideAxes={this.props.overrideAxes}
+                        authoredYMin={this.props.authoredYMin}
+                        authoredYMax={this.props.authoredYMax}
                     />
                     {this.renderLegend()}
                 </div>
