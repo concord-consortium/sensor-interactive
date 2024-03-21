@@ -96,8 +96,6 @@ export interface AppState {
     secondGraph: boolean;
     xStart: number;
     xEnd: number;
-    authoredYMin?: number;
-    authoredYMax?: number;
     bluetoothErrorModal: boolean;
     disconnectionWarningModal: boolean;
     aboutModal: boolean;
@@ -226,8 +224,6 @@ class AppContainer extends React.Component<AppProps, AppState> {
             runLength:DEFAULT_RUN_LENGTH,
             xStart:0,
             xEnd,
-            authoredYMin: props.overrideAxes ? props.authoredYMin : undefined,
-            authoredYMax: props.overrideAxes ? props.authoredYMax : undefined,
             timeUnit:"",
             notRespondingModal:false,
             suppressNotRespondingModal:false,
