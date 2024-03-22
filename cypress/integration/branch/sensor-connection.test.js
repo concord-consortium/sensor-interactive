@@ -86,7 +86,6 @@ context('Collecting Data from 1 sensor',()=>{
     it('verify Start button is disabled when data collection is started',()=>{
         let duration="30";
         workspace.getNewRunButton().click()
-        workspace.discardData()
         workspace.selectDuration(duration)
         workspace.getXAxisMaxValue().should('contain',duration)
         workspace.getStartButton().click();
