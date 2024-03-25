@@ -28,6 +28,8 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
 
   const [parseError, setParseError] = React.useState<boolean>(false);
   const [minMax, setMinMax] = React.useState<IYMinMax>({xMin: 0, xMax: 0, yMin: 0, yMax: 0});
+  const [disableUnits, setDisableUnits] = React.useState<boolean>(true);
+
 
   React.useEffect(() => {
     const { xMin, xMax, yMin, yMax } = minMax;
@@ -45,7 +47,16 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
       newMinMax.yMax = authoredYMax;
     }
     setMinMax(newMinMax);
-  }, [authoredYMin, authoredYMax])
+  }, [authoredXMin, authoredXMax, authoredYMin, authoredYMax]);
+
+  React.useEffect(() => {
+    if (usePrediction || useAuthoredData || overrideAxes) {
+      setDisableUnits(false);
+    } else {
+      setDisableUnits(true);
+      updateAuthoredState({sensorUnit: undefined});
+    }
+  }, [usePrediction, useAuthoredData, overrideAxes])
 
   const handlesingleReads = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({singleReads: e.target.checked});
 
@@ -195,7 +206,6 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
     });
   };
 
-  const disableUnits = !(usePrediction || useAuthoredData || overrideAxes);
   const unitOptionTags = disableUnits
    ? [
         <option

@@ -205,8 +205,8 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
 
     yLabel() {
-        const { usePrediction, sensorUnit } = this.props;
-        if (usePrediction && sensorUnit) {
+        const { sensorUnit } = this.props;
+        if (sensorUnit) {
           const measurementName = SensorDefinitions[sensorUnit].measurementName;
           const displayUnits =  SensorDefinitions[sensorUnit].displayUnits;
           const units = displayUnits || sensorUnit;
