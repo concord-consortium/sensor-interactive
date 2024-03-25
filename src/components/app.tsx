@@ -18,7 +18,7 @@ import { SensorConnectorManager } from "../models/sensor-connector-manager";
 import { FakeSensorManager } from "../models/fake-sensor-manager";
 import { SensorTagManager } from "../models/sensor-tag-manager";
 import { SensorGDXManager } from "../models/sensor-gdx-manager";
-import { IInteractiveState, SensorRecording } from "../interactive/types";
+import { IAuthoredMinMax, IInteractiveState, SensorRecording } from "../interactive/types";
 import { SensorRecordingStore } from "../models/recording-store";
 import { PredictionState } from "./types";
 import { enableShutterbug, disableShutterbug } from "../js/shutterbug-support";
@@ -71,8 +71,7 @@ export interface AppProps {
     displayType: string;
     useAuthoredData?: boolean;
     overrideAxes?: boolean;
-    authoredYMin?: number;
-    authoredYMax?: number;
+    authoredMinMax?: IAuthoredMinMax;
     setInteractiveState?: (stateOrUpdateFunc: IInteractiveState | ((prevState: IInteractiveState | null) => IInteractiveState) | null) => void
 }
 
@@ -221,8 +220,8 @@ class AppContainer extends React.Component<AppProps, AppState> {
             collecting:false,
             predictionState: props.requirePrediction ? "pending" : "not-required",
             prediction: props.displayType === "bar" && props.requirePrediction ? defaultBarGraphPrediction : [],
-            runLength:DEFAULT_RUN_LENGTH,
-            xStart:0,
+            runLength: this.props.authoredMinMax?.authoredXMax ? this.props.authoredMinMax?.authoredXMax : DEFAULT_RUN_LENGTH,
+            xStart: 0,
             xEnd,
             timeUnit:"",
             notRespondingModal:false,
@@ -1618,8 +1617,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
                         displayType={this.props.displayType}
                         useAuthoredData={this.props.useAuthoredData}
                         overrideAxes={this.props.overrideAxes}
-                        authoredYMin={this.props.authoredYMin}
-                        authoredYMax={this.props.authoredYMax}
+                        authoredMinMax={this.props.authoredMinMax}
                     />
                     {this.renderLegend()}
                 </div>
@@ -1630,7 +1628,8 @@ class AppContainer extends React.Component<AppProps, AppState> {
                     collecting={this.state.collecting}
                     hasData={this.state.hasData}
                     dataChanged={this.state.dataChanged}
-                    duration={this.state.runLength} durationUnit="s"
+                    duration={this.state.runLength}
+                    durationUnit="s"
                     durationOptions={[1, 5, 10, 15, 20, 30, 45, 60, 300, 600, 900, 1200, 1800]}
                     embedInCodapUrl={codapURL}
                     onDurationChange={this.setXZoomState}

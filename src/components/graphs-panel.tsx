@@ -1,6 +1,6 @@
 import * as React from "react";
 import SensorGraph from "./sensor-graph";
-import { SensorRecording } from "../interactive/types";
+import { IAuthoredMinMax, SensorRecording } from "../interactive/types";
 import { PredictionState } from "./types";
 interface IGraphsPanelProps {
   sensorRecordings:SensorRecording[];
@@ -26,8 +26,7 @@ interface IGraphsPanelProps {
   displayType: string;
   useAuthoredData?: boolean;
   overrideAxes?: boolean;
-  authoredYMin?: number;
-  authoredYMax?: number;
+  authoredMinMax?: IAuthoredMinMax;
 }
 
 export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
@@ -75,8 +74,7 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
         displayType={props.displayType}
         useAuthoredData={props.useAuthoredData}
         overrideAxes={props.overrideAxes}
-        authoredYMin={props.authoredYMin}
-        authoredYMax={props.authoredYMax}
+        authoredMinMax={props.authoredMinMax}
       />
     );
   }

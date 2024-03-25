@@ -53,8 +53,7 @@ export const RuntimeComponent: React.FC<Props> = ({initMessage}) => {
         setInteractiveState={setInteractiveState}
         displayType={authoredState.displayType}
         overrideAxes={authoredState.overrideAxes}
-        authoredYMin={authoredState.authoredYMin}
-        authoredYMax={authoredState.authoredYMax}
+        authoredMinMax={authoredState.authoredMinMax}
       />
   );
 };

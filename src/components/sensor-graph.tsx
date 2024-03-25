@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SensorRecording } from "../interactive/types";
+import { IAuthoredMinMax, SensorRecording } from "../interactive/types";
 import { Sensor } from "../models/sensor";
 import { Graph } from "./graph";
 import { PredictionState } from "./types";
@@ -33,8 +33,7 @@ interface SensorGraphProps {
     displayType: string;
     useAuthoredData?: boolean;
     overrideAxes?: boolean;
-    authoredYMin?: number;
-    authoredYMax?: number;
+    authoredMinMax?: IAuthoredMinMax;
 }
 
 interface SensorGraphState {
@@ -60,17 +59,23 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
 
     componentDidMount(){
-      const {usePrediction, sensorUnit, authoredYMin, authoredYMax, overrideAxes} = this.props;
+      const {usePrediction, sensorUnit, authoredMinMax, overrideAxes} = this.props;
+      const { authoredXMin, authoredXMax, authoredYMin, authoredYMax } = authoredMinMax || {};
 
-      if (overrideAxes && authoredYMin !== undefined) {
-        this.setState({yMin: authoredYMin});
+      if (overrideAxes) {
+        if (authoredXMin !== undefined) {
+          this.setState({ xMin: authoredXMin });
+        }
+        if (authoredXMax !== undefined) {
+          this.setState({ xMax: authoredXMax });
+        }
+        if (authoredYMin !== undefined) {
+          this.setState({ yMin: authoredYMin });
+        }
+        if (authoredYMax !== undefined) {
+          this.setState({ yMax: authoredYMax });
+        }
       }
-
-      if (overrideAxes && authoredYMax !== undefined) {
-        this.setState({yMax: authoredYMax});
-      }
-
-      // to-do: what is expected if overrideAxes is true but authoredYMin or authoredYMax is not provided?
 
       if (!overrideAxes && usePrediction && sensorUnit) {
         const { yMin, yMax } = this.getSensorUnitMinAndMax();

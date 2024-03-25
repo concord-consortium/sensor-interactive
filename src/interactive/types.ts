@@ -11,6 +11,13 @@ export interface SensorRecording {
   displayUnits?: string;
 }
 
+export interface IAuthoredMinMax {
+  authoredXMin?: number;
+  authoredXMax?: number;
+  authoredYMin?: number;
+  authoredYMax?: number;
+}
+
 export interface IAuthoredState {
   useFakeSensor: boolean;
   useSensors: boolean;
@@ -24,10 +31,7 @@ export interface IAuthoredState {
   sensorUnit?: string;
   recordedData?: SensorRecording;
   displayType: string;
-  authoredXMin?: number;
-  authoredXMax?: number;
-  authoredYMin?: number;
-  authoredYMax?: number;
+  authoredMinMax?: IAuthoredMinMax;
 };
 
 export interface IInteractiveState {
