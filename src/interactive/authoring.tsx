@@ -141,15 +141,19 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
     const value = e.target.value;
     setParseError(false);
 
-    if(authoredState?.sensorUnit) {
       let data = [] as number[][];
       let min = Number.MAX_SAFE_INTEGER;
       let max = Number.MIN_SAFE_INTEGER;
       let rows = [];
-      const unit = authoredState.sensorUnit as string;
-      const definition = SensorDefinitions[unit];
-      min = definition.minReading;
-      max = definition.maxReading;
+      const unit = authoredState?.sensorUnit || "";
+      let measurementName = "";
+
+      if (unit) {
+        const definition = SensorDefinitions[unit];
+        min = definition.minReading;
+        max = definition.maxReading;
+        measurementName = definition.measurementName;
+      }
 
       rows = value.split('\n');
       for (let row of rows) {
@@ -168,6 +172,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
         }
       }
 
+
       const precision = 2;
       const columnID = "110";
       const sensorPosition = 0;
@@ -181,11 +186,11 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
         unit,
         min: min,
         max: max,
-        name: definition.measurementName,
+        name: measurementName,
       };
       updateAuthoredState({recordedData: a});
-    }
   };
+
   const textWidgetBlur = (id: string, value: string) => {
     if(id === "prompt") { updateAuthoredState({prompt: value}); }
     if(id === "hint") { updateAuthoredState({hint: value}); }
