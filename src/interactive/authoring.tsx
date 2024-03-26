@@ -3,26 +3,66 @@ import { IAuthoringInitInteractive, useAuthoredState } from "@concord-consortium
 import { RichTextWidget } from "../components/rich-text-widget";
 import { defaultAuthoredState, IAuthoredState, SensorRecording } from "./types";
 import { SensorDefinitions } from "../models/sensor-definitions";
+import { InfoIcon } from "../components/info-icon";
 
 import "./authoring.css";
-import { InfoIcon } from "../components/info-icon";
 
 interface Props {
   initMessage: IAuthoringInitInteractive<IAuthoredState>;
+}
+
+interface IYMinMax {
+  xMin: number;
+  xMax: number;
+  yMin: number;
+  yMax: number;
 }
 
 export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
   const {authoredState, setAuthoredState} = useAuthoredState<IAuthoredState>();
   const {
     singleReads, enablePause, useFakeSensor, prompt, hint, sensorUnit,
-    recordedData, usePrediction, useAuthoredData, useSensors, displayType
-  } = authoredState || defaultAuthoredState;
+    recordedData, usePrediction, useAuthoredData, useSensors, displayType, overrideAxes,
+    authoredMinMax } = authoredState || defaultAuthoredState;
+  const {authoredXMin, authoredXMax, authoredYMin, authoredYMax} = authoredMinMax || {};
 
   const [parseError, setParseError] = React.useState<boolean>(false);
+  const [minMax, setMinMax] = React.useState<IYMinMax>({xMin: 0, xMax: 0, yMin: 0, yMax: 0});
+  const [disableUnits, setDisableUnits] = React.useState<boolean>(true);
+
+
+  React.useEffect(() => {
+    const { xMin, xMax, yMin, yMax } = minMax;
+    const newMinMax: IYMinMax = {...minMax};
+    if (authoredXMin !== undefined && authoredXMin!== xMin) {
+      newMinMax.xMin = authoredXMin;
+    }
+    if (authoredXMax !== undefined && authoredXMax !== xMax) {
+      newMinMax.xMax = authoredXMax;
+    }
+    if (authoredYMin !== undefined && authoredYMin !== yMin) {
+      newMinMax.yMin = authoredYMin;
+    }
+    if (authoredYMax !== undefined && authoredYMax !== yMax) {
+      newMinMax.yMax = authoredYMax;
+    }
+    setMinMax(newMinMax);
+  }, [authoredXMin, authoredXMax, authoredYMin, authoredYMax]);
+
+  React.useEffect(() => {
+    if (usePrediction || useAuthoredData || overrideAxes) {
+      setDisableUnits(false);
+    } else {
+      setDisableUnits(true);
+      updateAuthoredState({sensorUnit: undefined});
+    }
+  }, [usePrediction, useAuthoredData, overrideAxes])
 
   const handlesingleReads = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({singleReads: e.target.checked});
 
   const handleEnablePause = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({enablePause: e.target.checked});
+
+  const handleOverrideAxes = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({overrideAxes: e.target.checked});
 
   // When we unset prediction, we may need to erase units/min/max
   const handleUsePrediction = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,6 +113,29 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
     updateAuthoredState(changes);
   }
 
+  const handleAuthoredAxisBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    let { xMin, xMax, yMin, yMax } = minMax;
+
+    if (e.target.id === "authoredXMin" && xMin > xMax) {
+      xMin = xMax - .1;
+    } else if (e.target.id === "authoredXMax" && xMax < xMin) {
+      xMax = xMin + .1;
+    } else if (e.target.id === "authoredYMin" && yMin > yMax) {
+      yMin = yMax - .1;
+    } else if (e.target.id === "authoredYMax" && yMax < yMin) {
+      yMax = yMin + .1;
+    }
+
+    setMinMax({ xMin, xMax, yMin: yMin, yMax: yMax });
+    const changes: Partial<IAuthoredState> = {authoredMinMax: {authoredXMin: xMin, authoredXMax: xMax, authoredYMin: yMin, authoredYMax: yMax}};
+    updateAuthoredState(changes);
+  };
+
+  const handleAuthoredAxisKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === "Tab") {
+      e.currentTarget.blur();
+    }
+  };
 
   const handleRecordedDataChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
@@ -143,7 +206,6 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
     });
   };
 
-  const disableUnits = !(usePrediction || useAuthoredData);
   const unitOptionTags = disableUnits
    ? [
         <option
@@ -174,32 +236,24 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
   }
 
   const renderPrerecordedText = () => {
-    if(sensorUnit) {
-      const data = recordedData && recordedData.data?.map(row => row.join(',')).join('\n');
-      return (
-        <fieldset>
-          <legend>Preload Data</legend>
-          <div className="info">
-            <InfoIcon size={16} color="black" />&nbsp;
-            For each data point, enter a pair of comma-separated
-            values on a separate line. Data must contain only 
-            numbers (e.g., 1,10).
-          </div>
-          <div className={
-              useAuthoredData
-              ? "prerecorded-text"
-              : "prerecord-text disabled"}
-            >
-            <textarea
-              name="recordedData"
-              onChange={handleRecordedDataChange}
-              disabled={!useAuthoredData}
-              defaultValue={data ? data : "x1,y1\nx2,y2"}/>
-            {renderErrorParseError()}
-          </div>
-        </fieldset>
-      );
-    }
+    const data = recordedData && recordedData.data?.map(row => row.join(',')).join('\n');
+    return (
+      <div className="sub-options">
+        <div className="info">
+          <InfoIcon size={16} color="black" />&nbsp;
+          For each data point, enter a pair of comma-separated
+          values on a separate line. Data must contain only
+          numbers (e.g., 1,10).
+        </div>
+
+          <textarea
+            name="recordedData"
+            onChange={handleRecordedDataChange}
+            disabled={!useAuthoredData}
+            defaultValue={data ? data : "x1,y1\nx2,y2"}/>
+          {renderErrorParseError()}
+      </div>
+    );
   }
 
   return (
@@ -215,14 +269,19 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
       </fieldset>
 
       <fieldset>
-        <legend>Data Acquisition and Display type(s)</legend>
+        <legend>Authoring Options</legend>
+        <br/>
+        <div className="select-container">
+        <div className="select-label">Display Type:</div>
         <select value={displayType} onChange={handleDisplayTypeChange}>
           <option value="line">Line Graphs</option>
           <option value="bar">Bar Graphs</option>
           {/* tables are not yet able to be implemented */}
           <option value="table" disabled>Tables (TBD)</option>
         </select>
+        </div>
         <br/>
+
 
         <input
           type="checkbox"
@@ -251,16 +310,81 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
           onChange={handleEnablePause}/>
           Enable Pause
         <br/>
+        <br/>
 
-      </fieldset>
-      <fieldset>
-        <legend>Preloaded and Predicted Data</legend>
         <div className="info">
-          <InfoIcon size={16} color="black" />&nbsp;
-          Preloaded/Predicted data requires a specific
-          quantity and unit to be selected for the y axis.
+        <InfoIcon size={16} color="black" />&nbsp;
+        The following options require that a specific quantity and unit to be selected for the y-axis.
         </div>
         <br/>
+
+        <input
+          type="checkbox"
+          checked={overrideAxes}
+          onChange={handleOverrideAxes}
+        />
+          Manually Set Graph Axes
+        <br/>
+        { overrideAxes &&
+          <div className={"sub-options"}>
+            <div className={"axis-options"}>
+              <div>
+                <label className={"axis-label"} htmlFor={"authoredXMin"}>X Min:</label>
+                <input
+                  type="number"
+                  className={"axis-input"}
+                  id={"authoredXMin"}
+                  placeholder="0"
+                  value={minMax.xMin}
+                  onChange={(e) => setMinMax({...minMax, xMin: parseFloat(e.target.value)})}
+                  onKeyDown={handleAuthoredAxisKeyDown}
+                  onBlur={handleAuthoredAxisBlur}
+                />
+                <label className={"axis-label"} htmlFor={"authoredXMax"}>X Max:</label>
+                <input
+                  type="number"
+                  className={"axis-input"}
+                  id={"authoredXMax"}
+                  placeholder="0"
+                  value={minMax.xMax}
+                  onChange={(e) => setMinMax({...minMax, xMax: parseFloat(e.target.value)})}
+                  onKeyDown={handleAuthoredAxisKeyDown}
+                  onBlur={handleAuthoredAxisBlur}
+                />
+              </div>
+              <div>
+                <label className={"axis-label"} htmlFor={"authoredYMin"}>Y Min:</label>
+                <input
+                  type="number"
+                  className={"axis-input"}
+                  id={"authoredYMin"}
+                  placeholder="0"
+                  value={minMax.yMin}
+                  onChange={(e) => setMinMax({...minMax, yMin: parseFloat(e.target.value)})}
+                  onKeyDown={handleAuthoredAxisKeyDown}
+                  onBlur={handleAuthoredAxisBlur}
+                />
+                <label className={"axis-label"} htmlFor={"authoredYMax"}>Y Max:</label>
+                <input
+                  type="number"
+                  className={"axis-input"}
+                  id={"authoredYMax"}
+                  placeholder="0"
+                  value={minMax.yMax}
+                  onChange={(e) => setMinMax({...minMax, yMax: parseFloat(e.target.value)})}
+                  onKeyDown={handleAuthoredAxisKeyDown}
+                  onBlur={handleAuthoredAxisBlur}
+                />
+              </div>
+              </div>
+              <div className="info">
+                <b>Note:</b> the value of X Max will set the default duration of the sensor recording, regardless of the value of X Min.
+                For example, if X Min is 0 and X Max is 10, the sensor will record for 10 seconds.
+                If X Min is 5 and X Max is 10, the sensor will still record for 10 seconds, and values for the first 5 seconds will be not be displayed on the graph.
+              </div>
+              <br/>
+          </div>
+        }
 
         <input
           type="checkbox"
@@ -268,6 +392,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
           onChange={handleUseAuthoredData}/>
           Preload Data
         <br/>
+        {useAuthoredData && renderPrerecordedText()}
 
         <input
           type="checkbox"
@@ -275,25 +400,24 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
           onChange={handleUsePrediction}/>
           Predict Data
         <br/>
+        <br/>
 
         <div className={
-          (usePrediction || useAuthoredData)
-          ? "sensor-select-section"
-          : "sensor-select-section disabled"}>
-          <label>
-            Y Axis/Column and Sensor
-          </label><br/>
+          (usePrediction || useAuthoredData || overrideAxes)
+          ? "select-container"
+          : "select-container disabled"}>
+          <div className="select-label">
+            Sensor Type:
+          </div>
           <select
             value={disableUnits ? "none" : sensorUnit}
             onChange={handleUnitChange}
-            disabled={!(useAuthoredData || usePrediction)}>
+            disabled={!(useAuthoredData || usePrediction || overrideAxes)}>
             {unitOptionTags}
           </select>
         </div>
-        <br/>
-
       </fieldset>
-      { useAuthoredData && renderPrerecordedText() }
+
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SensorRecording } from "../interactive/types";
+import { IAuthoredMinMax, SensorRecording } from "../interactive/types";
 import { Sensor } from "../models/sensor";
 import { Graph } from "./graph";
 import { PredictionState } from "./types";
@@ -32,6 +32,8 @@ interface SensorGraphProps {
     sensorUnit:any;
     displayType: string;
     useAuthoredData?: boolean;
+    overrideAxes?: boolean;
+    authoredMinMax?: IAuthoredMinMax;
 }
 
 interface SensorGraphState {
@@ -57,8 +59,25 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
 
     componentDidMount(){
-      const {usePrediction, sensorUnit} = this.props;
-      if (usePrediction && sensorUnit) {
+      const {usePrediction, sensorUnit, authoredMinMax, overrideAxes} = this.props;
+      const { authoredXMin, authoredXMax, authoredYMin, authoredYMax } = authoredMinMax || {};
+
+      if (overrideAxes) {
+        if (authoredXMin !== undefined) {
+          this.setState({ xMin: authoredXMin });
+        }
+        if (authoredXMax !== undefined) {
+          this.setState({ xMax: authoredXMax });
+        }
+        if (authoredYMin !== undefined) {
+          this.setState({ yMin: authoredYMin });
+        }
+        if (authoredYMax !== undefined) {
+          this.setState({ yMax: authoredYMax });
+        }
+      }
+
+      if (!overrideAxes && usePrediction && sensorUnit) {
         const { yMin, yMax } = this.getSensorUnitMinAndMax();
         this.setState({yMin, yMax});
       }
@@ -123,26 +142,28 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
 
     componentWillReceiveProps(nextProps:SensorGraphProps) {
-        const { dataReset, xStart, xEnd, sensorRecording } = this.props;
+      const { dataReset, xStart, xEnd, sensorRecording, overrideAxes } = this.props;
 
-        if (!dataReset && nextProps.dataReset) {
-            this.lastDataIndex = 0;
+      if (!dataReset && nextProps.dataReset) {
+          this.lastDataIndex = 0;
+      }
 
-        }
+      const stateChanges = {} as SensorGraphState;
 
-        const stateChanges = {} as SensorGraphState;
-        // if sensor type changes, revert to default axis range for sensor
-        if (sensorRecording?.unit !== nextProps.sensorRecording?.unit) {
-            stateChanges.yMin =  nextProps.sensorRecording?.min ?? 0;
-            stateChanges.yMax = nextProps.sensorRecording?.max ?? 100;
-        }
-        if (nextProps.xEnd !== xEnd || nextProps.xStart !== xStart) {
-            stateChanges.xMin = nextProps.xStart;
-            stateChanges.xMax = nextProps.xEnd;
-        }
-        if (Object.keys(stateChanges).length > 0) {
-            this.setState(stateChanges);
-        }
+      // update Y axis to default range if sensor unit changes and overrideAxes is false
+      if (!overrideAxes && sensorRecording?.unit !== nextProps.sensorRecording?.unit) {
+          stateChanges.yMin = nextProps.sensorRecording?.min ?? 0;
+          stateChanges.yMax = nextProps.sensorRecording?.max ?? 100;
+      }
+
+      if (nextProps.xEnd !== xEnd || nextProps.xStart !== xStart) {
+          stateChanges.xMin = nextProps.xStart;
+          stateChanges.xMax = nextProps.xEnd;
+      }
+
+      if (Object.keys(stateChanges).length > 0) {
+          this.setState(stateChanges);
+      }
     }
 
     isSingleReadBarGraph() {
@@ -184,8 +205,8 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     }
 
     yLabel() {
-        const { usePrediction, sensorUnit } = this.props;
-        if (usePrediction && sensorUnit) {
+        const { sensorUnit } = this.props;
+        if (sensorUnit) {
           const measurementName = SensorDefinitions[sensorUnit].measurementName;
           const displayUnits =  SensorDefinitions[sensorUnit].displayUnits;
           const units = displayUnits || sensorUnit;

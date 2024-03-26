@@ -11,6 +11,13 @@ export interface SensorRecording {
   displayUnits?: string;
 }
 
+export interface IAuthoredMinMax {
+  authoredXMin?: number;
+  authoredXMax?: number;
+  authoredYMin?: number;
+  authoredYMax?: number;
+}
+
 export interface IAuthoredState {
   useFakeSensor: boolean;
   useSensors: boolean;
@@ -18,11 +25,13 @@ export interface IAuthoredState {
   enablePause: boolean;
   usePrediction: boolean;
   useAuthoredData: boolean;
+  overrideAxes: boolean;
   prompt: string;
   hint: string;
   sensorUnit?: string;
   recordedData?: SensorRecording;
   displayType: string;
+  authoredMinMax?: IAuthoredMinMax;
 };
 
 export interface IInteractiveState {
@@ -45,6 +54,7 @@ export const defaultAuthoredState: IAuthoredState = {
   enablePause: false,
   usePrediction: false,
   useAuthoredData: false,
+  overrideAxes: false,
   prompt: "",
   hint: "",
   sensorUnit: undefined,

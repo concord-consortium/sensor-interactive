@@ -3,26 +3,31 @@
   margin-left: 2em;
 }
 
-.authoring .prerecorded-text {
-  display: flex;
-  flex-direction: row;
-}
-
 .authoring textarea {
   width: 30%;
   min-height: 100px;
   font-family: monospace;
   font-size: medium;
   color: black;
+  margin-top: 1em;
+  margin-bottom: 1em;
 }
 .authoring .parse-error {
   color: red;
   font-weight: bold;
   margin-left: 2em;
 }
+.authoring .select-container {
+  display: flex;
+  align-items: center;
+}
+.authoring .select-label {
+  margin-right: .25em;
+}
 .authoring select {
-  font-size: medium;
+  font-size: small;
   color: black;
+  height: 2em;
 }
 .authoring .info svg {
   width: 1em;
@@ -43,18 +48,39 @@
 
 .authoring legend {
   font-size: 1.5em;
+  margin-left: -1em;
 }
 
 .authoring label {
   font-size: 1.25em;
 }
 
-.authoring legend {
-  margin-left: -1em;
-}
-
 .authoring .disabled {
   user-select: none;
   cursor: not-allowed;
   opacity: 0.5;
+}
+
+.authoring .sub-options {
+  margin-top: .5em;
+  margin-left: 1.5em;
+}
+
+.authoring .axis-options {
+  margin-bottom: .5em;
+  display: flex;
+  flex-direction: column;
+  gap: .25em;
+}
+
+.authoring label.axis-label {
+  font-size: 1em;
+  margin-right: .25em;
+}
+
+.authoring input.axis-input {
+  width: 3em;
+  font-size: 1em;
+  margin-right: .75em;
+  color: black;
 }

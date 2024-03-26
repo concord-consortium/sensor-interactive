@@ -1,6 +1,6 @@
 import * as React from "react";
 import SensorGraph from "./sensor-graph";
-import { SensorRecording } from "../interactive/types";
+import { IAuthoredMinMax, SensorRecording } from "../interactive/types";
 import { PredictionState } from "./types";
 interface IGraphsPanelProps {
   sensorRecordings:SensorRecording[];
@@ -25,6 +25,8 @@ interface IGraphsPanelProps {
   usePrediction:boolean|undefined;
   displayType: string;
   useAuthoredData?: boolean;
+  overrideAxes?: boolean;
+  authoredMinMax?: IAuthoredMinMax;
 }
 
 export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
@@ -45,32 +47,36 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
           graphHeight = isSingletonGraph
                           ? singleGraphHeight
                           : isLastGraph ? secondGraphHeight : firstGraphHeight;
-    return <SensorGraph width={graphWidth}
-                        height={graphHeight}
-                        sensorRecording={sensorRecording}
-                        preRecording={preRecording}
-                        title={title}
-                        isSingletonGraph={isSingletonGraph}
-                        isLastGraph={isLastGraph}
-                        onGraphZoom={props.onGraphZoom}
-                        onSensorSelect={props.onSensorSelect}
-                        xStart={props.xStart}
-                        xEnd={props.xEnd}
-                        timeUnit={props.timeUnit}
-                        collecting={props.collecting}
-                        hasData={props.hasData}
-                        dataReset={props.dataReset}
-                        assetsPath={props.assetsPath}
-                        singleReads={props.singleReads}
-                        predictionState={props.predictionState}
-                        prediction={props.prediction}
-                        setPredictionF={props.setPredictionF}
-                        sensorUnit={props.sensorUnit}
-                        usePrediction={props.usePrediction}
-                        displayType={props.displayType}
-                        useAuthoredData={props.useAuthoredData}
-            />;
-
+    return (
+      <SensorGraph
+        width={graphWidth}
+        height={graphHeight}
+        sensorRecording={sensorRecording}
+        preRecording={preRecording}
+        title={title}
+        isSingletonGraph={isSingletonGraph}
+        isLastGraph={isLastGraph}
+        onGraphZoom={props.onGraphZoom}
+        onSensorSelect={props.onSensorSelect}
+        xStart={props.xStart}
+        xEnd={props.xEnd}
+        timeUnit={props.timeUnit}
+        collecting={props.collecting}
+        hasData={props.hasData}
+        dataReset={props.dataReset}
+        assetsPath={props.assetsPath}
+        singleReads={props.singleReads}
+        predictionState={props.predictionState}
+        prediction={props.prediction}
+        setPredictionF={props.setPredictionF}
+        sensorUnit={props.sensorUnit}
+        usePrediction={props.usePrediction}
+        displayType={props.displayType}
+        useAuthoredData={props.useAuthoredData}
+        overrideAxes={props.overrideAxes}
+        authoredMinMax={props.authoredMinMax}
+      />
+    );
   }
 
   const { sensorRecordings, preRecordings, secondGraph, predictionState, hasData } = props;
