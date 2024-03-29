@@ -179,6 +179,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
       const tareValue = 0;
       const a: SensorRecording = {
         data,
+        sensorID: -1,
         precision,
         columnID,
         sensorPosition,

@@ -22,6 +22,7 @@ export class SensorRecordingStore {
 
       let sensorRecording:  SensorRecording = {
         columnID,
+        sensorID: sensor.id,
         unit: sensor.valueUnit,
         precision: sensor.sensorPrecision(),
         name: sensorDefinition.measurementName,
@@ -58,8 +59,8 @@ export class SensorRecordingStore {
             if (index < numSensors) {
                 let sensorRecording: SensorRecording;
                 const sensor = sensorSlot.sensor;
-                const columnID = sensor.columnID!;
-                const index = this.sensorRecordings.findIndex(s => s.columnID === columnID);
+                const sensorID = sensor.id;
+                const index = this.sensorRecordings.findIndex(recording => recording.sensorID === sensorID);
                 if (index !== -1) {
                     sensorRecording = this.sensorRecordings[index];
                     // remove sensor recording to guard against adding the same object twice to the array when two sensor slots have the same column id

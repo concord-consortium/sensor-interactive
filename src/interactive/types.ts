@@ -1,5 +1,6 @@
 export interface SensorRecording {
   columnID: string;
+  sensorID: number;
   unit: string;
   precision: number;
   name: string;
