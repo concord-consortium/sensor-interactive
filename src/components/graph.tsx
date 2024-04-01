@@ -14,6 +14,8 @@ export interface GraphProps {
     height:number|null;
     data:number[][];
     predictionState: PredictionState;
+    isRescaled: boolean;
+    onRescaleClick: () => void;
     onRescale:(xRange:number[], yRange:number[]) => void;
     resetScaleF:() => void;
     setPredictionF: (data: number[][]) => void;
@@ -33,6 +35,7 @@ export interface GraphProps {
     singleReads?: boolean;
     displayType: string;
     useAuthoredData?: boolean;
+    disabled: boolean;
 }
 
 export interface GraphState {
@@ -91,7 +94,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             yLabel: this.props.yLabel,
             xAxisFix: Format.getAxisFix('x', this.props.xMax - this.props.xMin, this.props.width),
             yAxisFix: Format.getAxisFix('y', this.props.yMax - this.props.yMin, this.props.height),
-            multiBarCount: this.setMultiBarCount()
+            multiBarCount: this.setMultiBarCount(),
+            isRescaled: false,
         };
 
         this.getPlotterType = this.getPlotterType.bind(this);
@@ -235,17 +239,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         (this.dygraph.resize as FResize)();
     }
 
-    autoScale = () => {
-        if(this.props.resetScaleF) {
-            this.dygraph.resetZoom();
-            this.props.resetScaleF();
-        }
-        else {
-            if (this.state.data && (this.state.data.length > 1))
-            this.dygraph.resetZoom();
-        }
-    }
-
     onRescale = (xStart:number, xEnd:number, yRanges:number[][]) => {
         var yRange = this.dygraph.yAxisRange();
         var xRange = this.dygraph.xAxisRange();
@@ -289,8 +282,8 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             color: color,
             strokeWidth,
             drawPoints: false,
-            dateWindow: [0, this.state.xMax],
-            valueRange: [this.state.yMin, this.state.yMax],
+            dateWindow: [0, this.props.xMax],
+            valueRange: [this.props.yMin, this.props.yMax],
             zoomCallback: this.onRescale,
             xlabel: this.state.xLabel,
             ylabel: this.state.yLabel,
@@ -342,12 +335,12 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             dygraphOptions
         );
     }
+
     componentDidMount() {
         this.makeDygraph();
     }
 
     componentWillReceiveProps(nextProps:GraphProps) {
-        const { preRecording } = this.props;
         var data = nextProps.data || [];
         var newState:any = {};
 
@@ -360,24 +353,6 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         newState.data = data;
         newState.dataLength = data.length;
 
-        if (preRecording?.length && newState.yMin > this.props.yMin) {
-          newState.yMin = this.props.yMin;
-        }
-
-        if (preRecording?.length && newState.yMax < this.props.yMax) {
-          newState.yMax = this.props.yMax;
-        }
-
-        if((newState.yMin != null) || (newState.yMax != null)) {
-            const yMin = newState.yMin != null ? newState.yMin : this.state.yMin,
-                  yMax = newState.yMax != null ? newState.yMax : this.state.yMax;
-            newState.yAxisFix = Format.getAxisFix('y', yMax - yMin, nextProps.height);
-        }
-        if(newState.xMax) {
-            const xMin = newState.xMin != null ? newState.xMin : this.state.xMin,
-                  xMax = newState.xMax != null ? newState.xMax : this.state.xMax;
-            newState.xAxisFix = Format.getAxisFix('x', xMax - xMin, nextProps.width);
-        }
         this.setState(newState);
     }
 
@@ -394,6 +369,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             }
         }
         if(this.dyUpdateProps.some((p) => nextState[p] !== this.state[p])) {
+            return true;
+        }
+        if (nextProps.isRescaled !== this.props.isRescaled) {
             return true;
         }
         return false;
@@ -423,7 +401,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             <div style={{position: "relative"}}>
                 <div id={"sensor-graph-" + title} className="graph-box" style={graphStyle}></div>
 
-                { !isBarGraph &&
+                { !isBarGraph && usePrediction &&
                   <OverlayGraph
                     height={height||100}
                     width={width||100}
@@ -470,18 +448,22 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                       setDataF={ ()=> null}
                       data={preRecording}
                       color={AUTHORED_LINE_COLOR}
-                      maxX={this.state.xMax}
-                      maxY={this.state.yMax}
-                      minX={this.state.xMin}
-                      minY={this.state.yMin}
+                      maxX={this.props.xMax}
+                      maxY={this.props.yMax}
+                      minX={this.props.xMin}
+                      minY={this.props.yMin}
                       key="preRecording"
                     />
                 }
 
-                <div className="graph-rescale-button" onClick={this.autoScale} title="Show all data (autoscale)">
-                    <svg className="icon rescale">
-                        <use xlinkHref={`${this.props.assetsPath}/images/icons.svg#icon-rescale`} />
-                    </svg>
+                <div
+                  className={`graph-rescale-button ${this.props.isRescaled ? "selected" : ""} ${this.props.disabled ? "disabled" : ""}`}
+                  onClick={this.props.onRescaleClick}
+                  title="Show all data (autoscale)"
+                >
+                  <svg className={`icon rescale ${this.props.isRescaled ? "selected" : ""} ${this.props.disabled ? "disabled" : ""}`}>
+                    <use xlinkHref={`${this.props.assetsPath}/images/icons.svg#icon-rescale`} />
+                  </svg>
                 </div>
             </div>
         );
