@@ -5,6 +5,7 @@ import { SensorRecording } from "../interactive/types";
 
 const recording: SensorRecording = {
   columnID: "100",
+  sensorID: 0,
   unit: "m",
   precision: 2,
   name: 'Position',

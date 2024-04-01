@@ -1,8 +1,11 @@
 import { ISensorDefinition } from "./sensor-definitions";
 import { Format } from "../utils/format";
 
+let nextSensorId = 0;
+
 export class Sensor {
     columnID?:string;
+    id:number;
     sensorPosition?:number; // index in received dataColumns array
     sensorValue?:number;
     sensorHeartbeatValue?:number;  // sampled value at intervals when heartbeat is enabled
@@ -12,8 +15,9 @@ export class Sensor {
     valueUnit:string;
     definition:ISensorDefinition;
 
-    constructor() {
+    constructor(id?: number) {
         this.tareValue = 0;
+        this.id = id === undefined ? nextSensorId++ : id;
         this.definition = {
             sensorName:"",
             measurementName:"",

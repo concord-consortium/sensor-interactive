@@ -109,8 +109,9 @@ export interface AppState {
     newSensorSelection: ISensorSelection | null;
   }
 
-function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo) {
-    let newSensor = new Sensor();
+function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo, sensor?: Sensor) {
+    const reuseID = sensor?.valueUnit === dataColumn.units && sensor.sensorPosition === dataColumn.position;
+    const newSensor = new Sensor(reuseID ? sensor.id : undefined);
     newSensor.columnID = dataColumn.id;
     newSensor.sensorPosition = dataColumn.position;
     newSensor.valueUnit = dataColumn.units;
@@ -125,9 +126,10 @@ function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:SensorConfigC
         matched.forEach((sensor:Sensor|null, index) => {
             let found;
             if (!matched[index]) {
-                found = find(columns, (c) => test(c, slots[index].sensor));
+              const currentSensor = slots[index].sensor
+                found = find(columns, (c) => test(c, currentSensor));
                 if (found) {
-                    matched[index] = newSensorFromDataColumn(found);
+                    matched[index] = newSensorFromDataColumn(found, currentSensor);
                     // remove matched column so it can't be matched again
                     pull(columns, found);
                 }
