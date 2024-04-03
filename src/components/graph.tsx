@@ -352,8 +352,9 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
         newState.data = data;
         newState.dataLength = data.length;
-        newState.yAxisFix = Format.getAxisFix('y', this.props.yMax - this.props.yMin, nextProps.height);
-        newState.xAxisFix = Format.getAxisFix('x', this.props.xMax - this.props.xMin, nextProps.width);
+
+        newState.yAxisFix = Format.getAxisFix('y', nextProps.yMax - nextProps.yMin, nextProps.height);
+        newState.xAxisFix = Format.getAxisFix('x', nextProps.xMax - nextProps.xMin, nextProps.width);
 
         this.setState(newState);
     }
