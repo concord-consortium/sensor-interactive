@@ -437,11 +437,30 @@ button:disabled:hover {
     width: 24px;
     height: 24px;
     cursor: pointer;
-    transition-duration: .25s;
+    border-radius: 5px;
 }
-.graph-rescale-button:hover .icon {
+
+.graph-rescale-button.disabled {
+    pointer-events: none;
+    cursor: default;
+}
+
+.graph-rescale-button.selected {
+  background-color: var(--cc-teal-dark-1);
+}
+
+.icon.rescale.selected {
+  fill: white;
+}
+
+.graph-rescale-button:hover .icon{
     fill: #8f8f8f;
 }
+
+.graph-rescale-button:hover .icon.selected {
+  fill: var(--cc-teal-light-5);
+}
+
 .graph-rescale-button:active .icon {
     fill: var(--graph-axes);
 }

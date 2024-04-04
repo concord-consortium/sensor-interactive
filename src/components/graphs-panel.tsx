@@ -36,8 +36,9 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
     preRecording?: SensorRecording,
     title:string,
     isSingletonGraph:boolean,
-    isLastGraph:boolean}) {
-    const {sensorRecording, preRecording, title, isSingletonGraph, isLastGraph} = options,
+    isLastGraph:boolean,
+    disabled:boolean}) {
+    const {sensorRecording, preRecording, title, isSingletonGraph, isLastGraph, disabled} = options,
           // if single graph, subtract height of top bar; otherwise top bar is doubled, subtract two times
           availableHeight = isSingletonGraph ? props.maxHeight - 46 : props.maxHeight - 92,
           singleGraphHeight = availableHeight,
@@ -75,6 +76,7 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
         useAuthoredData={props.useAuthoredData}
         overrideAxes={props.overrideAxes}
         authoredMinMax={props.authoredMinMax}
+        disabled={disabled}
       />
     );
   }
@@ -100,9 +102,9 @@ export const GraphsPanel: React.FC<IGraphsPanelProps> = (props) => {
 
   return (
       <div className={classes} style={style}>
-        {renderGraph({sensorRecording: sensorRecordings[0], preRecording: preRecordings && preRecordings[0], title: "graph1", isSingletonGraph: !showSecondGraph, isLastGraph: !showSecondGraph})}
+        {renderGraph({sensorRecording: sensorRecordings[0], preRecording: preRecordings && preRecordings[0], title: "graph1", isSingletonGraph: !showSecondGraph, isLastGraph: !showSecondGraph, disabled})}
         {showSecondGraph
-            ? renderGraph({sensorRecording: sensorRecordings[1], title: "graph2", isSingletonGraph: false, isLastGraph: true})
+            ? renderGraph({sensorRecording: sensorRecordings[1], title: "graph2", isSingletonGraph: false, isLastGraph: true, disabled})
             : null}
       </div>
     );

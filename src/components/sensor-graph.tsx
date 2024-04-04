@@ -34,6 +34,7 @@ interface SensorGraphProps {
     useAuthoredData?: boolean;
     overrideAxes?: boolean;
     authoredMinMax?: IAuthoredMinMax;
+    disabled: boolean;
 }
 
 interface SensorGraphState {
@@ -41,6 +42,7 @@ interface SensorGraphState {
     yMax:number;
     xMin:number;
     xMax:number;
+    isRescaled: boolean;
 }
 
 export default class SensorGraph extends React.Component<SensorGraphProps, SensorGraphState> {
@@ -53,34 +55,49 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
       this.state = {
           xMin: this.props.xStart,
           xMax: this.props.xEnd,
-          yMin: this.props.preRecording?.min ?? 0,
-          yMax: this.props.preRecording?.max ?? 100,
+          yMin: 0,
+          yMax: 100,
+          isRescaled: false,
       };
     }
 
     componentDidMount(){
-      const {usePrediction, sensorUnit, authoredMinMax, overrideAxes} = this.props;
+      const scale = this.getDefaultScale();
+      this.setState(scale);
+    }
+
+    getDefaultScale() {
+      const {usePrediction, useAuthoredData, sensorUnit, authoredMinMax, overrideAxes} = this.props;
       const { authoredXMin, authoredXMax, authoredYMin, authoredYMax } = authoredMinMax || {};
+
+      let scale = {xMin: this.props.xStart, xMax: this.props.xEnd, yMin: 0, yMax: 100};
 
       if (overrideAxes) {
         if (authoredXMin !== undefined) {
-          this.setState({ xMin: authoredXMin });
+          scale.xMin = authoredXMin;
         }
         if (authoredXMax !== undefined) {
-          this.setState({ xMax: authoredXMax });
+          scale.xMax = authoredXMax;
         }
         if (authoredYMin !== undefined) {
-          this.setState({ yMin: authoredYMin });
+          scale.yMin = authoredYMin;
         }
         if (authoredYMax !== undefined) {
-          this.setState({ yMax: authoredYMax });
+          scale.yMax = authoredYMax;
+        }
+      } else {
+        if (this.props.sensorRecording?.unit) {
+          const { minReading, maxReading } = SensorDefinitions[this.props.sensorRecording.unit];
+          scale.yMin = minReading;
+          scale.yMax = maxReading;
+        } else if ((usePrediction || useAuthoredData) && sensorUnit) {
+          const { yMin, yMax } = this.getSensorUnitMinAndMax();
+          scale.yMin = yMin;
+          scale.yMax = yMax;
         }
       }
 
-      if (!overrideAxes && usePrediction && sensorUnit) {
-        const { yMin, yMax } = this.getSensorUnitMinAndMax();
-        this.setState({yMin, yMax});
-      }
+      return scale;
     }
 
     getSensorUnitMinAndMax(){
@@ -94,35 +111,40 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
     scaleToData() {
         const { sensorRecording, preRecording, prediction } = this.props;
 
-        let yMin = sensorRecording?.min ?? preRecording?.min ?? this.getSensorUnitMinAndMax().yMin;
-        let yMax = sensorRecording?.max ?? preRecording?.max ?? this.getSensorUnitMinAndMax().yMax;
-
         let data :number[][] = [];
-        if (sensorRecording && sensorRecording.data.length > 0) {
-            data = data.concat(sensorRecording.data);
-        }
-        if(preRecording && preRecording.data.length > 0) {
-            data = data.concat(preRecording.data);
-        }
-        if(prediction && prediction.length > 0) {
-            data = data.concat(prediction);
-        }
-        for(let d of data) {
-            let y = d[1];
+        data = data.concat(sensorRecording?.data || [], preRecording?.data || [], prediction || []);
 
-            if (yMin == null || y < yMin) {
-                yMin = y;
-            }
+        // get y-min and y-max of data
+        const yMin = Math.min(...data.map(d => d[1]));
+        const yMax = Math.max(...data.map(d => d[1]));
 
-            if (yMax == null || y > yMax) {
-                yMax = y;
-            }
-        }
+        // get x-min and x-max of data
+        const xMin = Math.min(...data.map(d => d[0]));
+        const xMax = Math.max(...data.map(d => d[0]));
 
         this.setState({
+            xMin,
+            xMax,
             yMin,
             yMax
         });
+    }
+
+    handleRescaleButtonClick = () => {
+      if (this.props.disabled) {
+        return;
+      }
+
+      const newValue = !this.state.isRescaled;
+
+      if (!newValue) {
+        const scale = this.getDefaultScale();
+        this.setState(scale);
+      } else {
+        this.scaleToData();
+      }
+
+      this.setState({isRescaled: newValue});
     }
 
     handleRescale = (xRange:number[], yRange:number[]) => {
@@ -235,6 +257,8 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 width={graphWidth}
                 height={this.props.height}
                 data={data}
+                isRescaled={this.state.isRescaled}
+                onRescaleClick={this.handleRescaleButtonClick}
                 onRescale={this.handleRescale}
                 resetScaleF={this.handleResetScale}
                 xMin={xMin}
@@ -255,6 +279,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 setPredictionF={this.props.setPredictionF}
                 displayType={this.props.displayType}
                 useAuthoredData={this.props.useAuthoredData}
+                disabled={this.props.disabled}
               />
             </div>
         );
