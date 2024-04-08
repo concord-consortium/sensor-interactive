@@ -12,10 +12,10 @@ interface Props {
 }
 
 interface IYMinMax {
-  xMin: number;
-  xMax: number;
-  yMin: number;
-  yMax: number;
+  xMin: string;
+  xMax: string;
+  yMin: string;
+  yMax: string;
 }
 
 export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
@@ -25,38 +25,26 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
     recordedData, usePrediction, useAuthoredData, useSensors, displayType, overrideAxes,
     authoredMinMax } = authoredState || defaultAuthoredState;
   const {authoredXMin, authoredXMax, authoredYMin, authoredYMax} = authoredMinMax || {};
-
   const [parseError, setParseError] = React.useState<boolean>(false);
-  const [minMax, setMinMax] = React.useState<IYMinMax>({xMin: 0, xMax: 0, yMin: 0, yMax: 0});
-  const [disableUnits, setDisableUnits] = React.useState<boolean>(true);
-
+  const [minMax, setMinMax] = React.useState<IYMinMax>({xMin: "0", xMax: "0", yMin: "0", yMax: "0"});
 
   React.useEffect(() => {
     const { xMin, xMax, yMin, yMax } = minMax;
     const newMinMax: IYMinMax = {...minMax};
-    if (authoredXMin !== undefined && authoredXMin!== xMin) {
-      newMinMax.xMin = authoredXMin;
+    if (authoredXMin !== undefined && authoredXMin!== Number(xMin)) {
+      newMinMax.xMin = `${authoredXMin}`;
     }
-    if (authoredXMax !== undefined && authoredXMax !== xMax) {
-      newMinMax.xMax = authoredXMax;
+    if (authoredXMax !== undefined && authoredXMax !== Number(xMax)) {
+      newMinMax.xMax = `${authoredXMax}`;
     }
-    if (authoredYMin !== undefined && authoredYMin !== yMin) {
-      newMinMax.yMin = authoredYMin;
+    if (authoredYMin !== undefined && authoredYMin !== Number(yMin)) {
+      newMinMax.yMin = `${authoredYMin}`;
     }
-    if (authoredYMax !== undefined && authoredYMax !== yMax) {
-      newMinMax.yMax = authoredYMax;
+    if (authoredYMax !== undefined && authoredYMax !== Number(yMax)) {
+      newMinMax.yMax = `${authoredYMax}`;
     }
     setMinMax(newMinMax);
   }, [authoredXMin, authoredXMax, authoredYMin, authoredYMax]);
-
-  React.useEffect(() => {
-    if (usePrediction || useAuthoredData || overrideAxes) {
-      setDisableUnits(false);
-    } else {
-      setDisableUnits(true);
-      updateAuthoredState({sensorUnit: undefined});
-    }
-  }, [usePrediction, useAuthoredData, overrideAxes])
 
   const handlesingleReads = (e: React.ChangeEvent<HTMLInputElement>) => updateAuthoredState({singleReads: e.target.checked});
 
@@ -113,21 +101,40 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
     updateAuthoredState(changes);
   }
 
+
+  const handleMinMaxChange = (e: React.ChangeEvent<HTMLInputElement>, minMaxKey: keyof IYMinMax) => {
+    setMinMax({...minMax, [minMaxKey]: e.target.value});
+  };
+
   const handleAuthoredAxisBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     let { xMin, xMax, yMin, yMax } = minMax;
 
-    if (e.target.id === "authoredXMin" && xMin > xMax) {
-      xMin = xMax - .1;
-    } else if (e.target.id === "authoredXMax" && xMax < xMin) {
-      xMax = xMin + .1;
-    } else if (e.target.id === "authoredYMin" && yMin > yMax) {
-      yMin = yMax - .1;
-    } else if (e.target.id === "authoredYMax" && yMax < yMin) {
-      yMax = yMin + .1;
+    if (e.target.id === "authoredXMin" && Number(xMin) > Number(xMax)) {
+      xMin = `${Number(xMax) - .1}`;
+    } else if (e.target.id === "authoredXMax" && Number(xMax) < Number(xMin)) {
+      xMax = `${Number(xMin) + .1}`;
+    } else if (e.target.id === "authoredYMin" && Number(yMin) > Number(yMax)) {
+      yMin = `${Number(yMax) - .1}`;
+    } else if (e.target.id === "authoredYMax" && Number(yMax) < Number(yMin)) {
+      yMax = `${Number(yMin) + .1}`;
     }
 
+    // round to nearest 2 decimal places
+    xMin = Number(xMin).toFixed(2);
+    xMax = Number(xMax).toFixed(2);
+    yMin = Number(yMin).toFixed(2);
+    yMax = Number(yMax).toFixed(2);
+
     setMinMax({ xMin, xMax, yMin: yMin, yMax: yMax });
-    const changes: Partial<IAuthoredState> = {authoredMinMax: {authoredXMin: xMin, authoredXMax: xMax, authoredYMin: yMin, authoredYMax: yMax}};
+
+    const changes: Partial<IAuthoredState> = {
+      authoredMinMax: {
+        authoredXMin: Number(xMin),
+        authoredXMax: Number(xMax),
+        authoredYMin: Number(yMin),
+        authoredYMax: Number(yMax)
+      }
+    };
     updateAuthoredState(changes);
   };
 
@@ -212,6 +219,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
     });
   };
 
+  const disableUnits = !useAuthoredData && !usePrediction && !overrideAxes;
   const unitOptionTags = disableUnits
    ? [
         <option
@@ -342,7 +350,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
                   id={"authoredXMin"}
                   placeholder="0"
                   value={minMax.xMin}
-                  onChange={(e) => setMinMax({...minMax, xMin: parseFloat(e.target.value)})}
+                  onChange={(e) => handleMinMaxChange(e, "xMin")}
                   onKeyDown={handleAuthoredAxisKeyDown}
                   onBlur={handleAuthoredAxisBlur}
                 />
@@ -353,7 +361,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
                   id={"authoredXMax"}
                   placeholder="0"
                   value={minMax.xMax}
-                  onChange={(e) => setMinMax({...minMax, xMax: parseFloat(e.target.value)})}
+                  onChange={(e) => handleMinMaxChange(e, "xMax")}
                   onKeyDown={handleAuthoredAxisKeyDown}
                   onBlur={handleAuthoredAxisBlur}
                 />
@@ -366,7 +374,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
                   id={"authoredYMin"}
                   placeholder="0"
                   value={minMax.yMin}
-                  onChange={(e) => setMinMax({...minMax, yMin: parseFloat(e.target.value)})}
+                  onChange={(e) => handleMinMaxChange(e, "yMin")}
                   onKeyDown={handleAuthoredAxisKeyDown}
                   onBlur={handleAuthoredAxisBlur}
                 />
@@ -377,7 +385,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
                   id={"authoredYMax"}
                   placeholder="0"
                   value={minMax.yMax}
-                  onChange={(e) => setMinMax({...minMax, yMax: parseFloat(e.target.value)})}
+                  onChange={(e) => handleMinMaxChange(e, "yMax")}
                   onKeyDown={handleAuthoredAxisKeyDown}
                   onBlur={handleAuthoredAxisBlur}
                 />
@@ -418,7 +426,7 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
           <select
             value={disableUnits ? "none" : sensorUnit}
             onChange={handleUnitChange}
-            disabled={!(useAuthoredData || usePrediction || overrideAxes)}>
+            disabled={disableUnits}>
             {unitOptionTags}
           </select>
         </div>

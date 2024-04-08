@@ -212,6 +212,10 @@ class AppContainer extends React.Component<AppProps, AppState> {
                        ? MAX_BAR_CHART_SAMPLES + 1
                        : DEFAULT_RUN_LENGTH + 0.01; // without the .01, last tick number sometimes fails to display
 
+        const runLength = props.authoredMinMax?.authoredXMax && props.overrideAxes
+                            ? props.authoredMinMax?.authoredXMax
+                            : DEFAULT_RUN_LENGTH
+
         this.state = {
             sensorManager:this.passedSensorManager(),
             sensorConfig:null,
@@ -222,7 +226,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
             collecting:false,
             predictionState: props.requirePrediction ? "pending" : "not-required",
             prediction: props.displayType === "bar" && props.requirePrediction ? defaultBarGraphPrediction : [],
-            runLength: this.props.authoredMinMax?.authoredXMax ? this.props.authoredMinMax?.authoredXMax : DEFAULT_RUN_LENGTH,
+            runLength,
             xStart: 0,
             xEnd,
             timeUnit:"",
@@ -1453,6 +1457,16 @@ class AppContainer extends React.Component<AppProps, AppState> {
       this.setState({warnClearPrediction: true});
     }
 
+    getDurationOptions () {
+      const defaultOptions = [1, 5, 10, 15, 20, 30, 45, 60, 300, 600, 900, 1200, 1800];
+      const {overrideAxes, authoredMinMax} = this.props;
+      if (overrideAxes && authoredMinMax?.authoredXMax && defaultOptions.indexOf(authoredMinMax.authoredXMax) === -1) {
+        defaultOptions.push(authoredMinMax.authoredXMax);
+        defaultOptions.sort((a, b) => a - b);
+      }
+      return defaultOptions;
+    }
+
     render() {
         const { interactiveHost, useSensors, requirePrediction, fakeSensor, size } = this.props;
         const { sensorConfig, sensorManager, sensorRecordings } = this.state;
@@ -1472,6 +1486,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
             ? [...this.props.preRecordings]
             : [];
 
+        const durationOptions = this.getDurationOptions();
         const maxGraphHeight = size.height - this.state.promptHeight - this.state.topBarHeight - 60; // 60 is the height of control panel, set in CSS
         return (
             <div className="app-container">
@@ -1632,7 +1647,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
                     dataChanged={this.state.dataChanged}
                     duration={this.state.runLength}
                     durationUnit="s"
-                    durationOptions={[1, 5, 10, 15, 20, 30, 45, 60, 300, 600, 900, 1200, 1800]}
+                    durationOptions={durationOptions}
                     embedInCodapUrl={codapURL}
                     onDurationChange={this.setXZoomState}
                     onStartConnecting={this.startConnecting}
