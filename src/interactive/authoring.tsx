@@ -84,11 +84,11 @@ export const AuthoringComponent: React.FC<Props> = ({initMessage}) => {
 
   const handleUnitChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const unit = e.target.value;
-    const definition = SensorDefinitions[unit];
-    const {minReading: min, maxReading: max, measurementName: name} = definition;
-
     const changes: Partial<IAuthoredState>  = {sensorUnit: unit};
-    if (recordedData) {
+    const definition = SensorDefinitions[unit];
+
+    if (definition && recordedData) {
+      const {minReading: min, maxReading: max, measurementName: name} = definition;
       changes.recordedData = {...recordedData, min, max, name, unit};
     }
 

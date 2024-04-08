@@ -77,7 +77,7 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
           scale.xMin = authoredXMin;
         }
         if (authoredXMax !== undefined) {
-          scale.xMax = authoredXMax;
+          scale.xMax = authoredXMax + .01;
         }
         if (authoredYMin !== undefined) {
           scale.yMin = authoredYMin;
