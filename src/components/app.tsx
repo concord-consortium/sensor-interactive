@@ -201,7 +201,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
 
         this.interactiveHost = this.props.interactiveHost || "codap";
 
-        this.assetsPath = /\/examples|interactive\//.test(window.location.pathname)
+        this.assetsPath = /\/(examples|interactive)\//.test(window.location.pathname)
                             ? "../assets" : "./assets";
         this.messages = SensorStrings.messages as IStringMap;
 
