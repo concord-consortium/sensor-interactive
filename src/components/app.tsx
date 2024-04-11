@@ -18,6 +18,7 @@ import { SensorConnectorManager } from "../models/sensor-connector-manager";
 import { FakeSensorManager } from "../models/fake-sensor-manager";
 import { SensorTagManager } from "../models/sensor-tag-manager";
 import { SensorGDXManager } from "../models/sensor-gdx-manager";
+import { HeartRateSensorManager } from "../models/sensor-polar-manager";
 import { IAuthoredMinMax, IInteractiveState, SensorRecording } from "../interactive/types";
 import { SensorRecordingStore } from "../models/recording-store";
 import { PredictionState } from "./types";
@@ -76,7 +77,7 @@ export interface AppProps {
 }
 
 export interface AppState {
-    sensorManager: SensorManager | null,
+    sensorManager: SensorManager | HeartRateSensorManager | null,
     sensorConfig: SensorConfiguration | null;
     sensorSlots: SensorSlot[];
     hasData: boolean;
@@ -596,12 +597,11 @@ class AppContainer extends React.Component<AppProps, AppState> {
         try {
             let optionalServices: any[] = [];
             let wirelessFilters: any[] = [];
-            [SensorTagManager, SensorGDXManager].forEach(mgrClass => {
+            [SensorTagManager, SensorGDXManager, HeartRateSensorManager].forEach(mgrClass => {
               optionalServices.push(...mgrClass.getOptionalServices());
               wirelessFilters.push(...mgrClass.getWirelessFilters());
             });
 
-            wirelessFilters = wirelessFilters.concat(SensorGDXManager.getWirelessFilters());
             // Step 1: ask for a device
             const wirelessDevice: any = await navigator.bluetooth.requestDevice({
                 filters: wirelessFilters,
@@ -616,9 +616,12 @@ class AppContainer extends React.Component<AppProps, AppState> {
 
             this.setState({ statusMessage: this.messages["connecting"] });
 
+            const isPolar = wirelessDevice.name.includes("Polar");
             const isGDX = wirelessDevice.name.includes("GDX");
             let sensorManager;
-            if (isGDX) {
+            if (isPolar) {
+                sensorManager = new HeartRateSensorManager();
+            } else if (isGDX) {
                 sensorManager = new SensorGDXManager();
             } else {
                 sensorManager = new SensorTagManager();
