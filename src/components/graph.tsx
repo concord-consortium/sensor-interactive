@@ -400,6 +400,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             hasData = data && (data.length > 1);
         if (!hasData)
             buttonStyle.display = "none";
+        const isAutoScaleDisabled = !hasData && prediction.length === 0 && (!preRecording || preRecording.length === 0);
         return (
             <div style={{position: "relative"}}>
                 <div id={"sensor-graph-" + title} className="graph-box" style={graphStyle}></div>
@@ -460,11 +461,11 @@ export class Graph extends React.Component<GraphProps, GraphState> {
                 }
 
                 <div
-                  className={`graph-rescale-button ${this.props.isRescaled ? "selected" : ""} ${this.props.disabled ? "disabled" : ""}`}
+                  className={`graph-rescale-button ${this.props.isRescaled ? "selected" : ""} ${isAutoScaleDisabled ? "disabled" : ""}`}
                   onClick={this.props.onRescaleClick}
                   title="Show all data (autoscale)"
                 >
-                  <svg className={`icon rescale ${this.props.isRescaled ? "selected" : ""} ${this.props.disabled ? "disabled" : ""}`}>
+                  <svg className={`icon rescale ${this.props.isRescaled ? "selected" : ""} ${isAutoScaleDisabled ? "disabled" : ""}`}>
                     <use xlinkHref={`${this.props.assetsPath}/images/icons.svg#icon-rescale`} />
                   </svg>
                 </div>
