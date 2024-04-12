@@ -130,11 +130,8 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
         });
     }
 
-    handleRescaleButtonClick = () => {
-      if (this.props.disabled) {
-        return;
-      }
-
+    handleAutoscaleToggleClick = () => {
+    // this function is called when the user clicks the autoscale button
       const newValue = !this.state.isRescaled;
 
       if (!newValue) {
@@ -147,20 +144,20 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
       this.setState({isRescaled: newValue});
     }
 
-    handleRescale = (xRange:number[], yRange:number[]) => {
-        this.setState({
-            yMin: yRange[0],
-            yMax: yRange[1],
-            xMin: xRange[0],
-            xMax: xRange[1]
-        });
-        if (this.props.onGraphZoom) {
-            this.props.onGraphZoom(xRange[0], xRange[1]);
-        }
-    }
+    handleDygraphZoom = (xRange:number[], yRange:number[]) => {
+    // this function is called when the user either drags to zoom or double-clicks on the graph
+      this.setState({
+          yMin: yRange[0],
+          yMax: yRange[1],
+          xMin: xRange[0],
+          xMax: xRange[1]
+      });
 
-    handleResetScale = () => {
-        this.scaleToData();
+      if (this.props.onGraphZoom) {
+          this.props.onGraphZoom(xRange[0], xRange[1]);
+      }
+
+      this.setState({isRescaled: true});
     }
 
     componentWillReceiveProps(nextProps:SensorGraphProps) {
@@ -258,9 +255,8 @@ export default class SensorGraph extends React.Component<SensorGraphProps, Senso
                 height={this.props.height}
                 data={data}
                 isRescaled={this.state.isRescaled}
-                onRescaleClick={this.handleRescaleButtonClick}
-                onRescale={this.handleRescale}
-                resetScaleF={this.handleResetScale}
+                onAutoscaleToggleClick={this.handleAutoscaleToggleClick}
+                dygraphZoomCallback={this.handleDygraphZoom}
                 xMin={xMin}
                 xMax={xMax}
                 yMin={yMin}

@@ -15,9 +15,8 @@ export interface GraphProps {
     data:number[][];
     predictionState: PredictionState;
     isRescaled: boolean;
-    onRescaleClick: () => void;
-    onRescale:(xRange:number[], yRange:number[]) => void;
-    resetScaleF:() => void;
+    onAutoscaleToggleClick: () => void;
+    dygraphZoomCallback:(xRange:number[], yRange:number[]) => void;
     setPredictionF: (data: number[][]) => void;
     prediction: number[][];
     usePrediction: boolean|undefined;
@@ -239,14 +238,15 @@ export class Graph extends React.Component<GraphProps, GraphState> {
         (this.dygraph.resize as FResize)();
     }
 
-    onRescale = (xStart:number, xEnd:number, yRanges:number[][]) => {
-        var yRange = this.dygraph.yAxisRange();
-        var xRange = this.dygraph.xAxisRange();
-        this.setState({
-            xAxisFix: Format.getAxisFix('x', xRange[1] - xRange[0], this.props.width),
-            yAxisFix: Format.getAxisFix('y', yRange[1] - yRange[0], this.props.height)
-        });
-        this.props.onRescale(xRange, yRange);
+    zoomCallback = (xStart:number, xEnd:number, yRanges:number[][]) => {
+      // this function is called when user double-clicks on the graph and when they drag to zoom
+      var yRange = this.dygraph.yAxisRange();
+      var xRange = this.dygraph.xAxisRange();
+      this.setState({
+          xAxisFix: Format.getAxisFix('x', xRange[1] - xRange[0], this.props.width),
+          yAxisFix: Format.getAxisFix('y', yRange[1] - yRange[0], this.props.height)
+      });
+      this.props.dygraphZoomCallback(xRange, yRange);
     }
 
     colorForGraphName(graphName:string):string {
@@ -284,7 +284,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
             drawPoints: false,
             dateWindow: [0, this.props.xMax],
             valueRange: [this.props.yMin, this.props.yMax],
-            zoomCallback: this.onRescale,
+            zoomCallback: this.zoomCallback,
             xlabel: this.state.xLabel,
             ylabel: this.state.yLabel,
             legend: "follow",
@@ -462,7 +462,7 @@ export class Graph extends React.Component<GraphProps, GraphState> {
 
                 <div
                   className={`graph-rescale-button ${this.props.isRescaled ? "selected" : ""} ${isAutoScaleDisabled ? "disabled" : ""}`}
-                  onClick={this.props.onRescaleClick}
+                  onClick={this.props.onAutoscaleToggleClick}
                   title="Show all data (autoscale)"
                 >
                   <svg className={`icon rescale ${this.props.isRescaled ? "selected" : ""} ${isAutoScaleDisabled ? "disabled" : ""}`}>
