@@ -341,7 +341,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
       // Step 2: Connect to device
       this.server = await this.device.gatt.connect();
 
-      // Resend the sensorconfig so the UI udpates after the connection
+      // Resend the sensorconfig so the UI updates after the connection
       this.sendSensorConfig(true);
 
       // Make the green led go solid so we know we are connected
@@ -388,7 +388,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
 
       await this.device.gatt.disconnect();
 
-      // Resend the sensorconfig so the UI udpates after the disconnection
+      // Resend the sensorconfig so the UI updates after the disconnection
       this.sendSensorConfig(true);
     }
 

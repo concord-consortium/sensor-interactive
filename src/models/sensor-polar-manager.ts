@@ -80,7 +80,7 @@ export class HeartRateSensorManager extends SensorManager {
     // Connect to device
     this.server = await this.device?.gatt?.connect();
 
-    // Resend the sensorconfig so the UI udpates after the connection
+    // Resend the sensorconfig so the UI updates after the connection
     this.sendSensorConfig(true);
 
     // Get the Service
@@ -101,7 +101,7 @@ export class HeartRateSensorManager extends SensorManager {
       await this.stopNotifications();
     }
     this.device?.gatt?.disconnect();
-    // Resend the sensorconfig so the UI udpates after the disconnection
+    // Resend the sensorconfig so the UI updates after the disconnection
     this.sendSensorConfig(true);
   }
 
