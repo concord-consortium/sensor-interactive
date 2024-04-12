@@ -244,7 +244,7 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
       // Connect to device
       this.server = await this.device.gatt.connect();
 
-      // Resend the sensorconfig so the UI udpates after the connection
+      // Resend the sensorconfig so the UI updates after the connection
       this.sendSensorConfig(true);
 
       return true;
@@ -264,7 +264,7 @@ export class ThermoscopeManager extends SensorManager implements ConnectableSens
 
       await this.device.gatt.disconnect();
 
-      // Resend the sensorconfig so the UI udpates after the disconnection
+      // Resend the sensorconfig so the UI updates after the disconnection
       this.sendSensorConfig(true);
     }
 

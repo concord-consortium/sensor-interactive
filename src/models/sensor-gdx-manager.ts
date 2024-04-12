@@ -316,7 +316,7 @@ export class SensorGDXManager extends SensorManager {
         this.internalConfig.columns[cNum].liveValue = "NaN";
       });
 
-      // Resend the sensorconfig so the UI udpates after the disconnection
+      // Resend the sensorconfig so the UI updates after the disconnection
       this.sendSensorConfig(true);
     }
 
