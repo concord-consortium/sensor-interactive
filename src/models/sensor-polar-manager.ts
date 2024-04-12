@@ -90,27 +90,26 @@ export class HeartRateSensorManager extends SensorManager {
     this._characteristic = await service?.getCharacteristic('heart_rate_measurement');
     if (!this._characteristic) { return false };
 
-    await this.startNotificationsHeartRateMeasurement();
+    await this.startNotifications();;
     this.handleHeartRateMeasurement(this._characteristic);
 
     return true;
   }
 
-  /* Heart Rate Service */
-
-  startNotificationsHeartRateMeasurement() {
-    return this._startNotifications('heart_rate_measurement');
-  }
-
-  stopNotificationsHeartRateMeasurement() {
-    return this._stopNotifications('heart_rate_measurement');
+  async disconnectFromDevice() {
+    if (this._characteristic) {
+      await this.stopNotifications();
+    }
+    this.device?.gatt?.disconnect();
+    // Resend the sensorconfig so the UI udpates after the disconnection
+    this.sendSensorConfig(true);
   }
 
   handleHeartRateMeasurement(heartRateMeasurement: BluetoothRemoteGATTCharacteristic) {
     heartRateMeasurement.addEventListener('characteristicvaluechanged', (event: any) => {
       const heartRateMeasurement = this.parseHeartRate(event.target?.value).heartRate;
       this.printByteArray(event.target?.value);
-      if (heartRateMeasurement !== undefined) {
+      if (heartRateMeasurement !== undefined && heartRateMeasurement !== 0) {
         this.internalConfig.columns[101].liveValue = heartRateMeasurement.toString();
         this.onSensorStatus(new SensorConfiguration(this.internalConfig));
       }
@@ -152,18 +151,13 @@ export class HeartRateSensorManager extends SensorManager {
     return result;
   }
 
-  /* Utils */
 
-
-  _startNotifications (characteristicUuid: string) {
-    // Returns characteristic to set up characteristicvaluechanged event
-    // handlers in the resolved promise.
+  startNotifications () {
     return this._characteristic?.startNotifications()
     .then(() => this._characteristic);
   }
 
-  _stopNotifications(characteristicUuid: string) {
-    // handlers in the resolved promise.
+  stopNotifications() {
     return this._characteristic?.stopNotifications()
     .then(() => this._characteristic);
   }
@@ -226,32 +220,6 @@ export class HeartRateSensorManager extends SensorManager {
       hex += toPaddedHexString(byteArray.getUint8(i));
     }
     console.log(`read bytes: ${hex}`);
-  }
-
-  async readSensor(time:number, sensor:any) {
-    if(!sensor.dataCharacteristic) {
-      return;
-    }
-
-    const byteArray = await sensor.dataCharacteristic.readValue();
-    this.printByteArray(byteArray);
-
-    sensor.values.forEach((valueDesc:any) => {
-      const hrValue = this.parseHeartRate(byteArray).heartRate;
-      if (hrValue !== undefined) {
-      this.updateSensorValue(valueDesc.columnID, time / 1000, hrValue);
-      }
-    });
-  }
-
-  updateSensorValue(ID:string, time:number, value:number) {
-    this.internalConfig.columns[ID].liveValue = value.toString();
-    this.hasData = true;
-
-    this.onSensorStatus(new SensorConfiguration(this.internalConfig));
-    const data: NewSensorData = {};
-    data[ID] = [[time, value]];
-    this.onSensorData(data);
   }
 
   static getOptionalServices() {
