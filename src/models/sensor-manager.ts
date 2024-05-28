@@ -4,6 +4,12 @@ export interface NewSensorData {
   [key:string]: number[][];
 }
 
+export type VariableMeasurementPeriods = {
+  supported: boolean,
+  periods: number[],
+  defaultPeriod: number
+}
+
 export const HEARTBEAT_INTERVAL_MS = 1000;
 type OnSensorConnectFunction = (sensorConfig: SensorConfiguration) => void;
 type OnSensorDataFunction = (newData:NewSensorData) => void;
@@ -30,10 +36,11 @@ export abstract class SensorManager {
 
   abstract startPolling() : void;
   abstract hasSensorData() : boolean;
-  abstract requestStart() : void;
+  abstract requestStart(measurementPeriod: number) : void;
   abstract requestStop() : void;
   abstract isWirelessDevice() : boolean;
   abstract requestHeartbeat(enabled: boolean) : void;
+  abstract variableMeasurementPeriods(): VariableMeasurementPeriods;
 
   isAwake() : boolean {
     return true;

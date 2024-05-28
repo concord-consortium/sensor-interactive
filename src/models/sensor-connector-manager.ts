@@ -61,12 +61,12 @@ export class SensorConnectorManager extends SensorManager {
       return !!(dataSet && dataSet.columns[1]);
     }
 
-    requestStart() {
+    requestStart(measurementPeriod: number) {
       if (this.requestWake()) {
-        this.sensorConnector.requestStart();
+        this.sensorConnector.requestStart(measurementPeriod);
       }
       else {
-        setTimeout(() => this.sensorConnector.requestStart(), DELAY_AFTER_WAKE);
+        setTimeout(() => this.sensorConnector.requestStart(measurementPeriod), DELAY_AFTER_WAKE);
       }
     }
 
@@ -207,4 +207,11 @@ export class SensorConnectorManager extends SensorManager {
       return null;
     }
 
+    variableMeasurementPeriods() {
+      return {
+        supported: false,
+        periods: [],
+        defaultPeriod: 0
+      }
+    }
 }

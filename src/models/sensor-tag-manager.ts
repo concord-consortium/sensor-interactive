@@ -251,7 +251,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
       return this.hasData;
     }
 
-    requestStart() {
+    requestStart(measurementPeriod: number) {
       // cloneDeep is used because we are saving the dataCharacteristic on this object
       // and that will change after the device is disconnected and reconnected
 
@@ -277,7 +277,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
 
         if(!this.stopRequested) {
           // Repeat
-          setTimeout(readData, 10);
+          setTimeout(readData, measurementPeriod || 10);
         } else {
           this.onSensorCollectionStopped();
           this.stopRequested = false;
@@ -415,5 +415,13 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
       // Step 5: Get and save data characteristic
       sensorDescription.dataCharacteristic =
         await service.getCharacteristic(sensorAddrs.data);
+    }
+
+    variableMeasurementPeriods() {
+      return {
+        supported: false,
+        periods: [],
+        defaultPeriod: 0
+      }
     }
 }

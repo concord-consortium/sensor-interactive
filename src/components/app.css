@@ -582,15 +582,15 @@ button:disabled:hover {
     opacity: 0.5;
 }
 
-.control-panel .duration-label {
+.control-panel .duration-label, .control-panel .sample-rate-label {
     margin-left: 6px;
 }
-.control-panel .duration-label.disabled {
+.control-panel .duration-label.disabled, .control-panel .sample-rate-label.disabled {
     opacity: .35;
     pointer-events: none;
 }
 
-.control-panel .duration-select {
+.control-panel .duration-select, .control-panel .sample-rate-select {
     margin-right: 16px;
     border: solid 1px var(--cc-teal);
     background-color: var(--cc-teal-light-6);
@@ -599,17 +599,17 @@ button:disabled:hover {
     cursor: pointer;
     transition-duration: .25s;
 }
-.control-panel .duration-select:hover {
+.control-panel .duration-select:hover, .control-panel .sample-rate-select:hover {
     background-color: var(--cc-teal-light-4);
 }
-.control-panel .duration-select:active {
+.control-panel .duration-select:active, .control-panel .sample-rate-select:active {
     background-color: var(--cc-teal-light-4);
 }
-.control-panel .duration-select:disabled {
+.control-panel .duration-select:disabled, .control-panel .sample-rate-select:disabled {
     opacity: .35;
     pointer-events: none;
 }
-.control-panel .duration-select:focus > option:checked {
+.control-panel .duration-select:focus > option:checked, .control-panel .sample-rate-select:focus > option:checked {
     background: var(--sage) !important;
 }
 
