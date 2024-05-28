@@ -178,9 +178,8 @@ const SLEEP_WAKE_DELAY_SEC = 3;
 
 // We don't have the ability to control the sampling rate. To avoid sending down
 // overly large chunks of data, we down-sample long-duration experiments.
-// The following values represent the thresholds above which down-sampling occurs.
+// The following value represents the thresholds above which down-sampling occurs.
 // At 10 samples/sec, a 60-sec collection generates 601 points.
-const DOWN_SAMPLE_THRESHOLD_SECS = 60;
 const DOWN_SAMPLE_THRESHOLD_COUNT = 601;
 
 class AppContainer extends React.Component<AppProps, AppState> {
@@ -893,8 +892,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
     }
 
     downSample(data: number[][]) {
-        const shouldDownSample = (this.state.runLength > DOWN_SAMPLE_THRESHOLD_SECS) &&
-                                    (data.length > DOWN_SAMPLE_THRESHOLD_COUNT);
+        const shouldDownSample = data.length > DOWN_SAMPLE_THRESHOLD_COUNT;
 
         if (!shouldDownSample) { return data; }
 
