@@ -11,6 +11,13 @@ const goDirectDevicePrefix = "GDX";
 const POLLING_INTERVAL = 1000;
 const MIN_EKG_INTERVAL_MS = 1000;
 
+type OnChangeSensorChangeData = {
+  time: number,
+  index: number,
+  delta: number,
+  stopping: boolean
+};
+
 export const SpecialMeasurementUnits: IStringMap = {
   "Wind Speed": "m/s_WS",
   "Wind Direction": "°_WD",
@@ -34,7 +41,6 @@ export class SensorGDXManager extends SensorManager {
     private gdxDevice: any;
     private enabledSensors: any;
     private initialColumnNum = 100;
-    private timerId: any;
 
     constructor() {
       super();
@@ -137,28 +143,42 @@ export class SensorGDXManager extends SensorManager {
       }
     }
 
-    requestStart(measurementPeriod: number) {
-      measurementPeriod = measurementPeriod || this.getMeasurementPeriod();
-      let startCollectionTime: number|undefined = undefined;
-      this.gdxDevice.stop();
-      this.gdxDevice.start(measurementPeriod);
-      const readData = async () => {
+    onChangeSensorChange = (sensor: any) => {
+      const {index, delta, time, stopping} = sensor.onChangeSensorChangeData as OnChangeSensorChangeData;
+      const cNum = this.initialColumnNum + index;
+      this.updateSensorValue(cNum.toString(), time, sensor.value);
+      sensor.onChangeSensorChangeData.time += delta;
+
+      if (this.stopRequested && !stopping) {
+        this.stopRequested = false;
+        // sensor.onChangeSensorChangeData.stopping = true;
+
         this.enabledSensors.forEach((sensor: any, index: number) => {
-          startCollectionTime = startCollectionTime || Date.now()
-          const cNum = this.initialColumnNum + index;
-          const time = Date.now() - startCollectionTime!;
-          this.updateSensorValue(cNum.toString(), time / 1000, sensor.value);
+          sensor.off("value-changed", this.onChangeSensorChange);
         });
 
-        if (this.stopRequested) {
-          clearInterval(this.timerId);
-          this.gdxDevice.stop();
-          this.onSensorCollectionStopped();
-          this.stopRequested = false;
-        }
-      };
+        this.gdxDevice.stop();
+        this.onSensorCollectionStopped();
+      }
+    }
 
-      this.timerId = setInterval(readData, measurementPeriod);
+    requestStart(measurementPeriod: number) {
+      measurementPeriod = measurementPeriod || this.getMeasurementPeriod();
+
+      this.gdxDevice.stop();
+
+      this.enabledSensors.forEach((sensor: any, index: number) => {
+        const onChangeSensorChangeData: OnChangeSensorChangeData = {
+          time: 0,
+          delta: measurementPeriod / 1000,
+          index,
+          stopping: false
+        }
+        sensor.onChangeSensorChangeData = onChangeSensorChangeData;
+        sensor.on("value-changed", this.onChangeSensorChange);
+      });
+
+      this.gdxDevice.start(measurementPeriod);
     }
 
     updateSensorValue(ID:string, time:number, value:number) {
