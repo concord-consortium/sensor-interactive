@@ -182,7 +182,7 @@ export class HeartRateSensorManager extends SensorManager {
     }, 1000);
   }
 
-  requestStart() {
+  requestStart(measurementPeriod: number) {
     let startCollectionTime = Date.now();
 
     const readData = async () => {
@@ -200,7 +200,7 @@ export class HeartRateSensorManager extends SensorManager {
 
       if(!this.stopRequested) {
         // Repeat
-        setTimeout(readData, 100);
+        setTimeout(readData, measurementPeriod || 100);
       } else {
         this.onSensorCollectionStopped();
         this.stopRequested = false;
@@ -240,4 +240,12 @@ export class HeartRateSensorManager extends SensorManager {
 
   requestHeartbeat(enabled: boolean): void {
   }
+
+  variableMeasurementPeriods() {
+    return {
+      supported: false,
+      periods: [],
+      defaultPeriod: 0
+    }
+}
 };

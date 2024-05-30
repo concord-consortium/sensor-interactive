@@ -97,20 +97,26 @@ export class FakeSensorManager extends SensorManager {
       return this.hasData;
     }
 
-    requestStart() {
+    requestStart(measurementPeriod: number) {
       if (this.singleReads) {
         const temperatureValue = 17 + (Math.random() * 5),
               positionValue = 1 - (Math.random() * 2);
         this.sendValues(0, {temperatureValue, positionValue});
       }
       else {
-        let time = 0.0;
-        this.interval = setInterval(() => {
+        let start: number|undefined = undefined;
+        const generateValue = () => {
+          const now = Date.now()
+          start = start || now
+          const time = (now - start)/1000;
           const temperatureValue = Math.sin((Math.PI/3)*time)*3 + 20,
                 positionValue = Math.sin((Math.PI/3)*time);
           this.sendValues(time, {temperatureValue, positionValue});
-          time += 0.1;
-        }, 100);
+        }
+        generateValue();
+        this.interval = setInterval(() => {
+          generateValue()
+        }, measurementPeriod || 100);
       }
     }
 
@@ -132,6 +138,14 @@ export class FakeSensorManager extends SensorManager {
 
           this.onSensorHeartbeat(new SensorConfiguration(config));
         });
+    }
+
+    variableMeasurementPeriods() {
+      return {
+        supported: true,
+        periods: [1000, 100, 10],
+        defaultPeriod: 100
+      }
     }
 
     private sendValues(time: number, {temperatureValue, positionValue}: {temperatureValue: number, positionValue: number}) {

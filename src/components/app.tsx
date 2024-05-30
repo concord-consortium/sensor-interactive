@@ -108,7 +108,8 @@ export interface AppState {
     warnSensorSwitch: boolean;
     isStartDisabled?: boolean;
     newSensorSelection: ISensorSelection | null;
-  }
+    measurementPeriod: number;
+}
 
 function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo, sensor?: Sensor) {
     const reuseID = sensor?.valueUnit === dataColumn.units && sensor.sensorPosition === dataColumn.position;
@@ -247,6 +248,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
             warnSavePrediction: false,
             warnSensorSwitch: false,
             newSensorSelection: null,
+            measurementPeriod: 0
         };
 
         this.onSensorConnect = this.onSensorConnect.bind(this);
@@ -300,7 +302,8 @@ class AppContainer extends React.Component<AppProps, AppState> {
         this.closeWarnSensorSwitch = this.closeWarnSensorSwitch.bind(this);
         this.clearNewSensorSelection = this.clearNewSensorSelection.bind(this);
         this.continueSensorSwitch = this.continueSensorSwitch.bind(this);
-        sensorRecordingStore.listenForNewData((sensorRecordings) => this.setState({sensorRecordings}));
+        this.setMeasurementPeriod = this.setMeasurementPeriod.bind(this);
+        sensorRecordingStore.listenForNewData((sensorRecordings) => this.setState({ sensorRecordings }));
     }
 
     enableHeartBeat(enabled: boolean) {
@@ -443,7 +446,8 @@ class AppContainer extends React.Component<AppProps, AppState> {
             sensorConfig: null,
             statusMessage: this.messages["no_device_connected"],
             secondGraph: false,
-            disconnectionWarningModal: showWarning
+            disconnectionWarningModal: showWarning,
+            measurementPeriod: 0,
         });
     }
 
@@ -675,7 +679,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
       return singleReads && displayType === "bar";
     }
 
-    startSensor() {
+    startSensor(measurementPeriod: number) {
         const { sensorManager } = this.state;
         const { singleReads } = this.props;
 
@@ -687,7 +691,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
             }
             // before we start recording data, turn off the heartbeat handler.
             sensorManager.requestHeartbeat(false);
-            sensorManager.requestStart();
+            sensorManager.requestStart(measurementPeriod);
             this.setState({
                 statusMessage: this.messages["starting_data_collection"],
                 pauseHeartbeat: true
@@ -981,7 +985,11 @@ class AppContainer extends React.Component<AppProps, AppState> {
         this.codap?.updateInteractiveState({ runLength: newTime });
     }
 
-    onGraphZoom(xStart:number, xEnd:number) {
+    setMeasurementPeriod(newMeasurementPeriod: number) {
+        this.setState({ measurementPeriod: newMeasurementPeriod })
+    }
+
+    onGraphZoom(xStart: number, xEnd: number) {
         const sensorRecording = sensorRecordingStore.getSensorRecording(this.state.sensorSlots[0])
         const sensor1Data = sensorRecording?.data || [];
         const { xStart: prevXStart, xEnd: prevXEnd } = this.state;
@@ -1468,6 +1476,10 @@ class AppContainer extends React.Component<AppProps, AppState> {
       return defaultOptions;
     }
 
+    getVariableMeasurementPeriods() {
+        return this.state.sensorManager?.variableMeasurementPeriods() ?? { supported: false, periods: [], defaultPeriod: 0 };
+    }
+
     render() {
         const { interactiveHost, useSensors, requirePrediction, fakeSensor, size } = this.props;
         const { sensorConfig, sensorManager, sensorRecordings } = this.state;
@@ -1488,6 +1500,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
             : [];
 
         const durationOptions = this.getDurationOptions();
+        const variableSampleRates = this.getVariableMeasurementPeriods();
         const maxGraphHeight = size.height - this.state.promptHeight - this.state.topBarHeight - 60; // 60 is the height of control panel, set in CSS
         return (
             <div className="app-container">
@@ -1647,10 +1660,13 @@ class AppContainer extends React.Component<AppProps, AppState> {
                     hasData={this.state.hasData}
                     dataChanged={this.state.dataChanged}
                     duration={this.state.runLength}
+                    measurementPeriod={this.state.measurementPeriod}
+                    variableMeasurementPeriods={variableSampleRates}
                     durationUnit="s"
                     durationOptions={durationOptions}
                     embedInCodapUrl={codapURL}
                     onDurationChange={this.setXZoomState}
+                    onMeasurementPeriodChange={this.setMeasurementPeriod}
                     onStartConnecting={this.startConnecting}
                     onStartCollecting={this.startSensor}
                     onStopCollecting={this.stopSensor}

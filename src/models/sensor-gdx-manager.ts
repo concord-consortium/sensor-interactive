@@ -11,12 +11,6 @@ const goDirectDevicePrefix = "GDX";
 const POLLING_INTERVAL = 1000;
 const MIN_EKG_INTERVAL_MS = 1000;
 
-// According to Vernier, the maximum sampling frequency GDX-MD has is 50hz
-// see: https://www.vernier.com/til/5
-// But we are only seeing updates at 10hz. For now we are going to use 10hz
-// see: https://www.pivotaltracker.com/story/show/181528803
-const READ_DATA_INTERVAL = 1000 / 10;
-
 export const SpecialMeasurementUnits: IStringMap = {
   "Wind Speed": "m/s_WS",
   "Wind Direction": "°_WD",
@@ -143,15 +137,16 @@ export class SensorGDXManager extends SensorManager {
       }
     }
 
-    requestStart() {
-      let startCollectionTime = Date.now();
+    requestStart(measurementPeriod: number) {
+      measurementPeriod = measurementPeriod || this.getMeasurementPeriod();
+      let startCollectionTime: number|undefined = undefined;
       this.gdxDevice.stop();
-      const measurementPeriod = this.getMeasurementPeriod();
       this.gdxDevice.start(measurementPeriod);
       const readData = async () => {
         this.enabledSensors.forEach((sensor: any, index: number) => {
+          startCollectionTime = startCollectionTime || Date.now()
           const cNum = this.initialColumnNum + index;
-          const time = Date.now() - startCollectionTime;
+          const time = Date.now() - startCollectionTime!;
           this.updateSensorValue(cNum.toString(), time / 1000, sensor.value);
         });
 
@@ -163,7 +158,7 @@ export class SensorGDXManager extends SensorManager {
         }
       };
 
-      this.timerId = setInterval(readData, READ_DATA_INTERVAL);
+      this.timerId = setInterval(readData, measurementPeriod);
     }
 
     updateSensorValue(ID:string, time:number, value:number) {
@@ -332,5 +327,31 @@ export class SensorGDXManager extends SensorManager {
       this.clearConfigLiveValues();
     }
 
+    variableMeasurementPeriods() {
+      if (!this.gdxDevice) {
+        return {
+          supported: false,
+          periods: [],
+          defaultPeriod: 0
+        }
+      }
+
+      const minPeriod = this.getMeasurementPeriod();
+      const defaultPeriod = this.gdxDevice.measurementPeriod;
+      const periods: number[] = [... new Set([
+        10,
+        100,
+        1000,
+        minPeriod,
+        defaultPeriod,
+      ].filter(n => n >= minPeriod))]
+      periods.sort((a, b) => b - a)
+
+      return {
+        supported: true,
+        periods,
+        defaultPeriod
+      }
+    }
 }
 
