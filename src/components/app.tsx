@@ -23,6 +23,7 @@ import { IAuthoredMinMax, IInteractiveState, SensorRecording } from "../interact
 import { SensorRecordingStore } from "../models/recording-store";
 import { PredictionState } from "./types";
 import { enableShutterbug, disableShutterbug } from "../js/shutterbug-support";
+import { downSample } from "../utils/down-sample";
 
 import "./dialog.css";
 import "./app.css";
@@ -176,12 +177,6 @@ function isConnectableSensorManager(manager: ConnectableSensorManager | any) :
 }
 
 const SLEEP_WAKE_DELAY_SEC = 3;
-
-// We don't have the ability to control the sampling rate. To avoid sending down
-// overly large chunks of data, we down-sample long-duration experiments.
-// The following value represents the thresholds above which down-sampling occurs.
-// At 10 samples/sec, a 60-sec collection generates 601 points.
-const DOWN_SAMPLE_THRESHOLD_COUNT = 601;
 
 class AppContainer extends React.Component<AppProps, AppState> {
 
@@ -895,21 +890,6 @@ class AppContainer extends React.Component<AppProps, AppState> {
         return sensorSlots.some((slot) => sensorRecordingStore.hasData(slot));
     }
 
-    downSample(data: number[][]) {
-        const shouldDownSample = data.length > DOWN_SAMPLE_THRESHOLD_COUNT;
-
-        if (!shouldDownSample) { return data; }
-
-        let downSampleRate = 1;
-        while ((data.length - 1) / downSampleRate > (DOWN_SAMPLE_THRESHOLD_COUNT - 1)) {
-            ++ downSampleRate;
-        }
-        return data.filter((d: number[], i: number) => {
-                        // interval sampling plus always include the last sample
-                        return (i % downSampleRate === 0) || (i === data.length - 1);
-                    });
-    }
-
     sendData() {
         const { sensorSlots, secondGraph } = this.state,
               sendSecondSensorData = secondGraph && sensorRecordingStore.hasData(sensorSlots[1]),
@@ -921,7 +901,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
                 dataSpecs.push({
                     name: sendSecondSensorData ? `${name}_${sensorPosition}` : name,
                     unit,
-                    data: this.downSample(data.slice(this.selectionRange.start, this.selectionRange.end))
+                    data: downSample(data.slice(this.selectionRange.start, this.selectionRange.end))
                 })
             }
             return {
