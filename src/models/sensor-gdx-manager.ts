@@ -356,15 +356,21 @@ export class SensorGDXManager extends SensorManager {
         }
       }
 
-      const minPeriod = this.getMeasurementPeriod();
-      const defaultPeriod = this.gdxDevice.measurementPeriod;
+      const deviceMinPeriod = this.getMeasurementPeriod();
+      const sensorMinPeriod = this.gdxDevice.sensors?.[0]?.specs?.measurementInfo?.minPeriod ?? 10;
+      const defaultPeriod = Math.max(50, deviceMinPeriod, sensorMinPeriod);
       const periods: number[] = [... new Set([
+        1,
         10,
+        50,
         100,
+        200,
+        500,
         1000,
-        minPeriod,
         defaultPeriod,
-      ].filter(n => n >= minPeriod))]
+        deviceMinPeriod,
+        sensorMinPeriod
+      ].filter(n => n >= deviceMinPeriod))]
       periods.sort((a, b) => b - a)
 
       return {
@@ -374,4 +380,3 @@ export class SensorGDXManager extends SensorManager {
       }
     }
 }
-
