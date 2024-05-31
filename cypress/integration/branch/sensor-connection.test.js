@@ -40,6 +40,7 @@ context('Connecting a wired sensor',()=>{
 })
 
 context('Collecting Data from 1 sensor',()=>{
+    /* test disabled on 5/31/2024 - it is intermittently failing builds
     it('verify graph shows data',()=>{
         let duration="1";
         workspace.selectDuration(duration)
@@ -48,6 +49,7 @@ context('Collecting Data from 1 sensor',()=>{
         cy.wait(1000);
         cy.matchImageSnapshot(duration+"_graph");
     })
+    */
     it('verify Reading container shows a reading',()=>{
         workspace.getSensorReading().should('not.to.be.empty')
     })

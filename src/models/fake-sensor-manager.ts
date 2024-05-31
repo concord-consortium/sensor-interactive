@@ -143,8 +143,8 @@ export class FakeSensorManager extends SensorManager {
     variableMeasurementPeriods() {
       return {
         supported: true,
-        periods: [1000, 100, 10],
-        defaultPeriod: 100
+        periods: [1000, 500, 200, 100, 50, 10],
+        defaultPeriod: 50
       }
     }
 
