@@ -328,15 +328,19 @@ class AppContainer extends React.Component<AppProps, AppState> {
         this.setState({prediction: p});
     }
 
+    getDefaultRunLength() {
+        return this.props.singleReads ? DEFAULT_RUN_LENGTH : (this.props.initialInteractiveState?.runLength || DEFAULT_RUN_LENGTH);
+    }
+
     componentDidMount() {
         SmartFocusHighlight.enableFocusHighlightOnKeyDown();
 
-        const {initialInteractiveState, prompt, singleReads} = this.props;
+        const {initialInteractiveState, prompt} = this.props;
         if (initialInteractiveState) {
             if (initialInteractiveState.version === 1) {
                 let predictionState = this.state.predictionState;
                 const {sensorRecordings, prediction} = initialInteractiveState;
-                const runLength = singleReads ? DEFAULT_RUN_LENGTH : (initialInteractiveState.runLength || DEFAULT_RUN_LENGTH);
+                const runLength = this.getDefaultRunLength();
                 sensorRecordingStore.setRecordings(sensorRecordings);
                 if (prediction && prediction.length > 0) {
                     predictionState = "completed"
@@ -939,7 +943,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
     }
 
     newData() {
-        let { runLength } = this.state;
+        const runLength = this.getDefaultRunLength();
         const { sensorSlots } = this.state;
         sensorRecordingStore.startNewRecordings();
         this.setState({
