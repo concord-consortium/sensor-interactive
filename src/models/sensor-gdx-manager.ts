@@ -38,6 +38,7 @@ export class SensorGDXManager extends SensorManager {
     private hasData: boolean = false;
     private stopRequested: boolean = false;
     private disconnectRequested: boolean = false;
+    private bluetoothDevice: BluetoothDevice|undefined;
     private gdxDevice: any;
     private enabledSensors: any;
     private initialColumnNum = 100;
@@ -236,10 +237,15 @@ export class SensorGDXManager extends SensorManager {
       }
     }
 
-    async connectToDevice(device?: any): Promise<boolean> {
-      this.gdxDevice = await godirect.createDevice(device, { open: true, startMeasurements: false });
+    async connectToDevice(bluetoothDevice?: BluetoothDevice): Promise<boolean> {
+      this.disconnectRequested = false;
+
+      this.bluetoothDevice = bluetoothDevice;
+      this.gdxDevice = await godirect.createDevice(bluetoothDevice, { open: true, startMeasurements: false });
 
       if (!this.gdxDevice) {
+        this.disconnectRequested = true;
+        this.disconnectBluetoothDevice();
         console.log("Could not create GDX device");
         return false;
       }
@@ -343,8 +349,20 @@ export class SensorGDXManager extends SensorManager {
       this.disconnectRequested = true;
 
       this.gdxDevice.close();
+      this.gdxDevice = null;
+
+      this.disconnectBluetoothDevice();
 
       this.clearConfigLiveValues();
+    }
+
+    disconnectBluetoothDevice() {
+      if (this.bluetoothDevice) {
+        if (this.bluetoothDevice.gatt?.connected) {
+          this.bluetoothDevice.gatt.disconnect();
+        }
+        this.bluetoothDevice = undefined;
+      }
     }
 
     variableMeasurementPeriods() {
@@ -358,7 +376,7 @@ export class SensorGDXManager extends SensorManager {
 
       const deviceMinPeriod = this.getMeasurementPeriod();
       const sensorMinPeriod = this.gdxDevice.sensors?.[0]?.specs?.measurementInfo?.minPeriod ?? 10;
-      const defaultPeriod = Math.max(deviceMinPeriod, sensorMinPeriod);
+      const defaultPeriod = Math.max(50, deviceMinPeriod, sensorMinPeriod);
       const periods: number[] = [... new Set([
         1,
         10,

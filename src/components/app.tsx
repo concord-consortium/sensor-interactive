@@ -559,7 +559,8 @@ class AppContainer extends React.Component<AppProps, AppState> {
                 sensorManager: null,
                 sensorConfig: null,
                 secondGraph: false,
-                statusMessage: this.messages["no_device_connected"]
+                statusMessage: this.messages["no_device_connected"],
+                measurementPeriod: 0,
             });
         }
     }
@@ -591,7 +592,8 @@ class AppContainer extends React.Component<AppProps, AppState> {
             sensorManager: null,
             sensorConfig: null,
             secondGraph: false,
-            statusMessage: this.messages["no_device_connected"]
+            statusMessage: this.messages["no_device_connected"],
+            measurementPeriod: 0,
         });
     }
 
