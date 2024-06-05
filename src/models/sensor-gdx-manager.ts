@@ -376,7 +376,7 @@ export class SensorGDXManager extends SensorManager {
 
       const deviceMinPeriod = this.getMeasurementPeriod();
       const sensorMinPeriod = this.gdxDevice.sensors?.[0]?.specs?.measurementInfo?.minPeriod ?? 10;
-      const defaultPeriod = Math.max(50, deviceMinPeriod, sensorMinPeriod);
+      const defaultPeriod = Math.max(deviceMinPeriod, sensorMinPeriod);
       const periods: number[] = [... new Set([
         1,
         10,
