@@ -178,12 +178,16 @@ function isConnectableSensorManager(manager: ConnectableSensorManager | any) :
 
 const SLEEP_WAKE_DELAY_SEC = 3;
 
+type SelectionRange = {start:number, end:number|undefined};
+const defaultSelectionRange: SelectionRange = {start:0, end:undefined};
+const getDefaultSelectionRange = (): SelectionRange => ({... defaultSelectionRange});
+
 class AppContainer extends React.Component<AppProps, AppState> {
 
     private assetsPath:string;
     private messages:IStringMap;
     private codap:Codap | undefined;
-    private selectionRange:{start:number,end:number|undefined} = {start:0,end:undefined};
+    private selectionRange:SelectionRange = getDefaultSelectionRange();
     private disableWarning:boolean = false;
     private disableSensorSwitchWarning:boolean = false;
     private isReloading:boolean = false;
@@ -948,6 +952,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
         const runLength = this.getDefaultRunLength();
         const { sensorSlots } = this.state;
         sensorRecordingStore.startNewRecordings();
+        this.selectionRange = getDefaultSelectionRange();
         this.setState({
             hasData: false,
             dataReset: true,
