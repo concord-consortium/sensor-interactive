@@ -265,5 +265,51 @@ describe("app", () => {
             })
         });
 
+        it("ignores columns with unknown units", () => {
+            const sensorSlots = [
+                new SensorSlot(0, newSensor({
+                    columnID: "1",
+                    valueUnit: "lux",
+                    sensorPosition: 0
+                })),
+                new SensorSlot(1, newSensor({}))
+            ];
+            const columns: SensorConfigColumnInfo[] = [
+                newColumn({
+                    id: "900",
+                    units: "foo",
+                    position: 0
+                }),
+                newColumn({
+                    id: "901",
+                    units: "degC",
+                    position: 1
+                }),
+                newColumn({
+                    id: "902",
+                    units: "N",
+                    position: 2
+                })
+            ];
+
+            // Ignore console.log calls
+            const mockConsoleLog = jest.spyOn(global.console, "log").mockImplementation(() => null);
+
+            matchSensorsToDataColumns(sensorSlots, columns);
+
+            // None of the columns have a matching unit or matching position.
+            // So the first 2 columns are matched.
+            expect(sensorSlots[0].sensor).toMatchObject({
+                columnID: "901",
+                valueUnit: "degC",
+                sensorPosition: 1
+             })
+            expect(sensorSlots[1].sensor).toMatchObject({
+                columnID: "902",
+                valueUnit: "N",
+                sensorPosition: 2
+            })
+            expect(mockConsoleLog).toBeCalled();
+        });
     })
 });
