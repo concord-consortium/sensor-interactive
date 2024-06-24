@@ -151,7 +151,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
           "102": {
             id: "102",
             setID: "100",
-            position: 1,
+            position: 2,
             name: "Temperature",
             units: "degC",
             liveValue: "NaN",
@@ -162,7 +162,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
           "103": {
             id: "103",
             setID: "100",
-            position: 1,
+            position: 3,
             name: "IR Temperature",
             units: "degC",
             liveValue: "NaN",
@@ -173,7 +173,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
           "104": {
             id: "104",
             setID: "100",
-            position: 1,
+            position: 4,
             name: "Humidity",
             units: "%RH",
             liveValue: "NaN",
@@ -184,7 +184,7 @@ export class SensorTagManager extends SensorManager implements ConnectableSensor
           "105": {
             id: "105",
             setID: "100",
-            position: 1,
+            position: 5,
             name: "Temperature",
             units: "degC",
             liveValue: "NaN",
