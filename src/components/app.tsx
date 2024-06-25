@@ -12,7 +12,7 @@ import { Codap, IDataSpec } from "../models/codap";
 import { IStringMap, SensorStrings, SensorDefinitions } from "../models/sensor-definitions";
 import { SensorManager, NewSensorData, ConnectableSensorManager } from "../models/sensor-manager";
 import SmartFocusHighlight from "../utils/smart-focus-highlight";
-import { find, pull, sumBy, cloneDeep } from "lodash";
+import { pull, sumBy, cloneDeep, filter } from "lodash";
 import Button from "./smart-highlight-button";
 import { SensorConnectorManager } from "../models/sensor-connector-manager";
 import { FakeSensorManager } from "../models/fake-sensor-manager";
@@ -118,7 +118,12 @@ function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo, sensor?: Sen
     newSensor.columnID = dataColumn.id;
     newSensor.sensorPosition = dataColumn.position;
     newSensor.valueUnit = dataColumn.units;
-    newSensor.definition = SensorDefinitions[dataColumn.units];
+    const definition = SensorDefinitions[dataColumn.units];
+    if (!definition) {
+        console.log("Unknown sensor units", dataColumn);
+        return null;
+    }
+    newSensor.definition = definition;
     return newSensor;
 }
 
@@ -126,18 +131,39 @@ export function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:Sensor
     let matched:(Sensor|null)[] = [null, null];
     let columns = dataColumns && dataColumns.slice() || [];
     function matchSensors(test: (c:SensorConfigColumnInfo, s:Sensor) => boolean) {
-        matched.forEach((sensor:Sensor|null, index) => {
-            let found;
-            if (!matched[index]) {
-              const currentSensor = slots[index].sensor
-                found = find(columns, (c) => test(c, currentSensor));
-                if (found) {
-                    matched[index] = newSensorFromDataColumn(found, currentSensor);
-                    // remove matched column so it can't be matched again
-                    pull(columns, found);
+        matched.forEach((sensor, index) => {
+            // We already have a matched sensor in this position
+            if (sensor) return;
+
+            const currentSensor = slots[index].sensor
+            const matchedColumns = filter(columns, (c) => test(c, currentSensor));
+
+            // None of the columns match the current test
+            if (matchedColumns.length === 0) return;
+
+            for (const matchedColumn of matchedColumns) {
+                // remove matched column so it can't be matched again
+                pull(columns, matchedColumn);
+
+                const newSensor = newSensorFromDataColumn(matchedColumn, currentSensor);
+
+                // It's possible a sensor couldn't be created from the column.
+                // Probably this is because it has an unknown unit.
+                if (newSensor) {
+                    // Save this sensor
+                    matched[index] = newSensor;        
+
+                    // Now that we've got a matching column stop looking at the 
+                    // rest of the matchedColumns
+                    break;
                 }
+
+                // If we don't have a newSensor then continue to the next matchedColumn.
             }
         });
+
+        // If we now have setup both sensors then return true so we can 
+        // stop looking for other matches.
         return matched[0] && matched[1];
     }
 
@@ -408,6 +434,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
         const interfaceType = sensorConfig.interface;
         let sensorSlots = this.state.sensorSlots;
         const {requirePrediction, sensorUnit} = this.props;
+        console.log("onSensorConnect", {sensorConfig, slots: JSON.parse(JSON.stringify(sensorSlots))});
 
         if (this.isReloading) { return; }
 
@@ -417,7 +444,14 @@ class AppContainer extends React.Component<AppProps, AppState> {
         };
 
         if (!sensorConfig.hasInterface) {
-            sensorSlots = matchSensorsToDataColumns(sensorSlots, null);
+            // When the sensor connector manager is used, and there is no interface or
+            // sensor connected via usb, then onSensorConnect will receive a
+            // sensorConfig with no interface.
+            // In this case, we clear out all of the sensors.
+            // The effect of this is that the graph and current value is cleared.
+            // Back in 2017, the slots were not cleared. This might have allowed the data
+            // to stay on the graph. 
+            sensorSlots.forEach(slot => slot.setSensor(new Sensor()));
             this.setState({
                 sensorConfig: null,
                 sensorSlots,
@@ -473,6 +507,16 @@ class AppContainer extends React.Component<AppProps, AppState> {
       this.closeWarnSensorSwitch();
     }
 
+    getNewSensor = (columnID: string) => {
+        const sensorConfig = this.state.sensorConfig;
+        const dataColumn = sensorConfig && sensorConfig.getColumnByID(columnID);
+        if (!dataColumn) {
+            return new Sensor();
+        }
+        const newSensor = newSensorFromDataColumn(dataColumn);
+        return newSensor || new Sensor();
+    };
+
     handleSensorSelect = (sensorIndex:number, columnID:string) => {
         let { sensorSlots } = this.state,
             sensors = sensorSlots.map((slot) => slot.sensor);
@@ -485,11 +529,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
         }
         // if a third sensor is selected, configure the new sensor
         else {
-            const sensorConfig = this.state.sensorConfig,
-                  dataColumn = sensorConfig && sensorConfig.getColumnByID(columnID),
-                  newSensor = dataColumn
-                                ? newSensorFromDataColumn(dataColumn)
-                                : new Sensor();
+            const newSensor = this.getNewSensor(columnID);
             sensorSlots[sensorIndex].setSensor(newSensor);
         }
         this.setState({ sensorSlots });
