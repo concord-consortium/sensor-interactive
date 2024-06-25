@@ -122,7 +122,7 @@ function newSensorFromDataColumn(dataColumn:SensorConfigColumnInfo, sensor?: Sen
     return newSensor;
 }
 
-function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:SensorConfigColumnInfo[]|null) {
+export function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:SensorConfigColumnInfo[]|null) {
     let matched:(Sensor|null)[] = [null, null];
     let columns = dataColumns && dataColumns.slice() || [];
     function matchSensors(test: (c:SensorConfigColumnInfo, s:Sensor) => boolean) {

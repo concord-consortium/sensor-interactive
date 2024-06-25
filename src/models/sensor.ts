@@ -1,12 +1,18 @@
 import { ISensorDefinition } from "./sensor-definitions";
 import { Format } from "../utils/format";
+import { ISensorConfigurationColumnInfo } from "./sensor-configuration";
 
 let nextSensorId = 0;
 
 export class Sensor {
     columnID?:string;
     id:number;
-    sensorPosition?:number; // index in received dataColumns array
+    /**
+     * This is copied from the `position` of the received dataColumn.
+     * {@link ISensorConfigurationColumnInfo.position} documents more about what
+     * this position represents.
+     */
+    sensorPosition?:number;
     sensorValue?:number;
     sensorHeartbeatValue?:number;  // sampled value at intervals when heartbeat is enabled
     dataChanged:boolean;
