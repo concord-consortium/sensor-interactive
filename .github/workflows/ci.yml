@@ -26,20 +26,19 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '16'
       - name: Checkout
         uses: actions/checkout@v2
-      - uses: cypress-io/github-action@v2
+      - uses: cypress-io/github-action@v6
         with:
+          install-command: npm ci --legacy-peer-deps
           start: npm start
           wait-on: 'http://localhost:8080'
           # only record the results to dashboard.cypress.io if CYPRESS_RECORD_KEY is set
           record: ${{ !!secrets.CYPRESS_RECORD_KEY }}
           # only do parallel if we have a record key
           parallel: ${{ !!secrets.CYPRESS_RECORD_KEY }}
-          # upload videos for failing specs
-          config: video=true,videoUploadOnPasses=false,pageLoadTimeout=100000,baseUrl=http://localhost:8080
-          config-file: cypress.json
+          env: pageLoadTimeout=100000
           browser: chrome
         env:
           # pass the Dashboard record key as an environment variable
@@ -65,9 +64,9 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '16'
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
         env:
           # skip installing cypress since it isn't needed for just building
           # This decreases the deploy time quite a bit
