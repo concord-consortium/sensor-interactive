@@ -28,9 +28,9 @@ import {addMatchImageSnapshotCommand} from '@simonsmith/cypress-image-snapshot/c
 import 'cypress-commands';
 
 addMatchImageSnapshotCommand({ //need to fine tune thresholds
-    failureThreshold: 0.10, // threshold for entire image
+    failureThreshold: 0.010, // threshold for entire image
     failureThresholdType: 'percent', // percent of image or number of pixels
-    customDiffConfig: { threshold: 0.1 }, // threshold for each pixel
+    customDiffConfig: { threshold: 0.01 }, // threshold for each pixel
     capture: 'viewport', // capture viewport in screenshot
     allowSizeMismatch: true
 })
@@ -46,18 +46,19 @@ addMatchImageSnapshotCommand({ //need to fine tune thresholds
 // Note that the browser size limits the size of the snapshot. So even if 
 // you use cy.viewport to set the viewport larger, the snapshot size is 
 // limited. The Chrome size is current set in cypress.config.ts
-Cypress.Commands.overwrite(
-  'screenshot',
-  (originalFn, subject, name, options) => {
-    // only take screenshots in headless browser
-    if (Cypress.browser.isHeadless) {
-      // return the original screenshot function
-      return originalFn(subject, name, options)
-    }
 
-    return cy.log('No screenshot taken when headed')
-  }
-)
+// Cypress.Commands.overwrite(
+//   'screenshot',
+//   (originalFn, subject, name, options) => {
+//     // only take screenshots in headless browser
+//     if (Cypress.browser.isHeadless) {
+//       // return the original screenshot function
+//       return originalFn(subject, name, options)
+//     }
+
+//     return cy.log('No screenshot taken when headed')
+//   }
+// )
 
 // We pass the ENV variable failOnSnapshotDiff=false so that
 // matchImageSnapshot is disabled. We could also disable it
