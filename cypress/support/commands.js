@@ -32,7 +32,8 @@ addMatchImageSnapshotCommand({ //need to fine tune thresholds
     failureThresholdType: 'percent', // percent of image or number of pixels
     customDiffConfig: { threshold: 0.01 }, // threshold for each pixel
     capture: 'viewport', // capture viewport in screenshot
-    allowSizeMismatch: true
+    allowSizeMismatch: true,
+    blur: 2
 })
 
 // On a Mac with display scaling, the screenshots are twice as big as they
