@@ -151,9 +151,9 @@ export function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:Sensor
                 // Probably this is because it has an unknown unit.
                 if (newSensor) {
                     // Save this sensor
-                    matched[index] = newSensor;        
+                    matched[index] = newSensor;
 
-                    // Now that we've got a matching column stop looking at the 
+                    // Now that we've got a matching column stop looking at the
                     // rest of the matchedColumns
                     break;
                 }
@@ -162,7 +162,7 @@ export function matchSensorsToDataColumns(slots:SensorSlot[], dataColumns:Sensor
             }
         });
 
-        // If we now have setup both sensors then return true so we can 
+        // If we now have setup both sensors then return true so we can
         // stop looking for other matches.
         return matched[0] && matched[1];
     }
@@ -450,7 +450,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
             // In this case, we clear out all of the sensors.
             // The effect of this is that the graph and current value is cleared.
             // Back in 2017, the slots were not cleared. This might have allowed the data
-            // to stay on the graph. 
+            // to stay on the graph.
             sensorSlots.forEach(slot => slot.setSensor(new Sensor()));
             this.setState({
                 sensorConfig: null,
@@ -989,8 +989,7 @@ class AppContainer extends React.Component<AppProps, AppState> {
     }
 
     newData() {
-        const runLength = this.getDefaultRunLength();
-        const { sensorSlots } = this.state;
+        const { sensorSlots, runLength } = this.state;
         sensorRecordingStore.startNewRecordings();
         this.selectionRange = getDefaultSelectionRange();
         this.setState({
@@ -998,7 +997,6 @@ class AppContainer extends React.Component<AppProps, AppState> {
             dataReset: true,
             dataChanged: false,
             sensorSlots,
-            runLength,
             isStartDisabled: false
         }, () => {
             this.setXZoomState(runLength);

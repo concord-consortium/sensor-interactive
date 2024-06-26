@@ -2,7 +2,6 @@ import { SensorSlot } from "../models/sensor-slot";
 import { Sensor } from "../models/sensor";
 import { matchSensorsToDataColumns } from "./app";
 import { SensorConfigColumnInfo } from "@concord-consortium/sensor-connector-interface";
-import { ISensorConfigurationColumnInfo } from "../models/sensor-configuration";
 
 function newColumn(column: Partial<SensorConfigColumnInfo>) {
     return {
@@ -74,12 +73,12 @@ describe("app", () => {
             matchSensorsToDataColumns(sensorSlots, columns);
 
             // Even though the first column has a matching unit to the first
-            // existing sensor, the second column is matched instead because 
+            // existing sensor, the second column is matched instead because
             // its column id is the same.
-            // TODO: It isn't obvious why the code behaves this way, so 
+            // TODO: It isn't obvious why the code behaves this way, so
             // we need to document why it does.
             // I believe in the case of the sensor-connector REST API which
-            // was modeled on the LabQuest sensor API, the column ids are 
+            // was modeled on the LabQuest sensor API, the column ids are
             // updated on every new collection.
             expect(sensorSlots[0].sensor).toMatchObject({
                 columnID: "901",
@@ -121,9 +120,9 @@ describe("app", () => {
 
             /**
              * Even though the first column has a matching unit to the first
-             * existing sensor, the second column is matched instead because 
+             * existing sensor, the second column is matched instead because
              * its sensor position is the same.
-             * {@link ISensorConfigurationColumnInfo.position} for more info.
+             * See: ISensorConfigurationColumnInfo.position for more info.
              */
             expect(sensorSlots[0].sensor).toMatchObject({
                 columnID: "901",
@@ -167,7 +166,7 @@ describe("app", () => {
 
             // The first column has a matching position, but the units don't
             // match. So the second column is matched to the first slot instead.
-            // Note: the columnID and sensorPosition are updated to be that of 
+            // Note: the columnID and sensorPosition are updated to be that of
             // the matched column
             expect(sensorSlots[0].sensor).toMatchObject({
                 columnID: "901",

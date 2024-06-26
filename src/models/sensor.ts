@@ -1,6 +1,5 @@
 import { ISensorDefinition } from "./sensor-definitions";
 import { Format } from "../utils/format";
-import { ISensorConfigurationColumnInfo } from "./sensor-configuration";
 
 let nextSensorId = 0;
 
@@ -9,7 +8,7 @@ export class Sensor {
     id:number;
     /**
      * This is copied from the `position` of the received dataColumn.
-     * {@link ISensorConfigurationColumnInfo.position} documents more about what
+     * see ISensorConfigurationColumnInfo.position documents more about what
      * this position represents.
      */
     sensorPosition?:number;
