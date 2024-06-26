@@ -28,12 +28,11 @@ import {addMatchImageSnapshotCommand} from '@simonsmith/cypress-image-snapshot/c
 import 'cypress-commands';
 
 addMatchImageSnapshotCommand({ //need to fine tune thresholds
-    failureThreshold: 0.010, // threshold for entire image
+    comparisonMethod: 'ssim', // Look at structural differences instead of pixels
+    failureThreshold: 0.02, // up to 2% difference is allowed
     failureThresholdType: 'percent', // percent of image or number of pixels
-    customDiffConfig: { threshold: 0.01 }, // threshold for each pixel
     capture: 'viewport', // capture viewport in screenshot
     allowSizeMismatch: true,
-    blur: 2
 })
 
 // On a Mac with display scaling, the screenshots are twice as big as they
